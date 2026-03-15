@@ -1,0 +1,174 @@
+import WidgetKit
+import SwiftUI
+
+// MARK: - Timeline Entry
+
+struct LiftWaveEntry: TimelineEntry {
+    let date: Date
+    let timerRunning: Bool
+    let timerRemaining: Int
+    let workoutActive: Bool
+    let workoutName: String
+    let elapsedSeconds: Int
+}
+
+// MARK: - Timeline Provider
+
+struct LiftWaveTimelineProvider: TimelineProvider {
+    func placeholder(in context: Context) -> LiftWaveEntry {
+        LiftWaveEntry(
+            date: .now,
+            timerRunning: false,
+            timerRemaining: 60,
+            workoutActive: false,
+            workoutName: "Entrenamiento",
+            elapsedSeconds: 0
+        )
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (LiftWaveEntry) -> Void) {
+        completion(placeholder(in: context))
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<LiftWaveEntry>) -> Void) {
+        let entry = placeholder(in: context)
+        let timeline = Timeline(entries: [entry], policy: .after(.now.addingTimeInterval(300)))
+        completion(timeline)
+    }
+}
+
+// MARK: - Colors
+
+private enum WidgetColors {
+    static let primary = Color(red: 108/255, green: 99/255, blue: 255/255)
+    static let accent  = Color(red: 0/255, green: 212/255, blue: 170/255)
+}
+
+// MARK: - Complication Views
+
+struct LiftWaveComplicationCircular: View {
+    let entry: LiftWaveEntry
+
+    var body: some View {
+        ZStack {
+            AccessoryWidgetBackground()
+
+            if entry.workoutActive {
+                Image(systemName: "figure.strengthtraining.traditional")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.white)
+            } else {
+                VStack(spacing: 0) {
+                    Image(systemName: "timer")
+                        .font(.system(size: 12, weight: .bold))
+                    Text(formatTime(entry.timerRemaining))
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                }
+            }
+        }
+    }
+
+    private func formatTime(_ seconds: Int) -> String {
+        let m = seconds / 60
+        let s = seconds % 60
+        return String(format: "%d:%02d", m, s)
+    }
+}
+
+struct LiftWaveComplicationRectangular: View {
+    let entry: LiftWaveEntry
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: entry.workoutActive
+                  ? "figure.strengthtraining.traditional"
+                  : "timer")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundColor(.cyan)
+
+            VStack(alignment: .leading, spacing: 1) {
+                if entry.workoutActive {
+                    Text(entry.workoutName.isEmpty ? "Entrenamiento" : entry.workoutName)
+                        .font(.system(size: 12, weight: .bold))
+                        .lineLimit(1)
+                    Text(formatTime(entry.elapsedSeconds))
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .foregroundColor(.secondary)
+                } else {
+                    Text("LiftWave")
+                        .font(.system(size: 12, weight: .bold))
+                    Text("Timer de descanso")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+    }
+
+    private func formatTime(_ seconds: Int) -> String {
+        let m = seconds / 60
+        let s = seconds % 60
+        return String(format: "%d:%02d", m, s)
+    }
+}
+
+struct LiftWaveComplicationCorner: View {
+    let entry: LiftWaveEntry
+
+    var body: some View {
+        Image(systemName: "figure.strengthtraining.traditional")
+            .font(.system(size: 20, weight: .bold))
+            .widgetLabel {
+                Text(entry.workoutActive ? "Entrenando" : "LiftWave")
+            }
+    }
+}
+
+// MARK: - Widget
+
+struct LiftWaveComplicationWidget: Widget {
+    let kind = "LiftWaveComplication"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: LiftWaveTimelineProvider()) { entry in
+            LiftWaveComplicationEntryView(entry: entry)
+        }
+        .configurationDisplayName("LiftWave")
+        .description("Timer de descanso y estado del entrenamiento.")
+        .supportedFamilies([
+            .accessoryCircular,
+            .accessoryRectangular,
+            .accessoryCorner,
+            .accessoryInline
+        ])
+    }
+}
+
+struct LiftWaveComplicationEntryView: View {
+    @Environment(\.widgetFamily) var family
+    let entry: LiftWaveEntry
+
+    var body: some View {
+        switch family {
+        case .accessoryCircular:
+            LiftWaveComplicationCircular(entry: entry)
+        case .accessoryRectangular:
+            LiftWaveComplicationRectangular(entry: entry)
+        case .accessoryCorner:
+            LiftWaveComplicationCorner(entry: entry)
+        case .accessoryInline:
+            Text(entry.workoutActive
+                 ? "Entrenando \(formatTime(entry.elapsedSeconds))"
+                 : "LiftWave")
+        default:
+            Text("LiftWave")
+        }
+    }
+
+    private func formatTime(_ seconds: Int) -> String {
+        let m = seconds / 60
+        let s = seconds % 60
+        return String(format: "%d:%02d", m, s)
+    }
+}

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "133055660088",
+    "firebase_url": "https://liftwave-6d1fe-default-rtdb.firebaseio.com",
+    "project_id": "liftwave-6d1fe",
+    "storage_bucket": "liftwave-6d1fe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:133055660088:android:fca92f8bd772785e02a6cd",
+        "android_client_info": {
+          "package_name": "com.liftwave.liftwave"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCd6ve_ZDd8NcFyDIAFqTg-ECh6tAdv3ag"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

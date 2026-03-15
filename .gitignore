@@ -1,0 +1,45 @@
+# Flutter
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# macOS
+.DS_Store
+*.swp
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/app.framework
+ios/Flutter/ephemeral/
+ios/Runner.xcworkspace/xcuserdata/
+ios/Runner.xcodeproj/xcuserdata/
+ios/Runner.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+
+# Xcode DerivedData
+DerivedData/
+
+# Secrets / keys
+*.env
+*.jks
+*.keystore
+
+# Pub
+.pub-cache/
+.pub/

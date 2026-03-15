@@ -1,0 +1,25 @@
+[debug] [2026-03-12T01:35:31.915Z] ----------------------------------------------------------------------
+[debug] [2026-03-12T01:35:31.917Z] Command:       /Users/jonathanolivera/.local/share/fnm/node-versions/v24.14.0/installation/bin/node /Users/jonathanolivera/.local/state/fnm_multishells/4594_1773264621565/bin/firebase apps:create ios liftwave (macos) --bundle-id=com.liftwave.liftwave --project=liftwave-6d1fe
+[debug] [2026-03-12T01:35:31.917Z] CLI Version:   15.9.1
+[debug] [2026-03-12T01:35:31.917Z] Platform:      darwin
+[debug] [2026-03-12T01:35:31.917Z] Node Version:  v24.14.0
+[debug] [2026-03-12T01:35:31.917Z] Time:          Wed Mar 11 2026 22:35:31 GMT-0300 (Uruguay Standard Time)
+[debug] [2026-03-12T01:35:31.917Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-03-12T01:35:31.999Z] Object "" in "firebase.json" has unknown property: {"additionalProperty":"flutter"}
+[debug] [2026-03-12T01:35:32.000Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-03-12T01:35:32.000Z] > authorizing via signed-in user (jonaolivera23@gmail.com)
+[info] Create your IOS app in project liftwave-6d1fe:
+[debug] [2026-03-12T01:35:32.001Z] Checked if tokens are valid: true, expires at: 1773282782088
+[debug] [2026-03-12T01:35:32.001Z] Checked if tokens are valid: true, expires at: 1773282782088
+[debug] [2026-03-12T01:35:32.002Z] >>> [apiv2][query] POST https://firebase.googleapis.com/v1beta1/projects/liftwave-6d1fe/iosApps [none]
+[debug] [2026-03-12T01:35:32.002Z] >>> [apiv2][body] POST https://firebase.googleapis.com/v1beta1/projects/liftwave-6d1fe/iosApps {"displayName":"liftwave (macos)","bundleId":"com.liftwave.liftwave"}
+[debug] [2026-03-12T01:35:32.626Z] <<< [apiv2][status] POST https://firebase.googleapis.com/v1beta1/projects/liftwave-6d1fe/iosApps 409
+[debug] [2026-03-12T01:35:32.626Z] <<< [apiv2][body] POST https://firebase.googleapis.com/v1beta1/projects/liftwave-6d1fe/iosApps {"error":{"code":409,"message":"Requested entity already exists","status":"ALREADY_EXISTS"}}
+[debug] [2026-03-12T01:35:32.627Z] Request to https://firebase.googleapis.com/v1beta1/projects/liftwave-6d1fe/iosApps had HTTP Error: 409, Requested entity already exists
+[debug] [2026-03-12T01:35:32.719Z] FirebaseError: Request to https://firebase.googleapis.com/v1beta1/projects/liftwave-6d1fe/iosApps had HTTP Error: 409, Requested entity already exists
+    at responseToError (/Users/jonathanolivera/.local/share/fnm/node-versions/v24.14.0/installation/lib/node_modules/firebase-tools/lib/responseToError.js:53:12)
+    at RetryOperation._fn (/Users/jonathanolivera/.local/share/fnm/node-versions/v24.14.0/installation/lib/node_modules/firebase-tools/lib/apiv2.js:333:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[error] 
+[error] Error: Failed to create iOS app for project liftwave-6d1fe. See firebase-debug.log for more info.
