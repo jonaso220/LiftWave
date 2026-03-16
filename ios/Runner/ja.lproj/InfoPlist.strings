@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "LiftWaveは進捗写真を撮影するためにカメラへのアクセスが必要です。";
+"NSPhotoLibraryUsageDescription" = "LiftWaveは進捗写真を追加するために写真へのアクセスが必要です。";
+"NSPhotoLibraryAddUsageDescription" = "LiftWaveは進捗写真をギャラリーに保存します。";
+"CFBundleDisplayName" = "LiftWave";

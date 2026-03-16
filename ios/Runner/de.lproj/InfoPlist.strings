@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "LiftWave benötigt Kamerazugriff, um Fortschrittsfotos aufzunehmen.";
+"NSPhotoLibraryUsageDescription" = "LiftWave benötigt Zugriff auf deine Fotos, um Fortschrittsfotos hinzuzufügen.";
+"NSPhotoLibraryAddUsageDescription" = "LiftWave speichert deine Fortschrittsfotos in der Galerie.";
+"CFBundleDisplayName" = "LiftWave";
