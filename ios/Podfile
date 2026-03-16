@@ -41,3 +41,17 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
   end
 end
+
+# Workaround for CocoaPods not supporting fileSystemSynchronizedGroups (Xcode 16+)
+def fix_file_system_synchronized_groups(project_path)
+  project_file = File.join(project_path, 'project.pbxproj')
+  content = File.read(project_file)
+  if content.include?('fileSystemSynchronizedGroups')
+    content.gsub!(/\s*fileSystemSynchronizedGroups = \(\s*[^)]*\);\s*\n/, "\n")
+    File.write(project_file, content)
+  end
+end
+
+pre_install do |installer|
+  fix_file_system_synchronized_groups('Runner.xcodeproj')
+end
