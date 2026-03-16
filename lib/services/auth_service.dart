@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -110,25 +111,25 @@ class AuthService {
 
   // ── Error message helper ──────────────────────────────────────────────────
 
-  /// Returns a user-friendly Spanish message for FirebaseAuthException codes.
-  static String errorMessage(String code) {
+  /// Returns a user-friendly localized message for FirebaseAuthException codes.
+  static String errorMessage(String code, S l10n) {
     switch (code) {
       case 'user-not-found':
-        return 'No existe una cuenta con ese correo.';
+        return l10n.authError_userNotFound;
       case 'wrong-password':
-        return 'Contraseña incorrecta.';
+        return l10n.authError_wrongPassword;
       case 'email-already-in-use':
-        return 'Este correo ya está registrado.';
+        return l10n.authError_emailAlreadyInUse;
       case 'weak-password':
-        return 'La contraseña es muy débil (mínimo 6 caracteres).';
+        return l10n.authError_weakPassword;
       case 'invalid-email':
-        return 'El correo no es válido.';
+        return l10n.authError_invalidEmail;
       case 'too-many-requests':
-        return 'Demasiados intentos. Espera unos minutos.';
+        return l10n.authError_tooManyRequests;
       case 'network-request-failed':
-        return 'Sin conexión a internet.';
+        return l10n.authError_networkFailed;
       default:
-        return 'Error al iniciar sesión. Inténtalo de nuevo.';
+        return l10n.authError_default;
     }
   }
 

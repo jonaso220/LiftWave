@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import '../../models/models.dart';
 
@@ -8,12 +9,14 @@ class WorkoutDetailScreen extends StatelessWidget {
 
   const WorkoutDetailScreen({super.key, required this.workout});
 
-  String _formatDate(DateTime date) {
-    const months = [
-      'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+  String _formatDate(DateTime date, BuildContext context) {
+    final months = [
+      S.of(context).detail_monthJan, S.of(context).detail_monthFeb, S.of(context).detail_monthMar,
+      S.of(context).detail_monthApr, S.of(context).detail_monthMay, S.of(context).detail_monthJun,
+      S.of(context).detail_monthJul, S.of(context).detail_monthAug, S.of(context).detail_monthSep,
+      S.of(context).detail_monthOct, S.of(context).detail_monthNov, S.of(context).detail_monthDec,
     ];
-    return '${date.day} de ${months[date.month - 1]} de ${date.year}';
+    return S.of(context).detail_dateFormat(date.day, months[date.month - 1], date.year);
   }
 
   @override
@@ -63,7 +66,7 @@ class WorkoutDetailScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          _formatDate(workout.date),
+                          _formatDate(workout.date, context),
                           style: const TextStyle(
                               color: Colors.white70, fontSize: 13),
                         ),
@@ -84,7 +87,7 @@ class WorkoutDetailScreen extends StatelessWidget {
                       .animate()
                       .fadeIn(duration: 300.ms),
                   const SizedBox(height: 24),
-                  Text('Ejercicios realizados',
+                  Text(S.of(context).history_exercisesPerformed,
                       style: Theme.of(context).textTheme.headlineSmall),
                   const SizedBox(height: 12),
                   ...workout.exercises.asMap().entries.map(
@@ -114,7 +117,7 @@ class WorkoutDetailScreen extends StatelessWidget {
           child: _DetailStatCard(
             icon: Icons.timer_rounded,
             value: '${workout.duration.inMinutes} min',
-            label: 'Duración',
+            label: S.of(context).common_duration,
             color: AppColors.accent,
           ),
         ),
@@ -123,7 +126,7 @@ class WorkoutDetailScreen extends StatelessWidget {
           child: _DetailStatCard(
             icon: Icons.fitness_center_rounded,
             value: '${workout.exercises.length}',
-            label: 'Ejercicios',
+            label: S.of(context).common_exercises,
             color: AppColors.primary,
           ),
         ),
@@ -132,7 +135,7 @@ class WorkoutDetailScreen extends StatelessWidget {
           child: _DetailStatCard(
             icon: Icons.bar_chart_rounded,
             value: '${workout.totalVolume} kg',
-            label: 'Volumen',
+            label: S.of(context).common_volume,
             color: AppColors.accentOrange,
           ),
         ),
@@ -257,7 +260,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${exercise.sets.length} series',
+                  S.of(context).history_setsCount(exercise.sets.length),
                   style: const TextStyle(
                       color: AppColors.textMuted, fontSize: 12),
                 ),
@@ -286,36 +289,36 @@ class _ExerciseDetailCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             child: Row(
-              children: const [
+              children: [
                 Expanded(
                     flex: 1,
-                    child: Text('Serie',
+                    child: Text(S.of(context).history_setHeader,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 11,
                             fontWeight: FontWeight.w600))),
                 Expanded(
                     flex: 2,
-                    child: Text('Reps',
+                    child: Text(S.of(context).common_reps,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 11,
                             fontWeight: FontWeight.w600))),
                 Expanded(
                     flex: 2,
-                    child: Text('Peso',
+                    child: Text(S.of(context).common_weight,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 11,
                             fontWeight: FontWeight.w600))),
                 Expanded(
                     flex: 2,
-                    child: Text('Volumen',
+                    child: Text(S.of(context).common_volume,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 11,
                             fontWeight: FontWeight.w600))),
@@ -367,7 +370,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                     child: Text(
                       set.weight > 0
                           ? '${set.weight.toStringAsFixed(0)} kg'
-                          : 'Corporal',
+                          : S.of(context).common_bodyweight,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                           color: AppColors.textPrimary,

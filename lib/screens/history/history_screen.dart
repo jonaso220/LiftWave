@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import '../../data/workout_store.dart';
 import '../../models/models.dart';
@@ -74,14 +75,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            title: const Text('Historial'),
+            title: Text(S.of(context).history_title),
             floating: true,
             actions: [
               if (WorkoutStore.instance.workouts.isNotEmpty)
                 IconButton(
-                  onPressed: () => CsvExporter.exportAndShare(),
+                  onPressed: () => CsvExporter.exportAndShare(S.of(context)),
                   icon: const Icon(Icons.ios_share_rounded, size: 20),
-                  tooltip: 'Exportar CSV',
+                  tooltip: S.of(context).history_exportCsv,
                 ),
             ],
           ),
@@ -106,7 +107,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
               child: Text(
-                allWorkouts.isEmpty ? '' : 'Todos los entrenamientos',
+                allWorkouts.isEmpty ? '' : S.of(context).history_allWorkouts,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
             ),
@@ -125,17 +126,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       const Icon(Icons.history_rounded,
                           color: AppColors.textMuted, size: 56),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Sin entrenamientos aún',
-                        style: TextStyle(
+                      Text(
+                        S.of(context).history_noWorkoutsYet,
+                        style: const TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 17,
                             fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        'Completa tu primer entrenamiento en la pestaña Entrenar y aparecerá aquí.',
-                        style: TextStyle(
+                      Text(
+                        S.of(context).history_noWorkoutsSubtitle,
+                        style: const TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 13,
                             height: 1.5),
@@ -198,9 +199,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Historial limitado',
-                                  style: TextStyle(
+                                Text(
+                                  S.of(context).history_limitedHistory,
+                                  style: const TextStyle(
                                     color: AppColors.textPrimary,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
@@ -208,7 +209,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  'Desbloquea tus ${allWorkouts.length} entrenamientos con PRO',
+                                  S.of(context).history_unlockWorkouts(allWorkouts.length),
                                   style: const TextStyle(
                                     color: AppColors.textMuted,
                                     fontSize: 12,
@@ -262,7 +263,7 @@ class _WeekSummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Resumen semanal',
+          Text(S.of(context).history_weeklySummary,
               style: Theme.of(context)
                   .textTheme
                   .titleLarge
@@ -272,19 +273,19 @@ class _WeekSummaryCard extends StatelessWidget {
             children: [
               _SummaryItem(
                   value: '$workoutCount',
-                  label: 'Entrenos',
+                  label: S.of(context).history_workouts,
                   icon: Icons.fitness_center_rounded,
                   color: AppColors.primary),
               _divider(),
               _SummaryItem(
                   value: workoutCount == 0 ? '0m' : totalDuration,
-                  label: 'Total',
+                  label: S.of(context).history_total,
                   icon: Icons.timer_rounded,
                   color: AppColors.accent),
               _divider(),
               _SummaryItem(
                   value: workoutCount == 0 ? '0' : totalVolume,
-                  label: 'Volumen kg',
+                  label: S.of(context).history_volumeKg,
                   icon: Icons.bar_chart_rounded,
                   color: AppColors.accentOrange),
             ],
@@ -346,7 +347,7 @@ class _DayStreak extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const days = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+    final days = [S.of(context).history_dayMon, S.of(context).history_dayTue, S.of(context).history_dayWed, S.of(context).history_dayThu, S.of(context).history_dayFri, S.of(context).history_daySat, S.of(context).history_daySun];
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: List.generate(7, (i) {
@@ -404,14 +405,14 @@ class _WorkoutHistoryCard extends StatelessWidget {
 
   const _WorkoutHistoryCard({required this.workout});
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, BuildContext context) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final d = DateTime(date.year, date.month, date.day);
     final diff = today.difference(d).inDays;
-    if (diff == 0) return 'Hoy';
-    if (diff == 1) return 'Ayer';
-    if (diff < 7) return 'Hace $diff días';
+    if (diff == 0) return S.of(context).common_today;
+    if (diff == 1) return S.of(context).common_yesterday;
+    if (diff < 7) return S.of(context).common_daysAgo(diff);
     return '${date.day}/${date.month}/${date.year}';
   }
 
@@ -467,7 +468,7 @@ class _WorkoutHistoryCard extends StatelessWidget {
                           style: Theme.of(context).textTheme.titleLarge),
                       const SizedBox(height: 2),
                       Text(
-                        '${_formatDate(workout.date)} · ${_formatDuration(workout.duration)}',
+                        '${_formatDate(workout.date, context)} · ${_formatDuration(workout.duration)}',
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
@@ -481,14 +482,14 @@ class _WorkoutHistoryCard extends StatelessWidget {
             Row(
               children: [
                 _HistStat(
-                    label: 'Ejercicios',
+                    label: S.of(context).common_exercises,
                     value: '${workout.exercises.length}'),
                 const SizedBox(width: 12),
                 _HistStat(
-                    label: 'Series', value: '${workout.totalSets}'),
+                    label: S.of(context).common_sets, value: '${workout.totalSets}'),
                 const SizedBox(width: 12),
                 _HistStat(
-                    label: 'Volumen', value: '${workout.totalVolume} kg'),
+                    label: S.of(context).common_volume, value: '${workout.totalVolume} kg'),
               ],
             ),
             if (muscleTags.isNotEmpty) ...[

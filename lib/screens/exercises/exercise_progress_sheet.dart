@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/workout_store.dart';
 import '../../theme/app_theme.dart';
 
@@ -86,14 +87,14 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
               child: Row(
                 children: [
                   _ToggleChip(
-                    label: 'Peso máx.',
+                    label: S.of(context).progress_maxWeight,
                     selected: !_showVolume,
                     color: AppColors.accent,
                     onTap: () => setState(() => _showVolume = false),
                   ),
                   const SizedBox(width: 8),
                   _ToggleChip(
-                    label: 'Volumen',
+                    label: S.of(context).progress_volumeLabel,
                     selected: _showVolume,
                     color: AppColors.accentOrange,
                     onTap: () => setState(() => _showVolume = true),
@@ -115,8 +116,8 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
                             const SizedBox(height: 12),
                             Text(
                               data.isEmpty
-                                  ? 'Sin datos para este ejercicio'
-                                  : 'Se necesitan al menos 2 sesiones para ver el progreso',
+                                  ? S.of(context).progress_noData
+                                  : S.of(context).progress_needMoreSessions,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                   color: AppColors.textMuted, fontSize: 13),
@@ -178,7 +179,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
       children: [
         Expanded(
           child: _StatBox(
-            label: _showVolume ? 'Último volumen' : 'Último peso',
+            label: _showVolume ? S.of(context).progress_lastVolume : S.of(context).progress_lastWeight,
             value:
                 '${current == current.roundToDouble() ? current.toStringAsFixed(0) : current.toStringAsFixed(1)} kg',
             color: _showVolume ? AppColors.accentOrange : AppColors.accent,
@@ -187,7 +188,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
         const SizedBox(width: 10),
         Expanded(
           child: _StatBox(
-            label: 'Mejor',
+            label: S.of(context).progress_best,
             value:
                 '${best == best.roundToDouble() ? best.toStringAsFixed(0) : best.toStringAsFixed(1)} kg',
             color: AppColors.accentYellow,
@@ -196,7 +197,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
         const SizedBox(width: 10),
         Expanded(
           child: _StatBox(
-            label: 'Progreso',
+            label: S.of(context).progress_progressLabel,
             value:
                 '${diff >= 0 ? '+' : ''}${pct.toStringAsFixed(0)}%',
             color: diff >= 0 ? AppColors.accent : AppColors.error,
@@ -211,8 +212,8 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Historial',
-            style: TextStyle(
+        Text(S.of(context).progress_historyTitle,
+            style: const TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w700)),

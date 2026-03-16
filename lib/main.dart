@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'data/achievement_store.dart';
@@ -45,6 +47,8 @@ class LiftWaveApp extends StatelessWidget {
       title: 'LiftWave',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
+      localizationsDelegates: S.localizationsDelegates,
+      supportedLocales: S.supportedLocales,
       // Auth state drives which screen is shown
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 import '../../services/subscription_service.dart';
@@ -39,7 +40,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('No se pudo completar la compra.'),
+            content: Text(S.of(context).paywall_purchaseError),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
             shape:
@@ -62,7 +63,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('No se encontraron compras previas.'),
+          content: Text(S.of(context).paywall_noPurchasesFound),
           backgroundColor: AppColors.textMuted,
           behavior: SnackBarBehavior.floating,
           shape:
@@ -187,9 +188,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Desbloquea todo tu potencial',
-          style: TextStyle(
+        Text(
+          S.of(context).paywall_subtitle,
+          style: const TextStyle(
             color: AppColors.textSecondary,
             fontSize: 15,
           ),
@@ -201,13 +202,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
   // ── Features ────────────────────────────────────────────────────────────────
 
   Widget _buildFeatures() {
-    const features = [
-      ('Plantillas de entrenamiento', Icons.fitness_center_rounded),
-      ('Historial ilimitado', Icons.history_rounded),
-      ('Timer personalizado', Icons.timer_rounded),
-      ('Detalles de ejercicios', Icons.menu_book_rounded),
-      ('Medidas corporales + fotos', Icons.straighten_rounded),
-      ('Estadísticas semanales', Icons.bar_chart_rounded),
+    final features = [
+      (S.of(context).paywall_featureTemplates, Icons.fitness_center_rounded),
+      (S.of(context).paywall_featureHistory, Icons.history_rounded),
+      (S.of(context).paywall_featureTimer, Icons.timer_rounded),
+      (S.of(context).paywall_featureDetails, Icons.menu_book_rounded),
+      (S.of(context).paywall_featureMeasures, Icons.straighten_rounded),
+      (S.of(context).paywall_featureStats, Icons.bar_chart_rounded),
     ];
 
     return Container(
@@ -220,9 +221,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Todo incluido',
-            style: TextStyle(
+          Text(
+            S.of(context).paywall_allIncluded,
+            style: const TextStyle(
               color: AppColors.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -266,9 +267,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   Widget _buildPricingCards() {
     final plans = <_PlanInfo>[
-      _PlanInfo('Semanal', '\$1.99', '/semana', null),
-      _PlanInfo('Mensual', '\$4.99', '/mes', null),
-      _PlanInfo('Anual', '\$29.99', '/año', 'Mejor valor'),
+      _PlanInfo(S.of(context).paywall_weekly, '\$1.99', S.of(context).paywall_perWeek, null),
+      _PlanInfo(S.of(context).paywall_monthly, '\$4.99', S.of(context).paywall_perMonth, null),
+      _PlanInfo(S.of(context).paywall_yearly, '\$29.99', S.of(context).paywall_perYear, S.of(context).paywall_bestValue),
     ];
 
     // If real offerings are available, use those prices
@@ -379,15 +380,15 @@ class _PaywallScreenState extends State<PaywallScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.accent.withAlpha(40)),
       ),
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.card_giftcard_rounded,
+          const Icon(Icons.card_giftcard_rounded,
               color: AppColors.accent, size: 18),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(
-            '7 días de prueba gratis',
-            style: TextStyle(
+            S.of(context).paywall_freeTrial,
+            style: const TextStyle(
               color: AppColors.accent,
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -433,9 +434,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         color: Colors.white,
                       ),
                     )
-                  : const Text(
-                      'Comenzar prueba gratis',
-                      style: TextStyle(
+                  : Text(
+                      S.of(context).paywall_startTrial,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -456,9 +457,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
       children: [
         GestureDetector(
           onTap: _loading ? null : _restore,
-          child: const Text(
-            'Restaurar compras',
-            style: TextStyle(
+          child: Text(
+            S.of(context).paywall_restorePurchases,
+            style: const TextStyle(
               color: AppColors.textMuted,
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -468,10 +469,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        const Text(
-          'La suscripción se renueva automáticamente. Puedes cancelar\nen cualquier momento desde la App Store.',
+        Text(
+          S.of(context).paywall_legalText,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             color: AppColors.textMuted,
             fontSize: 10,
             height: 1.5,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/custom_exercise_store.dart';
 import '../../data/mock_data.dart';
 import '../../models/models.dart';
@@ -43,7 +44,7 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
     return Scaffold(
       backgroundColor: AppColors.bgDark,
       appBar: AppBar(
-        title: const Text('Seleccionar ejercicio'),
+        title: Text(S.of(context).picker_title),
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
           onPressed: () => Navigator.pop(context),
@@ -58,7 +59,7 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
               onChanged: (v) => setState(() => _query = v),
               style: const TextStyle(color: AppColors.textPrimary),
               decoration: InputDecoration(
-                hintText: 'Buscar ejercicio...',
+                hintText: S.of(context).picker_searchHint,
                 prefixIcon: const Icon(Icons.search_rounded,
                     color: AppColors.textMuted, size: 20),
                 suffixIcon: _query.isNotEmpty
@@ -122,15 +123,15 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Crear ejercicio manual',
+                  Text(S.of(context).picker_createManual,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                             color: AppColors.primary,
                           )),
                   const SizedBox(height: 3),
-                  const Text('Nombre, grupo muscular y equipo',
+                  Text(S.of(context).picker_createManualSubtitle,
                       style:
-                          TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                          const TextStyle(color: AppColors.textMuted, fontSize: 11)),
                 ],
               ),
             ),
@@ -259,8 +260,8 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text('Crear ejercicio',
-                  style: TextStyle(
+              Text(S.of(context).picker_createTitle,
+                  style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -268,8 +269,8 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
               const SizedBox(height: 16),
 
               // Name
-              const Text('Nombre',
-                  style: TextStyle(
+              Text(S.of(context).picker_nameLabel,
+                  style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600)),
@@ -280,7 +281,7 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
                 style: const TextStyle(color: AppColors.textPrimary),
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
-                  hintText: 'Ej: Curl martillo',
+                  hintText: S.of(context).picker_nameHint,
                   filled: true,
                   fillColor: AppColors.bgCardLight,
                   border: OutlineInputBorder(
@@ -295,8 +296,8 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
               const SizedBox(height: 16),
 
               // Muscle group
-              const Text('Grupo muscular',
-                  style: TextStyle(
+              Text(S.of(context).picker_muscleGroupLabel,
+                  style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600)),
@@ -330,8 +331,8 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
               const SizedBox(height: 16),
 
               // Equipment
-              const Text('Equipamiento',
-                  style: TextStyle(
+              Text(S.of(context).picker_equipmentLabel,
+                  style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600)),
@@ -378,7 +379,7 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
                     textStyle: const TextStyle(
                         fontSize: 15, fontWeight: FontWeight.w700),
                   ),
-                  child: const Text('Añadir ejercicio'),
+                  child: Text(S.of(context).picker_addExercise),
                 ),
               ),
             ],

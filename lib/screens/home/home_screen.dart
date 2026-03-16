@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import '../../data/achievement_store.dart';
 import '../../data/mock_data.dart';
@@ -55,14 +56,23 @@ class _HomeScreenState extends State<HomeScreen> {
       ? null
       : WorkoutStore.instance.workouts.first;
 
-  String _greeting() {
+  String _greeting(S l10n) {
     final h = DateTime.now().hour;
     final user = FirebaseAuth.instance.currentUser;
     final name = user?.displayName?.split(' ').first ?? '';
-    final suffix = name.isNotEmpty ? ', $name!' : '!';
-    if (h < 12) return '¡Buenos días$suffix';
-    if (h < 19) return '¡Buenas tardes$suffix';
-    return '¡Buenas noches$suffix';
+    if (h < 12) {
+      return name.isNotEmpty
+          ? l10n.home_greetingMorning(name)
+          : l10n.home_greetingMorningNoName;
+    }
+    if (h < 19) {
+      return name.isNotEmpty
+          ? l10n.home_greetingAfternoon(name)
+          : l10n.home_greetingAfternoonNoName;
+    }
+    return name.isNotEmpty
+        ? l10n.home_greetingEvening(name)
+        : l10n.home_greetingEveningNoName;
   }
 
   Widget _buildProfileAvatar() {
@@ -111,6 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showProfileMenu(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
+    final l10n = S.of(context);
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.bgCard,
@@ -166,13 +177,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: Text(
                   SubscriptionService.instance.isPro
                       ? 'LiftWave PRO'
-                      : 'Plan gratuito',
+                      : l10n.profile_freePlan,
                   style: const TextStyle(color: AppColors.textPrimary),
                 ),
                 subtitle: Text(
                   SubscriptionService.instance.isPro
-                      ? 'Suscripción activa'
-                      : 'Actualizar a PRO',
+                      ? l10n.profile_proActive
+                      : l10n.profile_upgradePro,
                   style: const TextStyle(
                       color: AppColors.textMuted, fontSize: 12),
                 ),
@@ -191,8 +202,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ListTile(
                 leading: const Icon(Icons.card_giftcard_rounded,
                     color: AppColors.textSecondary),
-                title: const Text('Canjear código',
-                    style: TextStyle(color: AppColors.textPrimary)),
+                title: Text(l10n.profile_redeemCode,
+                    style: const TextStyle(color: AppColors.textPrimary)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _showRedeemCodeDialog(context);
@@ -202,8 +213,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ListTile(
                 leading: const Icon(Icons.restore_rounded,
                     color: AppColors.textSecondary),
-                title: const Text('Restaurar compras',
-                    style: TextStyle(color: AppColors.textPrimary)),
+                title: Text(l10n.profile_restorePurchases,
+                    style: const TextStyle(color: AppColors.textPrimary)),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final restored =
@@ -211,8 +222,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text(restored
-                          ? 'Compras restauradas correctamente'
-                          : 'No se encontraron compras previas'),
+                          ? l10n.profile_purchasesRestored
+                          : l10n.profile_noPurchasesFound),
                       backgroundColor:
                           restored ? AppColors.accent : AppColors.textMuted,
                       behavior: SnackBarBehavior.floating,
@@ -227,8 +238,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ListTile(
                 leading: const Icon(Icons.logout_rounded,
                     color: AppColors.textSecondary),
-                title: const Text('Cerrar sesión',
-                    style: TextStyle(color: AppColors.textPrimary)),
+                title: Text(l10n.profile_signOut,
+                    style: const TextStyle(color: AppColors.textPrimary)),
                 onTap: () async {
                   Navigator.pop(ctx);
                   await AuthService.instance.signOut();
@@ -238,8 +249,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ListTile(
                 leading: const Icon(Icons.delete_forever_rounded,
                     color: AppColors.error),
-                title: const Text('Eliminar cuenta',
-                    style: TextStyle(color: AppColors.error)),
+                title: Text(l10n.profile_deleteAccount,
+                    style: const TextStyle(color: AppColors.error)),
                 onTap: () {
                   Navigator.pop(ctx);
                   _confirmDeleteAccount(context);
@@ -254,19 +265,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _showRedeemCodeDialog(BuildContext context) {
     final controller = TextEditingController();
+    final l10n = S.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Canjear código',
-            style: TextStyle(color: AppColors.textPrimary)),
+        title: Text(l10n.profile_redeemTitle,
+            style: const TextStyle(color: AppColors.textPrimary)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Ingresa tu código promocional para desbloquear LiftWave PRO.',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            Text(
+              l10n.profile_redeemSubtitle,
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -275,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: const TextStyle(
                   color: AppColors.textPrimary, letterSpacing: 1.5),
               decoration: InputDecoration(
-                hintText: 'CÓDIGO',
+                hintText: l10n.profile_codeHint,
                 hintStyle: const TextStyle(color: AppColors.textMuted),
                 filled: true,
                 fillColor: AppColors.bgDark,
@@ -290,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text(l10n.common_cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -301,8 +313,8 @@ class _HomeScreenState extends State<HomeScreen> {
               if (!mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text(success
-                    ? 'LiftWave PRO activado'
-                    : 'Código inválido'),
+                    ? l10n.profile_proActivated
+                    : l10n.profile_invalidCode),
                 backgroundColor:
                     success ? AppColors.accent : AppColors.error,
                 behavior: SnackBarBehavior.floating,
@@ -311,8 +323,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ));
               if (success) setState(() {});
             },
-            child: const Text('Canjear',
-                style: TextStyle(color: AppColors.accent)),
+            child: Text(l10n.profile_redeem,
+                style: const TextStyle(color: AppColors.accent)),
           ),
         ],
       ),
@@ -320,21 +332,22 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _confirmDeleteAccount(BuildContext context) {
+    final l10n = S.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Eliminar cuenta',
-            style: TextStyle(color: AppColors.textPrimary)),
-        content: const Text(
-          '¿Estás seguro? Esta acción es irreversible y se eliminarán todos tus datos.',
-          style: TextStyle(color: AppColors.textSecondary),
+        title: Text(l10n.profile_deleteTitle,
+            style: const TextStyle(color: AppColors.textPrimary)),
+        content: Text(
+          l10n.profile_deleteConfirm,
+          style: const TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar'),
+            child: Text(l10n.common_cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -345,7 +358,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(AuthService.errorMessage(e.code)),
+                      content: Text(AuthService.errorMessage(e.code, S.of(context))),
                       backgroundColor: AppColors.error,
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(
@@ -357,8 +370,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text(
-                          'Para eliminar tu cuenta, cierra sesión, vuelve a iniciar y reintenta.'),
+                      content: Text(l10n.profile_deleteReauthError),
                       backgroundColor: AppColors.error,
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(
@@ -368,8 +380,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               }
             },
-            child: const Text('Eliminar',
-                style: TextStyle(color: AppColors.error)),
+            child: Text(l10n.common_delete,
+                style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -388,14 +400,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return '$kg';
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, S l10n) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final d = DateTime(date.year, date.month, date.day);
     final diff = today.difference(d).inDays;
-    if (diff == 0) return 'Hoy';
-    if (diff == 1) return 'Ayer';
-    if (diff < 7) return 'Hace $diff días';
+    if (diff == 0) return l10n.common_today;
+    if (diff == 1) return l10n.common_yesterday;
+    if (diff < 7) return l10n.common_daysAgo(diff);
     return '${date.day}/${date.month}/${date.year}';
   }
 
@@ -519,6 +531,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildGreetingCard(BuildContext context, int weekCount) {
+    final l10n = S.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -534,7 +547,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            _greeting(),
+            _greeting(l10n),
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
@@ -543,10 +556,10 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 6),
           Text(
             weekCount == 0
-                ? 'Aún no has entrenado esta semana. ¡Empieza hoy!'
+                ? l10n.home_weekMotivationZero
                 : weekCount == 1
-                    ? 'Llevas 1 entrenamiento esta semana. ¡Sigue así!'
-                    : 'Llevas $weekCount entrenamientos esta semana. ¡Sigue así!',
+                    ? l10n.home_weekMotivationOne
+                    : l10n.home_weekMotivationMany(weekCount),
             style: const TextStyle(color: Colors.white70, fontSize: 14),
           ),
           const SizedBox(height: 16),
@@ -559,15 +572,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.play_arrow_rounded,
+                  const Icon(Icons.play_arrow_rounded,
                       color: AppColors.primary, size: 18),
-                  SizedBox(width: 6),
+                  const SizedBox(width: 6),
                   Text(
-                    'Iniciar entrenamiento',
-                    style: TextStyle(
+                    l10n.home_startWorkout,
+                    style: const TextStyle(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
@@ -589,13 +602,14 @@ class _HomeScreenState extends State<HomeScreen> {
     required int weekVolume,
     required Duration weekDuration,
   }) {
+    final l10n = S.of(context);
     return Row(
       children: [
         Expanded(
           child: _StatCard(
             icon: Icons.fitness_center_rounded,
             value: '$weekCount',
-            label: 'Esta semana',
+            label: l10n.home_thisWeek,
             color: AppColors.primary,
             onTap: () => widget.onNavigate(2),
           ),
@@ -607,7 +621,7 @@ class _HomeScreenState extends State<HomeScreen> {
             value: weekCount == 0
                 ? '—'
                 : _formatDuration(weekDuration),
-            label: 'Tiempo semana',
+            label: l10n.home_weekTime,
             color: AppColors.accent,
             onTap: () => widget.onNavigate(2),
           ),
@@ -617,7 +631,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: _StatCard(
             icon: Icons.bar_chart_rounded,
             value: weekCount == 0 ? '—' : '${_formatVolume(weekVolume)} kg',
-            label: 'Volumen semana',
+            label: l10n.home_weekVolume,
             color: AppColors.accentOrange,
             onTap: () => widget.onNavigate(2),
           ),
@@ -627,25 +641,26 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildQuickActions(BuildContext context) {
+    final l10n = S.of(context);
     final actions = [
       _QuickAction(
           icon: Icons.fitness_center_rounded,
-          label: 'Entrenar',
+          label: l10n.nav_train,
           color: AppColors.primary,
           onTap: () => widget.onNavigate(1)),
       _QuickAction(
           icon: Icons.history_rounded,
-          label: 'Historial',
+          label: l10n.nav_history,
           color: AppColors.accent,
           onTap: () => widget.onNavigate(2)),
       _QuickAction(
           icon: Icons.timer_rounded,
-          label: 'Descanso',
+          label: l10n.nav_rest,
           color: AppColors.accentOrange,
           onTap: () => widget.onNavigate(3)),
       _QuickAction(
           icon: Icons.menu_book_rounded,
-          label: 'Ejercicios',
+          label: l10n.nav_exercises,
           color: AppColors.accentYellow,
           onTap: () => widget.onNavigate(4)),
     ];
@@ -653,7 +668,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Acceso rápido',
+        Text(l10n.home_quickAccess,
             style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 12),
         Row(
@@ -696,18 +711,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildLastWorkoutCard(BuildContext context, Workout? workout) {
+    final l10n = S.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Último entrenamiento',
+            Text(l10n.home_lastWorkout,
                 style: Theme.of(context).textTheme.headlineSmall),
             GestureDetector(
               onTap: () => widget.onNavigate(2),
-              child: const Text('Ver todo',
-                  style: TextStyle(
+              child: Text(l10n.home_viewAll,
+                  style: const TextStyle(
                       color: AppColors.primary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600)),
@@ -731,17 +747,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   const Icon(Icons.fitness_center_rounded,
                       color: AppColors.textMuted, size: 32),
                   const SizedBox(height: 10),
-                  const Text(
-                    'Aún sin entrenamientos',
-                    style: TextStyle(
+                  Text(
+                    l10n.home_noWorkoutsYet,
+                    style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 15,
                         fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Completa tu primer entrenamiento y aparecerá aquí.',
-                    style: TextStyle(
+                  Text(
+                    l10n.home_noWorkoutsSubtitle,
+                    style: const TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 12,
                         height: 1.4),
@@ -755,9 +771,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: AppColors.primary.withAlpha(25),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Text(
-                      'Ir a Entrenar →',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.home_goToTrain,
+                      style: const TextStyle(
                           color: AppColors.primary,
                           fontSize: 13,
                           fontWeight: FontWeight.w600),
@@ -801,7 +817,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Theme.of(context).textTheme.titleLarge),
                             const SizedBox(height: 2),
                             Text(
-                              '${_formatDate(workout.date)} · ${_formatDuration(workout.duration)}',
+                              '${_formatDate(workout.date, l10n)} · ${_formatDuration(workout.duration)}',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -817,13 +833,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     children: [
                       _WorkoutStat(
-                          label: 'Ejercicios',
+                          label: l10n.common_exercises,
                           value: '${workout.exercises.length}'),
                       _WorkoutStat(
-                          label: 'Series',
+                          label: l10n.common_sets,
                           value: '${workout.totalSets}'),
                       _WorkoutStat(
-                          label: 'Volumen',
+                          label: l10n.common_volume,
                           value: '${_formatVolume(workout.totalVolume)} kg'),
                     ],
                   ),
@@ -836,6 +852,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildProgressCard(BuildContext context) {
+    final l10n = S.of(context);
     final latest = ProgressStore.instance.latest;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -843,7 +860,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Progreso',
+            Text(l10n.home_progress,
                 style: Theme.of(context).textTheme.headlineSmall),
             GestureDetector(
               onTap: () => Navigator.push(
@@ -851,8 +868,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 MaterialPageRoute(
                     builder: (_) => const ProgressScreen()),
               ),
-              child: const Text('Ver todo',
-                  style: TextStyle(
+              child: Text(l10n.home_viewAll,
+                  style: const TextStyle(
                       color: AppColors.primary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600)),
@@ -885,18 +902,18 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: AppColors.accent, size: 22),
                       ),
                       const SizedBox(width: 14),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Sin registros aún',
-                                style: TextStyle(
+                            Text(l10n.home_noRecordsYet,
+                                style: const TextStyle(
                                     color: AppColors.textPrimary,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600)),
-                            SizedBox(height: 3),
-                            Text('Registra tu peso y medidas',
-                                style: TextStyle(
+                            const SizedBox(height: 3),
+                            Text(l10n.home_recordWeightMeasures,
+                                style: const TextStyle(
                                     color: AppColors.textMuted,
                                     fontSize: 12)),
                           ],
@@ -925,8 +942,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Último registro',
-                                    style: TextStyle(
+                                Text(l10n.home_latestRecord,
+                                    style: const TextStyle(
                                         color: AppColors.textPrimary,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600)),
@@ -951,25 +968,25 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           if (latest.weight != null)
                             _ProgressStat(
-                                label: 'Peso',
+                                label: l10n.common_weight,
                                 value:
                                     '${latest.weight!.toStringAsFixed(1)} kg',
                                 color: AppColors.accent),
                           if (latest.waist != null)
                             _ProgressStat(
-                                label: 'Cintura',
+                                label: l10n.home_waist,
                                 value:
                                     '${latest.waist!.toStringAsFixed(1)} cm',
                                 color: AppColors.primary),
                           if (latest.chest != null)
                             _ProgressStat(
-                                label: 'Pecho',
+                                label: l10n.muscle_chest,
                                 value:
                                     '${latest.chest!.toStringAsFixed(1)} cm',
                                 color: AppColors.accentOrange),
                           if (latest.hips != null)
                             _ProgressStat(
-                                label: 'Cadera',
+                                label: l10n.home_hips,
                                 value:
                                     '${latest.hips!.toStringAsFixed(1)} cm',
                                 color: AppColors.accentYellow),
@@ -984,7 +1001,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildAchievements(BuildContext context) {
-    final achievements = AchievementStore.instance.all;
+    final l10n = S.of(context);
+    final achievements = AchievementStore.instance.getAll(l10n);
     final unlockedCount = AchievementStore.instance.unlockedCount;
 
     return Column(
@@ -992,7 +1010,7 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Row(
           children: [
-            Text('Logros',
+            Text(l10n.home_achievements,
                 style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(width: 8),
             Container(
@@ -1068,6 +1086,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildRecentExercises(BuildContext context) {
+    final l10n = S.of(context);
     final recent = mockExercises.take(3).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1075,12 +1094,12 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Biblioteca de ejercicios',
+            Text(l10n.home_exerciseLibrary,
                 style: Theme.of(context).textTheme.headlineSmall),
             GestureDetector(
               onTap: () => widget.onNavigate(4),
-              child: const Text('Ver todos',
-                  style: TextStyle(
+              child: Text(l10n.home_viewAllExercises,
+                  style: const TextStyle(
                       color: AppColors.primary,
                       fontSize: 13,
                       fontWeight: FontWeight.w600)),
@@ -1089,7 +1108,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          '${mockExercises.length} ejercicios disponibles',
+          l10n.home_exercisesAvailable(mockExercises.length),
           style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
         ),
         const SizedBox(height: 12),

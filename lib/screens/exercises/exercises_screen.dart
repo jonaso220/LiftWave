@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import '../../data/custom_exercise_store.dart';
 import '../../data/mock_data.dart';
@@ -42,24 +43,24 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
-        title: const Text('Eliminar ejercicio',
-            style: TextStyle(color: AppColors.textPrimary)),
+        title: Text(S.of(context).exercises_deleteTitle,
+            style: const TextStyle(color: AppColors.textPrimary)),
         content: Text(
-            '¿Eliminar "${ex.name}" de tu lista de ejercicios?',
+            S.of(context).exercises_deleteConfirm(ex.name),
             style: const TextStyle(color: AppColors.textSecondary)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar',
-                style: TextStyle(color: AppColors.primary)),
+            child: Text(S.of(context).common_cancel,
+                style: const TextStyle(color: AppColors.primary)),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               CustomExerciseStore.instance.remove(ex.id);
             },
-            child: const Text('Eliminar',
-                style: TextStyle(color: AppColors.error)),
+            child: Text(S.of(context).common_delete,
+                style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -88,8 +89,8 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          const SliverAppBar(
-            title: Text('Ejercicios'),
+          SliverAppBar(
+            title: Text(S.of(context).exercises_title),
             floating: true,
           ),
           SliverToBoxAdapter(
@@ -113,7 +114,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                   Row(
                     children: [
                       Text(
-                        '${filtered.length} ejercicio${filtered.length != 1 ? 's' : ''}',
+                        S.of(context).exercises_exerciseCount(filtered.length, filtered.length != 1 ? 's' : ''),
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium
@@ -132,8 +133,8 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                               _selectedEquipment = 'Todos';
                             });
                           },
-                          child: const Text('Limpiar filtros',
-                              style: TextStyle(
+                          child: Text(S.of(context).exercises_clearFilters,
+                              style: const TextStyle(
                                   color: AppColors.primary,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600)),
@@ -185,7 +186,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
       onChanged: (v) => setState(() => _searchQuery = v),
       style: const TextStyle(color: AppColors.textPrimary),
       decoration: InputDecoration(
-        hintText: 'Buscar ejercicios...',
+        hintText: S.of(context).exercises_searchHint,
         prefixIcon: const Icon(Icons.search_rounded,
             color: AppColors.textMuted, size: 20),
         suffixIcon: _searchQuery.isNotEmpty
@@ -206,8 +207,8 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Músculo',
-            style: TextStyle(
+        Text(S.of(context).exercises_muscleFilter,
+            style: const TextStyle(
                 color: AppColors.textMuted,
                 fontSize: 11,
                 fontWeight: FontWeight.w600)),
@@ -257,8 +258,8 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Material',
-            style: TextStyle(
+        Text(S.of(context).exercises_equipmentFilter,
+            style: const TextStyle(
                 color: AppColors.textMuted,
                 fontSize: 11,
                 fontWeight: FontWeight.w600)),
@@ -312,14 +313,14 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
           const Icon(Icons.search_off_rounded,
               color: AppColors.textMuted, size: 48),
           const SizedBox(height: 12),
-          const Text('Sin resultados',
-              style: TextStyle(
+          Text(S.of(context).exercises_noResults,
+              style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 16,
                   fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
           Text(
-            'Prueba con otros filtros o términos de búsqueda',
+            S.of(context).exercises_noResultsHint,
             style: Theme.of(context).textTheme.bodySmall,
             textAlign: TextAlign.center,
           ),
@@ -404,8 +405,8 @@ class _ExerciseCard extends StatelessWidget {
                             color: AppColors.primary.withAlpha(30),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text('CUSTOM',
-                              style: TextStyle(
+                          child: Text(S.of(context).common_custom,
+                              style: const TextStyle(
                                   color: AppColors.primary,
                                   fontSize: 9,
                                   fontWeight: FontWeight.w700)),
@@ -609,7 +610,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                   Expanded(
                     child: _InfoTile(
                         icon: Icons.category_rounded,
-                        label: 'Grupo muscular',
+                        label: S.of(context).exercises_muscleGroupLabel,
                         value: exercise.muscleGroup,
                         color: muscleColor),
                   ),
@@ -617,7 +618,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                   Expanded(
                     child: _InfoTile(
                         icon: Icons.build_rounded,
-                        label: 'Material',
+                        label: S.of(context).exercises_materialLabel,
                         value: exercise.equipment,
                         color: AppColors.accentOrange),
                   ),
@@ -626,7 +627,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
               const SizedBox(height: 20),
 
               // ── Descripción ──
-              _SectionTitle(title: 'Ejecución'),
+              _SectionTitle(title: S.of(context).exercises_executionTitle),
               const SizedBox(height: 10),
               Text(exercise.description,
                   style: Theme.of(context)
@@ -637,7 +638,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
 
               // ── Músculos secundarios ──
               if (exercise.secondaryMuscles.isNotEmpty) ...[
-                _SectionTitle(title: 'Músculos secundarios'),
+                _SectionTitle(title: S.of(context).exercises_secondaryMuscles),
                 const SizedBox(height: 10),
                 Wrap(
                   spacing: 8,
@@ -663,7 +664,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
 
               // ── Beneficios ──
               if (exercise.benefits.isNotEmpty) ...[
-                _SectionTitle(title: 'Beneficios'),
+                _SectionTitle(title: S.of(context).exercises_benefits),
                 const SizedBox(height: 10),
                 ...exercise.benefits.map((b) => Padding(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -708,7 +709,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                     );
                   },
                   icon: const Icon(Icons.show_chart_rounded, size: 18),
-                  label: const Text('Ver progreso'),
+                  label: Text(S.of(context).exercises_viewProgress),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.accent,
                     side: const BorderSide(color: AppColors.accent),
@@ -726,7 +727,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                 child: ElevatedButton.icon(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.add_rounded),
-                  label: const Text('Añadir al entrenamiento'),
+                  label: Text(S.of(context).exercises_addToWorkout),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,

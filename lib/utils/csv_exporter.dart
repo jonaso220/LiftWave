@@ -1,15 +1,16 @@
 import 'dart:io';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../data/workout_store.dart';
 
 class CsvExporter {
-  static Future<void> exportAndShare() async {
+  static Future<void> exportAndShare(S l10n) async {
     final workouts = WorkoutStore.instance.workouts;
     final buffer = StringBuffer();
 
     // Header
-    buffer.writeln('Fecha,Entrenamiento,Ejercicio,Grupo Muscular,Serie,Reps,Peso (kg),Volumen (kg)');
+    buffer.writeln(l10n.csv_header);
 
     for (final w in workouts) {
       final dateStr =
@@ -32,7 +33,7 @@ class CsvExporter {
     // Share
     await Share.shareXFiles(
       [XFile(file.path)],
-      subject: 'LiftWave - Historial de entrenamientos',
+      subject: l10n.csv_subject,
     );
   }
 

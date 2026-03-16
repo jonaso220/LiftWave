@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../data/progress_store.dart';
@@ -55,7 +56,7 @@ class _ProgressScreenState extends State<ProgressScreen>
       backgroundColor: AppColors.bgDark,
       appBar: AppBar(
         backgroundColor: AppColors.bgDark,
-        title: const Text('Progreso corporal'),
+        title: Text(S.of(context).progressScreen_title),
         actions: [
           IconButton(
             icon: Container(
@@ -78,9 +79,9 @@ class _ProgressScreenState extends State<ProgressScreen>
           unselectedLabelColor: AppColors.textMuted,
           indicatorColor: AppColors.primary,
           indicatorSize: TabBarIndicatorSize.label,
-          tabs: const [
-            Tab(text: 'Medidas'),
-            Tab(text: 'Fotos'),
+          tabs: [
+            Tab(text: S.of(context).progressScreen_measurements),
+            Tab(text: S.of(context).progressScreen_photos),
           ],
         ),
       ),
@@ -102,14 +103,28 @@ class _ProgressScreenState extends State<ProgressScreen>
 // ── Metrics enum ──────────────────────────────────────────────────────────────
 
 enum _Metric {
-  weight('Peso', 'kg'),
-  waist('Cintura', 'cm'),
-  chest('Pecho', 'cm'),
-  hips('Cadera', 'cm');
+  weight,
+  waist,
+  chest,
+  hips;
 
-  final String label;
-  final String unit;
-  const _Metric(this.label, this.unit);
+  String label(S l10n) {
+    switch (this) {
+      case _Metric.weight: return l10n.progressScreen_weight;
+      case _Metric.waist: return l10n.progressScreen_waist;
+      case _Metric.chest: return l10n.progressScreen_chest;
+      case _Metric.hips: return l10n.progressScreen_hips;
+    }
+  }
+
+  String get unit {
+    switch (this) {
+      case _Metric.weight: return 'kg';
+      case _Metric.waist: return 'cm';
+      case _Metric.chest: return 'cm';
+      case _Metric.hips: return 'cm';
+    }
+  }
 
   double? valueOf(BodyMeasurement m) {
     switch (this) {
@@ -195,7 +210,7 @@ class _MedidasTab extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    '${m.label} (${m.unit})',
+                    '${m.label(S.of(context))} (${m.unit})',
                     style: TextStyle(
                       color: selected
                           ? Colors.white
@@ -221,7 +236,7 @@ class _MedidasTab extends StatelessWidget {
         if (all.isEmpty)
           _EmptyState(onAdd: onAdd)
         else ...[
-          Text('Historial',
+          Text(S.of(context).progressScreen_historyTitle,
               style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 12),
           ...store.measurementsDesc.map(
@@ -249,7 +264,7 @@ class _SummaryRow extends StatelessWidget {
       child: Row(
         children: [
           _SummaryItem(
-            label: 'Peso',
+            label: S.of(context).progressScreen_weight,
             value: latest?.weight != null
                 ? '${latest!.weight!.toStringAsFixed(1)} kg'
                 : '—',
@@ -257,7 +272,7 @@ class _SummaryRow extends StatelessWidget {
           ),
           _vDivider(),
           _SummaryItem(
-            label: 'Cintura',
+            label: S.of(context).progressScreen_waist,
             value: latest?.waist != null
                 ? '${latest!.waist!.toStringAsFixed(1)} cm'
                 : '—',
@@ -265,7 +280,7 @@ class _SummaryRow extends StatelessWidget {
           ),
           _vDivider(),
           _SummaryItem(
-            label: 'Pecho',
+            label: S.of(context).progressScreen_chest,
             value: latest?.chest != null
                 ? '${latest!.chest!.toStringAsFixed(1)} cm'
                 : '—',
@@ -273,7 +288,7 @@ class _SummaryRow extends StatelessWidget {
           ),
           _vDivider(),
           _SummaryItem(
-            label: 'Cadera',
+            label: S.of(context).progressScreen_hips,
             value: latest?.hips != null
                 ? '${latest!.hips!.toStringAsFixed(1)} cm'
                 : '—',
@@ -359,7 +374,7 @@ class _ChartCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(metric.label,
+              Text(metric.label(S.of(context)),
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium
@@ -402,8 +417,8 @@ class _ChartCard extends StatelessWidget {
               child: Center(
                 child: Text(
                   dataPoints.isEmpty
-                      ? 'Sin datos para esta métrica'
-                      : 'Añade más registros para ver la gráfica',
+                      ? S.of(context).progressScreen_noDataMetric
+                      : S.of(context).progressScreen_addMoreRecords,
                   style: const TextStyle(
                       color: AppColors.textMuted, fontSize: 13),
                 ),
@@ -549,10 +564,14 @@ class _MeasurementTile extends StatelessWidget {
 
   const _MeasurementTile({required this.measurement});
 
-  String _fmtDate(DateTime d) {
-    const months = [
-      'ene', 'feb', 'mar', 'abr', 'may', 'jun',
-      'jul', 'ago', 'sep', 'oct', 'nov', 'dic'
+  String _fmtDate(DateTime d, S l10n) {
+    final months = [
+      l10n.progressScreen_monthShortJan, l10n.progressScreen_monthShortFeb,
+      l10n.progressScreen_monthShortMar, l10n.progressScreen_monthShortApr,
+      l10n.progressScreen_monthShortMay, l10n.progressScreen_monthShortJun,
+      l10n.progressScreen_monthShortJul, l10n.progressScreen_monthShortAug,
+      l10n.progressScreen_monthShortSep, l10n.progressScreen_monthShortOct,
+      l10n.progressScreen_monthShortNov, l10n.progressScreen_monthShortDec,
     ];
     return '${d.day} ${months[d.month - 1]} ${d.year}';
   }
@@ -589,13 +608,13 @@ class _MeasurementTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_fmtDate(m.date),
+                Text(_fmtDate(m.date, S.of(context)),
                     style: const TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 13,
                         fontWeight: FontWeight.w600)),
                 const SizedBox(height: 2),
-                const Text('registro',
+                Text(S.of(context).progressScreen_record,
                     style: TextStyle(
                         color: AppColors.textMuted, fontSize: 10)),
               ],
@@ -687,15 +706,15 @@ class _EmptyState extends StatelessWidget {
             const Icon(Icons.monitor_weight_outlined,
                 color: AppColors.textMuted, size: 52),
             const SizedBox(height: 14),
-            const Text('Sin registros aún',
-                style: TextStyle(
+            Text(S.of(context).progressScreen_noEntries,
+                style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 16,
                     fontWeight: FontWeight.w600)),
             const SizedBox(height: 6),
-            const Text(
-              'Registra tu primer peso y medidas\npara ver tu evolución.',
-              style: TextStyle(
+            Text(
+              S.of(context).progressScreen_noEntriesSubtitle,
+              style: const TextStyle(
                   color: AppColors.textMuted, fontSize: 13, height: 1.5),
               textAlign: TextAlign.center,
             ),
@@ -709,8 +728,8 @@ class _EmptyState extends StatelessWidget {
                   color: AppColors.primary.withAlpha(25),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text('Añadir primer registro',
-                    style: TextStyle(
+                child: Text(S.of(context).progressScreen_addFirstRecord,
+                    style: const TextStyle(
                         color: AppColors.primary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600)),
@@ -750,15 +769,15 @@ class _FotosTab extends StatelessWidget {
                     color: AppColors.primary, size: 36),
               ),
               const SizedBox(height: 20),
-              const Text('Fotos de progreso',
-                  style: TextStyle(
+              Text(S.of(context).progressScreen_progressPhotos,
+                  style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
-              const Text(
-                'Registra tu progreso visual con fotos.\nDisponible con LiftWave PRO.',
-                style: TextStyle(
+              Text(
+                S.of(context).progressScreen_progressPhotosHint,
+                style: const TextStyle(
                     color: AppColors.textMuted, fontSize: 13, height: 1.5),
                 textAlign: TextAlign.center,
               ),
@@ -772,14 +791,14 @@ class _FotosTab extends StatelessWidget {
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.workspace_premium_rounded,
+                      const Icon(Icons.workspace_premium_rounded,
                           color: Colors.white, size: 18),
-                      SizedBox(width: 8),
-                      Text('Desbloquear con PRO',
-                          style: TextStyle(
+                      const SizedBox(width: 8),
+                      Text(S.of(context).progressScreen_unlockWithPro,
+                          style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
                               fontSize: 14)),
@@ -805,15 +824,15 @@ class _FotosTab extends StatelessWidget {
               const Icon(Icons.photo_library_outlined,
                   color: AppColors.textMuted, size: 52),
               const SizedBox(height: 14),
-              const Text('Sin fotos aún',
-                  style: TextStyle(
+              Text(S.of(context).progressScreen_noPhotos,
+                  style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 16,
                       fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
-              const Text(
-                'Añade una foto al registrar tus medidas\npara ver tu progreso visual.',
-                style: TextStyle(
+              Text(
+                S.of(context).progressScreen_noPhotosSubtitle,
+                style: const TextStyle(
                     color: AppColors.textMuted, fontSize: 13, height: 1.5),
                 textAlign: TextAlign.center,
               ),
@@ -827,8 +846,8 @@ class _FotosTab extends StatelessWidget {
                     color: AppColors.primary.withAlpha(25),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text('Añadir foto',
-                      style: TextStyle(
+                  child: Text(S.of(context).progressScreen_addPhoto,
+                      style: const TextStyle(
                           color: AppColors.primary,
                           fontSize: 14,
                           fontWeight: FontWeight.w600)),
@@ -984,8 +1003,8 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
             ListTile(
               leading: const Icon(Icons.camera_alt_rounded,
                   color: AppColors.primary),
-              title: const Text('Cámara',
-                  style: TextStyle(color: AppColors.textPrimary)),
+              title: Text(S.of(context).progressScreen_camera,
+                  style: const TextStyle(color: AppColors.textPrimary)),
               onTap: () {
                 Navigator.pop(context);
                 _pickPhoto(ImageSource.camera);
@@ -994,8 +1013,8 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
             ListTile(
               leading: const Icon(Icons.photo_library_rounded,
                   color: AppColors.primary),
-              title: const Text('Galería',
-                  style: TextStyle(color: AppColors.textPrimary)),
+              title: Text(S.of(context).progressScreen_gallery,
+                  style: const TextStyle(color: AppColors.textPrimary)),
               onTap: () {
                 Navigator.pop(context);
                 _pickPhoto(ImageSource.gallery);
@@ -1035,8 +1054,8 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
 
     if (w == null && wa == null && ch == null && hi == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Introduce al menos un valor'),
+        SnackBar(
+            content: Text(S.of(context).progressScreen_enterAtLeastOneValue),
             backgroundColor: AppColors.error),
       );
       return;
@@ -1085,7 +1104,7 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
             ),
             const SizedBox(height: 16),
 
-            Text('Nuevo registro',
+            Text(S.of(context).progressScreen_newRecord,
                 style: Theme.of(context)
                     .textTheme
                     .titleLarge
@@ -1130,7 +1149,7 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                 Expanded(
                   child: _MeasureField(
                     controller: _weightCtrl,
-                    label: 'Peso',
+                    label: S.of(context).progressScreen_weight,
                     unit: 'kg',
                     color: _Metric.weight.color,
                   ),
@@ -1139,7 +1158,7 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                 Expanded(
                   child: _MeasureField(
                     controller: _waistCtrl,
-                    label: 'Cintura',
+                    label: S.of(context).progressScreen_waist,
                     unit: 'cm',
                     color: _Metric.waist.color,
                   ),
@@ -1152,7 +1171,7 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                 Expanded(
                   child: _MeasureField(
                     controller: _chestCtrl,
-                    label: 'Pecho',
+                    label: S.of(context).progressScreen_chest,
                     unit: 'cm',
                     color: _Metric.chest.color,
                   ),
@@ -1161,7 +1180,7 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                 Expanded(
                   child: _MeasureField(
                     controller: _hipsCtrl,
-                    label: 'Cadera',
+                    label: S.of(context).progressScreen_hips,
                     unit: 'cm',
                     color: _Metric.hips.color,
                   ),
@@ -1199,8 +1218,8 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                     const SizedBox(width: 10),
                     Text(
                       _photoPath != null
-                          ? 'Foto añadida'
-                          : 'Añadir foto (opcional)',
+                          ? S.of(context).progressScreen_photoAdded
+                          : S.of(context).progressScreen_addPhotoOptional,
                       style: TextStyle(
                         color: _photoPath != null
                             ? AppColors.accent
@@ -1240,8 +1259,8 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                         height: 20,
                         child: CircularProgressIndicator(
                             color: Colors.white, strokeWidth: 2))
-                    : const Text('Guardar registro',
-                        style: TextStyle(
+                    : Text(S.of(context).progressScreen_saveRecord,
+                        style: const TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w700)),
               ),
             ),

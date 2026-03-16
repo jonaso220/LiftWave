@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 
 enum AchievementType {
   firstWorkout,
@@ -18,7 +19,7 @@ class Achievement {
   final Color color;
   final DateTime? unlockedAt;
 
-  const Achievement({
+  Achievement({
     required this.type,
     required this.title,
     required this.description,
@@ -38,55 +39,55 @@ class Achievement {
         unlockedAt: date,
       );
 
-  static const List<Achievement> all = [
+  static List<Achievement> all(S l10n) => [
     Achievement(
       type: AchievementType.firstWorkout,
-      title: 'Primera sesión',
-      description: 'Completa tu primer entrenamiento',
+      title: l10n.achievement_firstWorkout_title,
+      description: l10n.achievement_firstWorkout_description,
       icon: Icons.star_rounded,
-      color: Color(0xFFFFD700),
+      color: const Color(0xFFFFD700),
     ),
     Achievement(
       type: AchievementType.streak7,
-      title: 'Racha de 7 días',
-      description: 'Entrena al menos 1 vez en 7 días consecutivos',
+      title: l10n.achievement_streak7_title,
+      description: l10n.achievement_streak7_description,
       icon: Icons.local_fire_department_rounded,
-      color: Color(0xFFFF6B35),
+      color: const Color(0xFFFF6B35),
     ),
     Achievement(
       type: AchievementType.streak30,
-      title: 'Racha de 30 días',
-      description: 'Entrena al menos 1 vez por semana durante 30 días',
+      title: l10n.achievement_streak30_title,
+      description: l10n.achievement_streak30_description,
       icon: Icons.whatshot_rounded,
-      color: Color(0xFFFF4444),
+      color: const Color(0xFFFF4444),
     ),
     Achievement(
       type: AchievementType.volume1000,
-      title: '1.000 kg levantados',
-      description: 'Acumula 1.000 kg de volumen total',
+      title: l10n.achievement_volume1000_title,
+      description: l10n.achievement_volume1000_description,
       icon: Icons.fitness_center_rounded,
-      color: Color(0xFF4ECDC4),
+      color: const Color(0xFF4ECDC4),
     ),
     Achievement(
       type: AchievementType.volume5000,
-      title: '5.000 kg levantados',
-      description: 'Acumula 5.000 kg de volumen total',
+      title: l10n.achievement_volume5000_title,
+      description: l10n.achievement_volume5000_description,
       icon: Icons.fitness_center_rounded,
-      color: Color(0xFF3B82F6),
+      color: const Color(0xFF3B82F6),
     ),
     Achievement(
       type: AchievementType.volume10000,
-      title: '10.000 kg levantados',
-      description: 'Acumula 10.000 kg de volumen total',
+      title: l10n.achievement_volume10000_title,
+      description: l10n.achievement_volume10000_description,
       icon: Icons.fitness_center_rounded,
-      color: Color(0xFF8B5CF6),
+      color: const Color(0xFF8B5CF6),
     ),
     Achievement(
       type: AchievementType.personalRecord,
-      title: 'Nuevo récord personal',
-      description: 'Supera tu peso máximo en un ejercicio',
+      title: l10n.achievement_personalRecord_title,
+      description: l10n.achievement_personalRecord_description,
       icon: Icons.emoji_events_rounded,
-      color: Color(0xFFF59E0B),
+      color: const Color(0xFFF59E0B),
     ),
   ];
 }

@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import 'package:liftwave/l10n/generated/app_localizations.dart';
+
 import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
 import 'email_auth_screen.dart';
@@ -27,9 +29,9 @@ class _LoginScreenState extends State<LoginScreen> {
       await AuthService.instance.signInWithGoogle();
       // Auth state stream in main.dart will navigate automatically
     } on FirebaseAuthException catch (e) {
-      _showError(AuthService.errorMessage(e.code));
+      if (mounted) _showError(AuthService.errorMessage(e.code, S.of(context)));
     } catch (_) {
-      _showError('No se pudo iniciar sesión con Google.');
+      if (mounted) _showError(S.of(context).login_googleError);
     } finally {
       if (mounted) setState(() => _loadingGoogle = false);
     }
@@ -42,9 +44,9 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await AuthService.instance.signInWithApple();
     } on FirebaseAuthException catch (e) {
-      _showError(AuthService.errorMessage(e.code));
+      if (mounted) _showError(AuthService.errorMessage(e.code, S.of(context)));
     } catch (_) {
-      _showError('No se pudo iniciar sesión con Apple.');
+      if (mounted) _showError(S.of(context).login_appleError);
     } finally {
       if (mounted) setState(() => _loadingApple = false);
     }
@@ -94,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // ── Social buttons ──────────────────────────────────────────
               _SocialButton(
-                label: 'Continuar con Google',
+                label: S.of(context).login_continueGoogle,
                 icon: _googleIcon(),
                 loading: _loadingGoogle,
                 backgroundColor: Colors.white,
@@ -109,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               if (Platform.isIOS) ...[
                 _SocialButton(
-                  label: 'Continuar con Apple',
+                  label: S.of(context).login_continueApple,
                   icon: const Icon(Icons.apple,
                       color: Colors.white, size: 22),
                   loading: _loadingApple,
@@ -133,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Divider(color: AppColors.bgCardLight)),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text('o',
+                      child: Text(S.of(context).common_or,
                           style: TextStyle(
                               color: AppColors.textMuted, fontSize: 14)),
                     ),
@@ -147,7 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // ── Email button ─────────────────────────────────────────────
               _SocialButton(
-                label: 'Continuar con correo',
+                label: S.of(context).login_continueEmail,
                 icon: const Icon(Icons.mail_outline_rounded,
                     color: AppColors.primary, size: 22),
                 backgroundColor: AppColors.bgCard,
@@ -163,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // ── Legal ────────────────────────────────────────────────────
               Text(
-                'Al continuar, aceptas nuestros términos de servicio\ny política de privacidad.',
+                S.of(context).login_legal,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppColors.textMuted,
@@ -220,8 +222,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
-          'Tu app de fitness personal',
+        Text(
+          S.of(context).login_tagline,
           style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 15,

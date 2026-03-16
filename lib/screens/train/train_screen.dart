@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/achievement_store.dart';
 import '../../data/custom_template_store.dart';
 import '../../models/achievement_models.dart';
@@ -45,9 +46,10 @@ class _TrainScreenState extends State<TrainScreen> {
   void _onTemplatesChanged() => setState(() {});
 
   void _syncWatch() {
+    final l10n = S.of(context);
     WatchService.instance.updateWorkoutState(
       active: _workoutStarted,
-      name: _workoutName ?? 'Entrenamiento libre',
+      name: _workoutName ?? l10n.train_freeWorkout,
       elapsedSeconds: _elapsedSeconds,
       exercises: _exercises
           .map((e) => {
@@ -112,20 +114,21 @@ class _TrainScreenState extends State<TrainScreen> {
   }
 
   void _cancelWorkout() {
+    final l10n = S.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
-        title: const Text('Cancelar entrenamiento',
-            style: TextStyle(color: AppColors.textPrimary)),
-        content: const Text(
-            '¿Seguro que quieres cancelar? Se perderá el progreso.',
-            style: TextStyle(color: AppColors.textSecondary)),
+        title: Text(l10n.train_cancelWorkout,
+            style: const TextStyle(color: AppColors.textPrimary)),
+        content: Text(
+            l10n.train_cancelConfirm,
+            style: const TextStyle(color: AppColors.textSecondary)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Seguir',
-                style: TextStyle(color: AppColors.primary)),
+            child: Text(l10n.train_continue,
+                style: const TextStyle(color: AppColors.primary)),
           ),
           TextButton(
             onPressed: () {
@@ -139,8 +142,8 @@ class _TrainScreenState extends State<TrainScreen> {
               });
               _syncWatch();
             },
-            child: const Text('Cancelar',
-                style: TextStyle(color: AppColors.error)),
+            child: Text(l10n.common_cancel,
+                style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -150,8 +153,8 @@ class _TrainScreenState extends State<TrainScreen> {
   void _finishWorkout() {
     if (_exercises.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Añade al menos un ejercicio antes de finalizar.'),
+        SnackBar(
+          content: Text(S.of(context).train_addExerciseFirst),
           backgroundColor: AppColors.bgCardLight,
         ),
       );
@@ -162,6 +165,7 @@ class _TrainScreenState extends State<TrainScreen> {
   }
 
   void _showSummaryDialog() {
+    final l10n = S.of(context);
     final totalSets = _exercises.fold(0, (s, e) => s + e.sets.length);
     final totalVolume = _exercises.fold(0, (s, e) => s + e.totalVolume);
     final completedSets = _exercises.fold(0, (s, e) => s + e.completedSets);
@@ -173,13 +177,13 @@ class _TrainScreenState extends State<TrainScreen> {
         backgroundColor: AppColors.bgCard,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.emoji_events_rounded,
+            const Icon(Icons.emoji_events_rounded,
                 color: AppColors.accentYellow, size: 24),
-            SizedBox(width: 8),
-            Text('¡Entrenamiento completado!',
-                style: TextStyle(
+            const SizedBox(width: 8),
+            Text(l10n.train_workoutCompleted,
+                style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w700)),
@@ -211,25 +215,25 @@ class _TrainScreenState extends State<TrainScreen> {
             const SizedBox(height: 4),
             _SummaryStat(
                 icon: Icons.timer_rounded,
-                label: 'Duración',
+                label: l10n.common_duration,
                 value: _formatTime(_elapsedSeconds),
                 color: AppColors.accent),
             const SizedBox(height: 8),
             _SummaryStat(
                 icon: Icons.fitness_center_rounded,
-                label: 'Ejercicios',
+                label: l10n.common_exercises,
                 value: '${_exercises.length}',
                 color: AppColors.primary),
             const SizedBox(height: 8),
             _SummaryStat(
                 icon: Icons.repeat_rounded,
-                label: 'Series completadas',
+                label: l10n.train_completedSets,
                 value: '$completedSets / $totalSets',
                 color: AppColors.accentOrange),
             const SizedBox(height: 8),
             _SummaryStat(
                 icon: Icons.bar_chart_rounded,
-                label: 'Volumen total',
+                label: l10n.train_totalVolume,
                 value: '$totalVolume kg',
                 color: AppColors.accentYellow),
           ],
@@ -242,7 +246,7 @@ class _TrainScreenState extends State<TrainScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () => _saveAsTemplate(ctx),
                   icon: const Icon(Icons.bookmark_add_rounded, size: 18),
-                  label: const Text('Guardar como rutina'),
+                  label: Text(l10n.train_saveAsRoutine),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.accentOrange,
                     side: const BorderSide(color: AppColors.accentOrange),
@@ -260,7 +264,7 @@ class _TrainScreenState extends State<TrainScreen> {
                   onPressed: () {
                     _saveWorkout();
                     final newAchievements =
-                        AchievementStore.instance.checkAfterWorkout();
+                        AchievementStore.instance.checkAfterWorkout(S.of(ctx));
                     Navigator.pop(ctx);
                     setState(() {
                       _workoutStarted = false;
@@ -280,8 +284,8 @@ class _TrainScreenState extends State<TrainScreen> {
                         borderRadius: BorderRadius.circular(12)),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
-                  child: const Text('Finalizar',
-                      style: TextStyle(fontWeight: FontWeight.w700)),
+                  child: Text(l10n.train_finish,
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
                 ),
               ),
             ],
@@ -292,9 +296,10 @@ class _TrainScreenState extends State<TrainScreen> {
   }
 
   void _saveWorkout() {
+    final l10n = S.of(context);
     final workout = Workout(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: _workoutName ?? 'Entrenamiento libre',
+      name: _workoutName ?? l10n.train_freeWorkout,
       date: DateTime.now(),
       duration: Duration(seconds: _elapsedSeconds),
       exercises: _exercises
@@ -321,19 +326,20 @@ class _TrainScreenState extends State<TrainScreen> {
   }
 
   void _showAchievementPopup(List<Achievement> achievements) {
+    final l10n = S.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
         shape:
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.celebration_rounded,
+            const Icon(Icons.celebration_rounded,
                 color: AppColors.accentYellow, size: 24),
-            SizedBox(width: 8),
-            Text('¡Nuevo logro!',
-                style: TextStyle(
+            const SizedBox(width: 8),
+            Text(l10n.train_newAchievement,
+                style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w700)),
@@ -389,8 +395,8 @@ class _TrainScreenState extends State<TrainScreen> {
                     borderRadius: BorderRadius.circular(12)),
                 padding: const EdgeInsets.symmetric(vertical: 12),
               ),
-              child: const Text('¡Genial!',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              child: Text(l10n.train_great,
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
             ),
           ),
         ],
@@ -399,14 +405,15 @@ class _TrainScreenState extends State<TrainScreen> {
   }
 
   void _saveAsTemplate(BuildContext dialogCtx) {
+    final l10n = S.of(context);
     final nameCtrl = TextEditingController(
-        text: _workoutName ?? 'Mi rutina');
+        text: _workoutName ?? l10n.train_defaultRoutineName);
     showDialog(
       context: dialogCtx,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
-        title: const Text('Guardar como rutina',
-            style: TextStyle(
+        title: Text(l10n.train_saveAsRoutine,
+            style: const TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w700)),
@@ -416,7 +423,7 @@ class _TrainScreenState extends State<TrainScreen> {
           style: const TextStyle(color: AppColors.textPrimary),
           textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
-            hintText: 'Nombre de la rutina',
+            hintText: l10n.train_routineNameHint,
             filled: true,
             fillColor: AppColors.bgCardLight,
             border: OutlineInputBorder(
@@ -430,8 +437,8 @@ class _TrainScreenState extends State<TrainScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar',
-                style: TextStyle(color: AppColors.textMuted)),
+            child: Text(l10n.common_cancel,
+                style: const TextStyle(color: AppColors.textMuted)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -456,7 +463,7 @@ class _TrainScreenState extends State<TrainScreen> {
               Navigator.pop(ctx);
               ScaffoldMessenger.of(dialogCtx).showSnackBar(
                 SnackBar(
-                  content: Text('Rutina "$name" guardada'),
+                  content: Text(l10n.train_routineSaved(name)),
                   backgroundColor: AppColors.bgCardLight,
                 ),
               );
@@ -467,8 +474,8 @@ class _TrainScreenState extends State<TrainScreen> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Guardar',
-                style: TextStyle(fontWeight: FontWeight.w700)),
+            child: Text(l10n.common_save,
+                style: const TextStyle(fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -587,27 +594,28 @@ class _TrainScreenState extends State<TrainScreen> {
   }
 
   void _confirmDeleteTemplate(CustomTemplate ct) {
+    final l10n = S.of(context);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
-        title: const Text('Eliminar rutina',
-            style: TextStyle(color: AppColors.textPrimary)),
-        content: Text('¿Eliminar "${ct.name}"?',
+        title: Text(l10n.train_deleteRoutine,
+            style: const TextStyle(color: AppColors.textPrimary)),
+        content: Text(l10n.train_deleteRoutineConfirm(ct.name),
             style: const TextStyle(color: AppColors.textSecondary)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar',
-                style: TextStyle(color: AppColors.textMuted)),
+            child: Text(l10n.common_cancel,
+                style: const TextStyle(color: AppColors.textMuted)),
           ),
           TextButton(
             onPressed: () {
               CustomTemplateStore.instance.remove(ct.id);
               Navigator.pop(ctx);
             },
-            child: const Text('Eliminar',
-                style: TextStyle(color: AppColors.error)),
+            child: Text(l10n.common_delete,
+                style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -624,9 +632,10 @@ class _TrainScreenState extends State<TrainScreen> {
   // ── Empty / pre-workout state ────────────────────────────────────────────
 
   Widget _buildEmptyState() {
+    final l10n = S.of(context);
     return CustomScrollView(
       slivers: [
-        const SliverAppBar(title: Text('Entrenar'), floating: true),
+        SliverAppBar(title: Text(l10n.train_title), floating: true),
 
         // Hero + free workout button
         SliverToBoxAdapter(
@@ -657,14 +666,14 @@ class _TrainScreenState extends State<TrainScreen> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  '¿Listo para entrenar?',
+                  l10n.train_readyTitle,
                   style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Inicia una sesión libre o elige una rutina preconfigurada.',
-                  style: TextStyle(
+                Text(
+                  l10n.train_readySubtitle,
+                  style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 14,
                       height: 1.5),
@@ -676,7 +685,7 @@ class _TrainScreenState extends State<TrainScreen> {
                   child: ElevatedButton.icon(
                     onPressed: () => _startWorkout(),
                     icon: const Icon(Icons.play_arrow_rounded),
-                    label: const Text('Sesión libre'),
+                    label: Text(l10n.train_freeSession),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
@@ -703,7 +712,7 @@ class _TrainScreenState extends State<TrainScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
-                    'O elige una rutina',
+                    l10n.train_orChooseRoutine,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppColors.textMuted,
                           fontWeight: FontWeight.w500,
@@ -721,7 +730,7 @@ class _TrainScreenState extends State<TrainScreen> {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
             sliver: SliverToBoxAdapter(
-              child: Text('Mis rutinas',
+              child: Text(l10n.train_myRoutines,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       )),
@@ -747,7 +756,7 @@ class _TrainScreenState extends State<TrainScreen> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-              child: Text('Rutinas predefinidas',
+              child: Text(l10n.train_predefinedRoutines,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       )),
@@ -810,6 +819,7 @@ class _TrainScreenState extends State<TrainScreen> {
   }
 
   Widget _buildHeader() {
+    final l10n = S.of(context);
     return SafeArea(
       bottom: false,
       child: Container(
@@ -869,8 +879,8 @@ class _TrainScreenState extends State<TrainScreen> {
                 ),
               )
             else ...[
-              const Text('En curso',
-                  style: TextStyle(
+              Text(l10n.train_inProgress,
+                  style: const TextStyle(
                       color: AppColors.accent,
                       fontWeight: FontWeight.w600,
                       fontSize: 13)),
@@ -898,8 +908,8 @@ class _TrainScreenState extends State<TrainScreen> {
                   foregroundColor: AppColors.error,
                   padding: const EdgeInsets.symmetric(
                       horizontal: 10, vertical: 4)),
-              child: const Text('Cancelar',
-                  style: TextStyle(
+              child: Text(l10n.common_cancel,
+                  style: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w600)),
             ),
           ],
@@ -909,6 +919,7 @@ class _TrainScreenState extends State<TrainScreen> {
   }
 
   Widget _buildNoExercisesHint() {
+    final l10n = S.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -918,21 +929,21 @@ class _TrainScreenState extends State<TrainScreen> {
             const Icon(Icons.add_box_outlined,
                 color: AppColors.textMuted, size: 48),
             const SizedBox(height: 12),
-            const Text('Sin ejercicios aún',
-                style: TextStyle(
+            Text(l10n.train_noExercisesYet,
+                style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 16,
                     fontWeight: FontWeight.w600)),
             const SizedBox(height: 6),
-            const Text(
-                'Toca el botón de abajo para añadir el primer ejercicio.',
-                style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+            Text(
+                l10n.train_addExerciseHint,
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
                 textAlign: TextAlign.center),
             const SizedBox(height: 24),
             OutlinedButton.icon(
               onPressed: _addExercise,
               icon: const Icon(Icons.add_rounded),
-              label: const Text('Añadir ejercicio'),
+              label: Text(l10n.train_addExercise),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.primary,
                 side: const BorderSide(color: AppColors.primary),
@@ -947,6 +958,7 @@ class _TrainScreenState extends State<TrainScreen> {
   }
 
   Widget _buildBottomBar() {
+    final l10n = S.of(context);
     return SafeArea(
       top: false,
       child: Container(
@@ -962,7 +974,7 @@ class _TrainScreenState extends State<TrainScreen> {
               child: OutlinedButton.icon(
                 onPressed: _addExercise,
                 icon: const Icon(Icons.add_rounded, size: 18),
-                label: const Text('Ejercicio'),
+                label: Text(l10n.train_exercise),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
                   side: const BorderSide(color: AppColors.primary),
@@ -979,7 +991,7 @@ class _TrainScreenState extends State<TrainScreen> {
               child: ElevatedButton.icon(
                 onPressed: _finishWorkout,
                 icon: const Icon(Icons.check_rounded, size: 18),
-                label: const Text('Finalizar'),
+                label: Text(l10n.train_finish),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.accent,
                   foregroundColor: Colors.white,
@@ -1008,6 +1020,7 @@ class _TemplateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context);
     final t = template;
     return GestureDetector(
       onTap: onTap,
@@ -1070,8 +1083,8 @@ class _TemplateCard extends StatelessWidget {
                         color: t.color,
                         fontSize: 20,
                         fontWeight: FontWeight.w800)),
-                const Text('ej.',
-                    style: TextStyle(
+                Text(l10n.train_abbreviationExercises,
+                    style: const TextStyle(
                         color: AppColors.textMuted, fontSize: 10)),
                 const SizedBox(height: 4),
                 const Icon(Icons.chevron_right_rounded,
@@ -1100,6 +1113,7 @@ class _CustomTemplateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context);
     final t = template;
     return GestureDetector(
       onTap: onTap,
@@ -1134,7 +1148,7 @@ class _CustomTemplateCard extends StatelessWidget {
                           fontSize: 15,
                           fontWeight: FontWeight.w700)),
                   const SizedBox(height: 2),
-                  Text('${t.exercises.length} ejercicios',
+                  Text(l10n.train_exerciseCount(t.exercises.length),
                       style: const TextStyle(
                           color: AppColors.textMuted, fontSize: 12)),
                   const SizedBox(height: 8),
@@ -1218,6 +1232,7 @@ class _TemplatePreviewSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context);
     final t = template;
     return DraggableScrollableSheet(
       initialChildSize: 0.75,
@@ -1285,7 +1300,7 @@ class _TemplatePreviewSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      '${t.exercises.length} ej.',
+                      '${t.exercises.length} ${l10n.train_abbreviationExercises}',
                       style: TextStyle(
                           color: t.color,
                           fontWeight: FontWeight.w700,
@@ -1304,7 +1319,7 @@ class _TemplatePreviewSheet extends StatelessWidget {
                 controller: scrollCtrl,
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
                 itemCount: t.exercises.length,
-                separatorBuilder: (_, _) =>
+                separatorBuilder: (_, __) =>
                     const SizedBox(height: 8),
                 itemBuilder: (_, i) => _PreviewExRow(
                   exercise: t.exercises[i],
@@ -1324,7 +1339,7 @@ class _TemplatePreviewSheet extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: onStart,
                     icon: const Icon(Icons.play_arrow_rounded),
-                    label: Text('Empezar ${t.name}'),
+                    label: Text(l10n.train_startTemplate(t.name)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: t.color,
                       foregroundColor: Colors.white,
@@ -1362,6 +1377,7 @@ class _CustomTemplatePreviewSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context);
     final t = template;
     return DraggableScrollableSheet(
       initialChildSize: 0.65,
@@ -1411,7 +1427,7 @@ class _CustomTemplatePreviewSheet extends StatelessWidget {
                                 color: AppColors.textPrimary,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w700)),
-                        Text('${t.exercises.length} ejercicios',
+                        Text(l10n.train_exerciseCount(t.exercises.length),
                             style: const TextStyle(
                                 color: AppColors.textMuted, fontSize: 13)),
                       ],
@@ -1431,7 +1447,7 @@ class _CustomTemplatePreviewSheet extends StatelessWidget {
                 controller: scrollCtrl,
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
                 itemCount: t.exercises.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 8),
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (_, i) => _PreviewExRow(
                   exercise: t.exercises[i],
                   index: i,
@@ -1447,7 +1463,7 @@ class _CustomTemplatePreviewSheet extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: onStart,
                     icon: const Icon(Icons.play_arrow_rounded),
-                    label: Text('Empezar ${t.name}'),
+                    label: Text(l10n.train_startTemplate(t.name)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.accentOrange,
                       foregroundColor: Colors.white,
@@ -1480,9 +1496,10 @@ class _PreviewExRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context);
     final ex = exercise;
     final weightStr =
-        ex.weight > 0 ? '${ex.weight.toInt()} kg' : 'Peso corporal';
+        ex.weight > 0 ? '${ex.weight.toInt()} kg' : l10n.train_bodyweightLabel;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -1587,6 +1604,7 @@ class _ExerciseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context);
     final color = _colorForMuscle(exercise.muscleGroup);
     final done = exercise.completedSets;
     final total = exercise.sets.length;
@@ -1636,7 +1654,7 @@ class _ExerciseCard extends StatelessWidget {
                           MuscleChip(label: exercise.muscleGroup),
                           const SizedBox(width: 6),
                           if (done > 0)
-                            Text('$done/$total series ✓',
+                            Text(l10n.train_setsProgress(done, total),
                                 style: const TextStyle(
                                     color: AppColors.accent,
                                     fontSize: 11,
@@ -1644,7 +1662,7 @@ class _ExerciseCard extends StatelessWidget {
                           if (done == 0 && lastW != null) ...[
                             const Spacer(),
                             Text(
-                                'Último: ${lastW == lastW.roundToDouble() ? lastW.toStringAsFixed(0) : lastW.toStringAsFixed(1)} kg',
+                                l10n.train_lastWeight(lastW == lastW.roundToDouble() ? lastW.toStringAsFixed(0) : lastW.toStringAsFixed(1)),
                                 style: const TextStyle(
                                     color: AppColors.textMuted,
                                     fontSize: 10)),
@@ -1669,29 +1687,29 @@ class _ExerciseCard extends StatelessWidget {
                     }
                   },
                   itemBuilder: (_) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'progress',
                       child: Row(
                         children: [
-                          Icon(Icons.show_chart_rounded,
+                          const Icon(Icons.show_chart_rounded,
                               color: AppColors.accent, size: 18),
-                          SizedBox(width: 8),
-                          Text('Ver progreso',
+                          const SizedBox(width: 8),
+                          Text(l10n.train_viewProgress,
                               style:
-                                  TextStyle(color: AppColors.textPrimary)),
+                                  const TextStyle(color: AppColors.textPrimary)),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete_outline_rounded,
+                          const Icon(Icons.delete_outline_rounded,
                               color: AppColors.error, size: 18),
-                          SizedBox(width: 8),
-                          Text('Eliminar ejercicio',
+                          const SizedBox(width: 8),
+                          Text(l10n.train_deleteExercise,
                               style:
-                                  TextStyle(color: AppColors.error)),
+                                  const TextStyle(color: AppColors.error)),
                         ],
                       ),
                     ),
@@ -1705,13 +1723,13 @@ class _ExerciseCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 0, 14, 6),
             child: TextField(
-              decoration: const InputDecoration(
-                hintText: 'Notas (opcional)',
-                hintStyle: TextStyle(
+              decoration: InputDecoration(
+                hintText: l10n.train_notesHint,
+                hintStyle: const TextStyle(
                     color: AppColors.textMuted, fontSize: 12),
                 isDense: true,
                 contentPadding:
-                    EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 border: InputBorder.none,
               ),
               style: const TextStyle(
@@ -1727,11 +1745,11 @@ class _ExerciseCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(
                 horizontal: 14, vertical: 4),
             child: Row(
-              children: const [
-                _ColHeader(label: 'SERIE', flex: 1),
-                _ColHeader(label: 'REPS', flex: 2),
-                _ColHeader(label: 'PESO (kg)', flex: 3),
-                _ColHeader(label: '', flex: 1),
+              children: [
+                _ColHeader(label: l10n.train_setHeader, flex: 1),
+                _ColHeader(label: l10n.train_repsHeader, flex: 2),
+                _ColHeader(label: l10n.train_weightHeader, flex: 3),
+                const _ColHeader(label: '', flex: 1),
               ],
             ),
           ),
@@ -1753,16 +1771,16 @@ class _ExerciseCard extends StatelessWidget {
             onTap: onAddSet,
             borderRadius: const BorderRadius.vertical(
                 bottom: Radius.circular(16)),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.add_rounded,
+                  const Icon(Icons.add_rounded,
                       color: AppColors.primary, size: 16),
-                  SizedBox(width: 4),
-                  Text('Añadir serie',
-                      style: TextStyle(
+                  const SizedBox(width: 4),
+                  Text(l10n.train_addSet,
+                      style: const TextStyle(
                           color: AppColors.primary,
                           fontSize: 13,
                           fontWeight: FontWeight.w600)),

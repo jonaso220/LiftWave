@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/train/train_screen.dart';
 import '../screens/history/history_screen.dart';
@@ -40,12 +41,12 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 
   Widget _buildNavBar() {
-    const items = [
-      _NavItem(icon: Icons.home_rounded, label: 'Inicio'),
-      _NavItem(icon: Icons.fitness_center_rounded, label: 'Entrenar'),
-      _NavItem(icon: Icons.history_rounded, label: 'Historial'),
-      _NavItem(icon: Icons.timer_rounded, label: 'Descanso'),
-      _NavItem(icon: Icons.menu_book_rounded, label: 'Ejercicios'),
+    final items = [
+      _NavItem(icon: Icons.home_rounded, label: S.of(context).nav_home),
+      _NavItem(icon: Icons.fitness_center_rounded, label: S.of(context).nav_train),
+      _NavItem(icon: Icons.history_rounded, label: S.of(context).nav_history),
+      _NavItem(icon: Icons.timer_rounded, label: S.of(context).nav_rest),
+      _NavItem(icon: Icons.menu_book_rounded, label: S.of(context).nav_exercises),
     ];
 
     return Container(

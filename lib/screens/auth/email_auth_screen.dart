@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 
 import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
@@ -55,9 +56,9 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
       // Auth stream in main.dart auto-navigates after success
       if (mounted) Navigator.of(context).popUntil((r) => r.isFirst);
     } on FirebaseAuthException catch (e) {
-      _showError(AuthService.errorMessage(e.code));
+      if (mounted) _showError(AuthService.errorMessage(e.code, S.of(context)));
     } catch (_) {
-      _showError('Error inesperado. Inténtalo de nuevo.');
+      if (mounted) _showError(S.of(context).emailAuth_unexpectedError);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -66,14 +67,14 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
   Future<void> _forgotPassword() async {
     final email = _emailCtrl.text.trim();
     if (email.isEmpty) {
-      _showError('Escribe tu correo primero.');
+      _showError(S.of(context).emailAuth_emailFirst);
       return;
     }
     try {
       await AuthService.instance.sendPasswordReset(email);
-      _showSuccess('Correo de recuperación enviado a $email');
+      _showSuccess(S.of(context).emailAuth_resetSent(email));
     } catch (_) {
-      _showError('No se pudo enviar el correo de recuperación.');
+      _showError(S.of(context).emailAuth_resetError);
     }
   }
 
@@ -112,7 +113,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _isRegister ? 'Crear cuenta' : 'Iniciar sesión',
+          _isRegister ? S.of(context).emailAuth_titleRegister : S.of(context).emailAuth_titleLogin,
           style: const TextStyle(
             color: AppColors.textPrimary,
             fontSize: 18,
@@ -132,7 +133,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
 
                 // ── Title ───────────────────────────────────────────────
                 Text(
-                  _isRegister ? '¡Bienvenido!' : 'Nos alegra verte',
+                  _isRegister ? S.of(context).emailAuth_greetingRegister : S.of(context).emailAuth_greetingLogin,
                   style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 26,
@@ -145,8 +146,8 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
 
                 Text(
                   _isRegister
-                      ? 'Crea tu cuenta para empezar'
-                      : 'Ingresa con tu correo y contraseña',
+                      ? S.of(context).emailAuth_subtitleRegister
+                      : S.of(context).emailAuth_subtitleLogin,
                   style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 14,
@@ -157,29 +158,29 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
 
                 // ── Name field (register only) ───────────────────────────
                 if (_isRegister) ...[
-                  _buildLabel('Nombre'),
+                  _buildLabel(S.of(context).emailAuth_nameLabel),
                   const SizedBox(height: 8),
                   _buildField(
                     controller: _nameCtrl,
-                    hint: 'Tu nombre',
+                    hint: S.of(context).emailAuth_nameHint,
                     icon: Icons.person_outline_rounded,
                     validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'Introduce tu nombre' : null,
+                        (v == null || v.trim().isEmpty) ? S.of(context).emailAuth_nameError : null,
                   ),
                   const SizedBox(height: 20),
                 ],
 
                 // ── Email field ──────────────────────────────────────────
-                _buildLabel('Correo electrónico'),
+                _buildLabel(S.of(context).emailAuth_emailLabel),
                 const SizedBox(height: 8),
                 _buildField(
                   controller: _emailCtrl,
-                  hint: 'correo@ejemplo.com',
+                  hint: S.of(context).emailAuth_emailHint,
                   icon: Icons.mail_outline_rounded,
                   keyboardType: TextInputType.emailAddress,
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Introduce tu correo';
-                    if (!v.contains('@')) return 'Correo no válido';
+                    if (v == null || v.trim().isEmpty) return S.of(context).emailAuth_emailErrorEmpty;
+                    if (!v.contains('@')) return S.of(context).emailAuth_emailErrorInvalid;
                     return null;
                   },
                 ),
@@ -187,11 +188,11 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                 const SizedBox(height: 20),
 
                 // ── Password field ───────────────────────────────────────
-                _buildLabel('Contraseña'),
+                _buildLabel(S.of(context).emailAuth_passwordLabel),
                 const SizedBox(height: 8),
                 _buildField(
                   controller: _passCtrl,
-                  hint: _isRegister ? 'Mínimo 6 caracteres' : 'Tu contraseña',
+                  hint: _isRegister ? S.of(context).emailAuth_passwordHintRegister : S.of(context).emailAuth_passwordHintLogin,
                   icon: Icons.lock_outline_rounded,
                   obscureText: _obscurePass,
                   suffixIcon: IconButton(
@@ -206,9 +207,9 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                         setState(() => _obscurePass = !_obscurePass),
                   ),
                   validator: (v) {
-                    if (v == null || v.isEmpty) return 'Introduce tu contraseña';
+                    if (v == null || v.isEmpty) return S.of(context).emailAuth_passwordErrorEmpty;
                     if (_isRegister && v.length < 6) {
-                      return 'Mínimo 6 caracteres';
+                      return S.of(context).emailAuth_passwordErrorShort;
                     }
                     return null;
                   },
@@ -221,8 +222,8 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                     alignment: Alignment.centerRight,
                     child: GestureDetector(
                       onTap: _forgotPassword,
-                      child: const Text(
-                        '¿Olvidaste tu contraseña?',
+                      child: Text(
+                        S.of(context).emailAuth_forgotPassword,
                         style: TextStyle(
                           color: AppColors.primary,
                           fontSize: 13,
@@ -259,7 +260,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                             ),
                           )
                         : Text(
-                            _isRegister ? 'Crear cuenta' : 'Iniciar sesión',
+                            _isRegister ? S.of(context).emailAuth_titleRegister : S.of(context).emailAuth_titleLogin,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -284,13 +285,13 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                         children: [
                           TextSpan(
                             text: _isRegister
-                                ? '¿Ya tienes cuenta? '
-                                : '¿No tienes cuenta? ',
+                                ? S.of(context).emailAuth_hasAccount
+                                : S.of(context).emailAuth_noAccount,
                             style: const TextStyle(
                                 color: AppColors.textSecondary),
                           ),
                           TextSpan(
-                            text: _isRegister ? 'Inicia sesión' : 'Regístrate',
+                            text: _isRegister ? S.of(context).emailAuth_loginLink : S.of(context).emailAuth_registerLink,
                             style: const TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,

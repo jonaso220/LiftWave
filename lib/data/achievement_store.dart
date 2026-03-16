@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/achievement_models.dart';
 import 'workout_store.dart';
@@ -11,13 +12,13 @@ class AchievementStore extends ChangeNotifier {
   static const _key = 'achievements_unlocked';
   final Map<AchievementType, DateTime> _unlocked = {};
 
-  List<Achievement> get all => Achievement.all.map((a) {
+  List<Achievement> getAll(S l10n) => Achievement.all(l10n).map((a) {
         final date = _unlocked[a.type];
         return date != null ? a.unlock(date) : a;
       }).toList();
 
-  List<Achievement> get unlocked =>
-      all.where((a) => a.isUnlocked).toList();
+  List<Achievement> getUnlocked(S l10n) =>
+      getAll(l10n).where((a) => a.isUnlocked).toList();
 
   int get unlockedCount => _unlocked.length;
 
@@ -48,16 +49,17 @@ class AchievementStore extends ChangeNotifier {
 
   /// Check all achievements after a workout is completed.
   /// Returns list of newly unlocked achievements.
-  List<Achievement> checkAfterWorkout() {
+  List<Achievement> checkAfterWorkout(S l10n) {
     final newlyUnlocked = <Achievement>[];
     final workouts = WorkoutStore.instance.workouts;
     final now = DateTime.now();
+    final achievements = Achievement.all(l10n);
 
     // First workout
     if (!_unlocked.containsKey(AchievementType.firstWorkout) &&
         workouts.isNotEmpty) {
       _unlocked[AchievementType.firstWorkout] = now;
-      newlyUnlocked.add(Achievement.all
+      newlyUnlocked.add(achievements
           .firstWhere((a) => a.type == AchievementType.firstWorkout)
           .unlock(now));
     }
@@ -68,21 +70,21 @@ class AchievementStore extends ChangeNotifier {
     if (!_unlocked.containsKey(AchievementType.volume1000) &&
         totalVolume >= 1000) {
       _unlocked[AchievementType.volume1000] = now;
-      newlyUnlocked.add(Achievement.all
+      newlyUnlocked.add(achievements
           .firstWhere((a) => a.type == AchievementType.volume1000)
           .unlock(now));
     }
     if (!_unlocked.containsKey(AchievementType.volume5000) &&
         totalVolume >= 5000) {
       _unlocked[AchievementType.volume5000] = now;
-      newlyUnlocked.add(Achievement.all
+      newlyUnlocked.add(achievements
           .firstWhere((a) => a.type == AchievementType.volume5000)
           .unlock(now));
     }
     if (!_unlocked.containsKey(AchievementType.volume10000) &&
         totalVolume >= 10000) {
       _unlocked[AchievementType.volume10000] = now;
-      newlyUnlocked.add(Achievement.all
+      newlyUnlocked.add(achievements
           .firstWhere((a) => a.type == AchievementType.volume10000)
           .unlock(now));
     }
@@ -91,7 +93,7 @@ class AchievementStore extends ChangeNotifier {
     if (!_unlocked.containsKey(AchievementType.streak7)) {
       if (_checkDayStreak(workouts, 7)) {
         _unlocked[AchievementType.streak7] = now;
-        newlyUnlocked.add(Achievement.all
+        newlyUnlocked.add(achievements
             .firstWhere((a) => a.type == AchievementType.streak7)
             .unlock(now));
       }
@@ -101,7 +103,7 @@ class AchievementStore extends ChangeNotifier {
     if (!_unlocked.containsKey(AchievementType.streak30)) {
       if (_checkWeeklyStreak(workouts, 4)) {
         _unlocked[AchievementType.streak30] = now;
-        newlyUnlocked.add(Achievement.all
+        newlyUnlocked.add(achievements
             .firstWhere((a) => a.type == AchievementType.streak30)
             .unlock(now));
       }
@@ -129,7 +131,7 @@ class AchievementStore extends ChangeNotifier {
         if (previousMax > 0 && maxWeightNow > previousMax) {
           if (!_unlocked.containsKey(AchievementType.personalRecord)) {
             _unlocked[AchievementType.personalRecord] = now;
-            newlyUnlocked.add(Achievement.all
+            newlyUnlocked.add(achievements
                 .firstWhere(
                     (a) => a.type == AchievementType.personalRecord)
                 .unlock(now));

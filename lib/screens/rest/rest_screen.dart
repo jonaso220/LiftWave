@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../services/watch_service.dart';
 import '../../theme/app_theme.dart';
@@ -189,7 +190,7 @@ class _RestScreenState extends State<RestScreen>
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          const SliverAppBar(title: Text('Descanso'), floating: true),
+          SliverAppBar(title: Text(S.of(context).rest_title), floating: true),
           SliverFillRemaining(
             hasScrollBody: false,
             child: Padding(
@@ -235,21 +236,21 @@ class _RestScreenState extends State<RestScreen>
     final IconData icon;
 
     if (_remaining == 0 && !_isRunning && _total > 0) {
-      label = '¡Listo! Hora de la siguiente serie';
+      label = S.of(context).rest_ready;
       color = AppColors.accent;
       icon = Icons.check_circle_rounded;
     } else if (_isRunning && _remaining <= 10) {
-      label = '¡Casi listo!';
+      label = S.of(context).rest_almostReady;
       color = AppColors.error;
       icon = Icons.warning_amber_rounded;
     } else if (_isRunning) {
-      label = 'Descansando...';
+      label = S.of(context).rest_resting;
       color = AppColors.accent;
       icon = Icons.self_improvement_rounded;
     } else {
       label = _isCustom
-          ? 'Tiempo personalizado · ${_presetLabel(_total)}'
-          : 'Elige un preajuste o personaliza';
+          ? S.of(context).rest_customTime(_presetLabel(_total))
+          : S.of(context).rest_choosePreset;
       color = AppColors.textMuted;
       icon = Icons.timer_rounded;
     }
@@ -296,7 +297,7 @@ class _RestScreenState extends State<RestScreen>
           ),
           const SizedBox(height: 4),
           Text(
-            'de ${_formatTime(_total)}',
+            S.of(context).rest_of(_formatTime(_total)),
             style: const TextStyle(
               color: AppColors.textMuted,
               fontSize: 13,
@@ -407,8 +408,8 @@ class _RestScreenState extends State<RestScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Preajustes',
-            style: TextStyle(
+        Text(S.of(context).rest_presets,
+            style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,
                 fontWeight: FontWeight.w600)),
@@ -426,7 +427,7 @@ class _RestScreenState extends State<RestScreen>
               );
             }),
             _PresetChip(
-              label: 'Personalizar',
+              label: S.of(context).rest_customize,
               isSelected: _isCustom,
               isCustom: true,
               isPro: true,
@@ -504,22 +505,22 @@ class _CustomTimeSheetState extends State<_CustomTimeSheet> {
           ),
         ),
         const SizedBox(height: 20),
-        const Text('Tiempo personalizado',
-            style: TextStyle(
+        Text(S.of(context).rest_customTimeTitle,
+            style: const TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 18,
                 fontWeight: FontWeight.w700)),
         const SizedBox(height: 6),
-        const Text('Introduce los minutos y segundos de descanso.',
+        Text(S.of(context).rest_customTimeSubtitle,
             style:
-                TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
         const SizedBox(height: 28),
         Row(
           children: [
             Expanded(
               child: _TimeField(
                 controller: _minsCtrl,
-                label: 'Minutos',
+                label: S.of(context).rest_minutes,
                 max: 99,
               ),
             ),
@@ -533,7 +534,7 @@ class _CustomTimeSheetState extends State<_CustomTimeSheet> {
             Expanded(
               child: _TimeField(
                 controller: _secsCtrl,
-                label: 'Segundos',
+                label: S.of(context).rest_seconds,
                 max: 59,
               ),
             ),
@@ -553,7 +554,7 @@ class _CustomTimeSheetState extends State<_CustomTimeSheet> {
               textStyle: const TextStyle(
                   fontSize: 15, fontWeight: FontWeight.w700),
             ),
-            child: const Text('Establecer tiempo'),
+            child: Text(S.of(context).rest_setTime),
           ),
         ),
       ],
