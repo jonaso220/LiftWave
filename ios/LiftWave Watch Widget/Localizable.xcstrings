@@ -1,0 +1,174 @@
+{
+  "sourceLanguage" : "es",
+  "strings" : {
+    "watch_rest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Descanso" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rest" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Descanso" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Pause" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "休憩" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "휴식" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Repos" } }
+      }
+    },
+    "watch_done" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "¡Listo!" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Done!" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Pronto!" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Fertig!" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "完了！" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "완료!" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Terminé !" } }
+      }
+    },
+    "watch_running" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "En curso" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Running" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Em andamento" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Läuft" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "実行中" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "진행 중" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En cours" } }
+      }
+    },
+    "watch_paused" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Pausado" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Paused" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Pausado" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Pausiert" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "一時停止" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "일시정지" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En pause" } }
+      }
+    },
+    "watch_workout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Entrenamiento" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Workout" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Treino" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Training" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ワークアウト" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "운동" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Entraînement" } }
+      }
+    },
+    "watch_noExercises" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sin ejercicios aún" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No exercises yet" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Sem exercícios ainda" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Noch keine Übungen" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "エクササイズなし" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "아직 운동 없음" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pas encore d'exercices" } }
+      }
+    },
+    "watch_sets" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "series" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "sets" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "séries" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Sätze" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "セット" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "세트" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "séries" } }
+      }
+    },
+    "watch_noWorkout" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No hay entrenamiento\nactivo" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "No active\nworkout" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Nenhum treino\nativo" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Kein aktives\nTraining" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アクティブな\nワークアウトなし" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "활성 운동\n없음" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pas d'entraînement\nen cours" } }
+      }
+    },
+    "watch_startOnIphone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Inicia uno en tu iPhone" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Start one on your iPhone" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Inicie um no seu iPhone" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Starte eins auf deinem iPhone" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "iPhoneで開始してください" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "iPhone에서 시작하세요" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Démarrez-en un sur votre iPhone" } }
+      }
+    },
+    "watch_training" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Entrenando" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Training" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Treinando" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Training" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "トレーニング中" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "운동 중" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "En cours" } }
+      }
+    },
+    "watch_resting" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Descansando" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Resting" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Descansando" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Pause" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "休憩中" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "휴식 중" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Repos" } }
+      }
+    },
+    "watch_ready" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Listo" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Ready" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Pronto" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Bereit" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "準備完了" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "준비 완료" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Prêt" } }
+      }
+    },
+    "watch_widgetDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Timer de descanso y estado del entrenamiento." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rest timer and workout status." } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Timer de descanso e status do treino." } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Pausentimer und Trainingsstatus." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "休憩タイマーとワークアウト状況。" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "휴식 타이머 및 운동 상태." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Minuteur de repos et état de l'entraînement." } }
+      }
+    },
+    "watch_restTimer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Timer de descanso" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rest timer" } },
+        "pt" : { "stringUnit" : { "state" : "translated", "value" : "Timer de descanso" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Pausentimer" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "休憩タイマー" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "휴식 타이머" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Minuteur de repos" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

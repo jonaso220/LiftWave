@@ -129,7 +129,7 @@ struct RestTimerView: View {
     var body: some View {
         VStack(spacing: 4) {
             // Title
-            Text("Descanso")
+            Text(String(localized: "watch_rest"))
                 .font(.system(size: 13, weight: .semibold))
                 .foregroundColor(LWColors.textMuted)
 
@@ -284,9 +284,9 @@ struct RestTimerView: View {
     }
 
     private var statusLabel: String {
-        if showCompletedAnimation { return "Listo!" }
-        if state.timerRunning { return "En curso" }
-        return "Pausado"
+        if showCompletedAnimation { return String(localized: "watch_done") }
+        if state.timerRunning { return String(localized: "watch_running") }
+        return String(localized: "watch_paused")
     }
 
     private func handleTimerTick(_ remaining: Int) {
@@ -370,7 +370,7 @@ struct WorkoutSummaryView: View {
                     HStack {
                         Image(systemName: "figure.strengthtraining.traditional")
                             .foregroundStyle(LWColors.primaryGradient)
-                        Text(state.workoutName.isEmpty ? "Entrenamiento" : state.workoutName)
+                        Text(state.workoutName.isEmpty ? String(localized: "watch_workout") : state.workoutName)
                             .font(.system(size: 14, weight: .bold))
                             .foregroundColor(.white)
                             .lineLimit(1)
@@ -391,7 +391,7 @@ struct WorkoutSummaryView: View {
 
                     // Exercise list
                     if state.exercises.isEmpty {
-                        Text("Sin ejercicios aún")
+                        Text(String(localized: "watch_noExercises"))
                             .font(.system(size: 12))
                             .foregroundColor(LWColors.textMuted)
                     } else {
@@ -405,7 +405,7 @@ struct WorkoutSummaryView: View {
                                         .font(.system(size: 12, weight: .semibold))
                                         .foregroundColor(.white)
                                         .lineLimit(1)
-                                    Text("\(exercise.completedSets)/\(exercise.totalSets) series")
+                                    Text("\(exercise.completedSets)/\(exercise.totalSets) \(String(localized: "watch_sets"))")
                                         .font(.system(size: 10))
                                         .foregroundColor(LWColors.textMuted)
                                 }
@@ -426,11 +426,11 @@ struct WorkoutSummaryView: View {
                 Image(systemName: "figure.strengthtraining.traditional")
                     .font(.system(size: 28))
                     .foregroundStyle(LWColors.primaryGradient)
-                Text("No hay entrenamiento\nactivo")
+                Text(String(localized: "watch_noWorkout"))
                     .font(.system(size: 13))
                     .foregroundColor(LWColors.textMuted)
                     .multilineTextAlignment(.center)
-                Text("Inicia uno en tu iPhone")
+                Text(String(localized: "watch_startOnIphone"))
                     .font(.system(size: 11))
                     .foregroundColor(LWColors.primary.opacity(0.6))
             }

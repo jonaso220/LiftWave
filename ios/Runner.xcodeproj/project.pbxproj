@@ -100,6 +100,7 @@
 		0CA1000000000000000000A3 /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
 		0CA1000000000000000000A4 /* WatchState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchState.swift; sourceTree = "<group>"; };
 		0CA1000000000000000000A5 /* LiftWaveComplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiftWaveComplication.swift; sourceTree = "<group>"; };
+		0CA1000000000000000000A6 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 
@@ -221,6 +222,7 @@
 				0CA1000000000000000000A3 /* WatchConnectivityService.swift */,
 				0CA1000000000000000000A4 /* WatchState.swift */,
 				0CA1000000000000000000A5 /* LiftWaveComplication.swift */,
+				0CA1000000000000000000A6 /* Localizable.xcstrings */,
 			);
 			path = "LiftWave Watch App Watch App";
 			sourceTree = "<group>";
@@ -337,6 +339,12 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				es,
+				pt,
+				de,
+				ja,
+				ko,
+				fr,
 				Base,
 			);
 			mainGroup = 97C146E51CF9000F007C117D;

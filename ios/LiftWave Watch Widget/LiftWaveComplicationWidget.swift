@@ -21,7 +21,7 @@ struct LiftWaveTimelineProvider: TimelineProvider {
             timerRunning: false,
             timerRemaining: 60,
             workoutActive: false,
-            workoutName: "Entrenamiento",
+            workoutName: String(localized: "watch_workout"),
             elapsedSeconds: 0
         )
     }
@@ -89,7 +89,7 @@ struct LiftWaveComplicationRectangular: View {
 
             VStack(alignment: .leading, spacing: 1) {
                 if entry.workoutActive {
-                    Text(entry.workoutName.isEmpty ? "Entrenamiento" : entry.workoutName)
+                    Text(entry.workoutName.isEmpty ? String(localized: "watch_workout") : entry.workoutName)
                         .font(.system(size: 12, weight: .bold))
                         .lineLimit(1)
                     Text(formatTime(entry.elapsedSeconds))
@@ -98,7 +98,7 @@ struct LiftWaveComplicationRectangular: View {
                 } else {
                     Text("LiftWave")
                         .font(.system(size: 12, weight: .bold))
-                    Text("Timer de descanso")
+                    Text(String(localized: "watch_restTimer"))
                         .font(.system(size: 11, weight: .medium))
                         .foregroundColor(.secondary)
                 }
@@ -120,7 +120,7 @@ struct LiftWaveComplicationCorner: View {
         Image(systemName: "figure.strengthtraining.traditional")
             .font(.system(size: 20, weight: .bold))
             .widgetLabel {
-                Text(entry.workoutActive ? "Entrenando" : "LiftWave")
+                Text(entry.workoutActive ? String(localized: "watch_training") : "LiftWave")
             }
     }
 }
@@ -135,7 +135,7 @@ struct LiftWaveComplicationWidget: Widget {
             LiftWaveComplicationEntryView(entry: entry)
         }
         .configurationDisplayName("LiftWave")
-        .description("Timer de descanso y estado del entrenamiento.")
+        .description(String(localized: "watch_widgetDescription"))
         .supportedFamilies([
             .accessoryCircular,
             .accessoryRectangular,
@@ -159,7 +159,7 @@ struct LiftWaveComplicationEntryView: View {
             LiftWaveComplicationCorner(entry: entry)
         case .accessoryInline:
             Text(entry.workoutActive
-                 ? "Entrenando \(formatTime(entry.elapsedSeconds))"
+                 ? "\(String(localized: "watch_training")) \(formatTime(entry.elapsedSeconds))"
                  : "LiftWave")
         default:
             Text("LiftWave")
