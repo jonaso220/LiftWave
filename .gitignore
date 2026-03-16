@@ -39,6 +39,7 @@ DerivedData/
 *.env
 *.jks
 *.keystore
+android/key.properties
 
 # Pub
 .pub-cache/

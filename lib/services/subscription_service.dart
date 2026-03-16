@@ -93,7 +93,9 @@ class SubscriptionService extends ChangeNotifier {
 
   Future<void> _logoutUser() async {
     try {
-      await Purchases.logOut();
+      if (!await Purchases.isAnonymous) {
+        await Purchases.logOut();
+      }
       _isPro = false;
       notifyListeners();
     } catch (e) {

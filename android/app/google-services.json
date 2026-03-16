@@ -13,7 +13,20 @@
           "package_name": "com.liftwave.liftwave"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "133055660088-qgkln18uqibcc3h77krvb3b2jbbm7bj3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.liftwave.liftwave",
+            "certificate_hash": "4dfe8845a5fd695e343f188cb945d16f81e13730"
+          }
+        },
+        {
+          "client_id": "133055660088-i7k138rivsrie340df8hd6hkdp78o25k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCd6ve_ZDd8NcFyDIAFqTg-ECh6tAdv3ag"
@@ -21,7 +34,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "133055660088-i7k138rivsrie340df8hd6hkdp78o25k.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "133055660088-6t4l5jp3ldlfviescbalo5hsp07jdtgb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.liftwave.liftwave"
+              }
+            }
+          ]
         }
       }
     }
