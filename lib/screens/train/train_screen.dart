@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../data/achievement_store.dart';
+import '../../data/custom_template_store.dart';
+import '../../models/achievement_models.dart';
 import '../../data/workout_templates.dart';
 import '../../models/session_models.dart';
 import '../../models/models.dart';
 import '../../data/workout_store.dart';
+import '../exercises/exercise_progress_sheet.dart';
 import '../../services/watch_service.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/pro_gate.dart';
@@ -26,10 +30,19 @@ class _TrainScreenState extends State<TrainScreen> {
   String? _workoutName; // null → 'Entrenamiento libre'
 
   @override
+  void initState() {
+    super.initState();
+    CustomTemplateStore.instance.addListener(_onTemplatesChanged);
+  }
+
+  @override
   void dispose() {
+    CustomTemplateStore.instance.removeListener(_onTemplatesChanged);
     _timer?.cancel();
     super.dispose();
   }
+
+  void _onTemplatesChanged() => setState(() {});
 
   void _syncWatch() {
     WatchService.instance.updateWorkoutState(
@@ -72,6 +85,26 @@ class _TrainScreenState extends State<TrainScreen> {
           muscleGroup: ex.muscleGroup,
           equipment: ex.equipment,
           sets: ex.buildSets(),
+        ));
+      }
+    });
+    _startWorkout(name: t.name);
+  }
+
+  void _startFromCustomTemplate(CustomTemplate t) {
+    setState(() {
+      _exercises.clear();
+      for (final ex in t.exercises) {
+        final lastWeight = _lastWeightFor(ex.name);
+        _exercises.add(SessionExercise(
+          id: '${t.id}_${ex.name}_${DateTime.now().millisecondsSinceEpoch}',
+          name: ex.name,
+          muscleGroup: ex.muscleGroup,
+          equipment: ex.equipment,
+          sets: List.generate(
+              ex.sets,
+              (_) => SessionSet(
+                  reps: ex.reps, weight: lastWeight ?? ex.weight)),
         ));
       }
     });
@@ -202,30 +235,56 @@ class _TrainScreenState extends State<TrainScreen> {
           ],
         ),
         actions: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {
-                _saveWorkout();
-                Navigator.pop(ctx);
-                setState(() {
-                  _workoutStarted = false;
-                  _workoutName = null;
-                  _exercises.clear();
-                  _elapsedSeconds = 0;
-                });
-                _syncWatch();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                padding: const EdgeInsets.symmetric(vertical: 12),
+          Column(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _saveAsTemplate(ctx),
+                  icon: const Icon(Icons.bookmark_add_rounded, size: 18),
+                  label: const Text('Guardar como rutina'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.accentOrange,
+                    side: const BorderSide(color: AppColors.accentOrange),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                    textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
               ),
-              child: const Text('Finalizar',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
-            ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    _saveWorkout();
+                    final newAchievements =
+                        AchievementStore.instance.checkAfterWorkout();
+                    Navigator.pop(ctx);
+                    setState(() {
+                      _workoutStarted = false;
+                      _workoutName = null;
+                      _exercises.clear();
+                      _elapsedSeconds = 0;
+                    });
+                    _syncWatch();
+                    if (newAchievements.isNotEmpty) {
+                      _showAchievementPopup(newAchievements);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  child: const Text('Finalizar',
+                      style: TextStyle(fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -243,6 +302,7 @@ class _TrainScreenState extends State<TrainScreen> {
                 id: e.id,
                 name: e.name,
                 muscleGroup: e.muscleGroup,
+                notes: e.notes,
                 sets: e.sets
                     .asMap()
                     .entries
@@ -260,25 +320,202 @@ class _TrainScreenState extends State<TrainScreen> {
     WorkoutStore.instance.add(workout);
   }
 
+  void _showAchievementPopup(List<Achievement> achievements) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.celebration_rounded,
+                color: AppColors.accentYellow, size: 24),
+            SizedBox(width: 8),
+            Text('¡Nuevo logro!',
+                style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: achievements
+              .map((a) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: a.color.withAlpha(30),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(a.icon, color: a.color, size: 22),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(a.title,
+                                  style: const TextStyle(
+                                      color: AppColors.textPrimary,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700)),
+                              Text(a.description,
+                                  style: const TextStyle(
+                                      color: AppColors.textMuted,
+                                      fontSize: 11)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ))
+              .toList(),
+        ),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(ctx),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accentYellow,
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              child: const Text('¡Genial!',
+                  style: TextStyle(fontWeight: FontWeight.w700)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _saveAsTemplate(BuildContext dialogCtx) {
+    final nameCtrl = TextEditingController(
+        text: _workoutName ?? 'Mi rutina');
+    showDialog(
+      context: dialogCtx,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: const Text('Guardar como rutina',
+            style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w700)),
+        content: TextField(
+          controller: nameCtrl,
+          autofocus: true,
+          style: const TextStyle(color: AppColors.textPrimary),
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            hintText: 'Nombre de la rutina',
+            filled: true,
+            fillColor: AppColors.bgCardLight,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar',
+                style: TextStyle(color: AppColors.textMuted)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final name = nameCtrl.text.trim();
+              if (name.isEmpty) return;
+              final template = CustomTemplate(
+                id: 'custom_tpl_${DateTime.now().millisecondsSinceEpoch}',
+                name: name,
+                exercises: _exercises
+                    .map((e) => TemplateExercise(
+                          name: e.name,
+                          muscleGroup: e.muscleGroup,
+                          equipment: e.equipment,
+                          sets: e.sets.length,
+                          reps: e.sets.isNotEmpty ? e.sets.first.reps : 10,
+                          weight:
+                              e.sets.isNotEmpty ? e.sets.first.weight : 0,
+                        ))
+                    .toList(),
+              );
+              CustomTemplateStore.instance.add(template);
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(dialogCtx).showSnackBar(
+                SnackBar(
+                  content: Text('Rutina "$name" guardada'),
+                  backgroundColor: AppColors.bgCardLight,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accentOrange,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Guardar',
+                style: TextStyle(fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  double? _lastWeightFor(String exerciseName) {
+    for (final w in WorkoutStore.instance.workouts) {
+      for (final e in w.exercises) {
+        if (e.name == exerciseName) {
+          for (final s in e.sets) {
+            if (s.weight > 0) return s.weight;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   Future<void> _addExercise() async {
     final ex = await Navigator.push<Exercise>(
       context,
       MaterialPageRoute(builder: (_) => const ExercisePickerScreen()),
     );
     if (ex == null) return;
+    final lastWeight = _lastWeightFor(ex.name);
     setState(() {
       _exercises.add(SessionExercise(
         id: '${ex.id}_${DateTime.now().millisecondsSinceEpoch}',
         name: ex.name,
         muscleGroup: ex.muscleGroup,
         equipment: ex.equipment,
-        sets: [SessionSet(reps: 10, weight: 0)],
+        sets: [SessionSet(reps: 10, weight: lastWeight ?? 0)],
       ));
     });
   }
 
   void _removeExercise(int index) {
     setState(() => _exercises.removeAt(index));
+  }
+
+  void _reorderExercise(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) newIndex--;
+      final item = _exercises.removeAt(oldIndex);
+      _exercises.insert(newIndex, item);
+    });
   }
 
   void _addSet(int exIndex) {
@@ -326,6 +563,53 @@ class _TrainScreenState extends State<TrainScreen> {
           Navigator.pop(context);
           _startFromTemplate(t);
         },
+      ),
+    );
+  }
+
+  void _showCustomTemplatePreview(CustomTemplate ct) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => _CustomTemplatePreviewSheet(
+        template: ct,
+        onStart: () {
+          Navigator.pop(context);
+          _startFromCustomTemplate(ct);
+        },
+        onDelete: () {
+          Navigator.pop(context);
+          _confirmDeleteTemplate(ct);
+        },
+      ),
+    );
+  }
+
+  void _confirmDeleteTemplate(CustomTemplate ct) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: const Text('Eliminar rutina',
+            style: TextStyle(color: AppColors.textPrimary)),
+        content: Text('¿Eliminar "${ct.name}"?',
+            style: const TextStyle(color: AppColors.textSecondary)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar',
+                style: TextStyle(color: AppColors.textMuted)),
+          ),
+          TextButton(
+            onPressed: () {
+              CustomTemplateStore.instance.remove(ct.id);
+              Navigator.pop(ctx);
+            },
+            child: const Text('Eliminar',
+                style: TextStyle(color: AppColors.error)),
+          ),
+        ],
       ),
     );
   }
@@ -432,6 +716,45 @@ class _TrainScreenState extends State<TrainScreen> {
           ),
         ),
 
+        // Custom templates
+        if (CustomTemplateStore.instance.templates.isNotEmpty) ...[
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+            sliver: SliverToBoxAdapter(
+              child: Text('Mis rutinas',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      )),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, i) {
+                  final ct = CustomTemplateStore.instance.templates[i];
+                  return _CustomTemplateCard(
+                    template: ct,
+                    onTap: () => _showCustomTemplatePreview(ct),
+                    onDelete: () => _confirmDeleteTemplate(ct),
+                  );
+                },
+                childCount:
+                    CustomTemplateStore.instance.templates.length,
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Text('Rutinas predefinidas',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      )),
+            ),
+          ),
+        ],
+
         // Template list
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
@@ -458,12 +781,21 @@ class _TrainScreenState extends State<TrainScreen> {
         Expanded(
           child: _exercises.isEmpty
               ? _buildNoExercisesHint()
-              : ListView.builder(
+              : ReorderableListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                   itemCount: _exercises.length,
+                  onReorder: _reorderExercise,
+                  proxyDecorator: (child, index, animation) => Material(
+                    color: Colors.transparent,
+                    elevation: 4,
+                    shadowColor: AppColors.primary.withAlpha(80),
+                    borderRadius: BorderRadius.circular(16),
+                    child: child,
+                  ),
                   itemBuilder: (context, i) => _ExerciseCard(
                     key: ValueKey(_exercises[i].id),
                     exercise: _exercises[i],
+                    lastWeight: _lastWeightFor(_exercises[i].name),
                     onAddSet: () => _addSet(i),
                     onRemoveSet: (si) => _removeSet(i, si),
                     onToggleDone: (si) => _toggleSetDone(i, si),
@@ -753,6 +1085,89 @@ class _TemplateCard extends StatelessWidget {
   }
 }
 
+// ── Custom template card ──────────────────────────────────────────────────────
+
+class _CustomTemplateCard extends StatelessWidget {
+  final CustomTemplate template;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+
+  const _CustomTemplateCard({
+    required this.template,
+    required this.onTap,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = template;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.bgCard,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.accentOrange.withAlpha(60)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: AppColors.accentOrange.withAlpha(30),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Icon(Icons.bookmark_rounded,
+                  color: AppColors.accentOrange, size: 24),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(t.name,
+                      style: const TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 2),
+                  Text('${t.exercises.length} ejercicios',
+                      style: const TextStyle(
+                          color: AppColors.textMuted, fontSize: 12)),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: t.muscleGroups
+                        .map((mg) => _SmallMuscleTag(muscle: mg))
+                        .toList(),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              children: [
+                const Icon(Icons.chevron_right_rounded,
+                    color: AppColors.textMuted, size: 18),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: onDelete,
+                  child: const Icon(Icons.delete_outline_rounded,
+                      color: AppColors.textMuted, size: 18),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _SmallMuscleTag extends StatelessWidget {
   final String muscle;
   const _SmallMuscleTag({required this.muscle});
@@ -932,6 +1347,127 @@ class _TemplatePreviewSheet extends StatelessWidget {
   }
 }
 
+// ── Custom template preview bottom sheet ──────────────────────────────────────
+
+class _CustomTemplatePreviewSheet extends StatelessWidget {
+  final CustomTemplate template;
+  final VoidCallback onStart;
+  final VoidCallback onDelete;
+
+  const _CustomTemplatePreviewSheet({
+    required this.template,
+    required this.onStart,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = template;
+    return DraggableScrollableSheet(
+      initialChildSize: 0.65,
+      minChildSize: 0.4,
+      maxChildSize: 0.9,
+      builder: (_, scrollCtrl) => Container(
+        decoration: const BoxDecoration(
+          color: AppColors.bgCard,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 12, bottom: 4),
+              child: Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.bgCardLight,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: AppColors.accentOrange.withAlpha(30),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.bookmark_rounded,
+                        color: AppColors.accentOrange, size: 24),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(t.name,
+                            style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700)),
+                        Text('${t.exercises.length} ejercicios',
+                            style: const TextStyle(
+                                color: AppColors.textMuted, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: onDelete,
+                    icon: const Icon(Icons.delete_outline_rounded,
+                        color: AppColors.error, size: 22),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            Expanded(
+              child: ListView.separated(
+                controller: scrollCtrl,
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+                itemCount: t.exercises.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 8),
+                itemBuilder: (_, i) => _PreviewExRow(
+                  exercise: t.exercises[i],
+                  index: i,
+                  color: AppColors.accentOrange,
+                ),
+              ),
+            ),
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: onStart,
+                    icon: const Icon(Icons.play_arrow_rounded),
+                    label: Text('Empezar ${t.name}'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.accentOrange,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                      textStyle: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _PreviewExRow extends StatelessWidget {
   final TemplateExercise exercise;
   final int index;
@@ -1017,6 +1553,7 @@ class _ExerciseCard extends StatelessWidget {
   final void Function(int) onToggleDone;
   final VoidCallback onDelete;
   final VoidCallback onSetChanged;
+  final double? _lastWeight;
 
   const _ExerciseCard({
     super.key,
@@ -1026,7 +1563,8 @@ class _ExerciseCard extends StatelessWidget {
     required this.onToggleDone,
     required this.onDelete,
     required this.onSetChanged,
-  });
+    double? lastWeight,
+  }) : _lastWeight = lastWeight;
 
   Color _colorForMuscle(String m) {
     switch (m) {
@@ -1052,6 +1590,7 @@ class _ExerciseCard extends StatelessWidget {
     final color = _colorForMuscle(exercise.muscleGroup);
     final done = exercise.completedSets;
     final total = exercise.sets.length;
+    final lastW = _lastWeight;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1067,6 +1606,9 @@ class _ExerciseCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 12, 8, 10),
             child: Row(
               children: [
+                const Icon(Icons.drag_handle_rounded,
+                    color: AppColors.textMuted, size: 20),
+                const SizedBox(width: 6),
                 Container(
                   width: 38,
                   height: 38,
@@ -1099,6 +1641,14 @@ class _ExerciseCard extends StatelessWidget {
                                     color: AppColors.accent,
                                     fontSize: 11,
                                     fontWeight: FontWeight.w600)),
+                          if (done == 0 && lastW != null) ...[
+                            const Spacer(),
+                            Text(
+                                'Último: ${lastW == lastW.roundToDouble() ? lastW.toStringAsFixed(0) : lastW.toStringAsFixed(1)} kg',
+                                style: const TextStyle(
+                                    color: AppColors.textMuted,
+                                    fontSize: 10)),
+                          ],
                         ],
                       ),
                     ],
@@ -1108,8 +1658,30 @@ class _ExerciseCard extends StatelessWidget {
                   color: AppColors.bgCardLight,
                   onSelected: (v) {
                     if (v == 'delete') onDelete();
+                    if (v == 'progress') {
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: Colors.transparent,
+                        isScrollControlled: true,
+                        builder: (_) => ExerciseProgressSheet(
+                            exerciseName: exercise.name),
+                      );
+                    }
                   },
                   itemBuilder: (_) => [
+                    const PopupMenuItem(
+                      value: 'progress',
+                      child: Row(
+                        children: [
+                          Icon(Icons.show_chart_rounded,
+                              color: AppColors.accent, size: 18),
+                          SizedBox(width: 8),
+                          Text('Ver progreso',
+                              style:
+                                  TextStyle(color: AppColors.textPrimary)),
+                        ],
+                      ),
+                    ),
                     const PopupMenuItem(
                       value: 'delete',
                       child: Row(
@@ -1128,6 +1700,27 @@ class _ExerciseCard extends StatelessWidget {
                       color: AppColors.textMuted),
                 ),
               ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 0, 14, 6),
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: 'Notas (opcional)',
+                hintStyle: TextStyle(
+                    color: AppColors.textMuted, fontSize: 12),
+                isDense: true,
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                border: InputBorder.none,
+              ),
+              style: const TextStyle(
+                  color: AppColors.textSecondary, fontSize: 12),
+              maxLines: 1,
+              controller: TextEditingController(text: exercise.notes),
+              onChanged: (v) {
+                exercise.notes = v.isEmpty ? null : v;
+              },
             ),
           ),
           Padding(

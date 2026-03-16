@@ -24,6 +24,25 @@ class TemplateExercise {
   /// Builds the mutable SessionSets for an active workout.
   List<SessionSet> buildSets() =>
       List.generate(sets, (_) => SessionSet(reps: reps, weight: weight));
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'muscleGroup': muscleGroup,
+        'equipment': equipment,
+        'sets': sets,
+        'reps': reps,
+        'weight': weight,
+      };
+
+  factory TemplateExercise.fromJson(Map<String, dynamic> json) =>
+      TemplateExercise(
+        name: json['name'] as String,
+        muscleGroup: json['muscleGroup'] as String,
+        equipment: json['equipment'] as String,
+        sets: json['sets'] as int,
+        reps: json['reps'] as int,
+        weight: (json['weight'] as num).toDouble(),
+      );
 }
 
 class WorkoutTemplate {

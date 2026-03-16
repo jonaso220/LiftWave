@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'data/achievement_store.dart';
+import 'data/custom_exercise_store.dart';
+import 'data/custom_template_store.dart';
 import 'navigation/main_navigation.dart';
 import 'screens/auth/login_screen.dart';
 import 'services/firebase_service.dart';
@@ -18,6 +21,9 @@ void main() async {
   await FirebaseService.instance.init();
   await SubscriptionService.instance.init();
   WatchService.instance.init();
+  await CustomExerciseStore.instance.load();
+  await CustomTemplateStore.instance.load();
+  await AchievementStore.instance.load();
 
   GoogleFonts.config.allowRuntimeFetching = true;
 

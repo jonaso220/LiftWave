@@ -264,6 +264,24 @@ class _ExerciseDetailCard extends StatelessWidget {
               ],
             ),
           ),
+          if (exercise.notes != null && exercise.notes!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+              child: Row(
+                children: [
+                  const Icon(Icons.notes_rounded,
+                      color: AppColors.textMuted, size: 14),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(exercise.notes!,
+                        style: const TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 12,
+                            fontStyle: FontStyle.italic)),
+                  ),
+                ],
+              ),
+            ),
           const Divider(height: 1),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),

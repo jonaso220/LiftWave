@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
+import '../../data/achievement_store.dart';
 import '../../data/mock_data.dart';
 import '../../data/workout_store.dart';
 import '../../data/progress_store.dart';
@@ -26,12 +27,14 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WorkoutStore.instance.addListener(_onStoreChanged);
     ProgressStore.instance.addListener(_onStoreChanged);
+    AchievementStore.instance.addListener(_onStoreChanged);
   }
 
   @override
   void dispose() {
     WorkoutStore.instance.removeListener(_onStoreChanged);
     ProgressStore.instance.removeListener(_onStoreChanged);
+    AchievementStore.instance.removeListener(_onStoreChanged);
     super.dispose();
   }
 
@@ -443,6 +446,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   _buildProgressCard(context)
                       .animate()
                       .fadeIn(delay: 380.ms, duration: 400.ms),
+                  const SizedBox(height: 24),
+                  _buildAchievements(context)
+                      .animate()
+                      .fadeIn(delay: 420.ms, duration: 400.ms),
                   const SizedBox(height: 24),
                   _buildRecentExercises(context)
                       .animate()
@@ -970,6 +977,90 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAchievements(BuildContext context) {
+    final achievements = AchievementStore.instance.all;
+    final unlockedCount = AchievementStore.instance.unlockedCount;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text('Logros',
+                style: Theme.of(context).textTheme.headlineSmall),
+            const SizedBox(width: 8),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: AppColors.accentYellow.withAlpha(25),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '$unlockedCount/${achievements.length}',
+                style: const TextStyle(
+                    color: AppColors.accentYellow,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 100,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: achievements.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 10),
+            itemBuilder: (_, i) {
+              final a = achievements[i];
+              return Container(
+                width: 85,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: a.isUnlocked
+                      ? a.color.withAlpha(20)
+                      : AppColors.bgCard,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: a.isUnlocked
+                        ? a.color.withAlpha(60)
+                        : AppColors.bgCardLight,
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(a.icon,
+                        color: a.isUnlocked
+                            ? a.color
+                            : AppColors.textMuted.withAlpha(80),
+                        size: 26),
+                    const SizedBox(height: 8),
+                    Text(
+                      a.title,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: a.isUnlocked
+                            ? AppColors.textPrimary
+                            : AppColors.textMuted,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ],

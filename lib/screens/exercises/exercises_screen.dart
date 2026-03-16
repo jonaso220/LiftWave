@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
+import '../../data/custom_exercise_store.dart';
 import '../../data/mock_data.dart';
 import '../../models/models.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/pro_gate.dart';
 import '../../widgets/common/muscle_chip.dart';
+import 'exercise_progress_sheet.dart';
 
 class ExercisesScreen extends StatefulWidget {
   const ExercisesScreen({super.key});
@@ -15,12 +17,60 @@ class ExercisesScreen extends StatefulWidget {
 }
 
 class _ExercisesScreenState extends State<ExercisesScreen> {
+  final _searchCtrl = TextEditingController();
   String _searchQuery = '';
   String _selectedMuscle = 'Todos';
   String _selectedEquipment = 'Todos';
 
+  @override
+  void initState() {
+    super.initState();
+    CustomExerciseStore.instance.addListener(_onCustomChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    CustomExerciseStore.instance.removeListener(_onCustomChanged);
+    super.dispose();
+  }
+
+  void _onCustomChanged() => setState(() {});
+
+  void _confirmDelete(Exercise ex) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: const Text('Eliminar ejercicio',
+            style: TextStyle(color: AppColors.textPrimary)),
+        content: Text(
+            '¿Eliminar "${ex.name}" de tu lista de ejercicios?',
+            style: const TextStyle(color: AppColors.textSecondary)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar',
+                style: TextStyle(color: AppColors.primary)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              CustomExerciseStore.instance.remove(ex.id);
+            },
+            child: const Text('Eliminar',
+                style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Exercise> get _allExercises =>
+      [...mockExercises, ...CustomExerciseStore.instance.exercises];
+
   List<Exercise> get _filtered {
-    return mockExercises.where((e) {
+    return _allExercises.where((e) {
       final matchSearch = _searchQuery.isEmpty ||
           e.name.toLowerCase().contains(_searchQuery.toLowerCase());
       final matchMuscle =
@@ -74,11 +124,14 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                           _searchQuery.isNotEmpty) ...[
                         const Spacer(),
                         GestureDetector(
-                          onTap: () => setState(() {
-                            _searchQuery = '';
-                            _selectedMuscle = 'Todos';
-                            _selectedEquipment = 'Todos';
-                          }),
+                          onTap: () {
+                            _searchCtrl.clear();
+                            setState(() {
+                              _searchQuery = '';
+                              _selectedMuscle = 'Todos';
+                              _selectedEquipment = 'Todos';
+                            });
+                          },
                           child: const Text('Limpiar filtros',
                               style: TextStyle(
                                   color: AppColors.primary,
@@ -102,7 +155,14 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                 : SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
-                        return _ExerciseCard(exercise: filtered[index])
+                        final ex = filtered[index];
+                        final isCustom = ex.id.startsWith('custom_');
+                        return _ExerciseCard(
+                          exercise: ex,
+                          onDelete: isCustom
+                              ? () => _confirmDelete(ex)
+                              : null,
+                        )
                             .animate()
                             .fadeIn(
                                 delay: Duration(milliseconds: 40 * index),
@@ -121,6 +181,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
 
   Widget _buildSearchBar() {
     return TextField(
+      controller: _searchCtrl,
       onChanged: (v) => setState(() => _searchQuery = v),
       style: const TextStyle(color: AppColors.textPrimary),
       decoration: InputDecoration(
@@ -129,7 +190,10 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
             color: AppColors.textMuted, size: 20),
         suffixIcon: _searchQuery.isNotEmpty
             ? GestureDetector(
-                onTap: () => setState(() => _searchQuery = ''),
+                onTap: () {
+                  _searchCtrl.clear();
+                  setState(() => _searchQuery = '');
+                },
                 child: const Icon(Icons.close_rounded,
                     color: AppColors.textMuted, size: 18),
               )
@@ -267,8 +331,9 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
 
 class _ExerciseCard extends StatelessWidget {
   final Exercise exercise;
+  final VoidCallback? onDelete;
 
-  const _ExerciseCard({required this.exercise});
+  const _ExerciseCard({required this.exercise, this.onDelete});
 
   Color _difficultyColor(String diff) {
     switch (diff) {
@@ -287,15 +352,17 @@ class _ExerciseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final diffColor = _difficultyColor(exercise.difficulty);
 
+    final isCustom = onDelete != null;
     return GestureDetector(
       onTap: () => _showDetail(context),
+      onLongPress: isCustom ? onDelete : null,
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: AppColors.bgCard,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.bgCardLight),
+          border: Border.all(color: isCustom ? AppColors.primary.withAlpha(60) : AppColors.bgCardLight),
         ),
         child: Row(
           children: [
@@ -311,16 +378,41 @@ class _ExerciseCard extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.fitness_center_rounded,
-                  color: AppColors.primary, size: 22),
+              child: Icon(
+                isCustom ? Icons.edit_rounded : Icons.fitness_center_rounded,
+                color: AppColors.primary,
+                size: 22,
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(exercise.name,
-                      style: Theme.of(context).textTheme.titleLarge),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(exercise.name,
+                            style: Theme.of(context).textTheme.titleLarge),
+                      ),
+                      if (isCustom) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withAlpha(30),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text('CUSTOM',
+                              style: TextStyle(
+                                  color: AppColors.primary,
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w700)),
+                        ),
+                      ],
+                    ],
+                  ),
                   const SizedBox(height: 5),
                   Row(
                     children: [
@@ -347,20 +439,28 @@ class _ExerciseCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: diffColor,
-                    shape: BoxShape.circle,
+                if (isCustom)
+                  GestureDetector(
+                    onTap: onDelete,
+                    child: const Icon(Icons.delete_outline_rounded,
+                        color: AppColors.textMuted, size: 20),
+                  )
+                else ...[
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: diffColor,
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(exercise.difficulty,
-                    style: TextStyle(
-                        color: diffColor,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 4),
+                  Text(exercise.difficulty,
+                      style: TextStyle(
+                          color: diffColor,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600)),
+                ],
                 if (!SubscriptionService.instance.isPro) ...[
                   const SizedBox(height: 4),
                   const ProBadge(),
@@ -594,6 +694,33 @@ class _ExerciseDetailSheet extends StatelessWidget {
                 const SizedBox(height: 12),
               ],
               const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.transparent,
+                      isScrollControlled: true,
+                      builder: (_) => ExerciseProgressSheet(
+                          exerciseName: exercise.name),
+                    );
+                  },
+                  icon: const Icon(Icons.show_chart_rounded, size: 18),
+                  label: const Text('Ver progreso'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.accent,
+                    side: const BorderSide(color: AppColors.accent),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                    textStyle: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(

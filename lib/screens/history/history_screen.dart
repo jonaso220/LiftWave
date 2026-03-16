@@ -4,6 +4,7 @@ import '../../theme/app_theme.dart';
 import '../../data/workout_store.dart';
 import '../../models/models.dart';
 import '../../services/subscription_service.dart';
+import '../../utils/csv_exporter.dart';
 import '../../utils/pro_gate.dart';
 import 'workout_detail_screen.dart';
 
@@ -72,7 +73,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          const SliverAppBar(title: Text('Historial'), floating: true),
+          SliverAppBar(
+            title: const Text('Historial'),
+            floating: true,
+            actions: [
+              if (WorkoutStore.instance.workouts.isNotEmpty)
+                IconButton(
+                  onPressed: () => CsvExporter.exportAndShare(),
+                  icon: const Icon(Icons.ios_share_rounded, size: 20),
+                  tooltip: 'Exportar CSV',
+                ),
+            ],
+          ),
 
           // ── Week summary card ──────────────────────────────────────────────
           SliverToBoxAdapter(
