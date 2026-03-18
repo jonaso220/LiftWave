@@ -15,7 +15,7 @@ class SubscriptionService extends ChangeNotifier {
   // ── Configuration ──────────────────────────────────────────────────────────
 
   /// RevenueCat public API key.
-  static const _apiKey = 'test_pioVEzTqvvocqhKMLsEdFCpKpcD';
+  static const _apiKey = 'appl_hFAiSbSftEmUrGJKulhWsHCFYqL';
 
   /// Entitlement identifier configured in the RevenueCat dashboard.
   static const _entitlementId = 'LiftWave Pro';
