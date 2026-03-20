@@ -59,6 +59,10 @@
   "login_continueApple": "Continuar con Apple",
   "login_continueEmail": "Continuar con correo",
   "login_legal": "Al continuar, aceptas nuestros términos de servicio\ny política de privacidad.",
+  "login_legalPrefix": "Al continuar, aceptas nuestros ",
+  "login_termsLink": "términos de servicio",
+  "login_legalAnd": "y",
+  "login_privacyLink": "política de privacidad",
   "login_googleError": "No se pudo iniciar sesión con Google.",
   "login_appleError": "No se pudo iniciar sesión con Apple.",
 
@@ -318,6 +322,8 @@
   "paywall_startTrial": "Comenzar prueba gratis",
   "paywall_restorePurchases": "Restaurar compras",
   "paywall_legalText": "La suscripción se renueva automáticamente. Puedes cancelar\nen cualquier momento desde la App Store.",
+  "paywall_termsLink": "Términos de uso",
+  "paywall_privacyLink": "Política de privacidad",
   "paywall_purchaseError": "No se pudo completar la compra.",
   "paywall_noPurchasesFound": "No se encontraron compras previas.",
 

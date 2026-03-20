@@ -150,6 +150,18 @@ class SPt extends S {
       'Ao continuar, você aceita nossos termos de serviço\ne política de privacidade.';
 
   @override
+  String get login_legalPrefix => 'Ao continuar, você aceita nossos ';
+
+  @override
+  String get login_termsLink => 'termos de serviço';
+
+  @override
+  String get login_legalAnd => 'e';
+
+  @override
+  String get login_privacyLink => 'política de privacidade';
+
+  @override
   String get login_googleError => 'Não foi possível fazer login com o Google.';
 
   @override
@@ -861,6 +873,12 @@ class SPt extends S {
   @override
   String get paywall_legalText =>
       'A assinatura é renovada automaticamente. Você pode cancelar\na qualquer momento pela App Store.';
+
+  @override
+  String get paywall_termsLink => 'Termos de Uso';
+
+  @override
+  String get paywall_privacyLink => 'Política de Privacidade';
 
   @override
   String get paywall_purchaseError => 'Não foi possível concluir a compra.';

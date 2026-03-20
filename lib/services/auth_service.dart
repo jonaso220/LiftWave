@@ -8,6 +8,9 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
+/// Thrown when the user cancels the sign-in flow (not an error).
+class AuthCancelledException implements Exception {}
+
 class AuthService {
   AuthService._();
   static final AuthService instance = AuthService._();
@@ -58,6 +61,12 @@ class AuthService {
       );
 
       return await _auth.signInWithCredential(oauthCredential);
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) {
+        throw AuthCancelledException();
+      }
+      debugPrint('AuthService.signInWithApple error: $e');
+      rethrow;
     } catch (e) {
       debugPrint('AuthService.signInWithApple error: $e');
       rethrow;

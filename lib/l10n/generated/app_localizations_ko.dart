@@ -149,6 +149,18 @@ class SKo extends S {
   String get login_legal => '계속하면 이용약관 및\n개인정보 처리방침에 동의하게 됩니다.';
 
   @override
+  String get login_legalPrefix => '계속하면 ';
+
+  @override
+  String get login_termsLink => '이용약관';
+
+  @override
+  String get login_legalAnd => '및';
+
+  @override
+  String get login_privacyLink => '개인정보 처리방침';
+
+  @override
   String get login_googleError => 'Google 로그인에 실패했습니다.';
 
   @override
@@ -842,6 +854,12 @@ class SKo extends S {
   @override
   String get paywall_legalText =>
       '구독은 자동으로 갱신됩니다.\nApp Store에서 언제든지 해지할 수 있습니다.';
+
+  @override
+  String get paywall_termsLink => '이용약관';
+
+  @override
+  String get paywall_privacyLink => '개인정보 처리방침';
 
   @override
   String get paywall_purchaseError => '구매를 완료할 수 없습니다.';

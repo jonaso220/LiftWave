@@ -383,6 +383,30 @@ abstract class S {
   /// **'Al continuar, aceptas nuestros términos de servicio\ny política de privacidad.'**
   String get login_legal;
 
+  /// No description provided for @login_legalPrefix.
+  ///
+  /// In es, this message translates to:
+  /// **'Al continuar, aceptas nuestros '**
+  String get login_legalPrefix;
+
+  /// No description provided for @login_termsLink.
+  ///
+  /// In es, this message translates to:
+  /// **'términos de servicio'**
+  String get login_termsLink;
+
+  /// No description provided for @login_legalAnd.
+  ///
+  /// In es, this message translates to:
+  /// **'y'**
+  String get login_legalAnd;
+
+  /// No description provided for @login_privacyLink.
+  ///
+  /// In es, this message translates to:
+  /// **'política de privacidad'**
+  String get login_privacyLink;
+
   /// No description provided for @login_googleError.
   ///
   /// In es, this message translates to:
@@ -1696,6 +1720,18 @@ abstract class S {
   /// In es, this message translates to:
   /// **'La suscripción se renueva automáticamente. Puedes cancelar\nen cualquier momento desde la App Store.'**
   String get paywall_legalText;
+
+  /// No description provided for @paywall_termsLink.
+  ///
+  /// In es, this message translates to:
+  /// **'Términos de uso'**
+  String get paywall_termsLink;
+
+  /// No description provided for @paywall_privacyLink.
+  ///
+  /// In es, this message translates to:
+  /// **'Política de privacidad'**
+  String get paywall_privacyLink;
 
   /// No description provided for @paywall_purchaseError.
   ///

@@ -150,6 +150,18 @@ class SEn extends S {
       'By continuing, you agree to our terms of service\nand privacy policy.';
 
   @override
+  String get login_legalPrefix => 'By continuing, you agree to our ';
+
+  @override
+  String get login_termsLink => 'terms of service';
+
+  @override
+  String get login_legalAnd => 'and';
+
+  @override
+  String get login_privacyLink => 'privacy policy';
+
+  @override
   String get login_googleError => 'Could not sign in with Google.';
 
   @override
@@ -857,6 +869,12 @@ class SEn extends S {
   @override
   String get paywall_legalText =>
       'Subscription renews automatically. You can cancel\nat any time from the App Store.';
+
+  @override
+  String get paywall_termsLink => 'Terms of Use';
+
+  @override
+  String get paywall_privacyLink => 'Privacy Policy';
 
   @override
   String get paywall_purchaseError => 'Could not complete the purchase.';

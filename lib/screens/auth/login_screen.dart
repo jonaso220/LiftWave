@@ -6,6 +6,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
 import 'email_auth_screen.dart';
@@ -43,6 +45,8 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _loadingApple = true);
     try {
       await AuthService.instance.signInWithApple();
+    } on AuthCancelledException {
+      // User cancelled — do nothing.
     } on FirebaseAuthException catch (e) {
       if (mounted) _showError(AuthService.errorMessage(e.code, S.of(context)));
     } catch (_) {
@@ -164,21 +168,74 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 48),
 
               // ── Legal ────────────────────────────────────────────────────
-              Text(
-                S.of(context).login_legal,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 11,
-                  height: 1.5,
-                ),
-              ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
+              _buildLegalLinks()
+                  .animate()
+                  .fadeIn(delay: 500.ms, duration: 400.ms),
 
               const SizedBox(height: 24),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  // ── Legal links ─────────────────────────────────────────────────────────
+
+  static const _termsUrl =
+      'https://jonaso220.github.io/LiftWave/terms-of-use.html';
+  static const _privacyUrl =
+      'https://jonaso220.github.io/LiftWave/privacy-policy.html';
+
+  Widget _buildLegalLinks() {
+    final l10n = S.of(context);
+    return Wrap(
+      alignment: WrapAlignment.center,
+      children: [
+        Text(
+          l10n.login_legalPrefix,
+          style: const TextStyle(
+              color: AppColors.textMuted, fontSize: 11, height: 1.5),
+        ),
+        GestureDetector(
+          onTap: () => launchUrl(Uri.parse(_termsUrl),
+              mode: LaunchMode.externalApplication),
+          child: Text(
+            l10n.login_termsLink,
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontSize: 11,
+              height: 1.5,
+              decoration: TextDecoration.underline,
+              decorationColor: AppColors.primary,
+            ),
+          ),
+        ),
+        Text(
+          ' ${l10n.login_legalAnd} ',
+          style: const TextStyle(
+              color: AppColors.textMuted, fontSize: 11, height: 1.5),
+        ),
+        GestureDetector(
+          onTap: () => launchUrl(Uri.parse(_privacyUrl),
+              mode: LaunchMode.externalApplication),
+          child: Text(
+            l10n.login_privacyLink,
+            style: const TextStyle(
+              color: AppColors.primary,
+              fontSize: 11,
+              height: 1.5,
+              decoration: TextDecoration.underline,
+              decorationColor: AppColors.primary,
+            ),
+          ),
+        ),
+        const Text(
+          '.',
+          style: TextStyle(
+              color: AppColors.textMuted, fontSize: 11, height: 1.5),
+        ),
+      ],
     );
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../services/subscription_service.dart';
 import '../../theme/app_theme.dart';
@@ -16,11 +17,22 @@ class PaywallScreen extends StatefulWidget {
 class _PaywallScreenState extends State<PaywallScreen> {
   int _selectedIndex = 1; // default: monthly
   bool _loading = false;
+  bool _loadingOfferings = true;
+
+  static const _termsUrl =
+      'https://jonaso220.github.io/LiftWave/terms-of-use.html';
+  static const _privacyUrl =
+      'https://jonaso220.github.io/LiftWave/privacy-policy.html';
 
   @override
   void initState() {
     super.initState();
-    SubscriptionService.instance.loadOfferings();
+    _initOfferings();
+  }
+
+  Future<void> _initOfferings() async {
+    await SubscriptionService.instance.loadOfferings();
+    if (mounted) setState(() => _loadingOfferings = false);
   }
 
   List<Package> get _packages {
@@ -30,7 +42,20 @@ class _PaywallScreenState extends State<PaywallScreen> {
   }
 
   Future<void> _purchase() async {
-    if (_packages.isEmpty) return;
+    if (_packages.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(S.of(context).paywall_purchaseError),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+      return;
+    }
     final pkg = _packages[_selectedIndex.clamp(0, _packages.length - 1)];
     setState(() => _loading = true);
     try {
@@ -422,10 +447,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: _loading ? null : _purchase,
+            onTap: (_loading || _loadingOfferings) ? null : _purchase,
             borderRadius: BorderRadius.circular(16),
             child: Center(
-              child: _loading
+              child: (_loading || _loadingOfferings)
                   ? const SizedBox(
                       width: 22,
                       height: 22,
@@ -453,12 +478,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
   // ── Footer ──────────────────────────────────────────────────────────────────
 
   Widget _buildFooter() {
+    final l10n = S.of(context);
     return Column(
       children: [
         GestureDetector(
           onTap: _loading ? null : _restore,
           child: Text(
-            S.of(context).paywall_restorePurchases,
+            l10n.paywall_restorePurchases,
             style: const TextStyle(
               color: AppColors.textMuted,
               fontSize: 13,
@@ -470,13 +496,49 @@ class _PaywallScreenState extends State<PaywallScreen> {
         ),
         const SizedBox(height: 12),
         Text(
-          S.of(context).paywall_legalText,
+          l10n.paywall_legalText,
           textAlign: TextAlign.center,
           style: const TextStyle(
             color: AppColors.textMuted,
             fontSize: 10,
             height: 1.5,
           ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () => launchUrl(Uri.parse(_termsUrl),
+                  mode: LaunchMode.externalApplication),
+              child: Text(
+                l10n.paywall_termsLink,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 10,
+                  decoration: TextDecoration.underline,
+                  decorationColor: AppColors.primary,
+                ),
+              ),
+            ),
+            const Text(
+              '  ·  ',
+              style: TextStyle(color: AppColors.textMuted, fontSize: 10),
+            ),
+            GestureDetector(
+              onTap: () => launchUrl(Uri.parse(_privacyUrl),
+                  mode: LaunchMode.externalApplication),
+              child: Text(
+                l10n.paywall_privacyLink,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 10,
+                  decoration: TextDecoration.underline,
+                  decorationColor: AppColors.primary,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

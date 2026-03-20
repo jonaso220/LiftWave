@@ -198,17 +198,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       },
               ),
-              // Redeem promo code
-              ListTile(
-                leading: const Icon(Icons.card_giftcard_rounded,
-                    color: AppColors.textSecondary),
-                title: Text(l10n.profile_redeemCode,
-                    style: const TextStyle(color: AppColors.textPrimary)),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _showRedeemCodeDialog(context);
-                },
-              ),
               // Restore purchases
               ListTile(
                 leading: const Icon(Icons.restore_rounded,
@@ -259,74 +248,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  void _showRedeemCodeDialog(BuildContext context) {
-    final controller = TextEditingController();
-    final l10n = S.of(context);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.bgCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.profile_redeemTitle,
-            style: const TextStyle(color: AppColors.textPrimary)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              l10n.profile_redeemSubtitle,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              textCapitalization: TextCapitalization.characters,
-              style: const TextStyle(
-                  color: AppColors.textPrimary, letterSpacing: 1.5),
-              decoration: InputDecoration(
-                hintText: l10n.profile_codeHint,
-                hintStyle: const TextStyle(color: AppColors.textMuted),
-                filled: true,
-                fillColor: AppColors.bgDark,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.common_cancel),
-          ),
-          TextButton(
-            onPressed: () async {
-              final code = controller.text;
-              Navigator.pop(ctx);
-              final success =
-                  await SubscriptionService.instance.redeemCode(code);
-              if (!mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(success
-                    ? l10n.profile_proActivated
-                    : l10n.profile_invalidCode),
-                backgroundColor:
-                    success ? AppColors.accent : AppColors.error,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ));
-              if (success) setState(() {});
-            },
-            child: Text(l10n.profile_redeem,
-                style: const TextStyle(color: AppColors.accent)),
-          ),
-        ],
       ),
     );
   }

@@ -149,6 +149,18 @@ class SJa extends S {
   String get login_legal => '続けることで、利用規約と\nプライバシーポリシーに同意したことになります。';
 
   @override
+  String get login_legalPrefix => '続けることで、';
+
+  @override
+  String get login_termsLink => '利用規約';
+
+  @override
+  String get login_legalAnd => 'と';
+
+  @override
+  String get login_privacyLink => 'プライバシーポリシー';
+
+  @override
   String get login_googleError => 'Googleログインに失敗しました。';
 
   @override
@@ -843,6 +855,12 @@ class SJa extends S {
   @override
   String get paywall_legalText =>
       'サブスクリプションは自動的に更新されます。\nApp Storeからいつでもキャンセルできます。';
+
+  @override
+  String get paywall_termsLink => '利用規約';
+
+  @override
+  String get paywall_privacyLink => 'プライバシーポリシー';
 
   @override
   String get paywall_purchaseError => '購入を完了できませんでした。';

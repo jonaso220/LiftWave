@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 /// Singleton that manages RevenueCat subscriptions.
 /// Follows the same pattern as AuthService / FirebaseService.
@@ -23,20 +22,10 @@ class SubscriptionService extends ChangeNotifier {
   /// Set to true during development to bypass the paywall.
   static const _debugForceProStatus = false;
 
-  /// Developer promo codes that grant PRO access (case-insensitive).
-  static const _promoCodes = {
-    'LIFTWAVE2026',
-    'AMIGOS-PRO',
-    'FAMILIA-LW',
-  };
-
-  static const _promoKey = 'promo_code_redeemed';
-
   // ── State ──────────────────────────────────────────────────────────────────
 
   bool _isPro = false;
-  bool _promoRedeemed = false;
-  bool get isPro => _debugForceProStatus || _isPro || _promoRedeemed;
+  bool get isPro => _debugForceProStatus || _isPro;
 
   Offerings? _offerings;
   Offerings? get offerings => _offerings;
@@ -52,10 +41,6 @@ class SubscriptionService extends ChangeNotifier {
     _initialized = true;
 
     try {
-      // Load promo code status.
-      final prefs = await SharedPreferences.getInstance();
-      _promoRedeemed = prefs.getBool(_promoKey) ?? false;
-
       await Purchases.configure(PurchasesConfiguration(_apiKey));
 
       // Listen for entitlement changes from RevenueCat.
@@ -151,20 +136,6 @@ class SubscriptionService extends ChangeNotifier {
       debugPrint('SubscriptionService.restorePurchases error: $e');
       return false;
     }
-  }
-
-  // ── Promo codes ───────────────────────────────────────────────────────────
-
-  /// Returns true if the code is valid and was redeemed successfully.
-  Future<bool> redeemCode(String code) async {
-    if (_promoCodes.contains(code.trim().toUpperCase())) {
-      _promoRedeemed = true;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_promoKey, true);
-      notifyListeners();
-      return true;
-    }
-    return false;
   }
 
   // ── Cleanup ────────────────────────────────────────────────────────────────

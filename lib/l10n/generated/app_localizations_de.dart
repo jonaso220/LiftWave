@@ -150,6 +150,18 @@ class SDe extends S {
       'Mit der Nutzung akzeptierst du unsere Nutzungsbedingungen\nund Datenschutzrichtlinie.';
 
   @override
+  String get login_legalPrefix => 'Mit der Nutzung akzeptierst du unsere ';
+
+  @override
+  String get login_termsLink => 'Nutzungsbedingungen';
+
+  @override
+  String get login_legalAnd => 'und';
+
+  @override
+  String get login_privacyLink => 'Datenschutzrichtlinie';
+
+  @override
   String get login_googleError => 'Anmeldung mit Google fehlgeschlagen.';
 
   @override
@@ -861,6 +873,12 @@ class SDe extends S {
   @override
   String get paywall_legalText =>
       'Das Abo verlängert sich automatisch. Du kannst jederzeit\nim App Store kündigen.';
+
+  @override
+  String get paywall_termsLink => 'Nutzungsbedingungen';
+
+  @override
+  String get paywall_privacyLink => 'Datenschutzrichtlinie';
 
   @override
   String get paywall_purchaseError =>

@@ -150,6 +150,18 @@ class SEs extends S {
       'Al continuar, aceptas nuestros términos de servicio\ny política de privacidad.';
 
   @override
+  String get login_legalPrefix => 'Al continuar, aceptas nuestros ';
+
+  @override
+  String get login_termsLink => 'términos de servicio';
+
+  @override
+  String get login_legalAnd => 'y';
+
+  @override
+  String get login_privacyLink => 'política de privacidad';
+
+  @override
   String get login_googleError => 'No se pudo iniciar sesión con Google.';
 
   @override
@@ -862,6 +874,12 @@ class SEs extends S {
   @override
   String get paywall_legalText =>
       'La suscripción se renueva automáticamente. Puedes cancelar\nen cualquier momento desde la App Store.';
+
+  @override
+  String get paywall_termsLink => 'Términos de uso';
+
+  @override
+  String get paywall_privacyLink => 'Política de privacidad';
 
   @override
   String get paywall_purchaseError => 'No se pudo completar la compra.';

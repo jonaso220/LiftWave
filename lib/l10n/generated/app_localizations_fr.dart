@@ -150,6 +150,18 @@ class SFr extends S {
       'En continuant, vous acceptez nos conditions d\'utilisation\net notre politique de confidentialité.';
 
   @override
+  String get login_legalPrefix => 'En continuant, vous acceptez nos ';
+
+  @override
+  String get login_termsLink => 'conditions d\'utilisation';
+
+  @override
+  String get login_legalAnd => 'et notre';
+
+  @override
+  String get login_privacyLink => 'politique de confidentialité';
+
+  @override
   String get login_googleError => 'Impossible de se connecter avec Google.';
 
   @override
@@ -866,6 +878,12 @@ class SFr extends S {
   @override
   String get paywall_legalText =>
       'L\'abonnement se renouvelle automatiquement. Vous pouvez annuler\nà tout moment depuis l\'App Store.';
+
+  @override
+  String get paywall_termsLink => 'Conditions d\'utilisation';
+
+  @override
+  String get paywall_privacyLink => 'Politique de confidentialité';
 
   @override
   String get paywall_purchaseError => 'Impossible de finaliser l\'achat.';
