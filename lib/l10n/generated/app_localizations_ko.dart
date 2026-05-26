@@ -394,9 +394,6 @@ class SKo extends S {
   String get profile_upgradePro => 'PRO로 업그레이드';
 
   @override
-  String get profile_redeemCode => '코드 사용';
-
-  @override
   String get profile_restorePurchases => '구매 복원';
 
   @override
@@ -404,24 +401,6 @@ class SKo extends S {
 
   @override
   String get profile_deleteAccount => '계정 삭제';
-
-  @override
-  String get profile_redeemTitle => '코드 사용';
-
-  @override
-  String get profile_redeemSubtitle => '프로모션 코드를 입력하여 LiftWave PRO를 잠금 해제하세요.';
-
-  @override
-  String get profile_codeHint => '코드';
-
-  @override
-  String get profile_redeem => '사용하기';
-
-  @override
-  String get profile_proActivated => 'LiftWave PRO가 활성화되었습니다';
-
-  @override
-  String get profile_invalidCode => '유효하지 않은 코드입니다';
 
   @override
   String get profile_purchasesRestored => '구매가 복원되었습니다';
@@ -849,11 +828,18 @@ class SKo extends S {
   String get paywall_startTrial => '무료 체험 시작';
 
   @override
+  String get paywall_subscribe => '구독하기';
+
+  @override
   String get paywall_restorePurchases => '구매 복원';
 
   @override
   String get paywall_legalText =>
       '구독은 자동으로 갱신됩니다.\nApp Store에서 언제든지 해지할 수 있습니다.';
+
+  @override
+  String get paywall_legalTextTrial =>
+      '무료 체험 기간이 끝나면 유료 구독으로 전환됩니다. 체험 기간 중 언제든지 취소 가능합니다. 구독은 자동으로 갱신됩니다.';
 
   @override
   String get paywall_termsLink => '이용약관';
@@ -866,6 +852,32 @@ class SKo extends S {
 
   @override
   String get paywall_noPurchasesFound => '이전 구매 내역이 없습니다.';
+
+  @override
+  String paywall_trialDays(int count) {
+    return '$count일 무료';
+  }
+
+  @override
+  String paywall_trialWeeks(int count) {
+    return '$count주 무료';
+  }
+
+  @override
+  String paywall_trialMonths(int count) {
+    return '$count개월 무료';
+  }
+
+  @override
+  String paywall_trialThenPrice(String price) {
+    return '이후 $price';
+  }
+
+  @override
+  String get paywall_offersUnavailable => '제안을 불러올 수 없습니다';
+
+  @override
+  String get paywall_retry => '다시 시도';
 
   @override
   String get rest_title => '휴식';

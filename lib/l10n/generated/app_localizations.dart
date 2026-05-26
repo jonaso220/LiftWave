@@ -845,12 +845,6 @@ abstract class S {
   /// **'Actualizar a PRO'**
   String get profile_upgradePro;
 
-  /// No description provided for @profile_redeemCode.
-  ///
-  /// In es, this message translates to:
-  /// **'Canjear código'**
-  String get profile_redeemCode;
-
   /// No description provided for @profile_restorePurchases.
   ///
   /// In es, this message translates to:
@@ -868,42 +862,6 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Eliminar cuenta'**
   String get profile_deleteAccount;
-
-  /// No description provided for @profile_redeemTitle.
-  ///
-  /// In es, this message translates to:
-  /// **'Canjear código'**
-  String get profile_redeemTitle;
-
-  /// No description provided for @profile_redeemSubtitle.
-  ///
-  /// In es, this message translates to:
-  /// **'Ingresa tu código promocional para desbloquear LiftWave PRO.'**
-  String get profile_redeemSubtitle;
-
-  /// No description provided for @profile_codeHint.
-  ///
-  /// In es, this message translates to:
-  /// **'CÓDIGO'**
-  String get profile_codeHint;
-
-  /// No description provided for @profile_redeem.
-  ///
-  /// In es, this message translates to:
-  /// **'Canjear'**
-  String get profile_redeem;
-
-  /// No description provided for @profile_proActivated.
-  ///
-  /// In es, this message translates to:
-  /// **'LiftWave PRO activado'**
-  String get profile_proActivated;
-
-  /// No description provided for @profile_invalidCode.
-  ///
-  /// In es, this message translates to:
-  /// **'Código inválido'**
-  String get profile_invalidCode;
 
   /// No description provided for @profile_purchasesRestored.
   ///
@@ -1709,6 +1667,12 @@ abstract class S {
   /// **'Comenzar prueba gratis'**
   String get paywall_startTrial;
 
+  /// No description provided for @paywall_subscribe.
+  ///
+  /// In es, this message translates to:
+  /// **'Suscribirse'**
+  String get paywall_subscribe;
+
   /// No description provided for @paywall_restorePurchases.
   ///
   /// In es, this message translates to:
@@ -1720,6 +1684,12 @@ abstract class S {
   /// In es, this message translates to:
   /// **'La suscripción se renueva automáticamente. Puedes cancelar\nen cualquier momento desde la App Store.'**
   String get paywall_legalText;
+
+  /// No description provided for @paywall_legalTextTrial.
+  ///
+  /// In es, this message translates to:
+  /// **'La prueba gratis se convierte en suscripción de pago. Cancela en cualquier momento antes de que termine. La suscripción se renueva automáticamente.'**
+  String get paywall_legalTextTrial;
 
   /// No description provided for @paywall_termsLink.
   ///
@@ -1744,6 +1714,42 @@ abstract class S {
   /// In es, this message translates to:
   /// **'No se encontraron compras previas.'**
   String get paywall_noPurchasesFound;
+
+  /// No description provided for @paywall_trialDays.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} días gratis'**
+  String paywall_trialDays(int count);
+
+  /// No description provided for @paywall_trialWeeks.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} semanas gratis'**
+  String paywall_trialWeeks(int count);
+
+  /// No description provided for @paywall_trialMonths.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} meses gratis'**
+  String paywall_trialMonths(int count);
+
+  /// No description provided for @paywall_trialThenPrice.
+  ///
+  /// In es, this message translates to:
+  /// **'luego {price}'**
+  String paywall_trialThenPrice(String price);
+
+  /// No description provided for @paywall_offersUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudieron cargar las ofertas'**
+  String get paywall_offersUnavailable;
+
+  /// No description provided for @paywall_retry.
+  ///
+  /// In es, this message translates to:
+  /// **'Reintentar'**
+  String get paywall_retry;
 
   /// No description provided for @rest_title.
   ///

@@ -394,9 +394,6 @@ class SJa extends S {
   String get profile_upgradePro => 'PROにアップグレード';
 
   @override
-  String get profile_redeemCode => 'コードを引き換え';
-
-  @override
   String get profile_restorePurchases => '購入を復元';
 
   @override
@@ -404,25 +401,6 @@ class SJa extends S {
 
   @override
   String get profile_deleteAccount => 'アカウントを削除';
-
-  @override
-  String get profile_redeemTitle => 'コードを引き換え';
-
-  @override
-  String get profile_redeemSubtitle =>
-      'プロモーションコードを入力してLiftWave PROをアンロックしてください。';
-
-  @override
-  String get profile_codeHint => 'コード';
-
-  @override
-  String get profile_redeem => '引き換え';
-
-  @override
-  String get profile_proActivated => 'LiftWave PROが有効になりました';
-
-  @override
-  String get profile_invalidCode => '無効なコードです';
 
   @override
   String get profile_purchasesRestored => '購入が正常に復元されました';
@@ -850,11 +828,18 @@ class SJa extends S {
   String get paywall_startTrial => '無料トライアルを開始';
 
   @override
+  String get paywall_subscribe => '登録する';
+
+  @override
   String get paywall_restorePurchases => '購入を復元';
 
   @override
   String get paywall_legalText =>
       'サブスクリプションは自動的に更新されます。\nApp Storeからいつでもキャンセルできます。';
+
+  @override
+  String get paywall_legalTextTrial =>
+      '無料トライアル終了後、有料サブスクリプションに自動移行します。トライアル期間中いつでもキャンセル可能。サブスクリプションは自動更新されます。';
 
   @override
   String get paywall_termsLink => '利用規約';
@@ -867,6 +852,32 @@ class SJa extends S {
 
   @override
   String get paywall_noPurchasesFound => '過去の購入が見つかりません。';
+
+  @override
+  String paywall_trialDays(int count) {
+    return '$count日間無料';
+  }
+
+  @override
+  String paywall_trialWeeks(int count) {
+    return '$count週間無料';
+  }
+
+  @override
+  String paywall_trialMonths(int count) {
+    return '$countヶ月無料';
+  }
+
+  @override
+  String paywall_trialThenPrice(String price) {
+    return 'その後 $price';
+  }
+
+  @override
+  String get paywall_offersUnavailable => 'オファーを読み込めませんでした';
+
+  @override
+  String get paywall_retry => '再試行';
 
   @override
   String get rest_title => '休憩';

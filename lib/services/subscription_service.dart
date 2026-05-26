@@ -104,6 +104,14 @@ class SubscriptionService extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('SubscriptionService.loadOfferings error: $e');
+      // Retry once after a short delay (sandbox can be slow).
+      try {
+        await Future.delayed(const Duration(seconds: 2));
+        _offerings = await Purchases.getOfferings();
+        notifyListeners();
+      } catch (e2) {
+        debugPrint('SubscriptionService.loadOfferings retry error: $e2');
+      }
     }
   }
 

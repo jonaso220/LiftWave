@@ -426,20 +426,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       actions: [
-        IconButton(
-          icon: Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.bgCard,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.notifications_none_rounded,
-                color: AppColors.textSecondary, size: 20),
-          ),
-          onPressed: () {},
-        ),
-        const SizedBox(width: 8),
         Padding(
           padding: const EdgeInsets.only(right: 16),
           child: GestureDetector(

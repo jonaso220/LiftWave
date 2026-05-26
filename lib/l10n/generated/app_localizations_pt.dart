@@ -403,9 +403,6 @@ class SPt extends S {
   String get profile_upgradePro => 'Assinar o PRO';
 
   @override
-  String get profile_redeemCode => 'Resgatar código';
-
-  @override
   String get profile_restorePurchases => 'Restaurar compras';
 
   @override
@@ -413,25 +410,6 @@ class SPt extends S {
 
   @override
   String get profile_deleteAccount => 'Excluir conta';
-
-  @override
-  String get profile_redeemTitle => 'Resgatar código';
-
-  @override
-  String get profile_redeemSubtitle =>
-      'Digite seu código promocional para desbloquear o LiftWave PRO.';
-
-  @override
-  String get profile_codeHint => 'CÓDIGO';
-
-  @override
-  String get profile_redeem => 'Resgatar';
-
-  @override
-  String get profile_proActivated => 'LiftWave PRO ativado';
-
-  @override
-  String get profile_invalidCode => 'Código inválido';
 
   @override
   String get profile_purchasesRestored => 'Compras restauradas com sucesso';
@@ -868,11 +846,18 @@ class SPt extends S {
   String get paywall_startTrial => 'Começar teste grátis';
 
   @override
+  String get paywall_subscribe => 'Assinar';
+
+  @override
   String get paywall_restorePurchases => 'Restaurar compras';
 
   @override
   String get paywall_legalText =>
       'A assinatura é renovada automaticamente. Você pode cancelar\na qualquer momento pela App Store.';
+
+  @override
+  String get paywall_legalTextTrial =>
+      'O teste grátis se converte em assinatura paga. Cancele a qualquer momento antes do término. A assinatura é renovada automaticamente.';
 
   @override
   String get paywall_termsLink => 'Termos de Uso';
@@ -885,6 +870,33 @@ class SPt extends S {
 
   @override
   String get paywall_noPurchasesFound => 'Nenhuma compra anterior encontrada.';
+
+  @override
+  String paywall_trialDays(int count) {
+    return '$count dias grátis';
+  }
+
+  @override
+  String paywall_trialWeeks(int count) {
+    return '$count semanas grátis';
+  }
+
+  @override
+  String paywall_trialMonths(int count) {
+    return '$count meses grátis';
+  }
+
+  @override
+  String paywall_trialThenPrice(String price) {
+    return 'depois $price';
+  }
+
+  @override
+  String get paywall_offersUnavailable =>
+      'Não foi possível carregar as ofertas';
+
+  @override
+  String get paywall_retry => 'Tentar novamente';
 
   @override
   String get rest_title => 'Descanso';

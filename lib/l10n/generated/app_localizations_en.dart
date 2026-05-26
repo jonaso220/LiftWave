@@ -401,9 +401,6 @@ class SEn extends S {
   String get profile_upgradePro => 'Upgrade to PRO';
 
   @override
-  String get profile_redeemCode => 'Redeem code';
-
-  @override
   String get profile_restorePurchases => 'Restore purchases';
 
   @override
@@ -411,25 +408,6 @@ class SEn extends S {
 
   @override
   String get profile_deleteAccount => 'Delete account';
-
-  @override
-  String get profile_redeemTitle => 'Redeem code';
-
-  @override
-  String get profile_redeemSubtitle =>
-      'Enter your promo code to unlock LiftWave PRO.';
-
-  @override
-  String get profile_codeHint => 'CODE';
-
-  @override
-  String get profile_redeem => 'Redeem';
-
-  @override
-  String get profile_proActivated => 'LiftWave PRO activated';
-
-  @override
-  String get profile_invalidCode => 'Invalid code';
 
   @override
   String get profile_purchasesRestored => 'Purchases restored successfully';
@@ -864,11 +842,18 @@ class SEn extends S {
   String get paywall_startTrial => 'Start free trial';
 
   @override
+  String get paywall_subscribe => 'Subscribe';
+
+  @override
   String get paywall_restorePurchases => 'Restore purchases';
 
   @override
   String get paywall_legalText =>
       'Subscription renews automatically. You can cancel\nat any time from the App Store.';
+
+  @override
+  String get paywall_legalTextTrial =>
+      'Free trial converts to a paid subscription. Cancel anytime before the trial ends. Subscription renews automatically.';
 
   @override
   String get paywall_termsLink => 'Terms of Use';
@@ -881,6 +866,32 @@ class SEn extends S {
 
   @override
   String get paywall_noPurchasesFound => 'No previous purchases found.';
+
+  @override
+  String paywall_trialDays(int count) {
+    return '$count-day free trial';
+  }
+
+  @override
+  String paywall_trialWeeks(int count) {
+    return '$count-week free trial';
+  }
+
+  @override
+  String paywall_trialMonths(int count) {
+    return '$count-month free trial';
+  }
+
+  @override
+  String paywall_trialThenPrice(String price) {
+    return 'then $price';
+  }
+
+  @override
+  String get paywall_offersUnavailable => 'Could not load offers';
+
+  @override
+  String get paywall_retry => 'Retry';
 
   @override
   String get rest_title => 'Rest';

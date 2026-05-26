@@ -55,8 +55,15 @@ class AuthService {
         nonce: nonce,
       );
 
+      final idToken = appleCredential.identityToken;
+      if (idToken == null) {
+        debugPrint('AuthService.signInWithApple: identityToken was null');
+        throw Exception('Apple Sign-In failed: no identity token received');
+      }
+
       final oauthCredential = OAuthProvider('apple.com').credential(
-        idToken: appleCredential.identityToken,
+        idToken: idToken,
+        accessToken: appleCredential.authorizationCode,
         rawNonce: rawNonce,
       );
 
@@ -66,6 +73,8 @@ class AuthService {
         throw AuthCancelledException();
       }
       debugPrint('AuthService.signInWithApple error: $e');
+      rethrow;
+    } on AuthCancelledException {
       rethrow;
     } catch (e) {
       debugPrint('AuthService.signInWithApple error: $e');
