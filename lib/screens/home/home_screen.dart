@@ -77,35 +77,44 @@ class _HomeScreenState extends State<HomeScreen> {
         : l10n.home_greetingEveningNoName;
   }
 
-  Widget _buildProfileAvatar() {
+  Widget _buildProfileAvatar({double size = 36}) {
     final user = FirebaseAuth.instance.currentUser;
     final photoUrl = user?.photoURL;
     final initial = (user?.displayName?.isNotEmpty == true)
         ? user!.displayName![0].toUpperCase()
-        : '?';
+        : (user?.email?.isNotEmpty == true
+            ? user!.email![0].toUpperCase()
+            : '?');
+
+    final radius = size / 3.6; // 36 → 10, 64 → ~18
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(radius),
       child: SizedBox(
-        width: 36,
-        height: 36,
-        child: photoUrl != null
+        width: size,
+        height: size,
+        child: photoUrl != null && photoUrl.isNotEmpty
             ? Image.network(
                 photoUrl,
-                width: 36,
-                height: 36,
+                width: size,
+                height: size,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => _fallbackAvatar(initial),
+                cacheWidth: (size * 2).round(),
+                gaplessPlayback: true,
+                loadingBuilder: (ctx, child, progress) =>
+                    progress == null ? child : _fallbackAvatar(initial, size),
+                errorBuilder: (context, error, stack) =>
+                    _fallbackAvatar(initial, size),
               )
-            : _fallbackAvatar(initial),
+            : _fallbackAvatar(initial, size),
       ),
     );
   }
 
-  Widget _fallbackAvatar(String initial) {
+  Widget _fallbackAvatar(String initial, double size) {
     return Container(
-      width: 36,
-      height: 36,
+      width: size,
+      height: size,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.accentOrange, AppColors.accentYellow],
@@ -113,10 +122,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Center(
         child: Text(initial,
-            style: const TextStyle(
+            style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
-                fontSize: 16)),
+                fontSize: size * 0.44)),
       ),
     );
   }
@@ -148,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 20),
               // User info
               if (user != null) ...[
-                _buildProfileAvatar(),
+                _buildProfileAvatar(size: 64),
                 const SizedBox(height: 12),
                 Text(
                   user.displayName ?? '',

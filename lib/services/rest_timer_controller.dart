@@ -17,6 +17,10 @@ class RestTimerController extends ChangeNotifier {
 
   int _total = defaultRestSeconds;
   int _remaining = defaultRestSeconds;
+  /// Duration to use the next time [startWithDefault] is called without an
+  /// explicit seconds argument. Updated by the user via presets / custom
+  /// time so their choice persists across set completions in a workout.
+  int _preferredSeconds = defaultRestSeconds;
   bool _isRunning = false;
   bool _isVisible = false;
   bool _isCustom = false;
@@ -30,13 +34,16 @@ class RestTimerController extends ChangeNotifier {
   bool get hasFinished => _remaining == 0 && !_isRunning && _isVisible;
   double get progress => _total > 0 ? (_total - _remaining) / _total : 1.0;
 
-  /// Start the timer with the given duration (defaults to 90s) and show
-  /// the overlay. Called when a set is marked done.
-  void startWithDefault({int seconds = defaultRestSeconds}) {
-    if (seconds <= 0) return;
+  /// Start the timer using the user's preferred duration (defaults to 90s
+  /// the first time, then whichever preset/custom they last picked). Pass
+  /// [seconds] to override for this single set. Called when a set is
+  /// marked done.
+  void startWithDefault({int? seconds}) {
+    final s = seconds ?? _preferredSeconds;
+    if (s <= 0) return;
     _ticker?.cancel();
-    _total = seconds;
-    _remaining = seconds;
+    _total = s;
+    _remaining = s;
     _isRunning = true;
     _isVisible = true;
     HapticFeedback.lightImpact();
@@ -73,6 +80,7 @@ class RestTimerController extends ChangeNotifier {
     _ticker?.cancel();
     _total = seconds;
     _remaining = seconds;
+    _preferredSeconds = seconds;
     _isRunning = false;
     _isCustom = false;
     _syncWatch();
@@ -84,6 +92,7 @@ class RestTimerController extends ChangeNotifier {
     _ticker?.cancel();
     _total = seconds;
     _remaining = seconds;
+    _preferredSeconds = seconds;
     _isRunning = false;
     _isCustom = true;
     _syncWatch();
