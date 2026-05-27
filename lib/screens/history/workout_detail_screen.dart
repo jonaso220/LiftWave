@@ -1,13 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
+import '../../data/workout_store.dart';
 import '../../theme/app_theme.dart';
 import '../../models/models.dart';
+import 'workout_edit_screen.dart';
 
-class WorkoutDetailScreen extends StatelessWidget {
+class WorkoutDetailScreen extends StatefulWidget {
   final Workout workout;
 
   const WorkoutDetailScreen({super.key, required this.workout});
+
+  @override
+  State<WorkoutDetailScreen> createState() => _WorkoutDetailScreenState();
+}
+
+class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
+  late Workout workout;
+
+  @override
+  void initState() {
+    super.initState();
+    workout = widget.workout;
+    WorkoutStore.instance.addListener(_onStoreChanged);
+  }
+
+  @override
+  void dispose() {
+    WorkoutStore.instance.removeListener(_onStoreChanged);
+    super.dispose();
+  }
+
+  void _onStoreChanged() {
+    final updated = WorkoutStore.instance.workouts.firstWhere(
+      (w) => w.id == workout.id,
+      orElse: () => workout,
+    );
+    if (mounted) setState(() => workout = updated);
+  }
+
+  Future<void> _openEditor() async {
+    final saved = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => WorkoutEditScreen(workout: workout),
+      ),
+    );
+    // The store listener will refresh `workout` automatically if save happened.
+    if (saved == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.of(context).editWorkout_saved),
+          backgroundColor: AppColors.accent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+    }
+  }
 
   String _formatDate(DateTime date, BuildContext context) {
     final months = [
@@ -39,6 +90,23 @@ class WorkoutDetailScreen extends StatelessWidget {
                     color: AppColors.textPrimary, size: 18),
               ),
             ),
+            actions: [
+              GestureDetector(
+                onTap: _openEditor,
+                child: Container(
+                  margin: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.bgCard.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.edit_rounded,
+                        color: AppColors.textPrimary, size: 18),
+                  ),
+                ),
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
@@ -204,6 +272,8 @@ class _ExerciseDetailCard extends StatelessWidget {
         return AppColors.arms;
       case 'Core':
         return AppColors.core;
+      case 'CrossFit':
+        return AppColors.crossfit;
       default:
         return AppColors.primary;
     }

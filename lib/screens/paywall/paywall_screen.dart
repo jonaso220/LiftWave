@@ -139,22 +139,41 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   Future<void> _restore() async {
     setState(() => _loading = true);
-    final restored = await SubscriptionService.instance.restorePurchases();
+    final outcome = await SubscriptionService.instance.restorePurchases();
     if (!mounted) return;
     setState(() => _loading = false);
-    if (restored) {
+    if (outcome == RestoreOutcome.restored) {
       Navigator.pop(context);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.of(context).paywall_noPurchasesFound),
-          backgroundColor: AppColors.textMuted,
-          behavior: SnackBarBehavior.floating,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
+      return;
     }
+    final l10n = S.of(context);
+    final String message;
+    final Color bg;
+    switch (outcome) {
+      case RestoreOutcome.nothingToRestore:
+        message = l10n.paywall_noPurchasesFound;
+        bg = AppColors.textMuted;
+        break;
+      case RestoreOutcome.networkError:
+        message = l10n.restore_connectionError;
+        bg = AppColors.error;
+        break;
+      case RestoreOutcome.storeError:
+      case RestoreOutcome.unknownError:
+        message = l10n.restore_unknownError;
+        bg = AppColors.error;
+        break;
+      case RestoreOutcome.restored:
+        return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: bg,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   @override

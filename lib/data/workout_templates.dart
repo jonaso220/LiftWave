@@ -121,7 +121,7 @@ const List<WorkoutTemplate> workoutTemplates = [
 
   WorkoutTemplate(
     id: 'tpl_push',
-    name: 'Push',
+    name: 'Empuje',
     subtitle: 'Pecho · Hombros · Tríceps',
     icon: Icons.arrow_circle_up_rounded,
     color: AppColors.accentOrange,
@@ -179,7 +179,7 @@ const List<WorkoutTemplate> workoutTemplates = [
 
   WorkoutTemplate(
     id: 'tpl_pull',
-    name: 'Pull',
+    name: 'Tracción',
     subtitle: 'Espalda · Bíceps',
     icon: Icons.arrow_circle_down_rounded,
     color: AppColors.accent,

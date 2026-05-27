@@ -7,9 +7,11 @@ import '../../data/achievement_store.dart';
 import '../../data/mock_data.dart';
 import '../../data/workout_store.dart';
 import '../../data/progress_store.dart';
+import '../../data/workout_templates.dart';
 import '../../models/models.dart';
 import '../../services/auth_service.dart';
 import '../../services/subscription_service.dart';
+import '../../services/workout_launcher.dart';
 import '../paywall/paywall_screen.dart';
 import '../progress/progress_screen.dart';
 
@@ -206,20 +208,37 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: const TextStyle(color: AppColors.textPrimary)),
                 onTap: () async {
                   Navigator.pop(ctx);
-                  final restored =
+                  final outcome =
                       await SubscriptionService.instance.restorePurchases();
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text(restored
-                          ? l10n.profile_purchasesRestored
-                          : l10n.profile_noPurchasesFound),
-                      backgroundColor:
-                          restored ? AppColors.accent : AppColors.textMuted,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ));
+                  if (!mounted) return;
+                  final String message;
+                  final Color bg;
+                  switch (outcome) {
+                    case RestoreOutcome.restored:
+                      message = l10n.profile_purchasesRestored;
+                      bg = AppColors.accent;
+                      break;
+                    case RestoreOutcome.nothingToRestore:
+                      message = l10n.profile_noPurchasesFound;
+                      bg = AppColors.textMuted;
+                      break;
+                    case RestoreOutcome.networkError:
+                      message = l10n.restore_connectionError;
+                      bg = AppColors.error;
+                      break;
+                    case RestoreOutcome.storeError:
+                    case RestoreOutcome.unknownError:
+                      message = l10n.restore_unknownError;
+                      bg = AppColors.error;
+                      break;
                   }
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(message),
+                    backgroundColor: bg,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ));
                 },
               ),
               const Divider(indent: 16, endIndent: 16),
@@ -368,7 +387,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       .fadeIn(delay: 100.ms, duration: 400.ms)
                       .slideY(begin: 0.1, end: 0),
                   const SizedBox(height: 24),
-                  _buildQuickActions(context)
+                  _buildQuickStart(context)
                       .animate()
                       .fadeIn(delay: 200.ms, duration: 400.ms),
                   const SizedBox(height: 24),
@@ -547,62 +566,62 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
+  Widget _buildQuickStart(BuildContext context) {
     final l10n = S.of(context);
-    final actions = [
-      _QuickAction(
-          icon: Icons.fitness_center_rounded,
-          label: l10n.nav_train,
-          color: AppColors.primary,
-          onTap: () => widget.onNavigate(1)),
-      _QuickAction(
-          icon: Icons.history_rounded,
-          label: l10n.nav_history,
-          color: AppColors.accent,
-          onTap: () => widget.onNavigate(2)),
-      _QuickAction(
-          icon: Icons.timer_rounded,
-          label: l10n.nav_rest,
-          color: AppColors.accentOrange,
-          onTap: () => widget.onNavigate(3)),
-      _QuickAction(
-          icon: Icons.menu_book_rounded,
-          label: l10n.nav_exercises,
-          color: AppColors.accentYellow,
-          onTap: () => widget.onNavigate(4)),
+    // 4 most-used templates: Full Body, Push, Pull, Legs.
+    final picks = [
+      workoutTemplates[0],
+      workoutTemplates[1],
+      workoutTemplates[2],
+      workoutTemplates[4],
     ];
+
+    void launch(WorkoutTemplate t) {
+      WorkoutLauncher.instance.queue(t);
+      widget.onNavigate(1);
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l10n.home_quickAccess,
+        Text(l10n.home_quickStart,
             style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 12),
         Row(
-          children: actions
-              .map((a) => Expanded(
+          children: picks
+              .map((t) => Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: GestureDetector(
-                        onTap: a.onTap,
+                        onTap: () => launch(t),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 14, horizontal: 6),
                           decoration: BoxDecoration(
-                            color: a.color.withAlpha(30),
+                            color: t.color.withAlpha(30),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                                color: a.color.withAlpha(64), width: 1),
+                                color: t.color.withAlpha(64), width: 1),
                           ),
                           child: Column(
                             children: [
-                              Icon(a.icon, color: a.color, size: 24),
+                              Icon(t.icon, color: t.color, size: 24),
                               const SizedBox(height: 6),
                               Text(
-                                a.label,
+                                t.name,
                                 style: TextStyle(
-                                  color: a.color,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
+                                  color: t.color,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${t.exercises.length} ej.',
+                                style: const TextStyle(
+                                  color: AppColors.textMuted,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
@@ -749,6 +768,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           label: l10n.common_volume,
                           value: '${_formatVolume(workout.totalVolume)} kg'),
                     ],
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        WorkoutLauncher.instance.queueWorkout(workout);
+                        widget.onNavigate(1);
+                      },
+                      icon: const Icon(Icons.replay_rounded, size: 18),
+                      label: Text(l10n.home_repeatWorkout),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        side: BorderSide(color: AppColors.primary.withAlpha(76)),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -1004,7 +1040,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(l10n.home_exerciseLibrary,
                 style: Theme.of(context).textTheme.headlineSmall),
             GestureDetector(
-              onTap: () => widget.onNavigate(4),
+              onTap: () => widget.onNavigate(3),
               child: Text(l10n.home_viewAllExercises,
                   style: const TextStyle(
                       color: AppColors.primary,
@@ -1021,7 +1057,7 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 12),
         ...recent.map((ex) => _RecentExerciseItem(
               exercise: ex,
-              onTap: () => widget.onNavigate(4),
+              onTap: () => widget.onNavigate(3),
             )),
       ],
     );
@@ -1111,20 +1147,6 @@ class _WorkoutStat extends StatelessWidget {
   }
 }
 
-class _QuickAction {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  _QuickAction({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-}
-
 class _ProgressStat extends StatelessWidget {
   final String label;
   final String value;
@@ -1173,6 +1195,8 @@ class _RecentExerciseItem extends StatelessWidget {
         return AppColors.arms;
       case 'Core':
         return AppColors.core;
+      case 'CrossFit':
+        return AppColors.crossfit;
       default:
         return AppColors.primary;
     }

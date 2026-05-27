@@ -69,6 +69,25 @@ class WorkoutStore extends ChangeNotifier {
     }
   }
 
+  // ── Update ───────────────────────────────────────────────────────────────
+
+  /// Replace an existing workout with [updated] (keyed by id). Persists to
+  /// Firestore. Used by the History edit flow.
+  Future<void> update(Workout updated) async {
+    final idx = _workouts.indexWhere((w) => w.id == updated.id);
+    if (idx == -1) return;
+    _workouts[idx] = updated;
+    notifyListeners();
+
+    try {
+      await FirebaseService.instance.workoutsRef
+          .doc(updated.id)
+          .set(updated.toJson());
+    } catch (e) {
+      debugPrint('WorkoutStore.update error: $e');
+    }
+  }
+
   // ── Delete ───────────────────────────────────────────────────────────────
 
   Future<void> remove(String id) async {

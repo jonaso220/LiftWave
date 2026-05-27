@@ -135,14 +135,30 @@ class SubscriptionService extends ChangeNotifier {
 
   // ── Restore ────────────────────────────────────────────────────────────────
 
-  Future<bool> restorePurchases() async {
+  /// Outcome of a restore attempt — lets the UI show specific feedback
+  /// instead of a single ambiguous "no purchases found" message.
+  Future<RestoreOutcome> restorePurchases() async {
     try {
       final info = await Purchases.restorePurchases();
       _updateStatus(info);
-      return isPro;
+      return isPro ? RestoreOutcome.restored : RestoreOutcome.nothingToRestore;
+    } on PlatformException catch (e) {
+      final code = PurchasesErrorHelper.getErrorCode(e);
+      debugPrint(
+          'SubscriptionService.restorePurchases error: $code ${e.message}');
+      switch (code) {
+        case PurchasesErrorCode.networkError:
+          return RestoreOutcome.networkError;
+        case PurchasesErrorCode.storeProblemError:
+        case PurchasesErrorCode.unknownBackendError:
+        case PurchasesErrorCode.unexpectedBackendResponseError:
+          return RestoreOutcome.storeError;
+        default:
+          return RestoreOutcome.unknownError;
+      }
     } catch (e) {
       debugPrint('SubscriptionService.restorePurchases error: $e');
-      return false;
+      return RestoreOutcome.unknownError;
     }
   }
 
@@ -153,4 +169,12 @@ class SubscriptionService extends ChangeNotifier {
     _authSub?.cancel();
     super.dispose();
   }
+}
+
+enum RestoreOutcome {
+  restored,
+  nothingToRestore,
+  networkError,
+  storeError,
+  unknownError,
 }

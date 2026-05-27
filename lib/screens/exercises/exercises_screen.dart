@@ -521,6 +521,8 @@ class _ExerciseDetailSheet extends StatelessWidget {
         return AppColors.arms;
       case 'Core':
         return AppColors.core;
+      case 'CrossFit':
+        return AppColors.crossfit;
       default:
         return AppColors.primary;
     }

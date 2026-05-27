@@ -3,7 +3,6 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/train/train_screen.dart';
 import '../screens/history/history_screen.dart';
-import '../screens/rest/rest_screen.dart';
 import '../screens/exercises/exercises_screen.dart';
 import '../theme/app_theme.dart';
 
@@ -27,7 +26,6 @@ class _MainNavigationState extends State<MainNavigation> {
       HomeScreen(onNavigate: _navigateTo),
       const TrainScreen(),
       const HistoryScreen(),
-      const RestScreen(),
       const ExercisesScreen(),
     ];
 
@@ -45,7 +43,6 @@ class _MainNavigationState extends State<MainNavigation> {
       _NavItem(icon: Icons.home_rounded, label: S.of(context).nav_home),
       _NavItem(icon: Icons.fitness_center_rounded, label: S.of(context).nav_train),
       _NavItem(icon: Icons.history_rounded, label: S.of(context).nav_history),
-      _NavItem(icon: Icons.timer_rounded, label: S.of(context).nav_rest),
       _NavItem(icon: Icons.menu_book_rounded, label: S.of(context).nav_exercises),
     ];
 
@@ -68,7 +65,7 @@ class _MainNavigationState extends State<MainNavigation> {
                 onTap: () => _navigateTo(index),
                 behavior: HitTestBehavior.opaque,
                 child: SizedBox(
-                  width: 64,
+                  width: 72,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -78,7 +75,7 @@ class _MainNavigationState extends State<MainNavigation> {
                             horizontal: 14, vertical: 6),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppColors.primary.withOpacity(0.15)
+                              ? AppColors.primary.withAlpha(38)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
                         ),

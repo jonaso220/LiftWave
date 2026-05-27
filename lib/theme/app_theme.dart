@@ -34,6 +34,7 @@ class AppColors {
   static const Color shoulders = Color(0xFFFFD166);
   static const Color arms = Color(0xFFFF6B6B);
   static const Color core = Color(0xFF4ECDC4);
+  static const Color crossfit = Color(0xFFE63946);
 }
 
 class AppTheme {

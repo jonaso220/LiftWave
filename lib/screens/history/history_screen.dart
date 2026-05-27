@@ -21,15 +21,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void initState() {
     super.initState();
     WorkoutStore.instance.addListener(_onStoreChanged);
+    SubscriptionService.instance.addListener(_onStoreChanged);
   }
 
   @override
   void dispose() {
     WorkoutStore.instance.removeListener(_onStoreChanged);
+    SubscriptionService.instance.removeListener(_onStoreChanged);
     super.dispose();
   }
 
-  void _onStoreChanged() => setState(() {});
+  void _onStoreChanged() {
+    if (mounted) setState(() {});
+  }
 
   // ── Week stats ─────────────────────────────────────────────────────────────
 
@@ -560,6 +564,8 @@ class _SmallMuscleTag extends StatelessWidget {
         return AppColors.arms;
       case 'Core':
         return AppColors.core;
+      case 'CrossFit':
+        return AppColors.crossfit;
       default:
         return AppColors.primary;
     }

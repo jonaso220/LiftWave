@@ -16,6 +16,18 @@ class SessionSet {
       completed: completed ?? this.completed,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+        'reps': reps,
+        'weight': weight,
+        'completed': completed,
+      };
+
+  factory SessionSet.fromJson(Map<String, dynamic> j) => SessionSet(
+        reps: (j['reps'] as num?)?.toInt() ?? 10,
+        weight: (j['weight'] as num?)?.toDouble() ?? 0,
+        completed: j['completed'] as bool? ?? false,
+      );
 }
 
 class SessionExercise {
@@ -41,4 +53,24 @@ class SessionExercise {
       );
 
   int get completedSets => sets.where((s) => s.completed).length;
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'muscleGroup': muscleGroup,
+        'equipment': equipment,
+        'sets': sets.map((s) => s.toJson()).toList(),
+        'notes': notes,
+      };
+
+  factory SessionExercise.fromJson(Map<String, dynamic> j) => SessionExercise(
+        id: j['id'] as String,
+        name: j['name'] as String,
+        muscleGroup: j['muscleGroup'] as String,
+        equipment: j['equipment'] as String? ?? '',
+        sets: (j['sets'] as List)
+            .map((s) => SessionSet.fromJson(Map<String, dynamic>.from(s as Map)))
+            .toList(),
+        notes: j['notes'] as String?,
+      );
 }

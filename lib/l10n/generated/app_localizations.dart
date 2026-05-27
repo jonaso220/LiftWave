@@ -251,6 +251,12 @@ abstract class S {
   /// **'Core'**
   String get muscle_core;
 
+  /// No description provided for @muscle_crossfit.
+  ///
+  /// In es, this message translates to:
+  /// **'CrossFit'**
+  String get muscle_crossfit;
+
   /// No description provided for @equipment_all.
   ///
   /// In es, this message translates to:
@@ -713,11 +719,53 @@ abstract class S {
   /// **'Acceso rápido'**
   String get home_quickAccess;
 
+  /// No description provided for @home_quickStart.
+  ///
+  /// In es, this message translates to:
+  /// **'Empezar rápido'**
+  String get home_quickStart;
+
+  /// No description provided for @restTimer_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Descanso'**
+  String get restTimer_title;
+
+  /// No description provided for @restTimer_resting.
+  ///
+  /// In es, this message translates to:
+  /// **'DESCANSANDO'**
+  String get restTimer_resting;
+
+  /// No description provided for @restTimer_done.
+  ///
+  /// In es, this message translates to:
+  /// **'¡LISTO!'**
+  String get restTimer_done;
+
   /// No description provided for @home_lastWorkout.
   ///
   /// In es, this message translates to:
   /// **'Último entrenamiento'**
   String get home_lastWorkout;
+
+  /// No description provided for @home_repeatWorkout.
+  ///
+  /// In es, this message translates to:
+  /// **'Repetir entrenamiento'**
+  String get home_repeatWorkout;
+
+  /// No description provided for @editWorkout_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar entrenamiento'**
+  String get editWorkout_title;
+
+  /// No description provided for @editWorkout_saved.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrenamiento actualizado'**
+  String get editWorkout_saved;
 
   /// No description provided for @home_viewAll.
   ///
@@ -875,6 +923,18 @@ abstract class S {
   /// **'No se encontraron compras previas'**
   String get profile_noPurchasesFound;
 
+  /// No description provided for @restore_connectionError.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin conexión. Verifica tu internet e inténtalo de nuevo.'**
+  String get restore_connectionError;
+
+  /// No description provided for @restore_unknownError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo restaurar. Inténtalo de nuevo.'**
+  String get restore_unknownError;
+
   /// No description provided for @profile_deleteTitle.
   ///
   /// In es, this message translates to:
@@ -940,6 +1000,42 @@ abstract class S {
   /// In es, this message translates to:
   /// **'En curso'**
   String get train_inProgress;
+
+  /// No description provided for @train_readyToStart.
+  ///
+  /// In es, this message translates to:
+  /// **'Listo para empezar'**
+  String get train_readyToStart;
+
+  /// No description provided for @train_startSession.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar'**
+  String get train_startSession;
+
+  /// No description provided for @train_resumeTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Continuar entrenamiento?'**
+  String get train_resumeTitle;
+
+  /// No description provided for @train_resumeBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Tenías un entrenamiento de \"{name}\" sin terminar. ¿Quieres continuar donde lo dejaste?'**
+  String train_resumeBody(String name);
+
+  /// No description provided for @train_resumeContinue.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar'**
+  String get train_resumeContinue;
+
+  /// No description provided for @train_resumeDiscard.
+  ///
+  /// In es, this message translates to:
+  /// **'Descartar'**
+  String get train_resumeDiscard;
 
   /// No description provided for @train_cancelWorkout.
   ///
@@ -1084,6 +1180,12 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Eliminar ejercicio'**
   String get train_deleteExercise;
+
+  /// No description provided for @train_deleteExerciseConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Eliminar \"{name}\"? Se perderán las series completadas.'**
+  String train_deleteExerciseConfirm(String name);
 
   /// No description provided for @train_notesHint.
   ///
@@ -2254,6 +2356,306 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Supera tu peso máximo en un ejercicio'**
   String get achievement_personalRecord_description;
+
+  /// No description provided for @achievement_streak14_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Racha de 14 días'**
+  String get achievement_streak14_title;
+
+  /// No description provided for @achievement_streak14_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrena al menos 1 vez durante 14 días consecutivos'**
+  String get achievement_streak14_description;
+
+  /// No description provided for @achievement_streak100_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Racha de 100 días'**
+  String get achievement_streak100_title;
+
+  /// No description provided for @achievement_streak100_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Mantén la racha 100 días con al menos 1 entrenamiento por semana'**
+  String get achievement_streak100_description;
+
+  /// No description provided for @achievement_streak365_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Un año entrenando'**
+  String get achievement_streak365_title;
+
+  /// No description provided for @achievement_streak365_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Mantén la racha durante 1 año completo'**
+  String get achievement_streak365_description;
+
+  /// No description provided for @achievement_bench50_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Press 50 kg'**
+  String get achievement_bench50_title;
+
+  /// No description provided for @achievement_bench50_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa un press de banca con 50 kg o más'**
+  String get achievement_bench50_description;
+
+  /// No description provided for @achievement_bench100_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Press 100 kg'**
+  String get achievement_bench100_title;
+
+  /// No description provided for @achievement_bench100_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa un press de banca con 100 kg o más'**
+  String get achievement_bench100_description;
+
+  /// No description provided for @achievement_squat100_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Sentadilla 100 kg'**
+  String get achievement_squat100_title;
+
+  /// No description provided for @achievement_squat100_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa una sentadilla con 100 kg o más'**
+  String get achievement_squat100_description;
+
+  /// No description provided for @achievement_squat150_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Sentadilla 150 kg'**
+  String get achievement_squat150_title;
+
+  /// No description provided for @achievement_squat150_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa una sentadilla con 150 kg o más'**
+  String get achievement_squat150_description;
+
+  /// No description provided for @achievement_deadlift100_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Peso muerto 100 kg'**
+  String get achievement_deadlift100_title;
+
+  /// No description provided for @achievement_deadlift100_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa un peso muerto con 100 kg o más'**
+  String get achievement_deadlift100_description;
+
+  /// No description provided for @achievement_deadlift150_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Peso muerto 150 kg'**
+  String get achievement_deadlift150_title;
+
+  /// No description provided for @achievement_deadlift150_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa un peso muerto con 150 kg o más'**
+  String get achievement_deadlift150_description;
+
+  /// No description provided for @achievement_deadlift200_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Peso muerto 200 kg'**
+  String get achievement_deadlift200_title;
+
+  /// No description provided for @achievement_deadlift200_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa un peso muerto con 200 kg o más'**
+  String get achievement_deadlift200_description;
+
+  /// No description provided for @achievement_explorer10_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Explorador'**
+  String get achievement_explorer10_title;
+
+  /// No description provided for @achievement_explorer10_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Usa 10 ejercicios diferentes en tus entrenamientos'**
+  String get achievement_explorer10_description;
+
+  /// No description provided for @achievement_master25_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Maestro'**
+  String get achievement_master25_title;
+
+  /// No description provided for @achievement_master25_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Usa 25 ejercicios diferentes en tus entrenamientos'**
+  String get achievement_master25_description;
+
+  /// No description provided for @achievement_fullBodyGroups_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuerpo completo'**
+  String get achievement_fullBodyGroups_title;
+
+  /// No description provided for @achievement_fullBodyGroups_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrena al menos una vez todos los grupos musculares'**
+  String get achievement_fullBodyGroups_description;
+
+  /// No description provided for @achievement_crossfitFan_title.
+  ///
+  /// In es, this message translates to:
+  /// **'CrossFit Fan'**
+  String get achievement_crossfitFan_title;
+
+  /// No description provided for @achievement_crossfitFan_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa 10 ejercicios diferentes de la categoría CrossFit'**
+  String get achievement_crossfitFan_description;
+
+  /// No description provided for @achievement_time1h_title.
+  ///
+  /// In es, this message translates to:
+  /// **'1 hora total'**
+  String get achievement_time1h_title;
+
+  /// No description provided for @achievement_time1h_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Acumula 1 hora total de entrenamiento'**
+  String get achievement_time1h_description;
+
+  /// No description provided for @achievement_time10h_title.
+  ///
+  /// In es, this message translates to:
+  /// **'10 horas'**
+  String get achievement_time10h_title;
+
+  /// No description provided for @achievement_time10h_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Acumula 10 horas totales de entrenamiento'**
+  String get achievement_time10h_description;
+
+  /// No description provided for @achievement_time50h_title.
+  ///
+  /// In es, this message translates to:
+  /// **'50 horas'**
+  String get achievement_time50h_title;
+
+  /// No description provided for @achievement_time50h_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Acumula 50 horas totales de entrenamiento'**
+  String get achievement_time50h_description;
+
+  /// No description provided for @achievement_time100h_title.
+  ///
+  /// In es, this message translates to:
+  /// **'100 horas'**
+  String get achievement_time100h_title;
+
+  /// No description provided for @achievement_time100h_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Acumula 100 horas totales de entrenamiento'**
+  String get achievement_time100h_description;
+
+  /// No description provided for @achievement_earlyBird_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Madrugador'**
+  String get achievement_earlyBird_title;
+
+  /// No description provided for @achievement_earlyBird_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Empieza un entrenamiento antes de las 7:00 AM'**
+  String get achievement_earlyBird_description;
+
+  /// No description provided for @achievement_nightOwl_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Búho nocturno'**
+  String get achievement_nightOwl_title;
+
+  /// No description provided for @achievement_nightOwl_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Termina un entrenamiento después de las 22:00'**
+  String get achievement_nightOwl_description;
+
+  /// No description provided for @achievement_comeback_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Comeback'**
+  String get achievement_comeback_title;
+
+  /// No description provided for @achievement_comeback_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Vuelves a entrenar tras 30+ días sin actividad'**
+  String get achievement_comeback_description;
+
+  /// No description provided for @achievement_marathoner_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Maratoniano'**
+  String get achievement_marathoner_title;
+
+  /// No description provided for @achievement_marathoner_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa un entrenamiento de más de 90 minutos'**
+  String get achievement_marathoner_description;
+
+  /// No description provided for @achievement_efficient_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Eficiente'**
+  String get achievement_efficient_title;
+
+  /// No description provided for @achievement_efficient_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa un entrenamiento de 3+ ejercicios en menos de 30 minutos'**
+  String get achievement_efficient_description;
+
+  /// No description provided for @achievement_weekendWarrior_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Guerrero de fin de semana'**
+  String get achievement_weekendWarrior_title;
+
+  /// No description provided for @achievement_weekendWarrior_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrena sábado y domingo durante 3 fines de semana seguidos'**
+  String get achievement_weekendWarrior_description;
+
+  /// No description provided for @achievement_weeklyVariety_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Variedad semanal'**
+  String get achievement_weeklyVariety_title;
+
+  /// No description provided for @achievement_weeklyVariety_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrena 5 grupos musculares diferentes en una semana'**
+  String get achievement_weeklyVariety_description;
 
   /// No description provided for @csv_header.
   ///

@@ -83,6 +83,9 @@ class SJa extends S {
   String get muscle_core => '体幹';
 
   @override
+  String get muscle_crossfit => 'クロスフィット';
+
+  @override
   String get equipment_all => 'すべて';
 
   @override
@@ -324,7 +327,28 @@ class SJa extends S {
   String get home_quickAccess => 'クイックアクセス';
 
   @override
+  String get home_quickStart => 'クイックスタート';
+
+  @override
+  String get restTimer_title => '休憩';
+
+  @override
+  String get restTimer_resting => '休憩中';
+
+  @override
+  String get restTimer_done => '完了！';
+
+  @override
   String get home_lastWorkout => '最後のトレーニング';
+
+  @override
+  String get home_repeatWorkout => 'トレーニングを繰り返す';
+
+  @override
+  String get editWorkout_title => 'トレーニングを編集';
+
+  @override
+  String get editWorkout_saved => 'トレーニングを更新しました';
 
   @override
   String get home_viewAll => 'すべて見る';
@@ -409,6 +433,12 @@ class SJa extends S {
   String get profile_noPurchasesFound => '過去の購入が見つかりません';
 
   @override
+  String get restore_connectionError => '接続できません。インターネットを確認して再試行してください。';
+
+  @override
+  String get restore_unknownError => '復元できませんでした。再試行してください。';
+
+  @override
   String get profile_deleteTitle => 'アカウントを削除';
 
   @override
@@ -441,6 +471,26 @@ class SJa extends S {
 
   @override
   String get train_inProgress => '進行中';
+
+  @override
+  String get train_readyToStart => '開始準備完了';
+
+  @override
+  String get train_startSession => '開始';
+
+  @override
+  String get train_resumeTitle => 'トレーニングを再開しますか？';
+
+  @override
+  String train_resumeBody(String name) {
+    return '未完了の\"$name\"トレーニングがあります。続けますか？';
+  }
+
+  @override
+  String get train_resumeContinue => '続ける';
+
+  @override
+  String get train_resumeDiscard => '破棄';
 
   @override
   String get train_cancelWorkout => 'トレーニングをキャンセル';
@@ -523,6 +573,11 @@ class SJa extends S {
 
   @override
   String get train_deleteExercise => 'エクササイズを削除';
+
+  @override
+  String train_deleteExerciseConfirm(String name) {
+    return '\"$name\"を削除しますか？完了したセットは失われます。';
+  }
 
   @override
   String get train_notesHint => 'メモ（任意）';
@@ -1136,6 +1191,158 @@ class SJa extends S {
 
   @override
   String get achievement_personalRecord_description => 'エクササイズの最大重量を更新する';
+
+  @override
+  String get achievement_streak14_title => '14日連続';
+
+  @override
+  String get achievement_streak14_description => '14日連続で少なくとも1回トレーニング';
+
+  @override
+  String get achievement_streak100_title => '100日連続';
+
+  @override
+  String get achievement_streak100_description => '週1回以上のトレーニングを100日間継続';
+
+  @override
+  String get achievement_streak365_title => '1年間達成';
+
+  @override
+  String get achievement_streak365_description => '連続記録を丸1年間維持する';
+
+  @override
+  String get achievement_bench50_title => 'ベンチプレス50kg';
+
+  @override
+  String get achievement_bench50_description => '50kg以上のベンチプレスを達成';
+
+  @override
+  String get achievement_bench100_title => 'ベンチプレス100kg';
+
+  @override
+  String get achievement_bench100_description => '100kg以上のベンチプレスを達成';
+
+  @override
+  String get achievement_squat100_title => 'スクワット100kg';
+
+  @override
+  String get achievement_squat100_description => '100kg以上のスクワットを達成';
+
+  @override
+  String get achievement_squat150_title => 'スクワット150kg';
+
+  @override
+  String get achievement_squat150_description => '150kg以上のスクワットを達成';
+
+  @override
+  String get achievement_deadlift100_title => 'デッドリフト100kg';
+
+  @override
+  String get achievement_deadlift100_description => '100kg以上のデッドリフトを達成';
+
+  @override
+  String get achievement_deadlift150_title => 'デッドリフト150kg';
+
+  @override
+  String get achievement_deadlift150_description => '150kg以上のデッドリフトを達成';
+
+  @override
+  String get achievement_deadlift200_title => 'デッドリフト200kg';
+
+  @override
+  String get achievement_deadlift200_description => '200kg以上のデッドリフトを達成';
+
+  @override
+  String get achievement_explorer10_title => 'エクスプローラー';
+
+  @override
+  String get achievement_explorer10_description => '10種類の異なるエクササイズを使う';
+
+  @override
+  String get achievement_master25_title => 'マスター';
+
+  @override
+  String get achievement_master25_description => '25種類の異なるエクササイズを使う';
+
+  @override
+  String get achievement_fullBodyGroups_title => '全身制覇';
+
+  @override
+  String get achievement_fullBodyGroups_description =>
+      'すべての筋肉グループを少なくとも1回トレーニング';
+
+  @override
+  String get achievement_crossfitFan_title => 'クロスフィットファン';
+
+  @override
+  String get achievement_crossfitFan_description =>
+      'クロスフィットカテゴリーから10種類のエクササイズを完了';
+
+  @override
+  String get achievement_time1h_title => '合計1時間';
+
+  @override
+  String get achievement_time1h_description => '合計1時間のトレーニング時間を達成';
+
+  @override
+  String get achievement_time10h_title => '10時間';
+
+  @override
+  String get achievement_time10h_description => '合計10時間のトレーニング時間を達成';
+
+  @override
+  String get achievement_time50h_title => '50時間';
+
+  @override
+  String get achievement_time50h_description => '合計50時間のトレーニング時間を達成';
+
+  @override
+  String get achievement_time100h_title => '100時間';
+
+  @override
+  String get achievement_time100h_description => '合計100時間のトレーニング時間を達成';
+
+  @override
+  String get achievement_earlyBird_title => '早起き';
+
+  @override
+  String get achievement_earlyBird_description => '朝7時前にトレーニングを開始';
+
+  @override
+  String get achievement_nightOwl_title => '夜更かし';
+
+  @override
+  String get achievement_nightOwl_description => '22時以降にトレーニングを終了';
+
+  @override
+  String get achievement_comeback_title => 'カムバック';
+
+  @override
+  String get achievement_comeback_description => '30日以上の休止後にトレーニング再開';
+
+  @override
+  String get achievement_marathoner_title => 'マラソナー';
+
+  @override
+  String get achievement_marathoner_description => '90分以上のトレーニングを完了';
+
+  @override
+  String get achievement_efficient_title => '効率的';
+
+  @override
+  String get achievement_efficient_description => '3種目以上のトレーニングを30分以内に完了';
+
+  @override
+  String get achievement_weekendWarrior_title => '週末戦士';
+
+  @override
+  String get achievement_weekendWarrior_description => '3週連続で土日にトレーニング';
+
+  @override
+  String get achievement_weeklyVariety_title => '週間バラエティ';
+
+  @override
+  String get achievement_weeklyVariety_description => '1週間で5つの異なる筋肉グループをトレーニング';
 
   @override
   String get csv_header => '日付,トレーニング,エクササイズ,筋肉群,セット,レップ,重量 (kg),ボリューム (kg)';

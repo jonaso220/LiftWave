@@ -83,6 +83,9 @@ class SDe extends S {
   String get muscle_core => 'Core';
 
   @override
+  String get muscle_crossfit => 'CrossFit';
+
+  @override
   String get equipment_all => 'Alle';
 
   @override
@@ -332,7 +335,28 @@ class SDe extends S {
   String get home_quickAccess => 'Schnellzugriff';
 
   @override
+  String get home_quickStart => 'Schnellstart';
+
+  @override
+  String get restTimer_title => 'Pause';
+
+  @override
+  String get restTimer_resting => 'PAUSE';
+
+  @override
+  String get restTimer_done => 'FERTIG!';
+
+  @override
   String get home_lastWorkout => 'Letztes Training';
+
+  @override
+  String get home_repeatWorkout => 'Training wiederholen';
+
+  @override
+  String get editWorkout_title => 'Training bearbeiten';
+
+  @override
+  String get editWorkout_saved => 'Training aktualisiert';
 
   @override
   String get home_viewAll => 'Alle anzeigen';
@@ -419,6 +443,14 @@ class SDe extends S {
   String get profile_noPurchasesFound => 'Keine früheren Käufe gefunden';
 
   @override
+  String get restore_connectionError =>
+      'Keine Verbindung. Prüfe dein Internet und versuche es erneut.';
+
+  @override
+  String get restore_unknownError =>
+      'Wiederherstellung fehlgeschlagen. Versuche es erneut.';
+
+  @override
   String get profile_deleteTitle => 'Konto löschen';
 
   @override
@@ -453,6 +485,26 @@ class SDe extends S {
 
   @override
   String get train_inProgress => 'Läuft';
+
+  @override
+  String get train_readyToStart => 'Bereit zum Starten';
+
+  @override
+  String get train_startSession => 'Starten';
+
+  @override
+  String get train_resumeTitle => 'Training fortsetzen?';
+
+  @override
+  String train_resumeBody(String name) {
+    return 'Du hast ein unbeendetes \"$name\"-Training. Da fortsetzen, wo du aufgehört hast?';
+  }
+
+  @override
+  String get train_resumeContinue => 'Fortsetzen';
+
+  @override
+  String get train_resumeDiscard => 'Verwerfen';
 
   @override
   String get train_cancelWorkout => 'Training abbrechen';
@@ -538,6 +590,11 @@ class SDe extends S {
 
   @override
   String get train_deleteExercise => 'Übung löschen';
+
+  @override
+  String train_deleteExerciseConfirm(String name) {
+    return '\"$name\" löschen? Abgeschlossene Sätze gehen verloren.';
+  }
 
   @override
   String get train_notesHint => 'Notizen (optional)';
@@ -1169,6 +1226,181 @@ class SDe extends S {
   @override
   String get achievement_personalRecord_description =>
       'Übertreffe dein Maximalgewicht bei einer Übung';
+
+  @override
+  String get achievement_streak14_title => '14-Tage-Serie';
+
+  @override
+  String get achievement_streak14_description =>
+      'Trainiere mindestens 1× an 14 aufeinanderfolgenden Tagen';
+
+  @override
+  String get achievement_streak100_title => '100-Tage-Serie';
+
+  @override
+  String get achievement_streak100_description =>
+      'Halte die Serie 100 Tage mit mindestens 1 Training pro Woche';
+
+  @override
+  String get achievement_streak365_title => 'Ein Jahr durch';
+
+  @override
+  String get achievement_streak365_description =>
+      'Halte die Serie ein volles Jahr durch';
+
+  @override
+  String get achievement_bench50_title => 'Bankdrücken 50 kg';
+
+  @override
+  String get achievement_bench50_description =>
+      'Schaffe ein Bankdrücken mit 50 kg oder mehr';
+
+  @override
+  String get achievement_bench100_title => 'Bankdrücken 100 kg';
+
+  @override
+  String get achievement_bench100_description =>
+      'Schaffe ein Bankdrücken mit 100 kg oder mehr';
+
+  @override
+  String get achievement_squat100_title => 'Kniebeuge 100 kg';
+
+  @override
+  String get achievement_squat100_description =>
+      'Schaffe eine Kniebeuge mit 100 kg oder mehr';
+
+  @override
+  String get achievement_squat150_title => 'Kniebeuge 150 kg';
+
+  @override
+  String get achievement_squat150_description =>
+      'Schaffe eine Kniebeuge mit 150 kg oder mehr';
+
+  @override
+  String get achievement_deadlift100_title => 'Kreuzheben 100 kg';
+
+  @override
+  String get achievement_deadlift100_description =>
+      'Schaffe ein Kreuzheben mit 100 kg oder mehr';
+
+  @override
+  String get achievement_deadlift150_title => 'Kreuzheben 150 kg';
+
+  @override
+  String get achievement_deadlift150_description =>
+      'Schaffe ein Kreuzheben mit 150 kg oder mehr';
+
+  @override
+  String get achievement_deadlift200_title => 'Kreuzheben 200 kg';
+
+  @override
+  String get achievement_deadlift200_description =>
+      'Schaffe ein Kreuzheben mit 200 kg oder mehr';
+
+  @override
+  String get achievement_explorer10_title => 'Entdecker';
+
+  @override
+  String get achievement_explorer10_description =>
+      'Nutze 10 verschiedene Übungen in deinen Trainings';
+
+  @override
+  String get achievement_master25_title => 'Meister';
+
+  @override
+  String get achievement_master25_description =>
+      'Nutze 25 verschiedene Übungen in deinen Trainings';
+
+  @override
+  String get achievement_fullBodyGroups_title => 'Ganzkörper';
+
+  @override
+  String get achievement_fullBodyGroups_description =>
+      'Trainiere jede Muskelgruppe mindestens einmal';
+
+  @override
+  String get achievement_crossfitFan_title => 'CrossFit-Fan';
+
+  @override
+  String get achievement_crossfitFan_description =>
+      'Schaffe 10 verschiedene Übungen aus der CrossFit-Kategorie';
+
+  @override
+  String get achievement_time1h_title => '1 Stunde gesamt';
+
+  @override
+  String get achievement_time1h_description =>
+      'Sammle 1 Stunde Trainingszeit insgesamt';
+
+  @override
+  String get achievement_time10h_title => '10 Stunden';
+
+  @override
+  String get achievement_time10h_description =>
+      'Sammle 10 Stunden Trainingszeit insgesamt';
+
+  @override
+  String get achievement_time50h_title => '50 Stunden';
+
+  @override
+  String get achievement_time50h_description =>
+      'Sammle 50 Stunden Trainingszeit insgesamt';
+
+  @override
+  String get achievement_time100h_title => '100 Stunden';
+
+  @override
+  String get achievement_time100h_description =>
+      'Sammle 100 Stunden Trainingszeit insgesamt';
+
+  @override
+  String get achievement_earlyBird_title => 'Frühaufsteher';
+
+  @override
+  String get achievement_earlyBird_description =>
+      'Starte ein Training vor 7:00 Uhr';
+
+  @override
+  String get achievement_nightOwl_title => 'Nachteule';
+
+  @override
+  String get achievement_nightOwl_description =>
+      'Beende ein Training nach 22:00 Uhr';
+
+  @override
+  String get achievement_comeback_title => 'Comeback';
+
+  @override
+  String get achievement_comeback_description =>
+      'Komm nach 30+ Tagen Pause zurück zum Training';
+
+  @override
+  String get achievement_marathoner_title => 'Marathonläufer';
+
+  @override
+  String get achievement_marathoner_description =>
+      'Schaffe ein Training von mehr als 90 Minuten';
+
+  @override
+  String get achievement_efficient_title => 'Effizient';
+
+  @override
+  String get achievement_efficient_description =>
+      'Schaffe ein Training mit 3+ Übungen in unter 30 Minuten';
+
+  @override
+  String get achievement_weekendWarrior_title => 'Wochenend-Krieger';
+
+  @override
+  String get achievement_weekendWarrior_description =>
+      'Trainiere Samstag und Sonntag an 3 Wochenenden in Folge';
+
+  @override
+  String get achievement_weeklyVariety_title => 'Wöchentliche Vielfalt';
+
+  @override
+  String get achievement_weeklyVariety_description =>
+      'Trainiere 5 verschiedene Muskelgruppen in einer Woche';
 
   @override
   String get csv_header =>

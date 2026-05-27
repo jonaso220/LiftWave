@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/achievement_store.dart';
+import '../../data/active_workout_store.dart';
 import '../../data/custom_template_store.dart';
 import '../../models/achievement_models.dart';
 import '../../data/workout_templates.dart';
@@ -10,10 +11,13 @@ import '../../models/session_models.dart';
 import '../../models/models.dart';
 import '../../data/workout_store.dart';
 import '../exercises/exercise_progress_sheet.dart';
+import '../../services/rest_timer_controller.dart';
 import '../../services/watch_service.dart';
+import '../../services/workout_launcher.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/pro_gate.dart';
 import '../../widgets/common/muscle_chip.dart';
+import '../../widgets/rest_timer_overlay.dart';
 import 'exercise_picker_screen.dart';
 
 class TrainScreen extends StatefulWidget {
@@ -25,25 +29,154 @@ class TrainScreen extends StatefulWidget {
 
 class _TrainScreenState extends State<TrainScreen> {
   bool _workoutStarted = false;
+  bool _timerRunning = false;
   Timer? _timer;
   int _elapsedSeconds = 0;
   final List<SessionExercise> _exercises = [];
   String? _workoutName; // null → 'Entrenamiento libre'
+  DateTime? _startedAt;
+  bool _restoreChecked = false;
 
   @override
   void initState() {
     super.initState();
     CustomTemplateStore.instance.addListener(_onTemplatesChanged);
+    WorkoutLauncher.instance.addListener(_onLauncherChanged);
+    // Consume any template queued before this screen mounted (e.g. tapped on
+    // Home before navigating).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForActiveSessionToRestore().then((_) {
+        _consumePendingTemplate();
+      });
+    });
   }
 
   @override
   void dispose() {
     CustomTemplateStore.instance.removeListener(_onTemplatesChanged);
+    WorkoutLauncher.instance.removeListener(_onLauncherChanged);
     _timer?.cancel();
     super.dispose();
   }
 
+  Future<void> _checkForActiveSessionToRestore() async {
+    if (_restoreChecked) return;
+    _restoreChecked = true;
+    final snapshot = await ActiveWorkoutStore.instance.load();
+    if (snapshot == null || !mounted) return;
+
+    final l10n = S.of(context);
+    final shouldRestore = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: Text(l10n.train_resumeTitle,
+            style: const TextStyle(color: AppColors.textPrimary)),
+        content: Text(
+          l10n.train_resumeBody(snapshot.workoutName ?? l10n.train_freeWorkout),
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.train_resumeDiscard,
+                style: const TextStyle(color: AppColors.error)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.train_resumeContinue,
+                style: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+    if (shouldRestore == true) {
+      _restoreFromSnapshot(snapshot);
+    } else {
+      await ActiveWorkoutStore.instance.clear();
+    }
+  }
+
+  void _restoreFromSnapshot(ActiveWorkoutSnapshot snap) {
+    setState(() {
+      _exercises
+        ..clear()
+        ..addAll(snap.exercises);
+      _workoutName = snap.workoutName;
+      _workoutStarted = true;
+      _startedAt = snap.startedAt;
+      if (snap.startedAt != null) {
+        _elapsedSeconds =
+            DateTime.now().difference(snap.startedAt!).inSeconds.clamp(0, 86400);
+      } else {
+        _elapsedSeconds = snap.elapsedSeconds;
+      }
+      _timerRunning = snap.timerRunning;
+    });
+    _syncWatch();
+    if (_timerRunning) {
+      _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+        setState(() => _elapsedSeconds++);
+        if (_elapsedSeconds % 5 == 0) _syncWatch();
+        _persistActiveWorkout();
+      });
+    }
+    _persistActiveWorkout();
+  }
+
+  void _persistActiveWorkout() {
+    ActiveWorkoutStore.instance.save(
+      workoutStarted: _workoutStarted,
+      timerRunning: _timerRunning,
+      startedAt: _startedAt,
+      elapsedSeconds: _elapsedSeconds,
+      workoutName: _workoutName,
+      exercises: _exercises,
+    );
+  }
+
   void _onTemplatesChanged() => setState(() {});
+
+  void _onLauncherChanged() => _consumePendingTemplate();
+
+  void _consumePendingTemplate() {
+    if (_workoutStarted) return;
+    final template = WorkoutLauncher.instance.consumeTemplate();
+    if (template != null) {
+      _startFromTemplate(template);
+      return;
+    }
+    final workout = WorkoutLauncher.instance.consumeWorkout();
+    if (workout != null) {
+      _startFromWorkout(workout);
+    }
+  }
+
+  void _startFromWorkout(Workout w) {
+    setState(() {
+      _exercises.clear();
+      for (final ex in w.exercises) {
+        final lastWeight = _lastWeightFor(ex.name);
+        _exercises.add(SessionExercise(
+          id: '${w.id}_${ex.name}_${DateTime.now().millisecondsSinceEpoch}',
+          name: ex.name,
+          muscleGroup: ex.muscleGroup,
+          equipment: '',
+          sets: ex.sets
+              .map((s) => SessionSet(
+                  reps: s.reps,
+                  weight: lastWeight ?? s.weight))
+              .toList(),
+        ));
+      }
+    });
+    _startWorkout(name: w.name);
+  }
 
   void _syncWatch() {
     final l10n = S.of(context);
@@ -69,11 +202,28 @@ class _TrainScreenState extends State<TrainScreen> {
       _workoutStarted = true;
       _workoutName = name;
       _elapsedSeconds = 0;
+      _timerRunning = false;
+      _startedAt = null;
+    });
+    _timer?.cancel();
+    _syncWatch();
+    _persistActiveWorkout();
+  }
+
+  void _startTimer() {
+    if (_timerRunning) return;
+    HapticFeedback.lightImpact();
+    setState(() {
+      _timerRunning = true;
+      _startedAt =
+          DateTime.now().subtract(Duration(seconds: _elapsedSeconds));
     });
     _syncWatch();
+    _persistActiveWorkout();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() => _elapsedSeconds++);
       if (_elapsedSeconds % 5 == 0) _syncWatch(); // sync every 5s
+      if (_elapsedSeconds % 10 == 0) _persistActiveWorkout(); // persist every 10s
     });
   }
 
@@ -114,6 +264,14 @@ class _TrainScreenState extends State<TrainScreen> {
   }
 
   void _cancelWorkout() {
+    final hasProgress = _timerRunning ||
+        _elapsedSeconds > 0 ||
+        _exercises.any((e) => e.sets.any((s) => s.completed));
+    if (!hasProgress) {
+      // Nothing to lose — exit immediately.
+      _resetWorkoutState();
+      return;
+    }
     final l10n = S.of(context);
     showDialog(
       context: context,
@@ -133,14 +291,7 @@ class _TrainScreenState extends State<TrainScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              _timer?.cancel();
-              setState(() {
-                _workoutStarted = false;
-                _workoutName = null;
-                _exercises.clear();
-                _elapsedSeconds = 0;
-              });
-              _syncWatch();
+              _resetWorkoutState();
             },
             child: Text(l10n.common_cancel,
                 style: const TextStyle(color: AppColors.error)),
@@ -148,6 +299,21 @@ class _TrainScreenState extends State<TrainScreen> {
         ],
       ),
     );
+  }
+
+  void _resetWorkoutState() {
+    _timer?.cancel();
+    RestTimerController.instance.dismiss();
+    setState(() {
+      _workoutStarted = false;
+      _timerRunning = false;
+      _workoutName = null;
+      _exercises.clear();
+      _elapsedSeconds = 0;
+      _startedAt = null;
+    });
+    _syncWatch();
+    ActiveWorkoutStore.instance.clear();
   }
 
   void _finishWorkout() {
@@ -266,13 +432,17 @@ class _TrainScreenState extends State<TrainScreen> {
                     final newAchievements =
                         AchievementStore.instance.checkAfterWorkout(S.of(ctx));
                     Navigator.pop(ctx);
+                    RestTimerController.instance.dismiss();
                     setState(() {
                       _workoutStarted = false;
+                      _timerRunning = false;
                       _workoutName = null;
                       _exercises.clear();
                       _elapsedSeconds = 0;
+                      _startedAt = null;
                     });
                     _syncWatch();
+                    ActiveWorkoutStore.instance.clear();
                     if (newAchievements.isNotEmpty) {
                       _showAchievementPopup(newAchievements);
                     }
@@ -511,10 +681,44 @@ class _TrainScreenState extends State<TrainScreen> {
         sets: [SessionSet(reps: 10, weight: lastWeight ?? 0)],
       ));
     });
+    _persistActiveWorkout();
   }
 
   void _removeExercise(int index) {
-    setState(() => _exercises.removeAt(index));
+    final ex = _exercises[index];
+    final hasCompletedSets = ex.sets.any((s) => s.completed);
+    if (!hasCompletedSets) {
+      setState(() => _exercises.removeAt(index));
+      _persistActiveWorkout();
+      return;
+    }
+    final l10n = S.of(context);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: Text(l10n.train_deleteExercise,
+            style: const TextStyle(color: AppColors.textPrimary)),
+        content: Text(l10n.train_deleteExerciseConfirm(ex.name),
+            style: const TextStyle(color: AppColors.textSecondary)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.common_cancel,
+                style: const TextStyle(color: AppColors.textMuted)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              setState(() => _exercises.removeAt(index));
+              _persistActiveWorkout();
+            },
+            child: Text(l10n.common_delete,
+                style: const TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _reorderExercise(int oldIndex, int newIndex) {
@@ -523,27 +727,37 @@ class _TrainScreenState extends State<TrainScreen> {
       final item = _exercises.removeAt(oldIndex);
       _exercises.insert(newIndex, item);
     });
+    _persistActiveWorkout();
   }
 
   void _addSet(int exIndex) {
-    final last = _exercises[exIndex].sets.last;
+    final ex = _exercises[exIndex];
+    final last = ex.sets.isNotEmpty
+        ? ex.sets.last
+        : SessionSet(reps: 10, weight: 0);
     setState(() {
-      _exercises[exIndex].sets.add(
-            SessionSet(reps: last.reps, weight: last.weight),
-          );
+      ex.sets.add(SessionSet(reps: last.reps, weight: last.weight));
     });
+    _persistActiveWorkout();
   }
 
   void _removeSet(int exIndex, int setIndex) {
     if (_exercises[exIndex].sets.length <= 1) return;
     setState(() => _exercises[exIndex].sets.removeAt(setIndex));
+    _persistActiveWorkout();
   }
 
   void _toggleSetDone(int exIndex, int setIndex) {
+    final s = _exercises[exIndex].sets[setIndex];
+    final wasCompleted = s.completed;
     setState(() {
-      final s = _exercises[exIndex].sets[setIndex];
-      s.completed = !s.completed;
+      s.completed = !wasCompleted;
     });
+    _persistActiveWorkout();
+    // Auto-start the rest timer when a set transitions to completed.
+    if (!wasCompleted) {
+      RestTimerController.instance.startWithDefault();
+    }
   }
 
   String _formatTime(int seconds) {
@@ -813,6 +1027,7 @@ class _TrainScreenState extends State<TrainScreen> {
                   ),
                 ),
         ),
+        const RestTimerOverlay(),
         _buildBottomBar(),
       ],
     );
@@ -820,6 +1035,12 @@ class _TrainScreenState extends State<TrainScreen> {
 
   Widget _buildHeader() {
     final l10n = S.of(context);
+    final dotColor = _timerRunning ? AppColors.accent : AppColors.textMuted;
+    final statusLabel = _timerRunning
+        ? l10n.train_inProgress
+        : l10n.train_readyToStart;
+    final labelColor = _timerRunning ? AppColors.accent : AppColors.textMuted;
+
     return SafeArea(
       bottom: false,
       child: Container(
@@ -831,17 +1052,21 @@ class _TrainScreenState extends State<TrainScreen> {
         ),
         child: Row(
           children: [
-            Container(
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
               width: 10,
               height: 10,
               decoration: BoxDecoration(
-                color: AppColors.accent,
+                color: dotColor,
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                      color: AppColors.accent.withAlpha(128),
-                      blurRadius: 6)
-                ],
+                boxShadow: _timerRunning
+                    ? [
+                        BoxShadow(
+                          color: AppColors.accent.withAlpha(128),
+                          blurRadius: 6,
+                        ),
+                      ]
+                    : null,
               ),
             ),
             const SizedBox(width: 10),
@@ -853,65 +1078,90 @@ class _TrainScreenState extends State<TrainScreen> {
                       child: Text(
                         _workoutName!,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            color: AppColors.accent,
+                        style: TextStyle(
+                            color: labelColor,
                             fontWeight: FontWeight.w700,
                             fontSize: 13),
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: AppColors.bgCardLight,
-                        borderRadius: BorderRadius.circular(8),
+                    if (_timerRunning)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.bgCardLight,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          _formatTime(_elapsedSeconds),
+                          style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13),
+                        ),
                       ),
-                      child: Text(
-                        _formatTime(_elapsedSeconds),
-                        style: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13),
-                      ),
-                    ),
                   ],
                 ),
               )
             else ...[
-              Text(l10n.train_inProgress,
-                  style: const TextStyle(
-                      color: AppColors.accent,
+              Text(statusLabel,
+                  style: TextStyle(
+                      color: labelColor,
                       fontWeight: FontWeight.w600,
                       fontSize: 13)),
               const SizedBox(width: 6),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.bgCardLight,
-                  borderRadius: BorderRadius.circular(8),
+              if (_timerRunning)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.bgCardLight,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    _formatTime(_elapsedSeconds),
+                    style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13),
+                  ),
                 ),
-                child: Text(
-                  _formatTime(_elapsedSeconds),
-                  style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13),
-                ),
-              ),
               const Spacer(),
             ],
-            TextButton(
-              onPressed: _cancelWorkout,
-              style: TextButton.styleFrom(
-                  foregroundColor: AppColors.error,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4)),
-              child: Text(l10n.common_cancel,
-                  style: const TextStyle(
-                      fontSize: 13, fontWeight: FontWeight.w600)),
-            ),
+            if (!_timerRunning) ...[
+              IconButton(
+                onPressed: _cancelWorkout,
+                icon: const Icon(Icons.close_rounded, size: 22),
+                color: AppColors.textMuted,
+                tooltip: l10n.common_cancel,
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                constraints: const BoxConstraints(),
+              ),
+              const SizedBox(width: 4),
+              TextButton.icon(
+                onPressed: _startTimer,
+                icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                style: TextButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4)),
+                label: Text(l10n.train_startSession,
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w700)),
+              ),
+            ] else
+              TextButton(
+                onPressed: _cancelWorkout,
+                style: TextButton.styleFrom(
+                    foregroundColor: AppColors.error,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4)),
+                child: Text(l10n.common_cancel,
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600)),
+              ),
           ],
         ),
       ),
@@ -1200,6 +1450,8 @@ class _SmallMuscleTag extends StatelessWidget {
         return AppColors.arms;
       case 'Core':
         return AppColors.core;
+      case 'CrossFit':
+        return AppColors.crossfit;
       default:
         return AppColors.primary;
     }
@@ -1597,6 +1849,8 @@ class _ExerciseCard extends StatelessWidget {
         return AppColors.arms;
       case 'Core':
         return AppColors.core;
+      case 'CrossFit':
+        return AppColors.crossfit;
       default:
         return AppColors.primary;
     }

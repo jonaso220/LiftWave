@@ -83,6 +83,9 @@ class SPt extends S {
   String get muscle_core => 'Core';
 
   @override
+  String get muscle_crossfit => 'CrossFit';
+
+  @override
   String get equipment_all => 'Todos';
 
   @override
@@ -330,7 +333,28 @@ class SPt extends S {
   String get home_quickAccess => 'Acesso rápido';
 
   @override
+  String get home_quickStart => 'Começar rápido';
+
+  @override
+  String get restTimer_title => 'Descanso';
+
+  @override
+  String get restTimer_resting => 'DESCANSANDO';
+
+  @override
+  String get restTimer_done => 'PRONTO!';
+
+  @override
   String get home_lastWorkout => 'Último treino';
+
+  @override
+  String get home_repeatWorkout => 'Repetir treino';
+
+  @override
+  String get editWorkout_title => 'Editar treino';
+
+  @override
+  String get editWorkout_saved => 'Treino atualizado';
 
   @override
   String get home_viewAll => 'Ver tudo';
@@ -418,6 +442,14 @@ class SPt extends S {
   String get profile_noPurchasesFound => 'Nenhuma compra anterior encontrada';
 
   @override
+  String get restore_connectionError =>
+      'Sem conexão. Verifique sua internet e tente de novo.';
+
+  @override
+  String get restore_unknownError =>
+      'Não foi possível restaurar. Tente de novo.';
+
+  @override
   String get profile_deleteTitle => 'Excluir conta';
 
   @override
@@ -452,6 +484,26 @@ class SPt extends S {
 
   @override
   String get train_inProgress => 'Em andamento';
+
+  @override
+  String get train_readyToStart => 'Pronto para começar';
+
+  @override
+  String get train_startSession => 'Iniciar';
+
+  @override
+  String get train_resumeTitle => 'Continuar treino?';
+
+  @override
+  String train_resumeBody(String name) {
+    return 'Você tem um treino de \"$name\" inacabado. Continuar de onde parou?';
+  }
+
+  @override
+  String get train_resumeContinue => 'Continuar';
+
+  @override
+  String get train_resumeDiscard => 'Descartar';
 
   @override
   String get train_cancelWorkout => 'Cancelar treino';
@@ -537,6 +589,11 @@ class SPt extends S {
 
   @override
   String get train_deleteExercise => 'Excluir exercício';
+
+  @override
+  String train_deleteExerciseConfirm(String name) {
+    return 'Excluir \"$name\"? As séries completadas serão perdidas.';
+  }
 
   @override
   String get train_notesHint => 'Notas (opcional)';
@@ -1168,6 +1225,180 @@ class SPt extends S {
   @override
   String get achievement_personalRecord_description =>
       'Supere seu peso máximo em um exercício';
+
+  @override
+  String get achievement_streak14_title => 'Sequência de 14 dias';
+
+  @override
+  String get achievement_streak14_description =>
+      'Treine pelo menos 1 vez por 14 dias consecutivos';
+
+  @override
+  String get achievement_streak100_title => 'Sequência de 100 dias';
+
+  @override
+  String get achievement_streak100_description =>
+      'Mantenha a sequência 100 dias com ao menos 1 treino por semana';
+
+  @override
+  String get achievement_streak365_title => 'Um ano treinando';
+
+  @override
+  String get achievement_streak365_description =>
+      'Mantenha a sequência por 1 ano completo';
+
+  @override
+  String get achievement_bench50_title => 'Supino 50 kg';
+
+  @override
+  String get achievement_bench50_description =>
+      'Complete um supino com 50 kg ou mais';
+
+  @override
+  String get achievement_bench100_title => 'Supino 100 kg';
+
+  @override
+  String get achievement_bench100_description =>
+      'Complete um supino com 100 kg ou mais';
+
+  @override
+  String get achievement_squat100_title => 'Agachamento 100 kg';
+
+  @override
+  String get achievement_squat100_description =>
+      'Complete um agachamento com 100 kg ou mais';
+
+  @override
+  String get achievement_squat150_title => 'Agachamento 150 kg';
+
+  @override
+  String get achievement_squat150_description =>
+      'Complete um agachamento com 150 kg ou mais';
+
+  @override
+  String get achievement_deadlift100_title => 'Levantamento terra 100 kg';
+
+  @override
+  String get achievement_deadlift100_description =>
+      'Complete um levantamento terra com 100 kg ou mais';
+
+  @override
+  String get achievement_deadlift150_title => 'Levantamento terra 150 kg';
+
+  @override
+  String get achievement_deadlift150_description =>
+      'Complete um levantamento terra com 150 kg ou mais';
+
+  @override
+  String get achievement_deadlift200_title => 'Levantamento terra 200 kg';
+
+  @override
+  String get achievement_deadlift200_description =>
+      'Complete um levantamento terra com 200 kg ou mais';
+
+  @override
+  String get achievement_explorer10_title => 'Explorador';
+
+  @override
+  String get achievement_explorer10_description =>
+      'Use 10 exercícios diferentes nos seus treinos';
+
+  @override
+  String get achievement_master25_title => 'Mestre';
+
+  @override
+  String get achievement_master25_description =>
+      'Use 25 exercícios diferentes nos seus treinos';
+
+  @override
+  String get achievement_fullBodyGroups_title => 'Corpo inteiro';
+
+  @override
+  String get achievement_fullBodyGroups_description =>
+      'Treine cada grupo muscular pelo menos uma vez';
+
+  @override
+  String get achievement_crossfitFan_title => 'Fã de CrossFit';
+
+  @override
+  String get achievement_crossfitFan_description =>
+      'Complete 10 exercícios diferentes da categoria CrossFit';
+
+  @override
+  String get achievement_time1h_title => '1 hora total';
+
+  @override
+  String get achievement_time1h_description => 'Acumule 1 hora total de treino';
+
+  @override
+  String get achievement_time10h_title => '10 horas';
+
+  @override
+  String get achievement_time10h_description =>
+      'Acumule 10 horas totais de treino';
+
+  @override
+  String get achievement_time50h_title => '50 horas';
+
+  @override
+  String get achievement_time50h_description =>
+      'Acumule 50 horas totais de treino';
+
+  @override
+  String get achievement_time100h_title => '100 horas';
+
+  @override
+  String get achievement_time100h_description =>
+      'Acumule 100 horas totais de treino';
+
+  @override
+  String get achievement_earlyBird_title => 'Madrugador';
+
+  @override
+  String get achievement_earlyBird_description =>
+      'Comece um treino antes das 7:00';
+
+  @override
+  String get achievement_nightOwl_title => 'Coruja noturna';
+
+  @override
+  String get achievement_nightOwl_description =>
+      'Termine um treino depois das 22:00';
+
+  @override
+  String get achievement_comeback_title => 'Retorno';
+
+  @override
+  String get achievement_comeback_description =>
+      'Volte a treinar após 30+ dias sem atividade';
+
+  @override
+  String get achievement_marathoner_title => 'Maratonista';
+
+  @override
+  String get achievement_marathoner_description =>
+      'Complete um treino com mais de 90 minutos';
+
+  @override
+  String get achievement_efficient_title => 'Eficiente';
+
+  @override
+  String get achievement_efficient_description =>
+      'Complete um treino de 3+ exercícios em menos de 30 minutos';
+
+  @override
+  String get achievement_weekendWarrior_title => 'Guerreiro de fim de semana';
+
+  @override
+  String get achievement_weekendWarrior_description =>
+      'Treine sábado e domingo por 3 fins de semana seguidos';
+
+  @override
+  String get achievement_weeklyVariety_title => 'Variedade semanal';
+
+  @override
+  String get achievement_weeklyVariety_description =>
+      'Treine 5 grupos musculares diferentes em uma semana';
 
   @override
   String get csv_header =>

@@ -83,6 +83,9 @@ class SKo extends S {
   String get muscle_core => '코어';
 
   @override
+  String get muscle_crossfit => '크로스핏';
+
+  @override
   String get equipment_all => '전체';
 
   @override
@@ -324,7 +327,28 @@ class SKo extends S {
   String get home_quickAccess => '빠른 접근';
 
   @override
+  String get home_quickStart => '빠른 시작';
+
+  @override
+  String get restTimer_title => '휴식';
+
+  @override
+  String get restTimer_resting => '휴식 중';
+
+  @override
+  String get restTimer_done => '완료!';
+
+  @override
   String get home_lastWorkout => '최근 운동';
+
+  @override
+  String get home_repeatWorkout => '운동 반복';
+
+  @override
+  String get editWorkout_title => '운동 편집';
+
+  @override
+  String get editWorkout_saved => '운동이 업데이트되었습니다';
 
   @override
   String get home_viewAll => '전체 보기';
@@ -409,6 +433,12 @@ class SKo extends S {
   String get profile_noPurchasesFound => '이전 구매 내역이 없습니다';
 
   @override
+  String get restore_connectionError => '연결이 없습니다. 인터넷을 확인하고 다시 시도하세요.';
+
+  @override
+  String get restore_unknownError => '복원할 수 없습니다. 다시 시도하세요.';
+
+  @override
   String get profile_deleteTitle => '계정 삭제';
 
   @override
@@ -441,6 +471,26 @@ class SKo extends S {
 
   @override
   String get train_inProgress => '진행 중';
+
+  @override
+  String get train_readyToStart => '시작 준비 완료';
+
+  @override
+  String get train_startSession => '시작';
+
+  @override
+  String get train_resumeTitle => '운동을 계속하시겠습니까?';
+
+  @override
+  String train_resumeBody(String name) {
+    return '\"$name\" 운동이 진행 중입니다. 이어서 하시겠습니까?';
+  }
+
+  @override
+  String get train_resumeContinue => '계속';
+
+  @override
+  String get train_resumeDiscard => '취소';
 
   @override
   String get train_cancelWorkout => '운동 취소';
@@ -523,6 +573,11 @@ class SKo extends S {
 
   @override
   String get train_deleteExercise => '운동 삭제';
+
+  @override
+  String train_deleteExerciseConfirm(String name) {
+    return '\"$name\"을(를) 삭제하시겠습니까? 완료된 세트가 사라집니다.';
+  }
 
   @override
   String get train_notesHint => '메모 (선택사항)';
@@ -1137,6 +1192,157 @@ class SKo extends S {
 
   @override
   String get achievement_personalRecord_description => '한 운동에서 최대 무게를 갱신하세요';
+
+  @override
+  String get achievement_streak14_title => '14일 연속';
+
+  @override
+  String get achievement_streak14_description => '14일 연속으로 최소 1번 운동';
+
+  @override
+  String get achievement_streak100_title => '100일 연속';
+
+  @override
+  String get achievement_streak100_description => '주 1회 이상 운동을 100일간 유지';
+
+  @override
+  String get achievement_streak365_title => '1년 달성';
+
+  @override
+  String get achievement_streak365_description => '연속 기록을 1년 동안 유지';
+
+  @override
+  String get achievement_bench50_title => '벤치프레스 50 kg';
+
+  @override
+  String get achievement_bench50_description => '50 kg 이상의 벤치프레스를 완수';
+
+  @override
+  String get achievement_bench100_title => '벤치프레스 100 kg';
+
+  @override
+  String get achievement_bench100_description => '100 kg 이상의 벤치프레스를 완수';
+
+  @override
+  String get achievement_squat100_title => '스쿼트 100 kg';
+
+  @override
+  String get achievement_squat100_description => '100 kg 이상의 스쿼트를 완수';
+
+  @override
+  String get achievement_squat150_title => '스쿼트 150 kg';
+
+  @override
+  String get achievement_squat150_description => '150 kg 이상의 스쿼트를 완수';
+
+  @override
+  String get achievement_deadlift100_title => '데드리프트 100 kg';
+
+  @override
+  String get achievement_deadlift100_description => '100 kg 이상의 데드리프트를 완수';
+
+  @override
+  String get achievement_deadlift150_title => '데드리프트 150 kg';
+
+  @override
+  String get achievement_deadlift150_description => '150 kg 이상의 데드리프트를 완수';
+
+  @override
+  String get achievement_deadlift200_title => '데드리프트 200 kg';
+
+  @override
+  String get achievement_deadlift200_description => '200 kg 이상의 데드리프트를 완수';
+
+  @override
+  String get achievement_explorer10_title => '탐험가';
+
+  @override
+  String get achievement_explorer10_description => '운동에서 10개의 다른 운동을 사용';
+
+  @override
+  String get achievement_master25_title => '마스터';
+
+  @override
+  String get achievement_master25_description => '운동에서 25개의 다른 운동을 사용';
+
+  @override
+  String get achievement_fullBodyGroups_title => '전신 운동';
+
+  @override
+  String get achievement_fullBodyGroups_description => '모든 근육 그룹을 최소 한 번씩 운동';
+
+  @override
+  String get achievement_crossfitFan_title => '크로스핏 팬';
+
+  @override
+  String get achievement_crossfitFan_description =>
+      '크로스핏 카테고리에서 10가지 다른 운동을 완수';
+
+  @override
+  String get achievement_time1h_title => '총 1시간';
+
+  @override
+  String get achievement_time1h_description => '총 1시간의 운동 시간을 달성';
+
+  @override
+  String get achievement_time10h_title => '10시간';
+
+  @override
+  String get achievement_time10h_description => '총 10시간의 운동 시간을 달성';
+
+  @override
+  String get achievement_time50h_title => '50시간';
+
+  @override
+  String get achievement_time50h_description => '총 50시간의 운동 시간을 달성';
+
+  @override
+  String get achievement_time100h_title => '100시간';
+
+  @override
+  String get achievement_time100h_description => '총 100시간의 운동 시간을 달성';
+
+  @override
+  String get achievement_earlyBird_title => '얼리버드';
+
+  @override
+  String get achievement_earlyBird_description => '오전 7시 이전에 운동 시작';
+
+  @override
+  String get achievement_nightOwl_title => '야행성';
+
+  @override
+  String get achievement_nightOwl_description => '22시 이후에 운동 종료';
+
+  @override
+  String get achievement_comeback_title => '컴백';
+
+  @override
+  String get achievement_comeback_description => '30일 이상 쉰 후 다시 운동 시작';
+
+  @override
+  String get achievement_marathoner_title => '마라토너';
+
+  @override
+  String get achievement_marathoner_description => '90분 이상의 운동을 완료';
+
+  @override
+  String get achievement_efficient_title => '효율적';
+
+  @override
+  String get achievement_efficient_description => '3개 이상의 운동을 30분 미만에 완료';
+
+  @override
+  String get achievement_weekendWarrior_title => '주말 전사';
+
+  @override
+  String get achievement_weekendWarrior_description => '3주 연속 토요일과 일요일에 운동';
+
+  @override
+  String get achievement_weeklyVariety_title => '주간 다양성';
+
+  @override
+  String get achievement_weeklyVariety_description => '한 주에 5개의 다른 근육 그룹을 운동';
 
   @override
   String get csv_header => '날짜,운동명,운동종목,근육부위,세트,횟수,무게(kg),볼륨(kg)';
