@@ -13,6 +13,7 @@ import 'services/firebase_service.dart';
 import 'services/subscription_service.dart';
 import 'services/watch_service.dart';
 import 'theme/app_theme.dart';
+import 'utils/ui_scale.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,15 +56,8 @@ class LiftWaveApp extends StatelessWidget {
       // (< 850 logical px) are unaffected.
       builder: (context, child) {
         final mq = MediaQuery.of(context);
-        final width = mq.size.width;
-        final double widthScale = width >= 1400
-            ? 1.4
-            : width >= 1100
-            ? 1.3
-            : width >= 850
-            ? 1.18
-            : 1.0;
-        final composed = mq.textScaler.scale(1.0) * widthScale;
+        final composed =
+            mq.textScaler.scale(1.0) * uiScaleForWidth(mq.size.width);
         return MediaQuery(
           data: mq.copyWith(textScaler: TextScaler.linear(composed)),
           child: child!,

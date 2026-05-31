@@ -5,6 +5,7 @@ import '../screens/train/train_screen.dart';
 import '../screens/history/history_screen.dart';
 import '../screens/exercises/exercises_screen.dart';
 import '../theme/app_theme.dart';
+import '../utils/ui_scale.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -49,6 +50,11 @@ class _MainNavigationState extends State<MainNavigation> {
       ),
     ];
 
+    // Icons / bar height are fixed sizes that textScaler can't reach, so we
+    // scale them by the same width factor to keep the bar proportional on
+    // wide windows (labels are already handled by textScaler).
+    final scale = uiScaleForWidth(MediaQuery.of(context).size.width);
+
     return Container(
       decoration: const BoxDecoration(
         color: AppColors.bgCard,
@@ -56,7 +62,7 @@ class _MainNavigationState extends State<MainNavigation> {
       ),
       child: SafeArea(
         child: SizedBox(
-          height: 62,
+          height: 62 * scale,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: items.asMap().entries.map((entry) {
@@ -68,31 +74,31 @@ class _MainNavigationState extends State<MainNavigation> {
                 onTap: () => _navigateTo(index),
                 behavior: HitTestBehavior.opaque,
                 child: SizedBox(
-                  width: 72,
+                  width: 72 * scale,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 6,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 14 * scale,
+                          vertical: 6 * scale,
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
                               ? AppColors.primary.withAlpha(38)
                               : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12 * scale),
                         ),
                         child: Icon(
                           item.icon,
                           color: isSelected
                               ? AppColors.primary
                               : AppColors.textMuted,
-                          size: isSelected ? 22 : 20,
+                          size: (isSelected ? 22 : 20) * scale,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2 * scale),
                       AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 200),
                         style: TextStyle(
