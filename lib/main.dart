@@ -49,6 +49,26 @@ class LiftWaveApp extends StatelessWidget {
       theme: AppTheme.dark,
       localizationsDelegates: S.localizationsDelegates,
       supportedLocales: S.supportedLocales,
+      // The UI is sized for phone widths, so it reads tiny on a large
+      // desktop/tablet window. Scale text up on wide layouts, composing with
+      // (not overriding) the OS accessibility text-size setting. Phones
+      // (< 850 logical px) are unaffected.
+      builder: (context, child) {
+        final mq = MediaQuery.of(context);
+        final width = mq.size.width;
+        final double widthScale = width >= 1400
+            ? 1.4
+            : width >= 1100
+            ? 1.3
+            : width >= 850
+            ? 1.18
+            : 1.0;
+        final composed = mq.textScaler.scale(1.0) * widthScale;
+        return MediaQuery(
+          data: mq.copyWith(textScaler: TextScaler.linear(composed)),
+          child: child!,
+        );
+      },
       // Auth state drives which screen is shown
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),

@@ -134,6 +134,9 @@ class AuthService {
       case 'user-not-found':
         return l10n.authError_userNotFound;
       case 'wrong-password':
+      // Modern Firebase collapses wrong-password / user-not-found into one
+      // generic code (email-enumeration protection); show the same message.
+      case 'invalid-credential':
         return l10n.authError_wrongPassword;
       case 'email-already-in-use':
         return l10n.authError_emailAlreadyInUse;
