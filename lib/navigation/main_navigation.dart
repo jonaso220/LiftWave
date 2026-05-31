@@ -30,10 +30,7 @@ class _MainNavigationState extends State<MainNavigation> {
     ];
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: screens),
       bottomNavigationBar: _buildNavBar(),
     );
   }
@@ -41,9 +38,15 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget _buildNavBar() {
     final items = [
       _NavItem(icon: Icons.home_rounded, label: S.of(context).nav_home),
-      _NavItem(icon: Icons.fitness_center_rounded, label: S.of(context).nav_train),
+      _NavItem(
+        icon: Icons.fitness_center_rounded,
+        label: S.of(context).nav_train,
+      ),
       _NavItem(icon: Icons.history_rounded, label: S.of(context).nav_history),
-      _NavItem(icon: Icons.menu_book_rounded, label: S.of(context).nav_exercises),
+      _NavItem(
+        icon: Icons.menu_book_rounded,
+        label: S.of(context).nav_exercises,
+      ),
     ];
 
     return Container(
@@ -72,7 +75,9 @@ class _MainNavigationState extends State<MainNavigation> {
                       AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 6),
+                          horizontal: 14,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: isSelected
                               ? AppColors.primary.withAlpha(38)

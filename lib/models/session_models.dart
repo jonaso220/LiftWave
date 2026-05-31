@@ -3,11 +3,7 @@ class SessionSet {
   double weight;
   bool completed;
 
-  SessionSet({
-    this.reps = 10,
-    this.weight = 0,
-    this.completed = false,
-  });
+  SessionSet({this.reps = 10, this.weight = 0, this.completed = false});
 
   SessionSet copyWith({int? reps, double? weight, bool? completed}) {
     return SessionSet(
@@ -18,16 +14,16 @@ class SessionSet {
   }
 
   Map<String, dynamic> toJson() => {
-        'reps': reps,
-        'weight': weight,
-        'completed': completed,
-      };
+    'reps': reps,
+    'weight': weight,
+    'completed': completed,
+  };
 
   factory SessionSet.fromJson(Map<String, dynamic> j) => SessionSet(
-        reps: (j['reps'] as num?)?.toInt() ?? 10,
-        weight: (j['weight'] as num?)?.toDouble() ?? 0,
-        completed: j['completed'] as bool? ?? false,
-      );
+    reps: (j['reps'] as num?)?.toInt() ?? 10,
+    weight: (j['weight'] as num?)?.toDouble() ?? 0,
+    completed: j['completed'] as bool? ?? false,
+  );
 }
 
 class SessionExercise {
@@ -47,30 +43,28 @@ class SessionExercise {
     this.notes,
   });
 
-  int get totalVolume => sets.fold(
-        0,
-        (sum, s) => sum + (s.reps * s.weight).round(),
-      );
+  int get totalVolume =>
+      sets.fold(0, (sum, s) => sum + (s.reps * s.weight).round());
 
   int get completedSets => sets.where((s) => s.completed).length;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'muscleGroup': muscleGroup,
-        'equipment': equipment,
-        'sets': sets.map((s) => s.toJson()).toList(),
-        'notes': notes,
-      };
+    'id': id,
+    'name': name,
+    'muscleGroup': muscleGroup,
+    'equipment': equipment,
+    'sets': sets.map((s) => s.toJson()).toList(),
+    'notes': notes,
+  };
 
   factory SessionExercise.fromJson(Map<String, dynamic> j) => SessionExercise(
-        id: j['id'] as String,
-        name: j['name'] as String,
-        muscleGroup: j['muscleGroup'] as String,
-        equipment: j['equipment'] as String? ?? '',
-        sets: (j['sets'] as List)
-            .map((s) => SessionSet.fromJson(Map<String, dynamic>.from(s as Map)))
-            .toList(),
-        notes: j['notes'] as String?,
-      );
+    id: j['id'] as String,
+    name: j['name'] as String,
+    muscleGroup: j['muscleGroup'] as String,
+    equipment: j['equipment'] as String? ?? '',
+    sets: (j['sets'] as List)
+        .map((s) => SessionSet.fromJson(Map<String, dynamic>.from(s as Map)))
+        .toList(),
+    notes: j['notes'] as String?,
+  );
 }

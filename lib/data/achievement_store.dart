@@ -6,6 +6,7 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/achievement_models.dart';
 import '../models/models.dart';
+import '../services/firebase_service.dart';
 import 'workout_store.dart';
 
 class AchievementStore extends ChangeNotifier {
@@ -35,9 +36,9 @@ class AchievementStore extends ChangeNotifier {
   }
 
   List<Achievement> getAll(S l10n) => Achievement.all(l10n).map((a) {
-        final date = _unlocked[a.type];
-        return date != null ? a.unlock(date) : a;
-      }).toList();
+    final date = _unlocked[a.type];
+    return date != null ? a.unlock(date) : a;
+  }).toList();
 
   List<Achievement> getUnlocked(S l10n) =>
       getAll(l10n).where((a) => a.isUnlocked).toList();
@@ -69,6 +70,50 @@ class AchievementStore extends ChangeNotifier {
       }
     }
     notifyListeners();
+
+    // Merge with the cloud copy so achievements survive a device change.
+    await _loadCloud();
+  }
+
+  /// Fetches the cloud copy and merges it with the local map (union; the
+  /// earliest unlock date wins). Pushes any local-only unlocks back up so a
+  /// fresh install on another device ends up consistent.
+  Future<void> _loadCloud() async {
+    if (_currentUid == null) return;
+    try {
+      final doc = await FirebaseService.instance.achievementsDoc.get();
+      final data = doc.data();
+      var changed = false;
+
+      if (data != null) {
+        for (final entry in data.entries) {
+          final matches = AchievementType.values.where(
+            (t) => t.name == entry.key,
+          );
+          if (matches.isEmpty) continue;
+          final date = DateTime.tryParse(entry.value as String? ?? '');
+          if (date == null) continue;
+          final type = matches.first;
+          final existing = _unlocked[type];
+          if (existing == null || date.isBefore(existing)) {
+            _unlocked[type] = date;
+            changed = true;
+          }
+        }
+      }
+
+      final cloudKeys = (data ?? const {}).keys.toSet();
+      final hasLocalOnly = _unlocked.keys.any(
+        (t) => !cloudKeys.contains(t.name),
+      );
+
+      if (changed || hasLocalOnly) {
+        await _save();
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('AchievementStore._loadCloud error: $e');
+    }
   }
 
   @override
@@ -78,12 +123,22 @@ class AchievementStore extends ChangeNotifier {
   }
 
   Future<void> _save() async {
-    final prefs = await SharedPreferences.getInstance();
     final map = <String, String>{};
     for (final entry in _unlocked.entries) {
       map[entry.key.name] = entry.value.toIso8601String();
     }
+
+    final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_key, jsonEncode(map));
+
+    // Mirror to the cloud so achievements survive reinstalls / new devices.
+    if (_currentUid != null) {
+      try {
+        await FirebaseService.instance.achievementsDoc.set(map);
+      } catch (e) {
+        debugPrint('AchievementStore._save cloud error: $e');
+      }
+    }
   }
 
   /// Check all achievements after a workout is completed.
@@ -98,43 +153,52 @@ class AchievementStore extends ChangeNotifier {
     if (!_unlocked.containsKey(AchievementType.firstWorkout) &&
         workouts.isNotEmpty) {
       _unlocked[AchievementType.firstWorkout] = now;
-      newlyUnlocked.add(achievements
-          .firstWhere((a) => a.type == AchievementType.firstWorkout)
-          .unlock(now));
+      newlyUnlocked.add(
+        achievements
+            .firstWhere((a) => a.type == AchievementType.firstWorkout)
+            .unlock(now),
+      );
     }
 
     // Volume milestones
-    final totalVolume =
-        workouts.fold<int>(0, (sum, w) => sum + w.totalVolume);
+    final totalVolume = workouts.fold<int>(0, (sum, w) => sum + w.totalVolume);
     if (!_unlocked.containsKey(AchievementType.volume1000) &&
         totalVolume >= 1000) {
       _unlocked[AchievementType.volume1000] = now;
-      newlyUnlocked.add(achievements
-          .firstWhere((a) => a.type == AchievementType.volume1000)
-          .unlock(now));
+      newlyUnlocked.add(
+        achievements
+            .firstWhere((a) => a.type == AchievementType.volume1000)
+            .unlock(now),
+      );
     }
     if (!_unlocked.containsKey(AchievementType.volume5000) &&
         totalVolume >= 5000) {
       _unlocked[AchievementType.volume5000] = now;
-      newlyUnlocked.add(achievements
-          .firstWhere((a) => a.type == AchievementType.volume5000)
-          .unlock(now));
+      newlyUnlocked.add(
+        achievements
+            .firstWhere((a) => a.type == AchievementType.volume5000)
+            .unlock(now),
+      );
     }
     if (!_unlocked.containsKey(AchievementType.volume10000) &&
         totalVolume >= 10000) {
       _unlocked[AchievementType.volume10000] = now;
-      newlyUnlocked.add(achievements
-          .firstWhere((a) => a.type == AchievementType.volume10000)
-          .unlock(now));
+      newlyUnlocked.add(
+        achievements
+            .firstWhere((a) => a.type == AchievementType.volume10000)
+            .unlock(now),
+      );
     }
 
     // Streak 7 days: at least one workout in each of the last 7 days
     if (!_unlocked.containsKey(AchievementType.streak7)) {
       if (_checkDayStreak(workouts, 7)) {
         _unlocked[AchievementType.streak7] = now;
-        newlyUnlocked.add(achievements
-            .firstWhere((a) => a.type == AchievementType.streak7)
-            .unlock(now));
+        newlyUnlocked.add(
+          achievements
+              .firstWhere((a) => a.type == AchievementType.streak7)
+              .unlock(now),
+        );
       }
     }
 
@@ -142,9 +206,11 @@ class AchievementStore extends ChangeNotifier {
     if (!_unlocked.containsKey(AchievementType.streak30)) {
       if (_checkWeeklyStreak(workouts, 4)) {
         _unlocked[AchievementType.streak30] = now;
-        newlyUnlocked.add(achievements
-            .firstWhere((a) => a.type == AchievementType.streak30)
-            .unlock(now));
+        newlyUnlocked.add(
+          achievements
+              .firstWhere((a) => a.type == AchievementType.streak30)
+              .unlock(now),
+        );
       }
     }
 
@@ -174,10 +240,11 @@ class AchievementStore extends ChangeNotifier {
         if (previousMax > 0 && maxWeightNow > previousMax) {
           if (!_unlocked.containsKey(AchievementType.personalRecord)) {
             _unlocked[AchievementType.personalRecord] = now;
-            newlyUnlocked.add(achievements
-                .firstWhere(
-                    (a) => a.type == AchievementType.personalRecord)
-                .unlock(now));
+            newlyUnlocked.add(
+              achievements
+                  .firstWhere((a) => a.type == AchievementType.personalRecord)
+                  .unlock(now),
+            );
           }
           break;
         }
@@ -192,36 +259,45 @@ class AchievementStore extends ChangeNotifier {
     if (!_unlocked.containsKey(AchievementType.streak14) &&
         _checkDayStreak(workouts, 14)) {
       _unlocked[AchievementType.streak14] = now;
-      newlyUnlocked.add(achievements
-          .firstWhere((a) => a.type == AchievementType.streak14)
-          .unlock(now));
+      newlyUnlocked.add(
+        achievements
+            .firstWhere((a) => a.type == AchievementType.streak14)
+            .unlock(now),
+      );
     }
     if (!_unlocked.containsKey(AchievementType.streak100) &&
         _checkWeeklyStreak(workouts, 14)) {
       // 14 weeks ~ 100 days with at least one workout per week
       _unlocked[AchievementType.streak100] = now;
-      newlyUnlocked.add(achievements
-          .firstWhere((a) => a.type == AchievementType.streak100)
-          .unlock(now));
+      newlyUnlocked.add(
+        achievements
+            .firstWhere((a) => a.type == AchievementType.streak100)
+            .unlock(now),
+      );
     }
     if (!_unlocked.containsKey(AchievementType.streak365) &&
         _checkWeeklyStreak(workouts, 52)) {
       _unlocked[AchievementType.streak365] = now;
-      newlyUnlocked.add(achievements
-          .firstWhere((a) => a.type == AchievementType.streak365)
-          .unlock(now));
+      newlyUnlocked.add(
+        achievements
+            .firstWhere((a) => a.type == AchievementType.streak365)
+            .unlock(now),
+      );
     }
 
     // Lift PRs — max weight reached across all workouts for the specific lift
     void checkLiftPR(
-        AchievementType type, List<String> exerciseNames, double threshold) {
+      AchievementType type,
+      List<String> exerciseNames,
+      double threshold,
+    ) {
       if (_unlocked.containsKey(type)) return;
       final maxWeight = _maxWeightFor(workouts, exerciseNames);
       if (maxWeight >= threshold) {
         _unlocked[type] = now;
-        newlyUnlocked.add(achievements
-            .firstWhere((a) => a.type == type)
-            .unlock(now));
+        newlyUnlocked.add(
+          achievements.firstWhere((a) => a.type == type).unlock(now),
+        );
       }
     }
 
@@ -276,16 +352,20 @@ class AchievementStore extends ChangeNotifier {
     if (!_unlocked.containsKey(AchievementType.explorer10) &&
         distinctExercises.length >= 10) {
       _unlocked[AchievementType.explorer10] = now;
-      newlyUnlocked.add(achievements
-          .firstWhere((a) => a.type == AchievementType.explorer10)
-          .unlock(now));
+      newlyUnlocked.add(
+        achievements
+            .firstWhere((a) => a.type == AchievementType.explorer10)
+            .unlock(now),
+      );
     }
     if (!_unlocked.containsKey(AchievementType.master25) &&
         distinctExercises.length >= 25) {
       _unlocked[AchievementType.master25] = now;
-      newlyUnlocked.add(achievements
-          .firstWhere((a) => a.type == AchievementType.master25)
-          .unlock(now));
+      newlyUnlocked.add(
+        achievements
+            .firstWhere((a) => a.type == AchievementType.master25)
+            .unlock(now),
+      );
     }
     const requiredGroups = {
       'Pecho',
@@ -293,33 +373,39 @@ class AchievementStore extends ChangeNotifier {
       'Piernas',
       'Hombros',
       'Brazos',
-      'Core'
+      'Core',
     };
     if (!_unlocked.containsKey(AchievementType.fullBodyGroups) &&
         requiredGroups.every(muscleGroupsHit.contains)) {
       _unlocked[AchievementType.fullBodyGroups] = now;
-      newlyUnlocked.add(achievements
-          .firstWhere((a) => a.type == AchievementType.fullBodyGroups)
-          .unlock(now));
+      newlyUnlocked.add(
+        achievements
+            .firstWhere((a) => a.type == AchievementType.fullBodyGroups)
+            .unlock(now),
+      );
     }
     if (!_unlocked.containsKey(AchievementType.crossfitFan) &&
         crossfitDistinct >= 10) {
       _unlocked[AchievementType.crossfitFan] = now;
-      newlyUnlocked.add(achievements
-          .firstWhere((a) => a.type == AchievementType.crossfitFan)
-          .unlock(now));
+      newlyUnlocked.add(
+        achievements
+            .firstWhere((a) => a.type == AchievementType.crossfitFan)
+            .unlock(now),
+      );
     }
 
     // Tiempo acumulado
     final totalMinutes = workouts.fold<int>(
-        0, (sum, w) => sum + w.duration.inMinutes);
+      0,
+      (sum, w) => sum + w.duration.inMinutes,
+    );
     void checkTime(AchievementType type, int thresholdMinutes) {
       if (_unlocked.containsKey(type)) return;
       if (totalMinutes >= thresholdMinutes) {
         _unlocked[type] = now;
-        newlyUnlocked.add(achievements
-            .firstWhere((a) => a.type == type)
-            .unlock(now));
+        newlyUnlocked.add(
+          achievements.firstWhere((a) => a.type == type).unlock(now),
+        );
       }
     }
 
@@ -334,21 +420,23 @@ class AchievementStore extends ChangeNotifier {
       final end = latest.date;
 
       // Madrugador
-      if (!_unlocked.containsKey(AchievementType.earlyBird) &&
-          start.hour < 7) {
+      if (!_unlocked.containsKey(AchievementType.earlyBird) && start.hour < 7) {
         _unlocked[AchievementType.earlyBird] = now;
-        newlyUnlocked.add(achievements
-            .firstWhere((a) => a.type == AchievementType.earlyBird)
-            .unlock(now));
+        newlyUnlocked.add(
+          achievements
+              .firstWhere((a) => a.type == AchievementType.earlyBird)
+              .unlock(now),
+        );
       }
 
       // Búho nocturno
-      if (!_unlocked.containsKey(AchievementType.nightOwl) &&
-          end.hour >= 22) {
+      if (!_unlocked.containsKey(AchievementType.nightOwl) && end.hour >= 22) {
         _unlocked[AchievementType.nightOwl] = now;
-        newlyUnlocked.add(achievements
-            .firstWhere((a) => a.type == AchievementType.nightOwl)
-            .unlock(now));
+        newlyUnlocked.add(
+          achievements
+              .firstWhere((a) => a.type == AchievementType.nightOwl)
+              .unlock(now),
+        );
       }
 
       // Comeback — current workout after 30+ days no workout
@@ -358,9 +446,11 @@ class AchievementStore extends ChangeNotifier {
         final daysSincePrev = start.difference(prev.date).inDays;
         if (daysSincePrev >= 30) {
           _unlocked[AchievementType.comeback] = now;
-          newlyUnlocked.add(achievements
-              .firstWhere((a) => a.type == AchievementType.comeback)
-              .unlock(now));
+          newlyUnlocked.add(
+            achievements
+                .firstWhere((a) => a.type == AchievementType.comeback)
+                .unlock(now),
+          );
         }
       }
 
@@ -368,9 +458,11 @@ class AchievementStore extends ChangeNotifier {
       if (!_unlocked.containsKey(AchievementType.marathoner) &&
           latest.duration.inMinutes >= 90) {
         _unlocked[AchievementType.marathoner] = now;
-        newlyUnlocked.add(achievements
-            .firstWhere((a) => a.type == AchievementType.marathoner)
-            .unlock(now));
+        newlyUnlocked.add(
+          achievements
+              .firstWhere((a) => a.type == AchievementType.marathoner)
+              .unlock(now),
+        );
       }
 
       // Eficiente — 3+ exercises and <= 30 min
@@ -382,27 +474,33 @@ class AchievementStore extends ChangeNotifier {
           latest.duration.inMinutes <= 30 &&
           latest.duration.inMinutes > 0) {
         _unlocked[AchievementType.efficient] = now;
-        newlyUnlocked.add(achievements
-            .firstWhere((a) => a.type == AchievementType.efficient)
-            .unlock(now));
+        newlyUnlocked.add(
+          achievements
+              .firstWhere((a) => a.type == AchievementType.efficient)
+              .unlock(now),
+        );
       }
 
       // Weekend warrior — last 3 weekends with workouts on Saturday AND Sunday
       if (!_unlocked.containsKey(AchievementType.weekendWarrior) &&
           _checkWeekendWarrior(workouts, 3)) {
         _unlocked[AchievementType.weekendWarrior] = now;
-        newlyUnlocked.add(achievements
-            .firstWhere((a) => a.type == AchievementType.weekendWarrior)
-            .unlock(now));
+        newlyUnlocked.add(
+          achievements
+              .firstWhere((a) => a.type == AchievementType.weekendWarrior)
+              .unlock(now),
+        );
       }
 
       // Weekly variety — current week has 5+ distinct muscle groups
       if (!_unlocked.containsKey(AchievementType.weeklyVariety) &&
           _checkWeeklyVariety(workouts, end, 5)) {
         _unlocked[AchievementType.weeklyVariety] = now;
-        newlyUnlocked.add(achievements
-            .firstWhere((a) => a.type == AchievementType.weeklyVariety)
-            .unlock(now));
+        newlyUnlocked.add(
+          achievements
+              .firstWhere((a) => a.type == AchievementType.weeklyVariety)
+              .unlock(now),
+        );
       }
     }
 
@@ -414,8 +512,7 @@ class AchievementStore extends ChangeNotifier {
   }
 
   double _maxWeightFor(List<Workout> workouts, List<String> exerciseNames) {
-    final aliases =
-        exerciseNames.map((n) => n.toLowerCase().trim()).toSet();
+    final aliases = exerciseNames.map((n) => n.toLowerCase().trim()).toSet();
     double max = 0;
     for (final w in workouts) {
       for (final e in w.exercises) {
@@ -433,30 +530,42 @@ class AchievementStore extends ChangeNotifier {
     // Iterate the last requiredWeekends weekends
     for (int i = 0; i < requiredWeekends; i++) {
       // Find the Saturday of week (now - i weeks)
-      final daysSinceSaturday =
-          (now.weekday - DateTime.saturday + 7) % 7;
-      final saturday = DateTime(now.year, now.month, now.day)
-          .subtract(Duration(days: daysSinceSaturday + 7 * i));
+      final daysSinceSaturday = (now.weekday - DateTime.saturday + 7) % 7;
+      final saturday = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(Duration(days: daysSinceSaturday + 7 * i));
       final sunday = saturday.add(const Duration(days: 1));
-      final hasSat = workouts.any((w) =>
-          w.date.year == saturday.year &&
-          w.date.month == saturday.month &&
-          w.date.day == saturday.day);
-      final hasSun = workouts.any((w) =>
-          w.date.year == sunday.year &&
-          w.date.month == sunday.month &&
-          w.date.day == sunday.day);
+      final hasSat = workouts.any(
+        (w) =>
+            w.date.year == saturday.year &&
+            w.date.month == saturday.month &&
+            w.date.day == saturday.day,
+      );
+      final hasSun = workouts.any(
+        (w) =>
+            w.date.year == sunday.year &&
+            w.date.month == sunday.month &&
+            w.date.day == sunday.day,
+      );
       if (!hasSat || !hasSun) return false;
     }
     return true;
   }
 
   bool _checkWeeklyVariety(
-      List<Workout> workouts, DateTime reference, int requiredGroups) {
+    List<Workout> workouts,
+    DateTime reference,
+    int requiredGroups,
+  ) {
     // Calendar week containing `reference` (Mon-Sun)
     final weekday = reference.weekday; // 1 = Mon
-    final monday = DateTime(reference.year, reference.month, reference.day)
-        .subtract(Duration(days: weekday - 1));
+    final monday = DateTime(
+      reference.year,
+      reference.month,
+      reference.day,
+    ).subtract(Duration(days: weekday - 1));
     final nextMonday = monday.add(const Duration(days: 7));
     final groups = <String>{};
     for (final w in workouts) {
@@ -471,12 +580,17 @@ class AchievementStore extends ChangeNotifier {
   bool _checkDayStreak(List<dynamic> workouts, int days) {
     final now = DateTime.now();
     for (int i = 0; i < days; i++) {
-      final day = DateTime(now.year, now.month, now.day)
-          .subtract(Duration(days: i));
-      final hasWorkout = WorkoutStore.instance.workouts.any((w) =>
-          w.date.year == day.year &&
-          w.date.month == day.month &&
-          w.date.day == day.day);
+      final day = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).subtract(Duration(days: i));
+      final hasWorkout = WorkoutStore.instance.workouts.any(
+        (w) =>
+            w.date.year == day.year &&
+            w.date.month == day.month &&
+            w.date.day == day.day,
+      );
       if (!hasWorkout) return false;
     }
     return true;
@@ -488,7 +602,8 @@ class AchievementStore extends ChangeNotifier {
       final weekEnd = now.subtract(Duration(days: 7 * i));
       final weekStart = weekEnd.subtract(const Duration(days: 7));
       final hasWorkout = WorkoutStore.instance.workouts.any(
-          (w) => w.date.isAfter(weekStart) && w.date.isBefore(weekEnd));
+        (w) => w.date.isAfter(weekStart) && w.date.isBefore(weekEnd),
+      );
       if (!hasWorkout) return false;
     }
     return true;

@@ -43,11 +43,13 @@ class _WorkoutEditScreenState extends State<WorkoutEditScreen> {
     final updatedExercises = _exercises.map((e) => e.toExercise()).toList();
     final newVolume = updatedExercises.fold<int>(
       0,
-      (sum, ex) => sum +
+      (sum, ex) =>
+          sum +
           ex.sets.fold<int>(
-              0,
-              (s, set) =>
-                  s + (set.completed ? (set.weight * set.reps).round() : 0)),
+            0,
+            (s, set) =>
+                s + (set.completed ? (set.weight * set.reps).round() : 0),
+          ),
     );
     final updated = Workout(
       id: widget.workout.id,
@@ -79,7 +81,9 @@ class _WorkoutEditScreenState extends State<WorkoutEditScreen> {
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
-                        strokeWidth: 2, color: AppColors.primary),
+                      strokeWidth: 2,
+                      color: AppColors.primary,
+                    ),
                   )
                 : Text(
                     l10n.common_save,
@@ -121,8 +125,11 @@ class _ExerciseCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
             child: Row(
               children: [
-                const Icon(Icons.fitness_center_rounded,
-                    color: AppColors.primary, size: 18),
+                const Icon(
+                  Icons.fitness_center_rounded,
+                  color: AppColors.primary,
+                  size: 18,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -143,10 +150,16 @@ class _ExerciseCard extends StatelessWidget {
               controller: editable.notesCtrl,
               maxLines: 2,
               minLines: 1,
-              style: const TextStyle(color: AppColors.textPrimary, fontSize: 13),
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 13,
+              ),
               decoration: InputDecoration(
                 hintText: l10n.train_notesHint,
-                hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+                hintStyle: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 13,
+                ),
                 filled: true,
                 fillColor: AppColors.bgCardLight,
                 border: OutlineInputBorder(
@@ -154,45 +167,52 @@ class _ExerciseCard extends StatelessWidget {
                   borderSide: BorderSide.none,
                 ),
                 contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 10),
+                  horizontal: 12,
+                  vertical: 10,
+                ),
               ),
             ),
           ),
           const Divider(height: 1),
           Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             child: Row(
               children: [
                 Expanded(
                   flex: 1,
-                  child: Text(l10n.train_setHeader,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      )),
+                  child: Text(
+                    l10n.train_setHeader,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
                 Expanded(
                   flex: 2,
-                  child: Text(l10n.common_reps,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      )),
+                  child: Text(
+                    l10n.common_reps,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
                 Expanded(
                   flex: 2,
-                  child: Text(l10n.train_weightHeader,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      )),
+                  child: Text(
+                    l10n.train_weightHeader,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 36),
               ],
@@ -228,18 +248,24 @@ class _ExerciseCard extends StatelessWidget {
                   ),
                   Expanded(
                     flex: 2,
-                    child: _NumberField(controller: s.repsCtrl, allowDecimal: false),
+                    child: _NumberField(
+                      controller: s.repsCtrl,
+                      allowDecimal: false,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     flex: 2,
-                    child: _NumberField(controller: s.weightCtrl, allowDecimal: true),
+                    child: _NumberField(
+                      controller: s.weightCtrl,
+                      allowDecimal: true,
+                    ),
                   ),
                   SizedBox(
                     width: 36,
                     child: ListenableBuilder(
                       listenable: s,
-                      builder: (_, __) => IconButton(
+                      builder: (_, _) => IconButton(
                         visualDensity: VisualDensity.compact,
                         icon: Icon(
                           s.completed
@@ -294,8 +320,7 @@ class _NumberField extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide.none,
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       ),
     );
   }
@@ -333,9 +358,7 @@ class _EditableExercise extends ChangeNotifier {
       id: id,
       name: name,
       muscleGroup: muscleGroup,
-      sets: sets.asMap().entries
-          .map((e) => e.value.toSet(e.key + 1))
-          .toList(),
+      sets: sets.asMap().entries.map((e) => e.value.toSet(e.key + 1)).toList(),
       notes: notesCtrl.text.trim().isEmpty ? null : notesCtrl.text.trim(),
     );
   }
@@ -362,12 +385,14 @@ class _EditableSet extends ChangeNotifier {
   }) : _completed = completed;
 
   factory _EditableSet.from(WorkoutSet s) => _EditableSet._(
-        repsCtrl: TextEditingController(text: '${s.reps}'),
-        weightCtrl: TextEditingController(text: s.weight % 1 == 0
-            ? s.weight.toStringAsFixed(0)
-            : s.weight.toString()),
-        completed: s.completed,
-      );
+    repsCtrl: TextEditingController(text: '${s.reps}'),
+    weightCtrl: TextEditingController(
+      text: s.weight % 1 == 0
+          ? s.weight.toStringAsFixed(0)
+          : s.weight.toString(),
+    ),
+    completed: s.completed,
+  );
 
   bool get completed => _completed;
   void toggleCompleted() {

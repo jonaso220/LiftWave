@@ -100,13 +100,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // ── Social buttons ──────────────────────────────────────────
               _SocialButton(
-                label: S.of(context).login_continueGoogle,
-                icon: _googleIcon(),
-                loading: _loadingGoogle,
-                backgroundColor: Colors.white,
-                textColor: const Color(0xFF1F1F1F),
-                onTap: _handleGoogle,
-              )
+                    label: S.of(context).login_continueGoogle,
+                    icon: _googleIcon(),
+                    loading: _loadingGoogle,
+                    backgroundColor: Colors.white,
+                    textColor: const Color(0xFF1F1F1F),
+                    onTap: _handleGoogle,
+                  )
                   .animate()
                   .fadeIn(delay: 200.ms, duration: 400.ms)
                   .slideY(begin: 0.3, end: 0, delay: 200.ms, duration: 400.ms),
@@ -115,18 +115,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
               if (Platform.isIOS) ...[
                 _SocialButton(
-                  label: S.of(context).login_continueApple,
-                  icon: const Icon(Icons.apple,
-                      color: Colors.white, size: 22),
-                  loading: _loadingApple,
-                  backgroundColor: const Color(0xFF1C1C1E),
-                  textColor: Colors.white,
-                  borderColor: AppColors.bgCardLight,
-                  onTap: _handleApple,
-                )
+                      label: S.of(context).login_continueApple,
+                      icon: const Icon(
+                        Icons.apple,
+                        color: Colors.white,
+                        size: 22,
+                      ),
+                      loading: _loadingApple,
+                      backgroundColor: const Color(0xFF1C1C1E),
+                      textColor: Colors.white,
+                      borderColor: AppColors.bgCardLight,
+                      onTap: _handleApple,
+                    )
                     .animate()
                     .fadeIn(delay: 300.ms, duration: 400.ms)
-                    .slideY(begin: 0.3, end: 0, delay: 300.ms, duration: 400.ms),
+                    .slideY(
+                      begin: 0.3,
+                      end: 0,
+                      delay: 300.ms,
+                      duration: 400.ms,
+                    ),
                 const SizedBox(height: 12),
               ],
 
@@ -136,15 +144,21 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Row(
                   children: [
                     const Expanded(
-                        child: Divider(color: AppColors.bgCardLight)),
+                      child: Divider(color: AppColors.bgCardLight),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(S.of(context).common_or,
-                          style: TextStyle(
-                              color: AppColors.textMuted, fontSize: 14)),
+                      child: Text(
+                        S.of(context).common_or,
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 14,
+                        ),
+                      ),
                     ),
                     const Expanded(
-                        child: Divider(color: AppColors.bgCardLight)),
+                      child: Divider(color: AppColors.bgCardLight),
+                    ),
                   ],
                 ),
               ).animate().fadeIn(delay: 350.ms, duration: 400.ms),
@@ -153,14 +167,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // ── Email button ─────────────────────────────────────────────
               _SocialButton(
-                label: S.of(context).login_continueEmail,
-                icon: const Icon(Icons.mail_outline_rounded,
-                    color: AppColors.primary, size: 22),
-                backgroundColor: AppColors.bgCard,
-                textColor: AppColors.textPrimary,
-                borderColor: AppColors.bgCardLight,
-                onTap: _handleEmail,
-              )
+                    label: S.of(context).login_continueEmail,
+                    icon: const Icon(
+                      Icons.mail_outline_rounded,
+                      color: AppColors.primary,
+                      size: 22,
+                    ),
+                    backgroundColor: AppColors.bgCard,
+                    textColor: AppColors.textPrimary,
+                    borderColor: AppColors.bgCardLight,
+                    onTap: _handleEmail,
+                  )
                   .animate()
                   .fadeIn(delay: 400.ms, duration: 400.ms)
                   .slideY(begin: 0.3, end: 0, delay: 400.ms, duration: 400.ms),
@@ -168,9 +185,10 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 48),
 
               // ── Legal ────────────────────────────────────────────────────
-              _buildLegalLinks()
-                  .animate()
-                  .fadeIn(delay: 500.ms, duration: 400.ms),
+              _buildLegalLinks().animate().fadeIn(
+                delay: 500.ms,
+                duration: 400.ms,
+              ),
 
               const SizedBox(height: 24),
             ],
@@ -195,11 +213,16 @@ class _LoginScreenState extends State<LoginScreen> {
         Text(
           l10n.login_legalPrefix,
           style: const TextStyle(
-              color: AppColors.textMuted, fontSize: 11, height: 1.5),
+            color: AppColors.textMuted,
+            fontSize: 11,
+            height: 1.5,
+          ),
         ),
         GestureDetector(
-          onTap: () => launchUrl(Uri.parse(_termsUrl),
-              mode: LaunchMode.externalApplication),
+          onTap: () => launchUrl(
+            Uri.parse(_termsUrl),
+            mode: LaunchMode.externalApplication,
+          ),
           child: Text(
             l10n.login_termsLink,
             style: const TextStyle(
@@ -214,11 +237,16 @@ class _LoginScreenState extends State<LoginScreen> {
         Text(
           ' ${l10n.login_legalAnd} ',
           style: const TextStyle(
-              color: AppColors.textMuted, fontSize: 11, height: 1.5),
+            color: AppColors.textMuted,
+            fontSize: 11,
+            height: 1.5,
+          ),
         ),
         GestureDetector(
-          onTap: () => launchUrl(Uri.parse(_privacyUrl),
-              mode: LaunchMode.externalApplication),
+          onTap: () => launchUrl(
+            Uri.parse(_privacyUrl),
+            mode: LaunchMode.externalApplication,
+          ),
           child: Text(
             l10n.login_privacyLink,
             style: const TextStyle(
@@ -233,7 +261,10 @@ class _LoginScreenState extends State<LoginScreen> {
         const Text(
           '.',
           style: TextStyle(
-              color: AppColors.textMuted, fontSize: 11, height: 1.5),
+            color: AppColors.textMuted,
+            fontSize: 11,
+            height: 1.5,
+          ),
         ),
       ],
     );

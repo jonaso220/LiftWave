@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -29,12 +27,14 @@ void main() async {
 
   GoogleFonts.config.allowRuntimeFetching = true;
 
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: AppColors.bgCard,
-    systemNavigationBarIconBrightness: Brightness.light,
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: AppColors.bgCard,
+      systemNavigationBarIconBrightness: Brightness.light,
+    ),
+  );
   runApp(const LiftWaveApp());
 }
 
@@ -84,10 +84,7 @@ class _SplashScreen extends StatelessWidget {
           children: [
             Icon(Icons.waves_rounded, color: AppColors.primary, size: 56),
             SizedBox(height: 20),
-            CircularProgressIndicator(
-              color: AppColors.primary,
-              strokeWidth: 2,
-            ),
+            CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2),
           ],
         ),
       ),

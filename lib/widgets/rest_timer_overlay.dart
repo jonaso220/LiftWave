@@ -77,7 +77,9 @@ class _RestTimerOverlayState extends State<RestTimerOverlay> {
               bottom: false,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 10),
+                  horizontal: 12,
+                  vertical: 10,
+                ),
                 child: Row(
                   children: [
                     Container(
@@ -127,15 +129,9 @@ class _RestTimerOverlayState extends State<RestTimerOverlay> {
                         ],
                       ),
                     ),
-                    _MiniButton(
-                      label: '-15s',
-                      onTap: () => _c.addTime(-15),
-                    ),
+                    _MiniButton(label: '-15s', onTap: () => _c.addTime(-15)),
                     const SizedBox(width: 6),
-                    _MiniButton(
-                      label: '+15s',
-                      onTap: () => _c.addTime(15),
-                    ),
+                    _MiniButton(label: '+15s', onTap: () => _c.addTime(15)),
                     const SizedBox(width: 6),
                     _IconButton(
                       icon: _c.isRunning
@@ -316,8 +312,7 @@ class _RestTimerSheetState extends State<_RestTimerSheet> {
           ),
           Text(
             l10n.rest_of(_format(_c.total)),
-            style: const TextStyle(
-                color: AppColors.textMuted, fontSize: 13),
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
           ),
           const SizedBox(height: 20),
           Row(
@@ -375,7 +370,9 @@ class _RestTimerSheetState extends State<_RestTimerSheet> {
                 onTap: () => _c.selectPreset(s),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 10),
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: selected
                         ? AppColors.primary.withAlpha(30)

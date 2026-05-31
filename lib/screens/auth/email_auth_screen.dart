@@ -72,30 +72,36 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
     }
     try {
       await AuthService.instance.sendPasswordReset(email);
+      if (!mounted) return;
       _showSuccess(S.of(context).emailAuth_resetSent(email));
     } catch (_) {
+      if (!mounted) return;
       _showError(S.of(context).emailAuth_resetError);
     }
   }
 
   void _showError(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      backgroundColor: AppColors.error,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: AppColors.error,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   void _showSuccess(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      backgroundColor: AppColors.success,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: AppColors.success,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   // ── Build ─────────────────────────────────────────────────────────────────
@@ -108,12 +114,17 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
         backgroundColor: AppColors.bgDark,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: AppColors.textPrimary, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: AppColors.textPrimary,
+            size: 20,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          _isRegister ? S.of(context).emailAuth_titleRegister : S.of(context).emailAuth_titleLogin,
+          _isRegister
+              ? S.of(context).emailAuth_titleRegister
+              : S.of(context).emailAuth_titleLogin,
           style: const TextStyle(
             color: AppColors.textPrimary,
             fontSize: 18,
@@ -133,7 +144,9 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
 
                 // ── Title ───────────────────────────────────────────────
                 Text(
-                  _isRegister ? S.of(context).emailAuth_greetingRegister : S.of(context).emailAuth_greetingLogin,
+                  _isRegister
+                      ? S.of(context).emailAuth_greetingRegister
+                      : S.of(context).emailAuth_greetingLogin,
                   style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 26,
@@ -164,8 +177,9 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                     controller: _nameCtrl,
                     hint: S.of(context).emailAuth_nameHint,
                     icon: Icons.person_outline_rounded,
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? S.of(context).emailAuth_nameError : null,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? S.of(context).emailAuth_nameError
+                        : null,
                   ),
                   const SizedBox(height: 20),
                 ],
@@ -179,8 +193,12 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                   icon: Icons.mail_outline_rounded,
                   keyboardType: TextInputType.emailAddress,
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return S.of(context).emailAuth_emailErrorEmpty;
-                    if (!v.contains('@')) return S.of(context).emailAuth_emailErrorInvalid;
+                    if (v == null || v.trim().isEmpty) {
+                      return S.of(context).emailAuth_emailErrorEmpty;
+                    }
+                    if (!v.contains('@')) {
+                      return S.of(context).emailAuth_emailErrorInvalid;
+                    }
                     return null;
                   },
                 ),
@@ -192,7 +210,9 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                 const SizedBox(height: 8),
                 _buildField(
                   controller: _passCtrl,
-                  hint: _isRegister ? S.of(context).emailAuth_passwordHintRegister : S.of(context).emailAuth_passwordHintLogin,
+                  hint: _isRegister
+                      ? S.of(context).emailAuth_passwordHintRegister
+                      : S.of(context).emailAuth_passwordHintLogin,
                   icon: Icons.lock_outline_rounded,
                   obscureText: _obscurePass,
                   suffixIcon: IconButton(
@@ -207,7 +227,9 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                         setState(() => _obscurePass = !_obscurePass),
                   ),
                   validator: (v) {
-                    if (v == null || v.isEmpty) return S.of(context).emailAuth_passwordErrorEmpty;
+                    if (v == null || v.isEmpty) {
+                      return S.of(context).emailAuth_passwordErrorEmpty;
+                    }
                     if (_isRegister && v.length < 6) {
                       return S.of(context).emailAuth_passwordErrorShort;
                     }
@@ -244,8 +266,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                     onPressed: _loading ? null : _submit,
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      disabledBackgroundColor:
-                          AppColors.primary.withAlpha(100),
+                      disabledBackgroundColor: AppColors.primary.withAlpha(100),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14),
                       ),
@@ -260,7 +281,9 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                             ),
                           )
                         : Text(
-                            _isRegister ? S.of(context).emailAuth_titleRegister : S.of(context).emailAuth_titleLogin,
+                            _isRegister
+                                ? S.of(context).emailAuth_titleRegister
+                                : S.of(context).emailAuth_titleLogin,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -288,10 +311,13 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                                 ? S.of(context).emailAuth_hasAccount
                                 : S.of(context).emailAuth_noAccount,
                             style: const TextStyle(
-                                color: AppColors.textSecondary),
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                           TextSpan(
-                            text: _isRegister ? S.of(context).emailAuth_loginLink : S.of(context).emailAuth_registerLink,
+                            text: _isRegister
+                                ? S.of(context).emailAuth_loginLink
+                                : S.of(context).emailAuth_registerLink,
                             style: const TextStyle(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
@@ -315,13 +341,13 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
   // ── Helpers ───────────────────────────────────────────────────────────────
 
   Widget _buildLabel(String text) => Text(
-        text,
-        style: const TextStyle(
-          color: AppColors.textSecondary,
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-        ),
-      );
+    text,
+    style: const TextStyle(
+      color: AppColors.textSecondary,
+      fontSize: 13,
+      fontWeight: FontWeight.w500,
+    ),
+  );
 
   Widget _buildField({
     required TextEditingController controller,
@@ -350,26 +376,24 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide:
-              const BorderSide(color: AppColors.bgCardLight, width: 1),
+          borderSide: const BorderSide(color: AppColors.bgCardLight, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide:
-              const BorderSide(color: AppColors.primary, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide:
-              const BorderSide(color: AppColors.error, width: 1),
+          borderSide: const BorderSide(color: AppColors.error, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide:
-              const BorderSide(color: AppColors.error, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
     );
   }

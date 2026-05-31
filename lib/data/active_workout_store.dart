@@ -52,8 +52,10 @@ class ActiveWorkoutStore {
       final map = jsonDecode(raw) as Map<String, dynamic>;
       final exercisesJson = (map['exercises'] as List?) ?? const [];
       final exercises = exercisesJson
-          .map((e) =>
-              SessionExercise.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) =>
+                SessionExercise.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList();
       final startedAt = map['startedAt'] as String?;
       return ActiveWorkoutSnapshot(

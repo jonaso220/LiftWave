@@ -18,14 +18,14 @@ class BodyMeasurement {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'date': date.toIso8601String(),
-        'weight': weight,
-        'waist': waist,
-        'chest': chest,
-        'hips': hips,
-        'photoPath': photoPath,
-      };
+    'id': id,
+    'date': date.toIso8601String(),
+    'weight': weight,
+    'waist': waist,
+    'chest': chest,
+    'hips': hips,
+    'photoPath': photoPath,
+  };
 
   factory BodyMeasurement.fromJson(Map<String, dynamic> json) =>
       BodyMeasurement(

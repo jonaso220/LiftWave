@@ -31,10 +31,7 @@ class CsvExporter {
     await file.writeAsString(buffer.toString());
 
     // Share
-    await Share.shareXFiles(
-      [XFile(file.path)],
-      subject: l10n.csv_subject,
-    );
+    await Share.shareXFiles([XFile(file.path)], subject: l10n.csv_subject);
   }
 
   static String _escape(String s) => s.replaceAll('"', '""');

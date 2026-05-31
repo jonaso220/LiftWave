@@ -4,6 +4,7 @@ import '../../data/custom_exercise_store.dart';
 import '../../data/mock_data.dart';
 import '../../models/models.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/muscle_colors.dart';
 import '../../widgets/common/muscle_chip.dart';
 
 class ExercisePickerScreen extends StatefulWidget {
@@ -17,15 +18,17 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
   String _query = '';
   String _muscle = 'Todos';
 
-  List<Exercise> get _allExercises =>
-      [...mockExercises, ...CustomExerciseStore.instance.exercises];
+  List<Exercise> get _allExercises => [
+    ...mockExercises,
+    ...CustomExerciseStore.instance.exercises,
+  ];
 
   List<Exercise> get _filtered => _allExercises.where((e) {
-        final matchQ = _query.isEmpty ||
-            e.name.toLowerCase().contains(_query.toLowerCase());
-        final matchM = _muscle == 'Todos' || e.muscleGroup == _muscle;
-        return matchQ && matchM;
-      }).toList();
+    final matchQ =
+        _query.isEmpty || e.name.toLowerCase().contains(_query.toLowerCase());
+    final matchM = _muscle == 'Todos' || e.muscleGroup == _muscle;
+    return matchQ && matchM;
+  }).toList();
 
   Future<void> _showCreateExercise() async {
     final result = await showModalBottomSheet<Exercise>(
@@ -60,12 +63,18 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
               style: const TextStyle(color: AppColors.textPrimary),
               decoration: InputDecoration(
                 hintText: S.of(context).picker_searchHint,
-                prefixIcon: const Icon(Icons.search_rounded,
-                    color: AppColors.textMuted, size: 20),
+                prefixIcon: const Icon(
+                  Icons.search_rounded,
+                  color: AppColors.textMuted,
+                  size: 20,
+                ),
                 suffixIcon: _query.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.close_rounded,
-                            color: AppColors.textMuted, size: 18),
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          color: AppColors.textMuted,
+                          size: 18,
+                        ),
                         onPressed: () => setState(() => _query = ''),
                       )
                     : null,
@@ -115,28 +124,40 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
                 color: AppColors.primary.withAlpha(38),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.edit_rounded,
-                  color: AppColors.primary, size: 18),
+              child: const Icon(
+                Icons.edit_rounded,
+                color: AppColors.primary,
+                size: 18,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(S.of(context).picker_createManual,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.primary,
-                          )),
+                  Text(
+                    S.of(context).picker_createManual,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.primary,
+                    ),
+                  ),
                   const SizedBox(height: 3),
-                  Text(S.of(context).picker_createManualSubtitle,
-                      style:
-                          const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+                  Text(
+                    S.of(context).picker_createManualSubtitle,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                    ),
+                  ),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios_rounded,
-                color: AppColors.primary, size: 16),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: AppColors.primary,
+              size: 16,
+            ),
           ],
         ),
       ),
@@ -260,20 +281,25 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text(S.of(context).picker_createTitle,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  )),
+              Text(
+                S.of(context).picker_createTitle,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               const SizedBox(height: 16),
 
               // Name
-              Text(S.of(context).picker_nameLabel,
-                  style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600)),
+              Text(
+                S.of(context).picker_nameLabel,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 6),
               TextField(
                 controller: _nameCtrl,
@@ -288,19 +314,24 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                 ),
                 onSubmitted: (_) => _submit(),
               ),
               const SizedBox(height: 16),
 
               // Muscle group
-              Text(S.of(context).picker_muscleGroupLabel,
-                  style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600)),
+              Text(
+                S.of(context).picker_muscleGroupLabel,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -311,7 +342,9 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
                     onTap: () => setState(() => _selectedMuscle = m),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 8),
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: sel ? AppColors.primary : AppColors.bgCardLight,
                         borderRadius: BorderRadius.circular(20),
@@ -331,11 +364,14 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
               const SizedBox(height: 16),
 
               // Equipment
-              Text(S.of(context).picker_equipmentLabel,
-                  style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600)),
+              Text(
+                S.of(context).picker_equipmentLabel,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -346,7 +382,9 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
                     onTap: () => setState(() => _selectedEquipment = e),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 8),
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: sel ? AppColors.primary : AppColors.bgCardLight,
                         borderRadius: BorderRadius.circular(20),
@@ -375,9 +413,12 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(13)),
+                      borderRadius: BorderRadius.circular(13),
+                    ),
                     textStyle: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.w700),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   child: Text(S.of(context).picker_addExercise),
                 ),
@@ -396,30 +437,9 @@ class _ExerciseRow extends StatelessWidget {
 
   const _ExerciseRow({required this.exercise, required this.onTap});
 
-  Color _colorForMuscle(String m) {
-    switch (m) {
-      case 'Pecho':
-        return AppColors.chest;
-      case 'Espalda':
-        return AppColors.back;
-      case 'Piernas':
-        return AppColors.legs;
-      case 'Hombros':
-        return AppColors.shoulders;
-      case 'Brazos':
-        return AppColors.arms;
-      case 'Core':
-        return AppColors.core;
-      case 'CrossFit':
-        return AppColors.crossfit;
-      default:
-        return AppColors.primary;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final color = _colorForMuscle(exercise.muscleGroup);
+    final color = colorForMuscle(exercise.muscleGroup);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -447,25 +467,34 @@ class _ExerciseRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(exercise.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          )),
+                  Text(
+                    exercise.name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: 3),
                   Row(
                     children: [
                       MuscleChip(label: exercise.muscleGroup),
                       const SizedBox(width: 6),
-                      Text(exercise.equipment,
-                          style: const TextStyle(
-                              color: AppColors.textMuted, fontSize: 11)),
+                      Text(
+                        exercise.equipment,
+                        style: const TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 11,
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.add_circle_rounded,
-                color: AppColors.primary, size: 22),
+            const Icon(
+              Icons.add_circle_rounded,
+              color: AppColors.primary,
+              size: 22,
+            ),
           ],
         ),
       ),

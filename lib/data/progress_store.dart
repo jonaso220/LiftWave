@@ -28,8 +28,7 @@ class ProgressStore extends ChangeNotifier {
   List<BodyMeasurement> _measurements = [];
 
   /// Measurements sorted oldest → newest (for charting).
-  List<BodyMeasurement> get measurements =>
-      List.unmodifiable(_measurements);
+  List<BodyMeasurement> get measurements => List.unmodifiable(_measurements);
 
   /// Newest measurement first (for display lists).
   List<BodyMeasurement> get measurementsDesc =>
@@ -57,12 +56,12 @@ class ProgressStore extends ChangeNotifier {
         _measurements = snap.docs.map((doc) {
           final data = Map<String, dynamic>.from(doc.data());
           if (data['date'] is Timestamp) {
-            data['date'] =
-                (data['date'] as Timestamp).toDate().toIso8601String();
+            data['date'] = (data['date'] as Timestamp)
+                .toDate()
+                .toIso8601String();
           }
           return BodyMeasurement.fromJson(data);
-        }).toList()
-          ..sort((a, b) => a.date.compareTo(b.date));
+        }).toList()..sort((a, b) => a.date.compareTo(b.date));
 
         await _persistLocal();
       }
@@ -77,10 +76,9 @@ class ProgressStore extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getStringList(_localKey) ?? [];
-      _measurements = raw
-          .map((s) => BodyMeasurement.fromJson(jsonDecode(s)))
-          .toList()
-        ..sort((a, b) => a.date.compareTo(b.date));
+      _measurements =
+          raw.map((s) => BodyMeasurement.fromJson(jsonDecode(s))).toList()
+            ..sort((a, b) => a.date.compareTo(b.date));
       notifyListeners();
     } catch (e) {
       debugPrint('ProgressStore._loadLocal error: $e');
@@ -94,10 +92,7 @@ class ProgressStore extends ChangeNotifier {
     _measurements.sort((a, b) => a.date.compareTo(b.date));
     notifyListeners();
 
-    await Future.wait([
-      _persistLocal(),
-      _saveToFirestore(m),
-    ]);
+    await Future.wait([_persistLocal(), _saveToFirestore(m)]);
   }
 
   // ── Remove ───────────────────────────────────────────────────────────────
@@ -106,10 +101,7 @@ class ProgressStore extends ChangeNotifier {
     _measurements.removeWhere((m) => m.id == id);
     notifyListeners();
 
-    await Future.wait([
-      _persistLocal(),
-      _deleteFromFirestore(id),
-    ]);
+    await Future.wait([_persistLocal(), _deleteFromFirestore(id)]);
   }
 
   // ── Private helpers ───────────────────────────────────────────────────────
@@ -128,9 +120,7 @@ class ProgressStore extends ChangeNotifier {
 
   Future<void> _saveToFirestore(BodyMeasurement m) async {
     try {
-      await FirebaseService.instance.measurementsRef
-          .doc(m.id)
-          .set(m.toJson());
+      await FirebaseService.instance.measurementsRef.doc(m.id).set(m.toJson());
     } catch (e) {
       debugPrint('ProgressStore._saveToFirestore error: $e');
     }

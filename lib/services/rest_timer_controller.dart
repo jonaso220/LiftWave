@@ -17,6 +17,7 @@ class RestTimerController extends ChangeNotifier {
 
   int _total = defaultRestSeconds;
   int _remaining = defaultRestSeconds;
+
   /// Duration to use the next time [startWithDefault] is called without an
   /// explicit seconds argument. Updated by the user via presets / custom
   /// time so their choice persists across set completions in a workout.

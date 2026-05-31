@@ -60,13 +60,13 @@ class Achievement {
   bool get isUnlocked => unlockedAt != null;
 
   Achievement unlock(DateTime date) => Achievement(
-        type: type,
-        title: title,
-        description: description,
-        icon: icon,
-        color: color,
-        unlockedAt: date,
-      );
+    type: type,
+    title: title,
+    description: description,
+    icon: icon,
+    color: color,
+    unlockedAt: date,
+  );
 
   static List<Achievement> all(S l10n) => [
     Achievement(

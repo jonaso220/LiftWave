@@ -26,13 +26,13 @@ class TemplateExercise {
       List.generate(sets, (_) => SessionSet(reps: reps, weight: weight));
 
   Map<String, dynamic> toJson() => {
-        'name': name,
-        'muscleGroup': muscleGroup,
-        'equipment': equipment,
-        'sets': sets,
-        'reps': reps,
-        'weight': weight,
-      };
+    'name': name,
+    'muscleGroup': muscleGroup,
+    'equipment': equipment,
+    'sets': sets,
+    'reps': reps,
+    'weight': weight,
+  };
 
   factory TemplateExercise.fromJson(Map<String, dynamic> json) =>
       TemplateExercise(
@@ -64,7 +64,14 @@ class WorkoutTemplate {
 
   List<String> get muscleGroups =>
       exercises.map((e) => e.muscleGroup).toSet().toList();
+
+  /// Whether this template can be used without a PRO subscription.
+  bool get isFree => freeTemplateIds.contains(id);
 }
+
+/// Predefined templates usable on the free tier (a hook to show value before
+/// asking the user to upgrade).
+const Set<String> freeTemplateIds = {'tpl_fullbody'};
 
 // ── Template data ─────────────────────────────────────────────────────────────
 

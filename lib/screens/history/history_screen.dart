@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/muscle_colors.dart';
 import '../../data/workout_store.dart';
 import '../../models/models.dart';
 import '../../services/subscription_service.dart';
@@ -17,6 +18,9 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
+  /// Number of past workouts a free (non-PRO) user can browse.
+  static const _freeHistoryLimit = 15;
+
   @override
   void initState() {
     super.initState();
@@ -98,8 +102,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
               child: _WeekSummaryCard(
                 workoutCount: weekWorkouts.length,
                 totalDuration: _formatWeekDuration(weekWorkouts),
-                totalVolume:
-                    _formatVolume(weekWorkouts.fold(0, (s, w) => s + w.totalVolume)),
+                totalVolume: _formatVolume(
+                  weekWorkouts.fold(0, (s, w) => s + w.totalVolume),
+                ),
                 trainedDays: _trainedDaysThisWeek,
                 todayIndex: DateTime.now().weekday - 1,
               ),
@@ -127,23 +132,28 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.history_rounded,
-                          color: AppColors.textMuted, size: 56),
+                      const Icon(
+                        Icons.history_rounded,
+                        color: AppColors.textMuted,
+                        size: 56,
+                      ),
                       const SizedBox(height: 16),
                       Text(
                         S.of(context).history_noWorkoutsYet,
                         style: const TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600),
+                          color: AppColors.textSecondary,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         S.of(context).history_noWorkoutsSubtitle,
                         style: const TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 13,
-                            height: 1.5),
+                          color: AppColors.textMuted,
+                          fontSize: 13,
+                          height: 1.5,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -160,30 +170,35 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
                     final isPro = SubscriptionService.instance.isPro;
-                    final displayWorkouts =
-                        isPro ? allWorkouts : allWorkouts.take(5).toList();
+                    final displayWorkouts = isPro
+                        ? allWorkouts
+                        : allWorkouts.take(_freeHistoryLimit).toList();
                     if (index >= displayWorkouts.length) return null;
                     final workout = displayWorkouts[index];
                     return _WorkoutHistoryCard(workout: workout)
                         .animate()
                         .fadeIn(
-                            delay: Duration(milliseconds: 60 * index),
-                            duration: 300.ms)
+                          delay: Duration(milliseconds: 60 * index),
+                          duration: 300.ms,
+                        )
                         .slideX(begin: 0.05, end: 0);
                   },
                   childCount: SubscriptionService.instance.isPro
                       ? allWorkouts.length
-                      : allWorkouts.length.clamp(0, 5),
+                      : allWorkouts.length.clamp(0, _freeHistoryLimit),
                 ),
               ),
             ),
 
             // ── Upgrade banner ──────────────────────────────────────────────
-            if (!SubscriptionService.instance.isPro && allWorkouts.length > 5)
+            if (!SubscriptionService.instance.isPro &&
+                allWorkouts.length > _freeHistoryLimit)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
                   child: GestureDetector(
                     onTap: () => requirePro(context),
                     child: Container(
@@ -192,12 +207,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         color: AppColors.primary.withAlpha(20),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                            color: AppColors.primary.withAlpha(60)),
+                          color: AppColors.primary.withAlpha(60),
+                        ),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.lock_rounded,
-                              color: AppColors.primary, size: 20),
+                          const Icon(
+                            Icons.lock_rounded,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
@@ -213,7 +232,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  S.of(context).history_unlockWorkouts(allWorkouts.length),
+                                  S
+                                      .of(context)
+                                      .history_unlockWorkouts(
+                                        allWorkouts.length,
+                                      ),
                                   style: const TextStyle(
                                     color: AppColors.textMuted,
                                     fontSize: 12,
@@ -267,31 +290,35 @@ class _WeekSummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(S.of(context).history_weeklySummary,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w700)),
+          Text(
+            S.of(context).history_weeklySummary,
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
               _SummaryItem(
-                  value: '$workoutCount',
-                  label: S.of(context).history_workouts,
-                  icon: Icons.fitness_center_rounded,
-                  color: AppColors.primary),
+                value: '$workoutCount',
+                label: S.of(context).history_workouts,
+                icon: Icons.fitness_center_rounded,
+                color: AppColors.primary,
+              ),
               _divider(),
               _SummaryItem(
-                  value: workoutCount == 0 ? '0m' : totalDuration,
-                  label: S.of(context).history_total,
-                  icon: Icons.timer_rounded,
-                  color: AppColors.accent),
+                value: workoutCount == 0 ? '0m' : totalDuration,
+                label: S.of(context).history_total,
+                icon: Icons.timer_rounded,
+                color: AppColors.accent,
+              ),
               _divider(),
               _SummaryItem(
-                  value: workoutCount == 0 ? '0' : totalVolume,
-                  label: S.of(context).history_volumeKg,
-                  icon: Icons.bar_chart_rounded,
-                  color: AppColors.accentOrange),
+                value: workoutCount == 0 ? '0' : totalVolume,
+                label: S.of(context).history_volumeKg,
+                icon: Icons.bar_chart_rounded,
+                color: AppColors.accentOrange,
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -302,11 +329,11 @@ class _WeekSummaryCard extends StatelessWidget {
   }
 
   Widget _divider() => Container(
-        width: 1,
-        height: 40,
-        color: AppColors.bgCardLight,
-        margin: const EdgeInsets.symmetric(horizontal: 12),
-      );
+    width: 1,
+    height: 40,
+    color: AppColors.bgCardLight,
+    margin: const EdgeInsets.symmetric(horizontal: 12),
+  );
 }
 
 class _SummaryItem extends StatelessWidget {
@@ -315,11 +342,12 @@ class _SummaryItem extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-  const _SummaryItem(
-      {required this.value,
-      required this.label,
-      required this.icon,
-      required this.color});
+  const _SummaryItem({
+    required this.value,
+    required this.label,
+    required this.icon,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -328,15 +356,19 @@ class _SummaryItem extends StatelessWidget {
         children: [
           Icon(icon, color: color, size: 18),
           const SizedBox(height: 6),
-          Text(value,
-              style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700)),
+          Text(
+            value,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(label,
-              style:
-                  const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+          Text(
+            label,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+          ),
         ],
       ),
     );
@@ -351,7 +383,15 @@ class _DayStreak extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final days = [S.of(context).history_dayMon, S.of(context).history_dayTue, S.of(context).history_dayWed, S.of(context).history_dayThu, S.of(context).history_dayFri, S.of(context).history_daySat, S.of(context).history_daySun];
+    final days = [
+      S.of(context).history_dayMon,
+      S.of(context).history_dayTue,
+      S.of(context).history_dayWed,
+      S.of(context).history_dayThu,
+      S.of(context).history_dayFri,
+      S.of(context).history_daySat,
+      S.of(context).history_daySun,
+    ];
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: List.generate(7, (i) {
@@ -366,16 +406,19 @@ class _DayStreak extends StatelessWidget {
                 color: isDone
                     ? AppColors.primary
                     : isToday
-                        ? AppColors.bgCardLight
-                        : AppColors.bgDark,
+                    ? AppColors.bgCardLight
+                    : AppColors.bgDark,
                 borderRadius: BorderRadius.circular(8),
                 border: isToday && !isDone
                     ? Border.all(color: AppColors.primary, width: 1.5)
                     : null,
               ),
               child: isDone
-                  ? const Icon(Icons.check_rounded,
-                      color: Colors.white, size: 14)
+                  ? const Icon(
+                      Icons.check_rounded,
+                      color: Colors.white,
+                      size: 14,
+                    )
                   : Center(
                       child: Text(
                         days[i],
@@ -390,11 +433,13 @@ class _DayStreak extends StatelessWidget {
                     ),
             ),
             const SizedBox(height: 4),
-            Text(days[i],
-                style: TextStyle(
-                  color: isDone ? AppColors.primary : AppColors.textMuted,
-                  fontSize: 10,
-                )),
+            Text(
+              days[i],
+              style: TextStyle(
+                color: isDone ? AppColors.primary : AppColors.textMuted,
+                fontSize: 10,
+              ),
+            ),
           ],
         );
       }),
@@ -460,16 +505,21 @@ class _WorkoutHistoryCard extends StatelessWidget {
                     color: AppColors.primary.withAlpha(30),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.fitness_center_rounded,
-                      color: AppColors.primary, size: 18),
+                  child: const Icon(
+                    Icons.fitness_center_rounded,
+                    color: AppColors.primary,
+                    size: 18,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(workout.name,
-                          style: Theme.of(context).textTheme.titleLarge),
+                      Text(
+                        workout.name,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                       const SizedBox(height: 2),
                       Text(
                         '${_formatDate(workout.date, context)} · ${_formatDuration(workout.duration)}',
@@ -478,22 +528,29 @@ class _WorkoutHistoryCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right_rounded,
-                    color: AppColors.textMuted),
+                const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.textMuted,
+                ),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               children: [
                 _HistStat(
-                    label: S.of(context).common_exercises,
-                    value: '${workout.exercises.length}'),
+                  label: S.of(context).common_exercises,
+                  value: '${workout.exercises.length}',
+                ),
                 const SizedBox(width: 12),
                 _HistStat(
-                    label: S.of(context).common_sets, value: '${workout.totalSets}'),
+                  label: S.of(context).common_sets,
+                  value: '${workout.totalSets}',
+                ),
                 const SizedBox(width: 12),
                 _HistStat(
-                    label: S.of(context).common_volume, value: '${workout.totalVolume} kg'),
+                  label: S.of(context).common_volume,
+                  value: '${workout.totalVolume} kg',
+                ),
               ],
             ),
             if (muscleTags.isNotEmpty) ...[
@@ -530,15 +587,19 @@ class _HistStat extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(value,
-              style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700)),
+          Text(
+            value,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 1),
-          Text(label,
-              style:
-                  const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+          Text(
+            label,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+          ),
         ],
       ),
     );
@@ -550,39 +611,19 @@ class _SmallMuscleTag extends StatelessWidget {
 
   const _SmallMuscleTag({required this.muscle});
 
-  Color _color() {
-    switch (muscle) {
-      case 'Pecho':
-        return AppColors.chest;
-      case 'Espalda':
-        return AppColors.back;
-      case 'Piernas':
-        return AppColors.legs;
-      case 'Hombros':
-        return AppColors.shoulders;
-      case 'Brazos':
-        return AppColors.arms;
-      case 'Core':
-        return AppColors.core;
-      case 'CrossFit':
-        return AppColors.crossfit;
-      default:
-        return AppColors.primary;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final c = _color();
+    final c = colorForMuscle(muscle);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: c.withAlpha(25),
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Text(muscle,
-          style:
-              TextStyle(color: c, fontSize: 10, fontWeight: FontWeight.w600)),
+      child: Text(
+        muscle,
+        style: TextStyle(color: c, fontSize: 10, fontWeight: FontWeight.w600),
+      ),
     );
   }
 }

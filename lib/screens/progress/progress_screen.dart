@@ -66,8 +66,11 @@ class _ProgressScreenState extends State<ProgressScreen>
                 color: AppColors.primary.withAlpha(25),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.add_rounded,
-                  color: AppColors.primary, size: 20),
+              child: const Icon(
+                Icons.add_rounded,
+                color: AppColors.primary,
+                size: 20,
+              ),
             ),
             onPressed: _showAddSheet,
           ),
@@ -110,19 +113,27 @@ enum _Metric {
 
   String label(S l10n) {
     switch (this) {
-      case _Metric.weight: return l10n.progressScreen_weight;
-      case _Metric.waist: return l10n.progressScreen_waist;
-      case _Metric.chest: return l10n.progressScreen_chest;
-      case _Metric.hips: return l10n.progressScreen_hips;
+      case _Metric.weight:
+        return l10n.progressScreen_weight;
+      case _Metric.waist:
+        return l10n.progressScreen_waist;
+      case _Metric.chest:
+        return l10n.progressScreen_chest;
+      case _Metric.hips:
+        return l10n.progressScreen_hips;
     }
   }
 
   String get unit {
     switch (this) {
-      case _Metric.weight: return 'kg';
-      case _Metric.waist: return 'cm';
-      case _Metric.chest: return 'cm';
-      case _Metric.hips: return 'cm';
+      case _Metric.weight:
+        return 'kg';
+      case _Metric.waist:
+        return 'cm';
+      case _Metric.chest:
+        return 'cm';
+      case _Metric.hips:
+        return 'cm';
     }
   }
 
@@ -170,8 +181,7 @@ class _MedidasTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final store = ProgressStore.instance;
     final all = store.measurements;
-    final withData =
-        all.where((m) => metric.valueOf(m) != null).toList();
+    final withData = all.where((m) => metric.valueOf(m) != null).toList();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
@@ -199,11 +209,11 @@ class _MedidasTab extends StatelessWidget {
                   duration: const Duration(milliseconds: 200),
                   margin: const EdgeInsets.only(right: 8),
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 8),
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    color: selected
-                        ? m.color
-                        : AppColors.bgCard,
+                    color: selected ? m.color : AppColors.bgCard,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: selected ? m.color : AppColors.bgCardLight,
@@ -212,13 +222,9 @@ class _MedidasTab extends StatelessWidget {
                   child: Text(
                     '${m.label(S.of(context))} (${m.unit})',
                     style: TextStyle(
-                      color: selected
-                          ? Colors.white
-                          : AppColors.textMuted,
+                      color: selected ? Colors.white : AppColors.textMuted,
                       fontSize: 13,
-                      fontWeight: selected
-                          ? FontWeight.w600
-                          : FontWeight.w400,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                     ),
                   ),
                 ),
@@ -236,8 +242,10 @@ class _MedidasTab extends StatelessWidget {
         if (all.isEmpty)
           _EmptyState(onAdd: onAdd)
         else ...[
-          Text(S.of(context).progressScreen_historyTitle,
-              style: Theme.of(context).textTheme.headlineSmall),
+          Text(
+            S.of(context).progressScreen_historyTitle,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
           const SizedBox(height: 12),
           ...store.measurementsDesc.map(
             (m) => _MeasurementTile(measurement: m),
@@ -300,11 +308,11 @@ class _SummaryRow extends StatelessWidget {
   }
 
   Widget _vDivider() => Container(
-        width: 1,
-        height: 36,
-        color: AppColors.bgCardLight,
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-      );
+    width: 1,
+    height: 36,
+    color: AppColors.bgCardLight,
+    margin: const EdgeInsets.symmetric(horizontal: 8),
+  );
 }
 
 class _SummaryItem extends StatelessWidget {
@@ -312,23 +320,30 @@ class _SummaryItem extends StatelessWidget {
   final String value;
   final Color color;
 
-  const _SummaryItem(
-      {required this.label, required this.value, required this.color});
+  const _SummaryItem({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Column(
         children: [
-          Text(value,
-              style: TextStyle(
-                  color: color,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700)),
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 3),
-          Text(label,
-              style: const TextStyle(
-                  color: AppColors.textMuted, fontSize: 10)),
+          Text(
+            label,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+          ),
         ],
       ),
     );
@@ -374,20 +389,22 @@ class _ChartCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(metric.label(S.of(context)),
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700)),
+              Text(
+                metric.label(S.of(context)),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              ),
               if (latestVal != null)
                 Row(
                   children: [
                     Text(
                       '${latestVal.toStringAsFixed(1)} ${metric.unit}',
                       style: TextStyle(
-                          color: metric.color,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700),
+                        color: metric.color,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     if (dataPoints.length >= 2) ...[
                       const SizedBox(width: 6),
@@ -395,7 +412,8 @@ class _ChartCard extends StatelessWidget {
                         _delta(dataPoints),
                         style: TextStyle(
                           color: () {
-                            final d = metric.valueOf(dataPoints.last)! -
+                            final d =
+                                metric.valueOf(dataPoints.last)! -
                                 metric.valueOf(dataPoints.first)!;
                             return d <= 0
                                 ? AppColors.accent
@@ -420,7 +438,9 @@ class _ChartCard extends StatelessWidget {
                       ? S.of(context).progressScreen_noDataMetric
                       : S.of(context).progressScreen_addMoreRecords,
                   style: const TextStyle(
-                      color: AppColors.textMuted, fontSize: 13),
+                    color: AppColors.textMuted,
+                    fontSize: 13,
+                  ),
                 ),
               ),
             )
@@ -439,12 +459,20 @@ class _ChartCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(_fmt(dataPoints.first.date),
-                    style: const TextStyle(
-                        color: AppColors.textMuted, fontSize: 10)),
-                Text(_fmt(dataPoints.last.date),
-                    style: const TextStyle(
-                        color: AppColors.textMuted, fontSize: 10)),
+                Text(
+                  _fmt(dataPoints.first.date),
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 10,
+                  ),
+                ),
+                Text(
+                  _fmt(dataPoints.last.date),
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 10,
+                  ),
+                ),
               ],
             ),
           ],
@@ -453,14 +481,15 @@ class _ChartCard extends StatelessWidget {
     );
   }
 
-  List<({double x, double y})> _toSpots(
-      List<BodyMeasurement> pts) {
+  List<({double x, double y})> _toSpots(List<BodyMeasurement> pts) {
     final base = pts.first.date;
     return pts
-        .map((m) => (
-              x: m.date.difference(base).inHours.toDouble(),
-              y: metric.valueOf(m)!,
-            ))
+        .map(
+          (m) => (
+            x: m.date.difference(base).inHours.toDouble(),
+            y: metric.valueOf(m)!,
+          ),
+        )
         .toList();
   }
 }
@@ -490,9 +519,9 @@ class _LinePainter extends CustomPainter {
     final yRange = maxY == minY ? 1.0 : maxY - minY;
 
     Offset toOff(double x, double y) => Offset(
-          padH + (xRange == 0 ? w / 2 : (x - minX) / xRange * w),
-          padV + h - (y - minY) / yRange * h,
-        );
+      padH + (xRange == 0 ? w / 2 : (x - minX) / xRange * w),
+      padV + h - (y - minY) / yRange * h,
+    );
 
     final offsets = spots.map((s) => toOff(s.x, s.y)).toList();
 
@@ -528,8 +557,7 @@ class _LinePainter extends CustomPainter {
     );
 
     // Line
-    final linePath = Path()
-      ..moveTo(offsets.first.dx, offsets.first.dy);
+    final linePath = Path()..moveTo(offsets.first.dx, offsets.first.dy);
     for (final o in offsets.skip(1)) {
       linePath.lineTo(o.dx, o.dy);
     }
@@ -566,12 +594,18 @@ class _MeasurementTile extends StatelessWidget {
 
   String _fmtDate(DateTime d, S l10n) {
     final months = [
-      l10n.progressScreen_monthShortJan, l10n.progressScreen_monthShortFeb,
-      l10n.progressScreen_monthShortMar, l10n.progressScreen_monthShortApr,
-      l10n.progressScreen_monthShortMay, l10n.progressScreen_monthShortJun,
-      l10n.progressScreen_monthShortJul, l10n.progressScreen_monthShortAug,
-      l10n.progressScreen_monthShortSep, l10n.progressScreen_monthShortOct,
-      l10n.progressScreen_monthShortNov, l10n.progressScreen_monthShortDec,
+      l10n.progressScreen_monthShortJan,
+      l10n.progressScreen_monthShortFeb,
+      l10n.progressScreen_monthShortMar,
+      l10n.progressScreen_monthShortApr,
+      l10n.progressScreen_monthShortMay,
+      l10n.progressScreen_monthShortJun,
+      l10n.progressScreen_monthShortJul,
+      l10n.progressScreen_monthShortAug,
+      l10n.progressScreen_monthShortSep,
+      l10n.progressScreen_monthShortOct,
+      l10n.progressScreen_monthShortNov,
+      l10n.progressScreen_monthShortDec,
     ];
     return '${d.day} ${months[d.month - 1]} ${d.year}';
   }
@@ -590,8 +624,7 @@ class _MeasurementTile extends StatelessWidget {
           color: AppColors.error.withAlpha(25),
           borderRadius: BorderRadius.circular(14),
         ),
-        child: const Icon(Icons.delete_outline_rounded,
-            color: AppColors.error),
+        child: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
       ),
       onDismissed: (_) => ProgressStore.instance.remove(m.id),
       child: Container(
@@ -608,15 +641,19 @@ class _MeasurementTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_fmtDate(m.date, S.of(context)),
-                    style: const TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600)),
+                Text(
+                  _fmtDate(m.date, S.of(context)),
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 const SizedBox(height: 2),
-                Text(S.of(context).progressScreen_record,
-                    style: TextStyle(
-                        color: AppColors.textMuted, fontSize: 10)),
+                Text(
+                  S.of(context).progressScreen_record,
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 10),
+                ),
               ],
             ),
             const SizedBox(width: 16),
@@ -629,20 +666,24 @@ class _MeasurementTile extends StatelessWidget {
                 children: [
                   if (m.weight != null)
                     _ValueChip(
-                        label: '${m.weight!.toStringAsFixed(1)} kg',
-                        color: _Metric.weight.color),
+                      label: '${m.weight!.toStringAsFixed(1)} kg',
+                      color: _Metric.weight.color,
+                    ),
                   if (m.waist != null)
                     _ValueChip(
-                        label: '${m.waist!.toStringAsFixed(1)} cm',
-                        color: _Metric.waist.color),
+                      label: '${m.waist!.toStringAsFixed(1)} cm',
+                      color: _Metric.waist.color,
+                    ),
                   if (m.chest != null)
                     _ValueChip(
-                        label: '${m.chest!.toStringAsFixed(1)} cm',
-                        color: _Metric.chest.color),
+                      label: '${m.chest!.toStringAsFixed(1)} cm',
+                      color: _Metric.chest.color,
+                    ),
                   if (m.hips != null)
                     _ValueChip(
-                        label: '${m.hips!.toStringAsFixed(1)} cm',
-                        color: _Metric.hips.color),
+                      label: '${m.hips!.toStringAsFixed(1)} cm',
+                      color: _Metric.hips.color,
+                    ),
                 ],
               ),
             ),
@@ -682,9 +723,14 @@ class _ValueChip extends StatelessWidget {
         color: color.withAlpha(25),
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Text(label,
-          style: TextStyle(
-              color: color, fontSize: 11, fontWeight: FontWeight.w600)),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
   }
 }
@@ -703,19 +749,28 @@ class _EmptyState extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 40),
         child: Column(
           children: [
-            const Icon(Icons.monitor_weight_outlined,
-                color: AppColors.textMuted, size: 52),
+            const Icon(
+              Icons.monitor_weight_outlined,
+              color: AppColors.textMuted,
+              size: 52,
+            ),
             const SizedBox(height: 14),
-            Text(S.of(context).progressScreen_noEntries,
-                style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600)),
+            Text(
+              S.of(context).progressScreen_noEntries,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(height: 6),
             Text(
               S.of(context).progressScreen_noEntriesSubtitle,
               style: const TextStyle(
-                  color: AppColors.textMuted, fontSize: 13, height: 1.5),
+                color: AppColors.textMuted,
+                fontSize: 13,
+                height: 1.5,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -723,16 +778,21 @@ class _EmptyState extends StatelessWidget {
               onTap: onAdd,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 10),
+                  horizontal: 20,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withAlpha(25),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text(S.of(context).progressScreen_addFirstRecord,
-                    style: const TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600)),
+                child: Text(
+                  S.of(context).progressScreen_addFirstRecord,
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
           ],
@@ -765,28 +825,39 @@ class _FotosTab extends StatelessWidget {
                   color: AppColors.primary.withAlpha(20),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Icon(Icons.photo_library_outlined,
-                    color: AppColors.primary, size: 36),
+                child: const Icon(
+                  Icons.photo_library_outlined,
+                  color: AppColors.primary,
+                  size: 36,
+                ),
               ),
               const SizedBox(height: 20),
-              Text(S.of(context).progressScreen_progressPhotos,
-                  style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700)),
+              Text(
+                S.of(context).progressScreen_progressPhotos,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               const SizedBox(height: 8),
               Text(
                 S.of(context).progressScreen_progressPhotosHint,
                 style: const TextStyle(
-                    color: AppColors.textMuted, fontSize: 13, height: 1.5),
+                  color: AppColors.textMuted,
+                  fontSize: 13,
+                  height: 1.5,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: () => requirePro(context),
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(12),
@@ -794,14 +865,20 @@ class _FotosTab extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.workspace_premium_rounded,
-                          color: Colors.white, size: 18),
+                      const Icon(
+                        Icons.workspace_premium_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                       const SizedBox(width: 8),
-                      Text(S.of(context).progressScreen_unlockWithPro,
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14)),
+                      Text(
+                        S.of(context).progressScreen_unlockWithPro,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -821,19 +898,28 @@ class _FotosTab extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.photo_library_outlined,
-                  color: AppColors.textMuted, size: 52),
+              const Icon(
+                Icons.photo_library_outlined,
+                color: AppColors.textMuted,
+                size: 52,
+              ),
               const SizedBox(height: 14),
-              Text(S.of(context).progressScreen_noPhotos,
-                  style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600)),
+              Text(
+                S.of(context).progressScreen_noPhotos,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 6),
               Text(
                 S.of(context).progressScreen_noPhotosSubtitle,
                 style: const TextStyle(
-                    color: AppColors.textMuted, fontSize: 13, height: 1.5),
+                  color: AppColors.textMuted,
+                  fontSize: 13,
+                  height: 1.5,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -841,16 +927,21 @@ class _FotosTab extends StatelessWidget {
                 onTap: onAdd,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 10),
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withAlpha(25),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Text(S.of(context).progressScreen_addPhoto,
-                      style: const TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600)),
+                  child: Text(
+                    S.of(context).progressScreen_addPhoto,
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -895,8 +986,10 @@ class _PhotoCard extends StatelessWidget {
               fit: BoxFit.cover,
               errorBuilder: (_, _, _) => Container(
                 color: AppColors.bgCard,
-                child: const Icon(Icons.broken_image_outlined,
-                    color: AppColors.textMuted),
+                child: const Icon(
+                  Icons.broken_image_outlined,
+                  color: AppColors.textMuted,
+                ),
               ),
             ),
             Positioned(
@@ -905,7 +998,9 @@ class _PhotoCard extends StatelessWidget {
               right: 0,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 8),
+                  horizontal: 10,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
@@ -916,9 +1011,10 @@ class _PhotoCard extends StatelessWidget {
                 child: Text(
                   '${measurement.date.day}/${measurement.date.month}/${measurement.date.year}',
                   style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600),
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -977,13 +1073,14 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
     try {
       final picker = ImagePicker();
       final xfile = await picker.pickImage(
-          source: source, imageQuality: 80, maxWidth: 1200);
+        source: source,
+        imageQuality: 80,
+        maxWidth: 1200,
+      );
       if (xfile == null) return;
       final dir = await getApplicationDocumentsDirectory();
-      final filename =
-          'progress_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final saved =
-          await File(xfile.path).copy('${dir.path}/$filename');
+      final filename = 'progress_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final saved = await File(xfile.path).copy('${dir.path}/$filename');
       setState(() => _photoPath = saved.path);
     } catch (_) {
       // Camera not available in simulator — silently ignore
@@ -995,26 +1092,35 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
       context: context,
       backgroundColor: AppColors.bgCard,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (_) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.camera_alt_rounded,
-                  color: AppColors.primary),
-              title: Text(S.of(context).progressScreen_camera,
-                  style: const TextStyle(color: AppColors.textPrimary)),
+              leading: const Icon(
+                Icons.camera_alt_rounded,
+                color: AppColors.primary,
+              ),
+              title: Text(
+                S.of(context).progressScreen_camera,
+                style: const TextStyle(color: AppColors.textPrimary),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _pickPhoto(ImageSource.camera);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.photo_library_rounded,
-                  color: AppColors.primary),
-              title: Text(S.of(context).progressScreen_gallery,
-                  style: const TextStyle(color: AppColors.textPrimary)),
+              leading: const Icon(
+                Icons.photo_library_rounded,
+                color: AppColors.primary,
+              ),
+              title: Text(
+                S.of(context).progressScreen_gallery,
+                style: const TextStyle(color: AppColors.textPrimary),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _pickPhoto(ImageSource.gallery);
@@ -1055,8 +1161,9 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
     if (w == null && wa == null && ch == null && hi == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(S.of(context).progressScreen_enterAtLeastOneValue),
-            backgroundColor: AppColors.error),
+          content: Text(S.of(context).progressScreen_enterAtLeastOneValue),
+          backgroundColor: AppColors.error,
+        ),
       );
       return;
     }
@@ -1064,15 +1171,17 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
     setState(() => _saving = true);
     HapticFeedback.mediumImpact();
 
-    await ProgressStore.instance.add(BodyMeasurement(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      date: _date,
-      weight: w,
-      waist: wa,
-      chest: ch,
-      hips: hi,
-      photoPath: _photoPath,
-    ));
+    await ProgressStore.instance.add(
+      BodyMeasurement(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        date: _date,
+        weight: w,
+        waist: wa,
+        chest: ch,
+        hips: hi,
+        photoPath: _photoPath,
+      ),
+    );
 
     if (mounted) Navigator.pop(context);
   }
@@ -1104,11 +1213,12 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
             ),
             const SizedBox(height: 16),
 
-            Text(S.of(context).progressScreen_newRecord,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.w700)),
+            Text(
+              S.of(context).progressScreen_newRecord,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
             const SizedBox(height: 20),
 
             // Date picker
@@ -1116,7 +1226,9 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
               onTap: _pickDate,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 12),
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.bgDark,
                   borderRadius: BorderRadius.circular(12),
@@ -1124,19 +1236,26 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today_rounded,
-                        color: AppColors.primary, size: 18),
+                    const Icon(
+                      Icons.calendar_today_rounded,
+                      color: AppColors.primary,
+                      size: 18,
+                    ),
                     const SizedBox(width: 10),
                     Text(
                       '${_date.day}/${_date.month}/${_date.year}',
                       style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600),
+                        color: AppColors.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const Spacer(),
-                    const Icon(Icons.chevron_right_rounded,
-                        color: AppColors.textMuted, size: 18),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.textMuted,
+                      size: 18,
+                    ),
                   ],
                 ),
               ),
@@ -1194,7 +1313,9 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
               onTap: _showPhotoOptions,
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 12),
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.bgDark,
                   borderRadius: BorderRadius.circular(12),
@@ -1231,8 +1352,12 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                       const Spacer(),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(6),
-                        child: Image.file(File(_photoPath!),
-                            width: 36, height: 36, fit: BoxFit.cover),
+                        child: Image.file(
+                          File(_photoPath!),
+                          width: 36,
+                          height: 36,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ],
                   ],
@@ -1251,17 +1376,25 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
                 child: _saving
                     ? const SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2))
-                    : Text(S.of(context).progressScreen_saveRecord,
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        S.of(context).progressScreen_saveRecord,
                         style: const TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w700)),
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
               ),
             ),
           ],
@@ -1288,8 +1421,10 @@ class _MeasureField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      keyboardType:
-          const TextInputType.numberWithOptions(decimal: true, signed: false),
+      keyboardType: const TextInputType.numberWithOptions(
+        decimal: true,
+        signed: false,
+      ),
       style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
       decoration: InputDecoration(
         labelText: '$label ($unit)',
@@ -1308,8 +1443,10 @@ class _MeasureField extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: color),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 12,
+        ),
       ),
     );
   }

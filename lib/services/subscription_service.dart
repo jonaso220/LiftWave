@@ -145,7 +145,8 @@ class SubscriptionService extends ChangeNotifier {
     } on PlatformException catch (e) {
       final code = PurchasesErrorHelper.getErrorCode(e);
       debugPrint(
-          'SubscriptionService.restorePurchases error: $code ${e.message}');
+        'SubscriptionService.restorePurchases error: $code ${e.message}',
+      );
       switch (code) {
         case PurchasesErrorCode.networkError:
           return RestoreOutcome.networkError;

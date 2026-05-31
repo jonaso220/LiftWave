@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/workout_store.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/muscle_colors.dart';
 import '../../models/models.dart';
 import 'workout_edit_screen.dart';
 
@@ -42,9 +43,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
   Future<void> _openEditor() async {
     final saved = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
-        builder: (_) => WorkoutEditScreen(workout: workout),
-      ),
+      MaterialPageRoute(builder: (_) => WorkoutEditScreen(workout: workout)),
     );
     // The store listener will refresh `workout` automatically if save happened.
     if (saved == true && mounted) {
@@ -54,7 +53,8 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
           backgroundColor: AppColors.accent,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
     }
@@ -62,12 +62,22 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
 
   String _formatDate(DateTime date, BuildContext context) {
     final months = [
-      S.of(context).detail_monthJan, S.of(context).detail_monthFeb, S.of(context).detail_monthMar,
-      S.of(context).detail_monthApr, S.of(context).detail_monthMay, S.of(context).detail_monthJun,
-      S.of(context).detail_monthJul, S.of(context).detail_monthAug, S.of(context).detail_monthSep,
-      S.of(context).detail_monthOct, S.of(context).detail_monthNov, S.of(context).detail_monthDec,
+      S.of(context).detail_monthJan,
+      S.of(context).detail_monthFeb,
+      S.of(context).detail_monthMar,
+      S.of(context).detail_monthApr,
+      S.of(context).detail_monthMay,
+      S.of(context).detail_monthJun,
+      S.of(context).detail_monthJul,
+      S.of(context).detail_monthAug,
+      S.of(context).detail_monthSep,
+      S.of(context).detail_monthOct,
+      S.of(context).detail_monthNov,
+      S.of(context).detail_monthDec,
     ];
-    return S.of(context).detail_dateFormat(date.day, months[date.month - 1], date.year);
+    return S
+        .of(context)
+        .detail_dateFormat(date.day, months[date.month - 1], date.year);
   }
 
   @override
@@ -83,11 +93,14 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
               child: Container(
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.bgCard.withOpacity(0.8),
+                  color: AppColors.bgCard.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    color: AppColors.textPrimary, size: 18),
+                child: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: AppColors.textPrimary,
+                  size: 18,
+                ),
               ),
             ),
             actions: [
@@ -97,12 +110,15 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                   margin: const EdgeInsets.all(8),
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
-                    color: AppColors.bgCard.withOpacity(0.8),
+                    color: AppColors.bgCard.withValues(alpha: 0.8),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Center(
-                    child: Icon(Icons.edit_rounded,
-                        color: AppColors.textPrimary, size: 18),
+                    child: Icon(
+                      Icons.edit_rounded,
+                      color: AppColors.textPrimary,
+                      size: 18,
+                    ),
                   ),
                 ),
               ),
@@ -136,7 +152,9 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                         Text(
                           _formatDate(workout.date, context),
                           style: const TextStyle(
-                              color: Colors.white70, fontSize: 13),
+                            color: Colors.white70,
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
@@ -151,23 +169,24 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSummaryCards(context)
-                      .animate()
-                      .fadeIn(duration: 300.ms),
+                  _buildSummaryCards(
+                    context,
+                  ).animate().fadeIn(duration: 300.ms),
                   const SizedBox(height: 24),
-                  Text(S.of(context).history_exercisesPerformed,
-                      style: Theme.of(context).textTheme.headlineSmall),
+                  Text(
+                    S.of(context).history_exercisesPerformed,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
                   const SizedBox(height: 12),
                   ...workout.exercises.asMap().entries.map(
-                        (entry) =>
-                            _ExerciseDetailCard(exercise: entry.value)
-                                .animate()
-                                .fadeIn(
-                                    delay: Duration(
-                                        milliseconds: 80 * entry.key),
-                                    duration: 300.ms)
-                                .slideY(begin: 0.05, end: 0),
-                      ),
+                    (entry) => _ExerciseDetailCard(exercise: entry.value)
+                        .animate()
+                        .fadeIn(
+                          delay: Duration(milliseconds: 80 * entry.key),
+                          duration: 300.ms,
+                        )
+                        .slideY(begin: 0.05, end: 0),
+                  ),
                   const SizedBox(height: 32),
                 ],
               ),
@@ -230,23 +249,27 @@ class _DetailStatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withOpacity(0.25)),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
       ),
       child: Column(
         children: [
           Icon(icon, color: color, size: 20),
           const SizedBox(height: 8),
-          Text(value,
-              style: TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700)),
+          Text(
+            value,
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(label,
-              style: const TextStyle(
-                  color: AppColors.textMuted, fontSize: 10)),
+          Text(
+            label,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+          ),
         ],
       ),
     );
@@ -258,30 +281,9 @@ class _ExerciseDetailCard extends StatelessWidget {
 
   const _ExerciseDetailCard({required this.exercise});
 
-  Color _colorForMuscle(String muscle) {
-    switch (muscle) {
-      case 'Pecho':
-        return AppColors.chest;
-      case 'Espalda':
-        return AppColors.back;
-      case 'Piernas':
-        return AppColors.legs;
-      case 'Hombros':
-        return AppColors.shoulders;
-      case 'Brazos':
-        return AppColors.arms;
-      case 'Core':
-        return AppColors.core;
-      case 'CrossFit':
-        return AppColors.crossfit;
-      default:
-        return AppColors.primary;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final color = _colorForMuscle(exercise.muscleGroup);
+    final color = colorForMuscle(exercise.muscleGroup);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -299,32 +301,42 @@ class _ExerciseDetailCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.12),
+                    color: color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(Icons.fitness_center_rounded,
-                      color: color, size: 18),
+                  child: Icon(
+                    Icons.fitness_center_rounded,
+                    color: color,
+                    size: 18,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(exercise.name,
-                          style: Theme.of(context).textTheme.titleLarge),
+                      Text(
+                        exercise.name,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                       const SizedBox(height: 3),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
-                          color: color.withOpacity(0.1),
+                          color: color.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: Text(exercise.muscleGroup,
-                            style: TextStyle(
-                                color: color,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600)),
+                        child: Text(
+                          exercise.muscleGroup,
+                          style: TextStyle(
+                            color: color,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -332,7 +344,9 @@ class _ExerciseDetailCard extends StatelessWidget {
                 Text(
                   S.of(context).history_setsCount(exercise.sets.length),
                   style: const TextStyle(
-                      color: AppColors.textMuted, fontSize: 12),
+                    color: AppColors.textMuted,
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
@@ -342,15 +356,21 @@ class _ExerciseDetailCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
               child: Row(
                 children: [
-                  const Icon(Icons.notes_rounded,
-                      color: AppColors.textMuted, size: 14),
+                  const Icon(
+                    Icons.notes_rounded,
+                    color: AppColors.textMuted,
+                    size: 14,
+                  ),
                   const SizedBox(width: 6),
                   Expanded(
-                    child: Text(exercise.notes!,
-                        style: const TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 12,
-                            fontStyle: FontStyle.italic)),
+                    child: Text(
+                      exercise.notes!,
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -361,46 +381,61 @@ class _ExerciseDetailCard extends StatelessWidget {
             child: Row(
               children: [
                 Expanded(
-                    flex: 1,
-                    child: Text(S.of(context).history_setHeader,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600))),
+                  flex: 1,
+                  child: Text(
+                    S.of(context).history_setHeader,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
                 Expanded(
-                    flex: 2,
-                    child: Text(S.of(context).common_reps,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600))),
+                  flex: 2,
+                  child: Text(
+                    S.of(context).common_reps,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
                 Expanded(
-                    flex: 2,
-                    child: Text(S.of(context).common_weight,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600))),
+                  flex: 2,
+                  child: Text(
+                    S.of(context).common_weight,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
                 Expanded(
-                    flex: 2,
-                    child: Text(S.of(context).common_volume,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600))),
+                  flex: 2,
+                  child: Text(
+                    S.of(context).common_volume,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
           ...exercise.sets.map(
             (set) => Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
-                color: AppColors.accent.withOpacity(0.04),
+                color: AppColors.accent.withValues(alpha: 0.04),
               ),
               child: Row(
                 children: [
@@ -417,9 +452,10 @@ class _ExerciseDetailCard extends StatelessWidget {
                         child: Text(
                           '${set.setNumber}',
                           style: const TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600),
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -430,9 +466,10 @@ class _ExerciseDetailCard extends StatelessWidget {
                       '${set.reps}',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600),
+                        color: AppColors.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -443,9 +480,10 @@ class _ExerciseDetailCard extends StatelessWidget {
                           : S.of(context).common_bodyweight,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600),
+                        color: AppColors.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -456,9 +494,10 @@ class _ExerciseDetailCard extends StatelessWidget {
                           : '-',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          color: color,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600),
+                        color: color,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],

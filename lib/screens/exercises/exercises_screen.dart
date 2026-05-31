@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/muscle_colors.dart';
 import '../../data/custom_exercise_store.dart';
 import '../../data/mock_data.dart';
 import '../../models/models.dart';
-import '../../services/subscription_service.dart';
-import '../../utils/pro_gate.dart';
 import '../../widgets/common/muscle_chip.dart';
 import 'exercise_progress_sheet.dart';
 
@@ -43,36 +42,46 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
-        title: Text(S.of(context).exercises_deleteTitle,
-            style: const TextStyle(color: AppColors.textPrimary)),
+        title: Text(
+          S.of(context).exercises_deleteTitle,
+          style: const TextStyle(color: AppColors.textPrimary),
+        ),
         content: Text(
-            S.of(context).exercises_deleteConfirm(ex.name),
-            style: const TextStyle(color: AppColors.textSecondary)),
+          S.of(context).exercises_deleteConfirm(ex.name),
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(S.of(context).common_cancel,
-                style: const TextStyle(color: AppColors.primary)),
+            child: Text(
+              S.of(context).common_cancel,
+              style: const TextStyle(color: AppColors.primary),
+            ),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               CustomExerciseStore.instance.remove(ex.id);
             },
-            child: Text(S.of(context).common_delete,
-                style: const TextStyle(color: AppColors.error)),
+            child: Text(
+              S.of(context).common_delete,
+              style: const TextStyle(color: AppColors.error),
+            ),
           ),
         ],
       ),
     );
   }
 
-  List<Exercise> get _allExercises =>
-      [...mockExercises, ...CustomExerciseStore.instance.exercises];
+  List<Exercise> get _allExercises => [
+    ...mockExercises,
+    ...CustomExerciseStore.instance.exercises,
+  ];
 
   List<Exercise> get _filtered {
     return _allExercises.where((e) {
-      final matchSearch = _searchQuery.isEmpty ||
+      final matchSearch =
+          _searchQuery.isEmpty ||
           e.name.toLowerCase().contains(_searchQuery.toLowerCase());
       final matchMuscle =
           _selectedMuscle == 'Todos' || e.muscleGroup == _selectedMuscle;
@@ -99,26 +108,30 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSearchBar()
-                      .animate()
-                      .fadeIn(duration: 300.ms),
+                  _buildSearchBar().animate().fadeIn(duration: 300.ms),
                   const SizedBox(height: 14),
-                  _buildMuscleFilter()
-                      .animate()
-                      .fadeIn(delay: 80.ms, duration: 300.ms),
+                  _buildMuscleFilter().animate().fadeIn(
+                    delay: 80.ms,
+                    duration: 300.ms,
+                  ),
                   const SizedBox(height: 10),
-                  _buildEquipmentFilter()
-                      .animate()
-                      .fadeIn(delay: 130.ms, duration: 300.ms),
+                  _buildEquipmentFilter().animate().fadeIn(
+                    delay: 130.ms,
+                    duration: 300.ms,
+                  ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
                       Text(
-                        S.of(context).exercises_exerciseCount(filtered.length, filtered.length != 1 ? 's' : ''),
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
+                        S
+                            .of(context)
+                            .exercises_exerciseCount(
+                              filtered.length,
+                              filtered.length != 1 ? 's' : '',
+                            ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       if (_selectedMuscle != 'Todos' ||
                           _selectedEquipment != 'Todos' ||
@@ -133,11 +146,14 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                               _selectedEquipment = 'Todos';
                             });
                           },
-                          child: Text(S.of(context).exercises_clearFilters,
-                              style: const TextStyle(
-                                  color: AppColors.primary,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600)),
+                          child: Text(
+                            S.of(context).exercises_clearFilters,
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ],
                     ],
@@ -150,28 +166,24 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             sliver: filtered.isEmpty
-                ? SliverToBoxAdapter(
-                    child: _buildEmpty(),
-                  )
+                ? SliverToBoxAdapter(child: _buildEmpty())
                 : SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final ex = filtered[index];
-                        final isCustom = ex.id.startsWith('custom_');
-                        return _ExerciseCard(
-                          exercise: ex,
-                          onDelete: isCustom
-                              ? () => _confirmDelete(ex)
-                              : null,
-                        )
-                            .animate()
-                            .fadeIn(
-                                delay: Duration(milliseconds: 40 * index),
-                                duration: 250.ms)
-                            .slideY(begin: 0.03, end: 0);
-                      },
-                      childCount: filtered.length,
-                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final ex = filtered[index];
+                      final isCustom = ex.id.startsWith('custom_');
+                      return _ExerciseCard(
+                            exercise: ex,
+                            onDelete: isCustom
+                                ? () => _confirmDelete(ex)
+                                : null,
+                          )
+                          .animate()
+                          .fadeIn(
+                            delay: Duration(milliseconds: 40 * index),
+                            duration: 250.ms,
+                          )
+                          .slideY(begin: 0.03, end: 0);
+                    }, childCount: filtered.length),
                   ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
@@ -187,16 +199,22 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
       style: const TextStyle(color: AppColors.textPrimary),
       decoration: InputDecoration(
         hintText: S.of(context).exercises_searchHint,
-        prefixIcon: const Icon(Icons.search_rounded,
-            color: AppColors.textMuted, size: 20),
+        prefixIcon: const Icon(
+          Icons.search_rounded,
+          color: AppColors.textMuted,
+          size: 20,
+        ),
         suffixIcon: _searchQuery.isNotEmpty
             ? GestureDetector(
                 onTap: () {
                   _searchCtrl.clear();
                   setState(() => _searchQuery = '');
                 },
-                child: const Icon(Icons.close_rounded,
-                    color: AppColors.textMuted, size: 18),
+                child: const Icon(
+                  Icons.close_rounded,
+                  color: AppColors.textMuted,
+                  size: 18,
+                ),
               )
             : null,
       ),
@@ -207,11 +225,14 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(S.of(context).exercises_muscleFilter,
-            style: const TextStyle(
-                color: AppColors.textMuted,
-                fontSize: 11,
-                fontWeight: FontWeight.w600)),
+        Text(
+          S.of(context).exercises_muscleFilter,
+          style: const TextStyle(
+            color: AppColors.textMuted,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         const SizedBox(height: 8),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -223,11 +244,11 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                 child: Container(
                   margin: const EdgeInsets.only(right: 8),
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 7),
+                    horizontal: 14,
+                    vertical: 7,
+                  ),
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppColors.primary
-                        : AppColors.bgCard,
+                    color: isSelected ? AppColors.primary : AppColors.bgCard,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isSelected
@@ -258,11 +279,14 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(S.of(context).exercises_equipmentFilter,
-            style: const TextStyle(
-                color: AppColors.textMuted,
-                fontSize: 11,
-                fontWeight: FontWeight.w600)),
+        Text(
+          S.of(context).exercises_equipmentFilter,
+          style: const TextStyle(
+            color: AppColors.textMuted,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         const SizedBox(height: 8),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -274,7 +298,9 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                 child: Container(
                   margin: const EdgeInsets.only(right: 8),
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 7),
+                    horizontal: 14,
+                    vertical: 7,
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? AppColors.accentOrange
@@ -310,14 +336,20 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
       padding: const EdgeInsets.symmetric(vertical: 60),
       child: Column(
         children: [
-          const Icon(Icons.search_off_rounded,
-              color: AppColors.textMuted, size: 48),
+          const Icon(
+            Icons.search_off_rounded,
+            color: AppColors.textMuted,
+            size: 48,
+          ),
           const SizedBox(height: 12),
-          Text(S.of(context).exercises_noResults,
-              style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600)),
+          Text(
+            S.of(context).exercises_noResults,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: 4),
           Text(
             S.of(context).exercises_noResultsHint,
@@ -363,7 +395,11 @@ class _ExerciseCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.bgCard,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: isCustom ? AppColors.primary.withAlpha(60) : AppColors.bgCardLight),
+          border: Border.all(
+            color: isCustom
+                ? AppColors.primary.withAlpha(60)
+                : AppColors.bgCardLight,
+          ),
         ),
         child: Row(
           children: [
@@ -373,8 +409,8 @@ class _ExerciseCard extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.primary.withOpacity(0.2),
-                    AppColors.primaryLight.withOpacity(0.1),
+                    AppColors.primary.withValues(alpha: 0.2),
+                    AppColors.primaryLight.withValues(alpha: 0.1),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12),
@@ -393,23 +429,30 @@ class _ExerciseCard extends StatelessWidget {
                   Row(
                     children: [
                       Flexible(
-                        child: Text(exercise.name,
-                            style: Theme.of(context).textTheme.titleLarge),
+                        child: Text(
+                          exercise.name,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
                       ),
                       if (isCustom) ...[
                         const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.primary.withAlpha(30),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Text(S.of(context).common_custom,
-                              style: const TextStyle(
-                                  color: AppColors.primary,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w700)),
+                          child: Text(
+                            S.of(context).common_custom,
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                         ),
                       ],
                     ],
@@ -421,16 +464,21 @@ class _ExerciseCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.bgCardLight,
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: Text(exercise.equipment,
-                            style: const TextStyle(
-                                color: AppColors.textMuted,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500)),
+                        child: Text(
+                          exercise.equipment,
+                          style: const TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -443,8 +491,11 @@ class _ExerciseCard extends StatelessWidget {
                 if (isCustom)
                   GestureDetector(
                     onTap: onDelete,
-                    child: const Icon(Icons.delete_outline_rounded,
-                        color: AppColors.textMuted, size: 20),
+                    child: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: AppColors.textMuted,
+                      size: 20,
+                    ),
                   )
                 else ...[
                   Container(
@@ -456,15 +507,14 @@ class _ExerciseCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(exercise.difficulty,
-                      style: TextStyle(
-                          color: diffColor,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600)),
-                ],
-                if (!SubscriptionService.instance.isPro) ...[
-                  const SizedBox(height: 4),
-                  const ProBadge(),
+                  Text(
+                    exercise.difficulty,
+                    style: TextStyle(
+                      color: diffColor,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ],
             ),
@@ -474,9 +524,7 @@ class _ExerciseCard extends StatelessWidget {
     );
   }
 
-  Future<void> _showDetail(BuildContext context) async {
-    if (!await requirePro(context)) return;
-    if (!context.mounted) return;
+  void _showDetail(BuildContext context) {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.bgCard,
@@ -507,30 +555,9 @@ class _ExerciseDetailSheet extends StatelessWidget {
     }
   }
 
-  Color _colorForMuscle(String muscle) {
-    switch (muscle) {
-      case 'Pecho':
-        return AppColors.chest;
-      case 'Espalda':
-        return AppColors.back;
-      case 'Piernas':
-        return AppColors.legs;
-      case 'Hombros':
-        return AppColors.shoulders;
-      case 'Brazos':
-        return AppColors.arms;
-      case 'Core':
-        return AppColors.core;
-      case 'CrossFit':
-        return AppColors.crossfit;
-      default:
-        return AppColors.primary;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final muscleColor = _colorForMuscle(exercise.muscleGroup);
+    final muscleColor = colorForMuscle(exercise.muscleGroup);
     final diffColor = _difficultyColor(exercise.difficulty);
 
     return DraggableScrollableSheet(
@@ -562,21 +589,24 @@ class _ExerciseDetailSheet extends StatelessWidget {
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      color: muscleColor.withOpacity(0.15),
+                      color: muscleColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(Icons.fitness_center_rounded,
-                        color: muscleColor, size: 28),
+                    child: Icon(
+                      Icons.fitness_center_rounded,
+                      color: muscleColor,
+                      size: 28,
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(exercise.name,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall),
+                        Text(
+                          exercise.name,
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
                         const SizedBox(height: 4),
                         Row(
                           children: [
@@ -584,16 +614,21 @@ class _ExerciseDetailSheet extends StatelessWidget {
                             const SizedBox(width: 6),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 3),
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
                               decoration: BoxDecoration(
-                                color: diffColor.withOpacity(0.12),
+                                color: diffColor.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: Text(exercise.difficulty,
-                                  style: TextStyle(
-                                      color: diffColor,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600)),
+                              child: Text(
+                                exercise.difficulty,
+                                style: TextStyle(
+                                  color: diffColor,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -611,18 +646,20 @@ class _ExerciseDetailSheet extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _InfoTile(
-                        icon: Icons.category_rounded,
-                        label: S.of(context).exercises_muscleGroupLabel,
-                        value: exercise.muscleGroup,
-                        color: muscleColor),
+                      icon: Icons.category_rounded,
+                      label: S.of(context).exercises_muscleGroupLabel,
+                      value: exercise.muscleGroup,
+                      color: muscleColor,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: _InfoTile(
-                        icon: Icons.build_rounded,
-                        label: S.of(context).exercises_materialLabel,
-                        value: exercise.equipment,
-                        color: AppColors.accentOrange),
+                      icon: Icons.build_rounded,
+                      label: S.of(context).exercises_materialLabel,
+                      value: exercise.equipment,
+                      color: AppColors.accentOrange,
+                    ),
                   ),
                 ],
               ),
@@ -631,11 +668,13 @@ class _ExerciseDetailSheet extends StatelessWidget {
               // ── Descripción ──
               _SectionTitle(title: S.of(context).exercises_executionTitle),
               const SizedBox(height: 10),
-              Text(exercise.description,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(height: 1.65, color: AppColors.textSecondary)),
+              Text(
+                exercise.description,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  height: 1.65,
+                  color: AppColors.textSecondary,
+                ),
+              ),
               const SizedBox(height: 20),
 
               // ── Músculos secundarios ──
@@ -646,19 +685,26 @@ class _ExerciseDetailSheet extends StatelessWidget {
                   spacing: 8,
                   runSpacing: 6,
                   children: exercise.secondaryMuscles
-                      .map((m) => Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: AppColors.bgCardLight,
-                              borderRadius: BorderRadius.circular(8),
+                      .map(
+                        (m) => Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.bgCardLight,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            m,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
                             ),
-                            child: Text(m,
-                                style: const TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500)),
-                          ))
+                          ),
+                        ),
+                      )
                       .toList(),
                 ),
                 const SizedBox(height: 20),
@@ -668,32 +714,35 @@ class _ExerciseDetailSheet extends StatelessWidget {
               if (exercise.benefits.isNotEmpty) ...[
                 _SectionTitle(title: S.of(context).exercises_benefits),
                 const SizedBox(height: 10),
-                ...exercise.benefits.map((b) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            margin: const EdgeInsets.only(top: 6, right: 10),
-                            decoration: BoxDecoration(
-                              color: muscleColor,
-                              shape: BoxShape.circle,
-                            ),
+                ...exercise.benefits.map(
+                  (b) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 6,
+                          height: 6,
+                          margin: const EdgeInsets.only(top: 6, right: 10),
+                          decoration: BoxDecoration(
+                            color: muscleColor,
+                            shape: BoxShape.circle,
                           ),
-                          Expanded(
-                            child: Text(b,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                        height: 1.5,
-                                        color: AppColors.textSecondary)),
+                        ),
+                        Expanded(
+                          child: Text(
+                            b,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(
+                                  height: 1.5,
+                                  color: AppColors.textSecondary,
+                                ),
                           ),
-                        ],
-                      ),
-                    )),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 12),
               ],
               const SizedBox(height: 12),
@@ -706,8 +755,8 @@ class _ExerciseDetailSheet extends StatelessWidget {
                       context: context,
                       backgroundColor: Colors.transparent,
                       isScrollControlled: true,
-                      builder: (_) => ExerciseProgressSheet(
-                          exerciseName: exercise.name),
+                      builder: (_) =>
+                          ExerciseProgressSheet(exerciseName: exercise.name),
                     );
                   },
                   icon: const Icon(Icons.show_chart_rounded, size: 18),
@@ -717,9 +766,12 @@ class _ExerciseDetailSheet extends StatelessWidget {
                     side: const BorderSide(color: AppColors.accent),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                     textStyle: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -735,7 +787,8 @@ class _ExerciseDetailSheet extends StatelessWidget {
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                 ),
               ),
@@ -753,11 +806,13 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(title,
-        style: Theme.of(context)
-            .textTheme
-            .titleMedium
-            ?.copyWith(fontWeight: FontWeight.w700, color: AppColors.textPrimary));
+    return Text(
+      title,
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+        fontWeight: FontWeight.w700,
+        color: AppColors.textPrimary,
+      ),
+    );
   }
 }
 
@@ -779,24 +834,28 @@ class _InfoTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: color, size: 18),
           const SizedBox(height: 8),
-          Text(value,
-              style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700)),
+          Text(
+            value,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(label,
-              style: const TextStyle(
-                  color: AppColors.textMuted, fontSize: 11)),
+          Text(
+            label,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+          ),
         ],
       ),
     );

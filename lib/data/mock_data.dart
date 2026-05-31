@@ -3,9 +3,7 @@ import '../models/models.dart';
 // ── Exercise library ──────────────────────────────────────────────────────────
 
 final List<Exercise> mockExercises = [
-
   // ── PECHO ─────────────────────────────────────────────────────────────────
-
   const Exercise(
     id: 'e_pecho_1',
     name: 'Press de banca',
@@ -87,7 +85,6 @@ final List<Exercise> mockExercises = [
   ),
 
   // ── ESPALDA ───────────────────────────────────────────────────────────────
-
   const Exercise(
     id: 'e_esp_1',
     name: 'Peso muerto',
@@ -169,7 +166,6 @@ final List<Exercise> mockExercises = [
   ),
 
   // ── PIERNAS ───────────────────────────────────────────────────────────────
-
   const Exercise(
     id: 'e_pier_1',
     name: 'Sentadilla con barra',
@@ -251,7 +247,6 @@ final List<Exercise> mockExercises = [
   ),
 
   // ── HOMBROS ───────────────────────────────────────────────────────────────
-
   const Exercise(
     id: 'e_hom_1',
     name: 'Press militar',
@@ -317,7 +312,6 @@ final List<Exercise> mockExercises = [
   ),
 
   // ── BRAZOS ────────────────────────────────────────────────────────────────
-
   const Exercise(
     id: 'e_bra_1',
     name: 'Curl de bíceps con mancuernas',
@@ -399,7 +393,6 @@ final List<Exercise> mockExercises = [
   ),
 
   // ── CORE ──────────────────────────────────────────────────────────────────
-
   const Exercise(
     id: 'e_core_1',
     name: 'Plancha',
@@ -465,7 +458,6 @@ final List<Exercise> mockExercises = [
   ),
 
   // ── PECHO (extensión) ─────────────────────────────────────────────────────
-
   const Exercise(
     id: 'e_pecho_6',
     name: 'Press inclinado con barra',
@@ -531,7 +523,6 @@ final List<Exercise> mockExercises = [
   ),
 
   // ── ESPALDA (extensión) ───────────────────────────────────────────────────
-
   const Exercise(
     id: 'e_esp_6',
     name: 'Remo en T',
@@ -597,7 +588,6 @@ final List<Exercise> mockExercises = [
   ),
 
   // ── PIERNAS (extensión) ───────────────────────────────────────────────────
-
   const Exercise(
     id: 'e_pier_6',
     name: 'Sentadilla frontal',
@@ -679,7 +669,6 @@ final List<Exercise> mockExercises = [
   ),
 
   // ── HOMBROS (extensión) ───────────────────────────────────────────────────
-
   const Exercise(
     id: 'e_hom_5',
     name: 'Press de hombros con mancuernas',
@@ -729,7 +718,6 @@ final List<Exercise> mockExercises = [
   ),
 
   // ── BRAZOS (extensión) ────────────────────────────────────────────────────
-
   const Exercise(
     id: 'e_bra_6',
     name: 'Curl predicador',
@@ -795,7 +783,6 @@ final List<Exercise> mockExercises = [
   ),
 
   // ── CORE (extensión) ──────────────────────────────────────────────────────
-
   const Exercise(
     id: 'e_core_5',
     name: 'Russian twists',
@@ -877,7 +864,6 @@ final List<Exercise> mockExercises = [
   ),
 
   // ── CROSSFIT / FUNCIONAL ──────────────────────────────────────────────────
-
   const Exercise(
     id: 'e_cf_1',
     name: 'Cargada (Clean)',

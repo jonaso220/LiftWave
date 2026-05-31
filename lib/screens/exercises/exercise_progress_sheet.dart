@@ -21,15 +21,21 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
     for (final w in WorkoutStore.instance.workouts.reversed) {
       for (final e in w.exercises) {
         if (e.name == widget.exerciseName) {
-          final maxWeight =
-              e.sets.fold<double>(0, (m, s) => math.max(m, s.weight));
-          final volume =
-              e.sets.fold<int>(0, (s, set) => s + (set.reps * set.weight).round());
-          points.add(_DataPoint(
-            date: w.date,
-            maxWeight: maxWeight,
-            volume: volume.toDouble(),
-          ));
+          final maxWeight = e.sets.fold<double>(
+            0,
+            (m, s) => math.max(m, s.weight),
+          );
+          final volume = e.sets.fold<int>(
+            0,
+            (s, set) => s + (set.reps * set.weight).round(),
+          );
+          points.add(
+            _DataPoint(
+              date: w.date,
+              maxWeight: maxWeight,
+              volume: volume.toDouble(),
+            ),
+          );
         }
       }
     }
@@ -67,16 +73,20 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
               child: Row(
                 children: [
-                  const Icon(Icons.show_chart_rounded,
-                      color: AppColors.accent, size: 22),
+                  const Icon(
+                    Icons.show_chart_rounded,
+                    color: AppColors.accent,
+                    size: 22,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       widget.exerciseName,
                       style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700),
+                        color: AppColors.textPrimary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ],
@@ -111,8 +121,11 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.bar_chart_rounded,
-                                color: AppColors.textMuted, size: 40),
+                            const Icon(
+                              Icons.bar_chart_rounded,
+                              color: AppColors.textMuted,
+                              size: 40,
+                            ),
                             const SizedBox(height: 12),
                             Text(
                               data.isEmpty
@@ -120,7 +133,9 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
                                   : S.of(context).progress_needMoreSessions,
                               textAlign: TextAlign.center,
                               style: const TextStyle(
-                                  color: AppColors.textMuted, fontSize: 13),
+                                color: AppColors.textMuted,
+                                fontSize: 13,
+                              ),
                             ),
                           ],
                         ),
@@ -143,10 +158,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
                                   final val = _showVolume
                                       ? e.value.volume
                                       : e.value.maxWeight;
-                                  return (
-                                    x: e.key.toDouble(),
-                                    y: val,
-                                  );
+                                  return (x: e.key.toDouble(), y: val);
                                 }).toList(),
                                 color: _showVolume
                                     ? AppColors.accentOrange
@@ -179,7 +191,9 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
       children: [
         Expanded(
           child: _StatBox(
-            label: _showVolume ? S.of(context).progress_lastVolume : S.of(context).progress_lastWeight,
+            label: _showVolume
+                ? S.of(context).progress_lastVolume
+                : S.of(context).progress_lastWeight,
             value:
                 '${current == current.roundToDouble() ? current.toStringAsFixed(0) : current.toStringAsFixed(1)} kg',
             color: _showVolume ? AppColors.accentOrange : AppColors.accent,
@@ -198,8 +212,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
         Expanded(
           child: _StatBox(
             label: S.of(context).progress_progressLabel,
-            value:
-                '${diff >= 0 ? '+' : ''}${pct.toStringAsFixed(0)}%',
+            value: '${diff >= 0 ? '+' : ''}${pct.toStringAsFixed(0)}%',
             color: diff >= 0 ? AppColors.accent : AppColors.error,
           ),
         ),
@@ -212,11 +225,14 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(S.of(context).progress_historyTitle,
-            style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 14,
-                fontWeight: FontWeight.w700)),
+        Text(
+          S.of(context).progress_historyTitle,
+          style: const TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
         const SizedBox(height: 8),
         ...reversed.take(10).map((d) {
           final val = _showVolume ? d.volume : d.maxWeight;
@@ -227,15 +243,18 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
                 Text(
                   '${d.date.day}/${d.date.month}/${d.date.year}',
                   style: const TextStyle(
-                      color: AppColors.textMuted, fontSize: 12),
+                    color: AppColors.textMuted,
+                    fontSize: 12,
+                  ),
                 ),
                 const Spacer(),
                 Text(
                   '${val == val.roundToDouble() ? val.toStringAsFixed(0) : val.toStringAsFixed(1)} kg',
                   style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600),
+                    color: AppColors.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -316,13 +335,19 @@ class _StatBox extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Text(value,
-              style: TextStyle(
-                  color: color, fontSize: 15, fontWeight: FontWeight.w700)),
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(label,
-              style:
-                  const TextStyle(color: AppColors.textMuted, fontSize: 10)),
+          Text(
+            label,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+          ),
         ],
       ),
     );
@@ -352,9 +377,9 @@ class _ProgressPainter extends CustomPainter {
     final yRange = maxY == minY ? 1.0 : maxY - minY;
 
     Offset toOff(double x, double y) => Offset(
-          padH + (xRange == 0 ? w / 2 : (x - minX) / xRange * w),
-          padV + h - (y - minY) / yRange * h,
-        );
+      padH + (xRange == 0 ? w / 2 : (x - minX) / xRange * w),
+      padV + h - (y - minY) / yRange * h,
+    );
 
     final offsets = spots.map((s) => toOff(s.x, s.y)).toList();
 
@@ -390,8 +415,7 @@ class _ProgressPainter extends CustomPainter {
     );
 
     // Line
-    final linePath = Path()
-      ..moveTo(offsets.first.dx, offsets.first.dy);
+    final linePath = Path()..moveTo(offsets.first.dx, offsets.first.dy);
     for (final o in offsets.skip(1)) {
       linePath.lineTo(o.dx, o.dy);
     }

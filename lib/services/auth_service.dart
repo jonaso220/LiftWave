@@ -84,8 +84,7 @@ class AuthService {
 
   // ── Email / Password ──────────────────────────────────────────────────────
 
-  Future<UserCredential> signInWithEmail(
-      String email, String password) async {
+  Future<UserCredential> signInWithEmail(String email, String password) async {
     try {
       return await _auth.signInWithEmailAndPassword(
         email: email.trim(),
@@ -97,7 +96,10 @@ class AuthService {
   }
 
   Future<UserCredential> registerWithEmail(
-      String email, String password, String name) async {
+    String email,
+    String password,
+    String name,
+  ) async {
     try {
       final cred = await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
@@ -117,10 +119,7 @@ class AuthService {
   // ── Sign out ──────────────────────────────────────────────────────────────
 
   Future<void> signOut() async {
-    await Future.wait([
-      GoogleSignIn().signOut(),
-      _auth.signOut(),
-    ]);
+    await Future.wait([GoogleSignIn().signOut(), _auth.signOut()]);
   }
 
   Future<void> deleteAccount() async {
@@ -157,8 +156,10 @@ class AuthService {
     const chars =
         '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
     final rnd = Random.secure();
-    return List.generate(length, (_) => chars[rnd.nextInt(chars.length)])
-        .join();
+    return List.generate(
+      length,
+      (_) => chars[rnd.nextInt(chars.length)],
+    ).join();
   }
 
   String _sha256of(String input) {

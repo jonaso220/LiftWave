@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/muscle_colors.dart';
 import '../../data/achievement_store.dart';
 import '../../data/mock_data.dart';
 import '../../data/workout_store.dart';
@@ -83,8 +84,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final initial = (user?.displayName?.isNotEmpty == true)
         ? user!.displayName![0].toUpperCase()
         : (user?.email?.isNotEmpty == true
-            ? user!.email![0].toUpperCase()
-            : '?');
+              ? user!.email![0].toUpperCase()
+              : '?');
 
     final radius = size / 3.6; // 36 → 10, 64 → ~18
 
@@ -121,11 +122,14 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       child: Center(
-        child: Text(initial,
-            style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-                fontSize: size * 0.44)),
+        child: Text(
+          initial,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: size * 0.44,
+          ),
+        ),
       ),
     );
   }
@@ -196,7 +200,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ? l10n.profile_proActive
                       : l10n.profile_upgradePro,
                   style: const TextStyle(
-                      color: AppColors.textMuted, fontSize: 12),
+                    color: AppColors.textMuted,
+                    fontSize: 12,
+                  ),
                 ),
                 onTap: SubscriptionService.instance.isPro
                     ? null
@@ -205,21 +211,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (_) => const PaywallScreen()),
+                            builder: (_) => const PaywallScreen(),
+                          ),
                         );
                       },
               ),
               // Restore purchases
               ListTile(
-                leading: const Icon(Icons.restore_rounded,
-                    color: AppColors.textSecondary),
-                title: Text(l10n.profile_restorePurchases,
-                    style: const TextStyle(color: AppColors.textPrimary)),
+                leading: const Icon(
+                  Icons.restore_rounded,
+                  color: AppColors.textSecondary,
+                ),
+                title: Text(
+                  l10n.profile_restorePurchases,
+                  style: const TextStyle(color: AppColors.textPrimary),
+                ),
                 onTap: () async {
                   Navigator.pop(ctx);
-                  final outcome =
-                      await SubscriptionService.instance.restorePurchases();
-                  if (!mounted) return;
+                  final outcome = await SubscriptionService.instance
+                      .restorePurchases();
+                  if (!context.mounted) return;
                   final String message;
                   final Color bg;
                   switch (outcome) {
@@ -241,22 +252,29 @@ class _HomeScreenState extends State<HomeScreen> {
                       bg = AppColors.error;
                       break;
                   }
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(message),
-                    backgroundColor: bg,
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(message),
+                      backgroundColor: bg,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  );
                 },
               ),
               const Divider(indent: 16, endIndent: 16),
               // Sign out
               ListTile(
-                leading: const Icon(Icons.logout_rounded,
-                    color: AppColors.textSecondary),
-                title: Text(l10n.profile_signOut,
-                    style: const TextStyle(color: AppColors.textPrimary)),
+                leading: const Icon(
+                  Icons.logout_rounded,
+                  color: AppColors.textSecondary,
+                ),
+                title: Text(
+                  l10n.profile_signOut,
+                  style: const TextStyle(color: AppColors.textPrimary),
+                ),
                 onTap: () async {
                   Navigator.pop(ctx);
                   await AuthService.instance.signOut();
@@ -264,10 +282,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               // Delete account
               ListTile(
-                leading: const Icon(Icons.delete_forever_rounded,
-                    color: AppColors.error),
-                title: Text(l10n.profile_deleteAccount,
-                    style: const TextStyle(color: AppColors.error)),
+                leading: const Icon(
+                  Icons.delete_forever_rounded,
+                  color: AppColors.error,
+                ),
+                title: Text(
+                  l10n.profile_deleteAccount,
+                  style: const TextStyle(color: AppColors.error),
+                ),
                 onTap: () {
                   Navigator.pop(ctx);
                   _confirmDeleteAccount(context);
@@ -287,8 +309,10 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.profile_deleteTitle,
-            style: const TextStyle(color: AppColors.textPrimary)),
+        title: Text(
+          l10n.profile_deleteTitle,
+          style: const TextStyle(color: AppColors.textPrimary),
+        ),
         content: Text(
           l10n.profile_deleteConfirm,
           style: const TextStyle(color: AppColors.textSecondary),
@@ -304,33 +328,39 @@ class _HomeScreenState extends State<HomeScreen> {
               try {
                 await AuthService.instance.deleteAccount();
               } on FirebaseAuthException catch (e) {
-                if (mounted) {
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(AuthService.errorMessage(e.code, S.of(context))),
+                      content: Text(
+                        AuthService.errorMessage(e.code, S.of(context)),
+                      ),
                       backgroundColor: AppColors.error,
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   );
                 }
               } catch (_) {
-                if (mounted) {
+                if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(l10n.profile_deleteReauthError),
                       backgroundColor: AppColors.error,
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                   );
                 }
               }
             },
-            child: Text(l10n.common_delete,
-                style: const TextStyle(color: AppColors.error)),
+            child: Text(
+              l10n.common_delete,
+              style: const TextStyle(color: AppColors.error),
+            ),
           ),
         ],
       ),
@@ -364,10 +394,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final weekWorkouts = _weekWorkouts;
     final lastWorkout = _lastWorkout;
-    final totalWeekVolume =
-        weekWorkouts.fold(0, (s, w) => s + w.totalVolume);
-    final totalWeekDuration =
-        weekWorkouts.fold(Duration.zero, (s, w) => s + w.duration);
+    final totalWeekVolume = weekWorkouts.fold(0, (s, w) => s + w.totalVolume);
+    final totalWeekDuration = weekWorkouts.fold(
+      Duration.zero,
+      (s, w) => s + w.duration,
+    );
 
     return Scaffold(
       body: CustomScrollView(
@@ -386,35 +417,36 @@ class _HomeScreenState extends State<HomeScreen> {
                       .slideY(begin: 0.1, end: 0),
                   const SizedBox(height: 20),
                   _buildStatsRow(
-                    context,
-                    weekCount: weekWorkouts.length,
-                    lastDuration: lastWorkout?.duration,
-                    weekVolume: totalWeekVolume,
-                    weekDuration: totalWeekDuration,
-                  )
+                        context,
+                        weekCount: weekWorkouts.length,
+                        lastDuration: lastWorkout?.duration,
+                        weekVolume: totalWeekVolume,
+                        weekDuration: totalWeekDuration,
+                      )
                       .animate()
                       .fadeIn(delay: 100.ms, duration: 400.ms)
                       .slideY(begin: 0.1, end: 0),
                   const SizedBox(height: 24),
-                  _buildQuickStart(context)
-                      .animate()
-                      .fadeIn(delay: 200.ms, duration: 400.ms),
+                  _buildQuickStart(
+                    context,
+                  ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
                   const SizedBox(height: 24),
-                  _buildLastWorkoutCard(context, lastWorkout)
-                      .animate()
-                      .fadeIn(delay: 300.ms, duration: 400.ms),
+                  _buildLastWorkoutCard(
+                    context,
+                    lastWorkout,
+                  ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
                   const SizedBox(height: 24),
-                  _buildProgressCard(context)
-                      .animate()
-                      .fadeIn(delay: 380.ms, duration: 400.ms),
+                  _buildProgressCard(
+                    context,
+                  ).animate().fadeIn(delay: 380.ms, duration: 400.ms),
                   const SizedBox(height: 24),
-                  _buildAchievements(context)
-                      .animate()
-                      .fadeIn(delay: 420.ms, duration: 400.ms),
+                  _buildAchievements(
+                    context,
+                  ).animate().fadeIn(delay: 420.ms, duration: 400.ms),
                   const SizedBox(height: 24),
-                  _buildRecentExercises(context)
-                      .animate()
-                      .fadeIn(delay: 460.ms, duration: 400.ms),
+                  _buildRecentExercises(
+                    context,
+                  ).animate().fadeIn(delay: 460.ms, duration: 400.ms),
                   const SizedBox(height: 32),
                 ],
               ),
@@ -447,9 +479,9 @@ class _HomeScreenState extends State<HomeScreen> {
           Text(
             'LiftWave',
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                ),
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+            ),
           ),
         ],
       ),
@@ -484,25 +516,24 @@ class _HomeScreenState extends State<HomeScreen> {
           Text(
             _greeting(l10n),
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             weekCount == 0
                 ? l10n.home_weekMotivationZero
                 : weekCount == 1
-                    ? l10n.home_weekMotivationOne
-                    : l10n.home_weekMotivationMany(weekCount),
+                ? l10n.home_weekMotivationOne
+                : l10n.home_weekMotivationMany(weekCount),
             style: const TextStyle(color: Colors.white70, fontSize: 14),
           ),
           const SizedBox(height: 16),
           GestureDetector(
             onTap: () => widget.onNavigate(1),
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
@@ -510,8 +541,11 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.play_arrow_rounded,
-                      color: AppColors.primary, size: 18),
+                  const Icon(
+                    Icons.play_arrow_rounded,
+                    color: AppColors.primary,
+                    size: 18,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     l10n.home_startWorkout,
@@ -553,9 +587,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Expanded(
           child: _StatCard(
             icon: Icons.timer_rounded,
-            value: weekCount == 0
-                ? '—'
-                : _formatDuration(weekDuration),
+            value: weekCount == 0 ? '—' : _formatDuration(weekDuration),
             label: l10n.home_weekTime,
             color: AppColors.accent,
             onTap: () => widget.onNavigate(2),
@@ -593,52 +625,60 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l10n.home_quickStart,
-            style: Theme.of(context).textTheme.headlineSmall),
+        Text(
+          l10n.home_quickStart,
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
         const SizedBox(height: 12),
         Row(
           children: picks
-              .map((t) => Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: GestureDetector(
-                        onTap: () => launch(t),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 14, horizontal: 6),
-                          decoration: BoxDecoration(
-                            color: t.color.withAlpha(30),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                                color: t.color.withAlpha(64), width: 1),
+              .map(
+                (t) => Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: GestureDetector(
+                      onTap: () => launch(t),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                          horizontal: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: t.color.withAlpha(30),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: t.color.withAlpha(64),
+                            width: 1,
                           ),
-                          child: Column(
-                            children: [
-                              Icon(t.icon, color: t.color, size: 24),
-                              const SizedBox(height: 6),
-                              Text(
-                                t.name,
-                                style: TextStyle(
-                                  color: t.color,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(t.icon, color: t.color, size: 24),
+                            const SizedBox(height: 6),
+                            Text(
+                              t.name,
+                              style: TextStyle(
+                                color: t.color,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                '${t.exercises.length} ej.',
-                                style: const TextStyle(
-                                  color: AppColors.textMuted,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${t.exercises.length} ej.',
+                              style: const TextStyle(
+                                color: AppColors.textMuted,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                  ))
+                  ),
+                ),
+              )
               .toList(),
         ),
       ],
@@ -653,15 +693,20 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(l10n.home_lastWorkout,
-                style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              l10n.home_lastWorkout,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             GestureDetector(
               onTap: () => widget.onNavigate(2),
-              child: Text(l10n.home_viewAll,
-                  style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600)),
+              child: Text(
+                l10n.home_viewAll,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         ),
@@ -679,29 +724,36 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               child: Column(
                 children: [
-                  const Icon(Icons.fitness_center_rounded,
-                      color: AppColors.textMuted, size: 32),
+                  const Icon(
+                    Icons.fitness_center_rounded,
+                    color: AppColors.textMuted,
+                    size: 32,
+                  ),
                   const SizedBox(height: 10),
                   Text(
                     l10n.home_noWorkoutsYet,
                     style: const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600),
+                      color: AppColors.textSecondary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     l10n.home_noWorkoutsSubtitle,
                     style: const TextStyle(
-                        color: AppColors.textMuted,
-                        fontSize: 12,
-                        height: 1.4),
+                      color: AppColors.textMuted,
+                      fontSize: 12,
+                      height: 1.4,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 14),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.primary.withAlpha(25),
                       borderRadius: BorderRadius.circular(10),
@@ -709,9 +761,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Text(
                       l10n.home_goToTrain,
                       style: const TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600),
+                        color: AppColors.primary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -739,17 +792,21 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: AppColors.primary.withAlpha(38),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(Icons.fitness_center_rounded,
-                            color: AppColors.primary, size: 18),
+                        child: const Icon(
+                          Icons.fitness_center_rounded,
+                          color: AppColors.primary,
+                          size: 18,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(workout.name,
-                                style:
-                                    Theme.of(context).textTheme.titleLarge),
+                            Text(
+                              workout.name,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
                             const SizedBox(height: 2),
                             Text(
                               '${_formatDate(workout.date, l10n)} · ${_formatDuration(workout.duration)}',
@@ -758,8 +815,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                       ),
-                      const Icon(Icons.chevron_right_rounded,
-                          color: AppColors.textMuted),
+                      const Icon(
+                        Icons.chevron_right_rounded,
+                        color: AppColors.textMuted,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 14),
@@ -768,14 +827,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     children: [
                       _WorkoutStat(
-                          label: l10n.common_exercises,
-                          value: '${workout.exercises.length}'),
+                        label: l10n.common_exercises,
+                        value: '${workout.exercises.length}',
+                      ),
                       _WorkoutStat(
-                          label: l10n.common_sets,
-                          value: '${workout.totalSets}'),
+                        label: l10n.common_sets,
+                        value: '${workout.totalSets}',
+                      ),
                       _WorkoutStat(
-                          label: l10n.common_volume,
-                          value: '${_formatVolume(workout.totalVolume)} kg'),
+                        label: l10n.common_volume,
+                        value: '${_formatVolume(workout.totalVolume)} kg',
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -790,7 +852,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       label: Text(l10n.home_repeatWorkout),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.primary,
-                        side: BorderSide(color: AppColors.primary.withAlpha(76)),
+                        side: BorderSide(
+                          color: AppColors.primary.withAlpha(76),
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
                     ),
@@ -812,19 +876,23 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(l10n.home_progress,
-                style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              l10n.home_progress,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             GestureDetector(
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (_) => const ProgressScreen()),
+                MaterialPageRoute(builder: (_) => const ProgressScreen()),
               ),
-              child: Text(l10n.home_viewAll,
-                  style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600)),
+              child: Text(
+                l10n.home_viewAll,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         ),
@@ -850,29 +918,40 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: AppColors.accent.withAlpha(25),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(Icons.monitor_weight_outlined,
-                            color: AppColors.accent, size: 22),
+                        child: const Icon(
+                          Icons.monitor_weight_outlined,
+                          color: AppColors.accent,
+                          size: 22,
+                        ),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(l10n.home_noRecordsYet,
-                                style: const TextStyle(
-                                    color: AppColors.textPrimary,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600)),
+                            Text(
+                              l10n.home_noRecordsYet,
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                             const SizedBox(height: 3),
-                            Text(l10n.home_recordWeightMeasures,
-                                style: const TextStyle(
-                                    color: AppColors.textMuted,
-                                    fontSize: 12)),
+                            Text(
+                              l10n.home_recordWeightMeasures,
+                              style: const TextStyle(
+                                color: AppColors.textMuted,
+                                fontSize: 12,
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                      const Icon(Icons.chevron_right_rounded,
-                          color: AppColors.textMuted),
+                      const Icon(
+                        Icons.chevron_right_rounded,
+                        color: AppColors.textMuted,
+                      ),
                     ],
                   )
                 : Column(
@@ -886,31 +965,37 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: AppColors.accent.withAlpha(25),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: const Icon(Icons.monitor_weight_outlined,
-                                color: AppColors.accent, size: 18),
+                            child: const Icon(
+                              Icons.monitor_weight_outlined,
+                              color: AppColors.accent,
+                              size: 18,
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(l10n.home_latestRecord,
-                                    style: const TextStyle(
-                                        color: AppColors.textPrimary,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600)),
+                                Text(
+                                  l10n.home_latestRecord,
+                                  style: const TextStyle(
+                                    color: AppColors.textPrimary,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                                 const SizedBox(height: 2),
                                 Text(
                                   '${latest.date.day}/${latest.date.month}/${latest.date.year}',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall,
+                                  style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ],
                             ),
                           ),
-                          const Icon(Icons.chevron_right_rounded,
-                              color: AppColors.textMuted),
+                          const Icon(
+                            Icons.chevron_right_rounded,
+                            color: AppColors.textMuted,
+                          ),
                         ],
                       ),
                       const SizedBox(height: 14),
@@ -920,28 +1005,28 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           if (latest.weight != null)
                             _ProgressStat(
-                                label: l10n.common_weight,
-                                value:
-                                    '${latest.weight!.toStringAsFixed(1)} kg',
-                                color: AppColors.accent),
+                              label: l10n.common_weight,
+                              value: '${latest.weight!.toStringAsFixed(1)} kg',
+                              color: AppColors.accent,
+                            ),
                           if (latest.waist != null)
                             _ProgressStat(
-                                label: l10n.home_waist,
-                                value:
-                                    '${latest.waist!.toStringAsFixed(1)} cm',
-                                color: AppColors.primary),
+                              label: l10n.home_waist,
+                              value: '${latest.waist!.toStringAsFixed(1)} cm',
+                              color: AppColors.primary,
+                            ),
                           if (latest.chest != null)
                             _ProgressStat(
-                                label: l10n.muscle_chest,
-                                value:
-                                    '${latest.chest!.toStringAsFixed(1)} cm',
-                                color: AppColors.accentOrange),
+                              label: l10n.muscle_chest,
+                              value: '${latest.chest!.toStringAsFixed(1)} cm',
+                              color: AppColors.accentOrange,
+                            ),
                           if (latest.hips != null)
                             _ProgressStat(
-                                label: l10n.home_hips,
-                                value:
-                                    '${latest.hips!.toStringAsFixed(1)} cm',
-                                color: AppColors.accentYellow),
+                              label: l10n.home_hips,
+                              value: '${latest.hips!.toStringAsFixed(1)} cm',
+                              color: AppColors.accentYellow,
+                            ),
                         ],
                       ),
                     ],
@@ -962,12 +1047,13 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         Row(
           children: [
-            Text(l10n.home_achievements,
-                style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              l10n.home_achievements,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             const SizedBox(width: 8),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: AppColors.accentYellow.withAlpha(25),
                 borderRadius: BorderRadius.circular(8),
@@ -975,9 +1061,10 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Text(
                 '$unlockedCount/${achievements.length}',
                 style: const TextStyle(
-                    color: AppColors.accentYellow,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700),
+                  color: AppColors.accentYellow,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
@@ -1008,11 +1095,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(a.icon,
-                        color: a.isUnlocked
-                            ? a.color
-                            : AppColors.textMuted.withAlpha(80),
-                        size: 26),
+                    Icon(
+                      a.icon,
+                      color: a.isUnlocked
+                          ? a.color
+                          : AppColors.textMuted.withAlpha(80),
+                      size: 26,
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       a.title,
@@ -1046,15 +1135,20 @@ class _HomeScreenState extends State<HomeScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(l10n.home_exerciseLibrary,
-                style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              l10n.home_exerciseLibrary,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             GestureDetector(
               onTap: () => widget.onNavigate(3),
-              child: Text(l10n.home_viewAllExercises,
-                  style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600)),
+              child: Text(
+                l10n.home_viewAllExercises,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         ),
@@ -1064,10 +1158,12 @@ class _HomeScreenState extends State<HomeScreen> {
           style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
         ),
         const SizedBox(height: 12),
-        ...recent.map((ex) => _RecentExerciseItem(
-              exercise: ex,
-              onTap: () => widget.onNavigate(3),
-            )),
+        ...recent.map(
+          (ex) => _RecentExerciseItem(
+            exercise: ex,
+            onTap: () => widget.onNavigate(3),
+          ),
+        ),
       ],
     );
   }
@@ -1117,10 +1213,7 @@ class _StatCard extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               label,
-              style: const TextStyle(
-                color: AppColors.textMuted,
-                fontSize: 10,
-              ),
+              style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
             ),
           ],
         ),
@@ -1140,16 +1233,19 @@ class _WorkoutStat extends StatelessWidget {
     return Expanded(
       child: Column(
         children: [
-          Text(value,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-              )),
+          Text(
+            value,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(label,
-              style:
-                  const TextStyle(color: AppColors.textMuted, fontSize: 11)),
+          Text(
+            label,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+          ),
         ],
       ),
     );
@@ -1161,23 +1257,30 @@ class _ProgressStat extends StatelessWidget {
   final String value;
   final Color color;
 
-  const _ProgressStat(
-      {required this.label, required this.value, required this.color});
+  const _ProgressStat({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: Column(
         children: [
-          Text(value,
-              style: TextStyle(
-                  color: color,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700)),
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(label,
-              style: const TextStyle(
-                  color: AppColors.textMuted, fontSize: 10)),
+          Text(
+            label,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+          ),
         ],
       ),
     );
@@ -1190,30 +1293,9 @@ class _RecentExerciseItem extends StatelessWidget {
 
   const _RecentExerciseItem({required this.exercise, required this.onTap});
 
-  Color _colorForMuscle(String muscle) {
-    switch (muscle) {
-      case 'Pecho':
-        return AppColors.chest;
-      case 'Espalda':
-        return AppColors.back;
-      case 'Piernas':
-        return AppColors.legs;
-      case 'Hombros':
-        return AppColors.shoulders;
-      case 'Brazos':
-        return AppColors.arms;
-      case 'Core':
-        return AppColors.core;
-      case 'CrossFit':
-        return AppColors.crossfit;
-      default:
-        return AppColors.primary;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final color = _colorForMuscle(exercise.muscleGroup);
+    final color = colorForMuscle(exercise.muscleGroup);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -1233,28 +1315,32 @@ class _RecentExerciseItem extends StatelessWidget {
                 color: color.withAlpha(38),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child:
-                  Icon(Icons.fitness_center_rounded, color: color, size: 16),
+              child: Icon(Icons.fitness_center_rounded, color: color, size: 16),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(exercise.name,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleMedium
-                          ?.copyWith(fontWeight: FontWeight.w600)),
+                  Text(
+                    exercise.name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   const SizedBox(height: 2),
                   Text(
-                      '${exercise.muscleGroup} · ${exercise.equipment} · ${exercise.difficulty}',
-                      style: Theme.of(context).textTheme.bodySmall),
+                    '${exercise.muscleGroup} · ${exercise.equipment} · ${exercise.difficulty}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded,
-                color: AppColors.textMuted, size: 18),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.textMuted,
+              size: 18,
+            ),
           ],
         ),
       ),

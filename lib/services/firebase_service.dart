@@ -10,8 +10,7 @@ class FirebaseService {
   static final FirebaseService instance = FirebaseService._();
 
   /// Current user UID – always dynamic so it updates after login/logout.
-  String get uid =>
-      FirebaseAuth.instance.currentUser?.uid ?? 'unauthenticated';
+  String get uid => FirebaseAuth.instance.currentUser?.uid ?? 'unauthenticated';
 
   Future<void> init() async {
     await Firebase.initializeApp(
@@ -26,4 +25,15 @@ class FirebaseService {
 
   CollectionReference<Map<String, dynamic>> get measurementsRef =>
       FirebaseFirestore.instance.collection('users/$uid/measurements');
+
+  CollectionReference<Map<String, dynamic>> get customExercisesRef =>
+      FirebaseFirestore.instance.collection('users/$uid/customExercises');
+
+  CollectionReference<Map<String, dynamic>> get customTemplatesRef =>
+      FirebaseFirestore.instance.collection('users/$uid/customTemplates');
+
+  /// Single document holding the user's unlocked achievements
+  /// ({ achievementName: isoUnlockDate }).
+  DocumentReference<Map<String, dynamic>> get achievementsDoc =>
+      FirebaseFirestore.instance.doc('users/$uid/meta/achievements');
 }
