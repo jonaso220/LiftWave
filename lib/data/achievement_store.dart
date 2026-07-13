@@ -145,7 +145,9 @@ class AchievementStore extends ChangeNotifier {
   /// Returns list of newly unlocked achievements.
   List<Achievement> checkAfterWorkout(S l10n) {
     final newlyUnlocked = <Achievement>[];
-    final workouts = WorkoutStore.instance.workouts;
+    final workouts = WorkoutStore.instance.workouts
+        .where((workout) => workout.hasCompletedWork)
+        .toList();
     final now = DateTime.now();
     final achievements = Achievement.all(l10n);
 
@@ -341,6 +343,7 @@ class AchievementStore extends ChangeNotifier {
       final crossfitSet = <String>{};
       for (final w in workouts) {
         for (final e in w.exercises) {
+          if (e.completedSetCount == 0) continue;
           distinctExercises.add(e.name);
           muscleGroupsHit.add(e.muscleGroup);
           if (e.muscleGroup == 'CrossFit') crossfitSet.add(e.name);
@@ -571,13 +574,14 @@ class AchievementStore extends ChangeNotifier {
     for (final w in workouts) {
       if (w.date.isBefore(monday) || !w.date.isBefore(nextMonday)) continue;
       for (final e in w.exercises) {
+        if (e.completedSetCount == 0) continue;
         groups.add(e.muscleGroup);
       }
     }
     return groups.length >= requiredGroups;
   }
 
-  bool _checkDayStreak(List<dynamic> workouts, int days) {
+  bool _checkDayStreak(List<Workout> workouts, int days) {
     final now = DateTime.now();
     for (int i = 0; i < days; i++) {
       final day = DateTime(
@@ -585,7 +589,7 @@ class AchievementStore extends ChangeNotifier {
         now.month,
         now.day,
       ).subtract(Duration(days: i));
-      final hasWorkout = WorkoutStore.instance.workouts.any(
+      final hasWorkout = workouts.any(
         (w) =>
             w.date.year == day.year &&
             w.date.month == day.month &&
@@ -596,12 +600,12 @@ class AchievementStore extends ChangeNotifier {
     return true;
   }
 
-  bool _checkWeeklyStreak(List<dynamic> workouts, int weeks) {
+  bool _checkWeeklyStreak(List<Workout> workouts, int weeks) {
     final now = DateTime.now();
     for (int i = 0; i < weeks; i++) {
       final weekEnd = now.subtract(Duration(days: 7 * i));
       final weekStart = weekEnd.subtract(const Duration(days: 7));
-      final hasWorkout = WorkoutStore.instance.workouts.any(
+      final hasWorkout = workouts.any(
         (w) => w.date.isAfter(weekStart) && w.date.isBefore(weekEnd),
       );
       if (!hasWorkout) return false;

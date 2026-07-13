@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/muscle_colors.dart';
+import '../../utils/exercise_localization.dart';
 import '../../data/workout_store.dart';
 import '../../models/models.dart';
 import '../../services/subscription_service.dart';
@@ -419,17 +420,10 @@ class _DayStreak extends StatelessWidget {
                       color: Colors.white,
                       size: 14,
                     )
-                  : Center(
-                      child: Text(
-                        days[i],
-                        style: TextStyle(
-                          color: isToday
-                              ? AppColors.primary
-                              : AppColors.textMuted,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                  : Icon(
+                      Icons.remove_rounded,
+                      color: isToday ? AppColors.primary : AppColors.textMuted,
+                      size: 14,
                     ),
             ),
             const SizedBox(height: 4),
@@ -517,7 +511,10 @@ class _WorkoutHistoryCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        workout.name,
+                        ExerciseLocalization.workoutName(
+                          S.of(context),
+                          workout.name,
+                        ),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 2),

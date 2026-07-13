@@ -113,6 +113,21 @@ class SKo extends S {
   String get equipment_parallelBars => '평행봉';
 
   @override
+  String get equipment_rings => '링';
+
+  @override
+  String get equipment_box => '박스';
+
+  @override
+  String get equipment_rope => '로프';
+
+  @override
+  String get equipment_ball => '공';
+
+  @override
+  String get equipment_kettlebell => '케틀벨';
+
+  @override
   String get difficulty_beginner => '초급';
 
   @override
@@ -449,6 +464,141 @@ class SKo extends S {
   String get profile_deleteReauthError => '계정을 삭제하려면 로그아웃 후 다시 로그인하여 시도해 주세요.';
 
   @override
+  String get profile_trainingPreferences => '운동 설정';
+
+  @override
+  String get profile_trainingPreferencesSubtitle => '목표, 경험, 운동 일수 및 기구';
+
+  @override
+  String get onboarding_title => '운동 맞춤 설정';
+
+  @override
+  String get onboarding_goalTitle => '주요 목표가 무엇인가요?';
+
+  @override
+  String get onboarding_goalSubtitle => '다음 추천을 맞춤화하는 데 사용됩니다.';
+
+  @override
+  String get onboarding_goalMuscle => '근육량 늘리기';
+
+  @override
+  String get onboarding_goalStrength => '근력 향상';
+
+  @override
+  String get onboarding_goalFatLoss => '체지방 감량';
+
+  @override
+  String get onboarding_goalFitness => '체력 향상';
+
+  @override
+  String get onboarding_experienceTitle => '운동 경험은 어느 정도인가요?';
+
+  @override
+  String get onboarding_experienceSubtitle => '수준에 맞게 운동량과 진행을 조정합니다.';
+
+  @override
+  String get onboarding_experienceBeginner => '초급';
+
+  @override
+  String get onboarding_experienceBeginnerHint => '1년 미만';
+
+  @override
+  String get onboarding_experienceIntermediate => '중급';
+
+  @override
+  String get onboarding_experienceIntermediateHint => '1~3년';
+
+  @override
+  String get onboarding_experienceAdvanced => '고급';
+
+  @override
+  String get onboarding_experienceAdvancedHint => '3년 이상';
+
+  @override
+  String get onboarding_daysTitle => '일주일에 며칠 운동할 수 있나요?';
+
+  @override
+  String get onboarding_daysSubtitle => '꾸준히 유지할 수 있는 빈도를 선택하세요.';
+
+  @override
+  String onboarding_daysSelected(int count) {
+    return '주 $count일';
+  }
+
+  @override
+  String get onboarding_equipmentTitle => '사용할 수 있는 기구는 무엇인가요?';
+
+  @override
+  String get onboarding_equipmentSubtitle => '평소 사용할 수 있는 기구를 모두 선택하세요.';
+
+  @override
+  String get onboarding_continue => '계속';
+
+  @override
+  String get onboarding_back => '뒤로';
+
+  @override
+  String get onboarding_finish => '저장하고 시작';
+
+  @override
+  String get onboarding_skip => '나중에';
+
+  @override
+  String get onboarding_saved => '설정을 저장했습니다';
+
+  @override
+  String get weeklyPlan_title => '주간 계획';
+
+  @override
+  String weeklyPlan_sessions(int done, int total) {
+    return '$done/$total 세션';
+  }
+
+  @override
+  String get weeklyPlan_adherence => '달성률';
+
+  @override
+  String get weeklyPlan_remaining => '남은 횟수';
+
+  @override
+  String get weeklyPlan_completedSets => '세트';
+
+  @override
+  String get weeklyPlan_muscleBalance => '부위별 세트';
+
+  @override
+  String get weeklyPlan_completed => '주간 목표를 달성했습니다. 잘했어요.';
+
+  @override
+  String get weeklyPlan_nextSession => '다음 세션';
+
+  @override
+  String weeklyPlan_exerciseCount(int count) {
+    return '운동 $count개';
+  }
+
+  @override
+  String get weeklyPlan_start => '시작';
+
+  @override
+  String get weeklyPlan_noCompatible => '사용 가능한 기구와 호환되는 운동이 충분하지 않습니다.';
+
+  @override
+  String get weeklyPlan_adjustEquipment => '조정';
+
+  @override
+  String get weeklyPlan_setupTitle => '계획 설정';
+
+  @override
+  String get weeklyPlan_setupSubtitle => '설정을 완료하면 매주 맞춤 세션을 추천합니다.';
+
+  @override
+  String get weeklyPlan_configure => '설정';
+
+  @override
+  String get weeklyPlan_adaptiveName => '맞춤 세션';
+
+  @override
   String get train_title => '운동';
 
   @override
@@ -503,6 +653,9 @@ class SKo extends S {
 
   @override
   String get train_addExerciseFirst => '종료하기 전에 운동을 하나 이상 추가하세요.';
+
+  @override
+  String get train_completeSetFirst => '완료하기 전에 최소 한 세트를 완료하세요.';
 
   @override
   String get train_workoutCompleted => '운동 완료!';
@@ -600,6 +753,21 @@ class SKo extends S {
   }
 
   @override
+  String get train_nextSuggestion => '다음 추천 중량';
+
+  @override
+  String get train_applySuggestion => '적용';
+
+  @override
+  String get train_increaseLoad => '중량 올리기';
+
+  @override
+  String get train_addRepetition => '1회 추가';
+
+  @override
+  String get train_consolidateLoad => '현재 중량 적응';
+
+  @override
   String get train_abbreviationExercises => '종목';
 
   @override
@@ -610,6 +778,9 @@ class SKo extends S {
 
   @override
   String get train_bodyweightLabel => '체중';
+
+  @override
+  String get train_chooseWeight => '중량 선택';
 
   @override
   String get picker_title => '운동 선택';
@@ -657,6 +828,14 @@ class SKo extends S {
   String exercises_exerciseCount(int count, String suffix) {
     return '$count개 운동$suffix';
   }
+
+  @override
+  String exercises_countLabel(num count) {
+    return '$count개 운동';
+  }
+
+  @override
+  String get exercises_descriptionUnavailable => '이 언어의 자세한 설명은 아직 제공되지 않습니다.';
 
   @override
   String get exercises_clearFilters => '필터 초기화';
@@ -1352,6 +1531,18 @@ class SKo extends S {
 
   @override
   String get template_fullBody_subtitle => '모든 근육 부위를 한 번에';
+
+  @override
+  String get template_fullBody_name => '전신';
+
+  @override
+  String get template_push_name => '밀기';
+
+  @override
+  String get template_pull_name => '당기기';
+
+  @override
+  String get template_torso_name => '상체';
 
   @override
   String get template_push_subtitle => '가슴 · 어깨 · 삼두';

@@ -12,95 +12,107 @@ class _TemplateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = S.of(context);
     final t = template;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.bgCardLight),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: t.color.withAlpha(30),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(t.icon, color: t.color, size: 24),
+    final displayName = ExerciseLocalization.templateName(l10n, t.id, t.name);
+    final displaySubtitle = ExerciseLocalization.templateSubtitle(
+      l10n,
+      t.id,
+      t.subtitle,
+    );
+    return Semantics(
+      label: '$displayName. $displaySubtitle',
+      button: true,
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.bgCard,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.bgCardLight),
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            child: Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: t.color.withAlpha(30),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(t.icon, color: t.color, size: 24),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Row(
+                        children: [
+                          Text(
+                            displayName,
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          if (!t.isFree) ...[
+                            const SizedBox(width: 6),
+                            const ProBadge(),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 2),
                       Text(
-                        t.name,
+                        displaySubtitle,
                         style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
+                          color: AppColors.textMuted,
+                          fontSize: 12,
                         ),
                       ),
-                      if (!t.isFree) ...[
-                        const SizedBox(width: 6),
-                        const ProBadge(),
-                      ],
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 4,
+                        runSpacing: 4,
+                        children: t.muscleGroups
+                            .map((mg) => _SmallMuscleTag(muscle: mg))
+                            .toList(),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    t.subtitle,
-                    style: const TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 12,
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${t.exercises.length}',
+                      style: TextStyle(
+                        color: t.color,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
-                    children: t.muscleGroups
-                        .map((mg) => _SmallMuscleTag(muscle: mg))
-                        .toList(),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '${t.exercises.length}',
-                  style: TextStyle(
-                    color: t.color,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                Text(
-                  l10n.train_abbreviationExercises,
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 10,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppColors.textMuted,
-                  size: 18,
+                    Text(
+                      l10n.train_abbreviationExercises,
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 10,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.textMuted,
+                      size: 18,
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -124,83 +136,91 @@ class _CustomTemplateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = S.of(context);
     final t = template;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.accentOrange.withAlpha(60)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: AppColors.accentOrange.withAlpha(30),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Icon(
-                Icons.bookmark_rounded,
-                color: AppColors.accentOrange,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    t.name,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    l10n.train_exerciseCount(t.exercises.length),
-                    style: const TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
-                    children: t.muscleGroups
-                        .map((mg) => _SmallMuscleTag(muscle: mg))
-                        .toList(),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            Column(
-              children: [
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppColors.textMuted,
-                  size: 18,
+    return Semantics(
+      label: t.name,
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.bgCard,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.accentOrange.withAlpha(60)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppColors.accentOrange.withAlpha(30),
+                  borderRadius: BorderRadius.circular(14),
                 ),
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: onDelete,
-                  child: const Icon(
-                    Icons.delete_outline_rounded,
+                child: const Icon(
+                  Icons.bookmark_rounded,
+                  color: AppColors.accentOrange,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      t.name,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.train_exerciseCount(t.exercises.length),
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: t.muscleGroups
+                          .map((mg) => _SmallMuscleTag(muscle: mg))
+                          .toList(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Column(
+                children: [
+                  const Icon(
+                    Icons.chevron_right_rounded,
                     color: AppColors.textMuted,
                     size: 18,
                   ),
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(height: 8),
+                  Semantics(
+                    label: l10n.common_delete,
+                    button: true,
+                    child: GestureDetector(
+                      onTap: onDelete,
+                      child: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: AppColors.textMuted,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -221,7 +241,7 @@ class _SmallMuscleTag extends StatelessWidget {
         borderRadius: BorderRadius.circular(5),
       ),
       child: Text(
-        muscle,
+        ExerciseLocalization.muscle(S.of(context), muscle),
         style: TextStyle(color: c, fontSize: 10, fontWeight: FontWeight.w600),
       ),
     );
@@ -240,6 +260,12 @@ class _TemplatePreviewSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = S.of(context);
     final t = template;
+    final displayName = ExerciseLocalization.templateName(l10n, t.id, t.name);
+    final displaySubtitle = ExerciseLocalization.templateSubtitle(
+      l10n,
+      t.id,
+      t.subtitle,
+    );
     return DraggableScrollableSheet(
       initialChildSize: 0.75,
       minChildSize: 0.5,
@@ -286,7 +312,7 @@ class _TemplatePreviewSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          t.name,
+                          displayName,
                           style: const TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 20,
@@ -294,7 +320,7 @@ class _TemplatePreviewSheet extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          t.subtitle,
+                          displaySubtitle,
                           style: const TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 13,
@@ -351,7 +377,7 @@ class _TemplatePreviewSheet extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: onStart,
                     icon: const Icon(Icons.play_arrow_rounded),
-                    label: Text(l10n.train_startTemplate(t.name)),
+                    label: Text(l10n.train_startTemplate(displayName)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: t.color,
                       foregroundColor: Colors.white,
@@ -528,9 +554,13 @@ class _PreviewExRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = S.of(context);
     final ex = exercise;
+    final isBodyweight =
+        ex.equipment == 'Peso corporal' || ex.equipment == 'Sin material';
     final weightStr = ex.weight > 0
         ? '${ex.weight.toInt()} kg'
-        : l10n.train_bodyweightLabel;
+        : isBodyweight
+        ? l10n.train_bodyweightLabel
+        : l10n.train_chooseWeight;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -564,7 +594,7 @@ class _PreviewExRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  ex.name,
+                  ExerciseLocalization.name(S.of(context), ex.name),
                   style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 13,
@@ -573,7 +603,7 @@ class _PreviewExRow extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '${ex.muscleGroup} · ${ex.equipment}',
+                  '${ExerciseLocalization.muscle(S.of(context), ex.muscleGroup)} · ${ExerciseLocalization.equipment(S.of(context), ex.equipment)}',
                   style: const TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 11,

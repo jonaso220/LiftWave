@@ -30,16 +30,17 @@ class SubscriptionService extends ChangeNotifier {
   Offerings? _offerings;
   Offerings? get offerings => _offerings;
 
-  bool _initialized = false;
+  Future<void>? _initialization;
 
   StreamSubscription<User?>? _authSub;
+  Future<void> _authSync = Future<void>.value();
+  int _authGeneration = 0;
 
   // ── Initialisation ─────────────────────────────────────────────────────────
 
-  Future<void> init() async {
-    if (_initialized) return;
-    _initialized = true;
+  Future<void> init() => _initialization ??= _initialize();
 
+  Future<void> _initialize() async {
     try {
       await Purchases.configure(PurchasesConfiguration(_apiKey));
 
@@ -48,18 +49,8 @@ class SubscriptionService extends ChangeNotifier {
 
       // Sync RevenueCat user with Firebase auth state.
       _authSub = FirebaseAuth.instance.authStateChanges().listen((user) {
-        if (user != null) {
-          _loginUser(user);
-        } else {
-          _logoutUser();
-        }
+        _scheduleAuthSync(user);
       });
-
-      // If user is already logged in, sync now.
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null) {
-        await _loginUser(currentUser);
-      }
     } catch (e) {
       debugPrint('SubscriptionService.init error: $e');
     }
@@ -67,22 +58,55 @@ class SubscriptionService extends ChangeNotifier {
 
   // ── Auth sync ──────────────────────────────────────────────────────────────
 
-  Future<void> _loginUser(User user) async {
+  void _scheduleAuthSync(User? user) {
+    final generation = ++_authGeneration;
+    _authSync = _authSync
+        .then((_) async {
+          if (generation != _authGeneration) return;
+          if (user == null) {
+            await _logoutUser(generation);
+          } else {
+            await _loginUser(user, generation);
+          }
+        })
+        .catchError((Object error) {
+          debugPrint('SubscriptionService auth sync error: $error');
+        });
+  }
+
+  Future<void> _loginUser(User user, int generation) async {
     try {
+      // RevenueCat persists its identity between launches. Avoid a redundant
+      // logIn call when Firebase resolves to that same cached user.
+      if (await Purchases.appUserID == user.uid) {
+        final info = await Purchases.getCustomerInfo();
+        if (generation == _authGeneration &&
+            FirebaseAuth.instance.currentUser?.uid == user.uid) {
+          _updateStatus(info);
+        }
+        return;
+      }
       final result = await Purchases.logIn(user.uid);
+      if (generation != _authGeneration ||
+          FirebaseAuth.instance.currentUser?.uid != user.uid) {
+        return;
+      }
       _updateStatus(result.customerInfo);
     } catch (e) {
       debugPrint('SubscriptionService._loginUser error: $e');
     }
   }
 
-  Future<void> _logoutUser() async {
+  Future<void> _logoutUser(int generation) async {
     try {
       if (!await Purchases.isAnonymous) {
         await Purchases.logOut();
       }
-      _isPro = false;
-      notifyListeners();
+      if (generation == _authGeneration &&
+          FirebaseAuth.instance.currentUser == null) {
+        _isPro = false;
+        notifyListeners();
+      }
     } catch (e) {
       debugPrint('SubscriptionService._logoutUser error: $e');
     }
@@ -99,6 +123,7 @@ class SubscriptionService extends ChangeNotifier {
   // ── Offerings ──────────────────────────────────────────────────────────────
 
   Future<void> loadOfferings() async {
+    await init();
     try {
       _offerings = await Purchases.getOfferings();
       notifyListeners();
@@ -118,6 +143,7 @@ class SubscriptionService extends ChangeNotifier {
   // ── Purchase ───────────────────────────────────────────────────────────────
 
   Future<bool> purchasePackage(Package package) async {
+    await init();
     try {
       final customerInfo = await Purchases.purchasePackage(package);
       _updateStatus(customerInfo);
@@ -138,6 +164,7 @@ class SubscriptionService extends ChangeNotifier {
   /// Outcome of a restore attempt — lets the UI show specific feedback
   /// instead of a single ambiguous "no purchases found" message.
   Future<RestoreOutcome> restorePurchases() async {
+    await init();
     try {
       final info = await Purchases.restorePurchases();
       _updateStatus(info);

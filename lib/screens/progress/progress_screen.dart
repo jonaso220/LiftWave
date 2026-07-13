@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 
@@ -689,16 +690,15 @@ class _MeasurementTile extends StatelessWidget {
             ),
 
             // Photo thumbnail
-            if (m.photoPath != null) ...[
+            if (m.hasPhoto) ...[
               const SizedBox(width: 10),
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.file(
-                  File(m.photoPath!),
+                child: _MeasurementPhoto(
+                  measurement: m,
                   width: 40,
                   height: 40,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => const SizedBox(width: 40),
                 ),
               ),
             ],
@@ -981,17 +981,7 @@ class _PhotoCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.file(
-              File(measurement.photoPath!),
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Container(
-                color: AppColors.bgCard,
-                child: const Icon(
-                  Icons.broken_image_outlined,
-                  color: AppColors.textMuted,
-                ),
-              ),
-            ),
+            _MeasurementPhoto(measurement: measurement, fit: BoxFit.cover),
             Positioned(
               bottom: 0,
               left: 0,
@@ -1033,13 +1023,53 @@ class _PhotoCard extends StatelessWidget {
           appBar: AppBar(backgroundColor: Colors.black),
           body: Center(
             child: InteractiveViewer(
-              child: Image.file(File(measurement.photoPath!)),
+              child: _MeasurementPhoto(
+                measurement: measurement,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
         ),
       ),
     );
   }
+}
+
+class _MeasurementPhoto extends StatelessWidget {
+  final BodyMeasurement measurement;
+  final BoxFit fit;
+  final double? width;
+  final double? height;
+
+  const _MeasurementPhoto({
+    required this.measurement,
+    required this.fit,
+    this.width,
+    this.height,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final localPath = measurement.photoPath;
+    if (localPath != null && File(localPath).existsSync()) {
+      return Image.file(
+        File(localPath),
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (_, _, _) => _fallback(),
+      );
+    }
+
+    return _fallback();
+  }
+
+  Widget _fallback() => Container(
+    width: width,
+    height: height,
+    color: AppColors.bgCard,
+    child: const Icon(Icons.broken_image_outlined, color: AppColors.textMuted),
+  );
 }
 
 // ── Add measurement bottom sheet ──────────────────────────────────────────────
@@ -1059,9 +1089,13 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
   final _hipsCtrl = TextEditingController();
   String? _photoPath;
   bool _saving = false;
+  bool _photoCommitted = false;
 
   @override
   void dispose() {
+    if (!_photoCommitted && _photoPath != null) {
+      unawaited(_deletePhoto(_photoPath!));
+    }
     _weightCtrl.dispose();
     _waistCtrl.dispose();
     _chestCtrl.dispose();
@@ -1081,7 +1115,15 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
       final dir = await getApplicationDocumentsDirectory();
       final filename = 'progress_${DateTime.now().millisecondsSinceEpoch}.jpg';
       final saved = await File(xfile.path).copy('${dir.path}/$filename');
+      if (!mounted) {
+        await _deletePhoto(saved.path);
+        return;
+      }
+      final previousPath = _photoPath;
       setState(() => _photoPath = saved.path);
+      if (previousPath != null && previousPath != saved.path) {
+        await _deletePhoto(previousPath);
+      }
     } catch (_) {
       // Camera not available in simulator — silently ignore
     }
@@ -1171,19 +1213,32 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
     setState(() => _saving = true);
     HapticFeedback.mediumImpact();
 
-    await ProgressStore.instance.add(
-      BodyMeasurement(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        date: _date,
-        weight: w,
-        waist: wa,
-        chest: ch,
-        hips: hi,
-        photoPath: _photoPath,
-      ),
-    );
+    try {
+      await ProgressStore.instance.add(
+        BodyMeasurement(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          date: _date,
+          weight: w,
+          waist: wa,
+          chest: ch,
+          hips: hi,
+          photoPath: _photoPath,
+        ),
+      );
+      _photoCommitted = true;
+      if (mounted) Navigator.pop(context);
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
 
-    if (mounted) Navigator.pop(context);
+  static Future<void> _deletePhoto(String path) async {
+    try {
+      final file = File(path);
+      if (await file.exists()) await file.delete();
+    } on FileSystemException {
+      // The OS may already have cleaned the file.
+    }
   }
 
   @override

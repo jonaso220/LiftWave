@@ -89,7 +89,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Barra',
         sets: 4,
         reps: 8,
-        weight: 60,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Press de banca',
@@ -97,7 +97,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Barra',
         sets: 4,
         reps: 8,
-        weight: 60,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Peso muerto',
@@ -105,7 +105,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Barra',
         sets: 3,
         reps: 6,
-        weight: 80,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Press militar',
@@ -113,7 +113,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Barra',
         sets: 3,
         reps: 10,
-        weight: 40,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Plancha',
@@ -139,7 +139,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Barra',
         sets: 4,
         reps: 8,
-        weight: 70,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Press inclinado con mancuernas',
@@ -147,7 +147,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Mancuernas',
         sets: 3,
         reps: 10,
-        weight: 24,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Fondos en paralelas',
@@ -163,7 +163,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Mancuernas',
         sets: 3,
         reps: 12,
-        weight: 16,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Elevaciones laterales',
@@ -171,7 +171,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Mancuernas',
         sets: 3,
         reps: 15,
-        weight: 8,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Extensión de tríceps en polea',
@@ -179,7 +179,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Polea',
         sets: 3,
         reps: 15,
-        weight: 15,
+        weight: 0,
       ),
     ],
   ),
@@ -197,7 +197,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Barra',
         sets: 4,
         reps: 5,
-        weight: 100,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Dominadas',
@@ -213,7 +213,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Barra',
         sets: 3,
         reps: 10,
-        weight: 60,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Jalón al pecho',
@@ -221,7 +221,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Polea',
         sets: 3,
         reps: 12,
-        weight: 50,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Curl de bíceps con mancuernas',
@@ -229,7 +229,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Mancuernas',
         sets: 3,
         reps: 12,
-        weight: 12,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Curl martillo',
@@ -237,7 +237,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Mancuernas',
         sets: 3,
         reps: 12,
-        weight: 12,
+        weight: 0,
       ),
     ],
   ),
@@ -255,7 +255,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Barra',
         sets: 4,
         reps: 8,
-        weight: 70,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Peso muerto',
@@ -263,7 +263,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Barra',
         sets: 4,
         reps: 6,
-        weight: 100,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Press militar',
@@ -271,7 +271,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Barra',
         sets: 3,
         reps: 10,
-        weight: 40,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Remo con mancuerna',
@@ -279,7 +279,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Mancuernas',
         sets: 3,
         reps: 10,
-        weight: 20,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Face pull',
@@ -287,7 +287,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Polea',
         sets: 3,
         reps: 15,
-        weight: 20,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Aperturas con mancuernas',
@@ -295,7 +295,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Mancuernas',
         sets: 3,
         reps: 12,
-        weight: 14,
+        weight: 0,
       ),
     ],
   ),
@@ -313,7 +313,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Barra',
         sets: 5,
         reps: 5,
-        weight: 80,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Prensa de piernas',
@@ -321,7 +321,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Máquina',
         sets: 4,
         reps: 10,
-        weight: 100,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Hip thrust',
@@ -329,7 +329,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Barra',
         sets: 4,
         reps: 10,
-        weight: 80,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Zancadas',
@@ -337,7 +337,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Mancuernas',
         sets: 3,
         reps: 12,
-        weight: 20,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Curl de isquiotibiales',
@@ -345,7 +345,7 @@ const List<WorkoutTemplate> workoutTemplates = [
         equipment: 'Máquina',
         sets: 3,
         reps: 15,
-        weight: 40,
+        weight: 0,
       ),
       TemplateExercise(
         name: 'Plancha',

@@ -113,6 +113,21 @@ class SFr extends S {
   String get equipment_parallelBars => 'Barres parallèles';
 
   @override
+  String get equipment_rings => 'Anneaux';
+
+  @override
+  String get equipment_box => 'Caisse pliométrique';
+
+  @override
+  String get equipment_rope => 'Corde';
+
+  @override
+  String get equipment_ball => 'Ballon';
+
+  @override
+  String get equipment_kettlebell => 'Kettlebell';
+
+  @override
   String get difficulty_beginner => 'Débutant';
 
   @override
@@ -465,6 +480,150 @@ class SFr extends S {
       'Pour supprimer votre compte, déconnectez-vous, reconnectez-vous et réessayez.';
 
   @override
+  String get profile_trainingPreferences => 'Préférences d\'entraînement';
+
+  @override
+  String get profile_trainingPreferencesSubtitle =>
+      'Objectif, expérience, jours et équipement';
+
+  @override
+  String get onboarding_title => 'Personnalisez votre entraînement';
+
+  @override
+  String get onboarding_goalTitle => 'Quel est votre objectif principal ?';
+
+  @override
+  String get onboarding_goalSubtitle =>
+      'Nous l\'utiliserons pour adapter vos prochaines recommandations.';
+
+  @override
+  String get onboarding_goalMuscle => 'Prendre du muscle';
+
+  @override
+  String get onboarding_goalStrength => 'Gagner en force';
+
+  @override
+  String get onboarding_goalFatLoss => 'Perdre de la graisse';
+
+  @override
+  String get onboarding_goalFitness => 'Améliorer ma condition';
+
+  @override
+  String get onboarding_experienceTitle =>
+      'Quel est votre niveau d\'expérience ?';
+
+  @override
+  String get onboarding_experienceSubtitle =>
+      'Nous adapterons le volume et la progression à votre niveau.';
+
+  @override
+  String get onboarding_experienceBeginner => 'Débutant';
+
+  @override
+  String get onboarding_experienceBeginnerHint => 'Moins d\'un an';
+
+  @override
+  String get onboarding_experienceIntermediate => 'Intermédiaire';
+
+  @override
+  String get onboarding_experienceIntermediateHint => 'Entre 1 et 3 ans';
+
+  @override
+  String get onboarding_experienceAdvanced => 'Avancé';
+
+  @override
+  String get onboarding_experienceAdvancedHint => 'Plus de 3 ans';
+
+  @override
+  String get onboarding_daysTitle =>
+      'Combien de jours pouvez-vous vous entraîner ?';
+
+  @override
+  String get onboarding_daysSubtitle =>
+      'Choisissez une fréquence que vous pouvez maintenir.';
+
+  @override
+  String onboarding_daysSelected(int count) {
+    return '$count jours par semaine';
+  }
+
+  @override
+  String get onboarding_equipmentTitle => 'Quel équipement avez-vous ?';
+
+  @override
+  String get onboarding_equipmentSubtitle =>
+      'Sélectionnez tout ce que vous pouvez utiliser régulièrement.';
+
+  @override
+  String get onboarding_continue => 'Continuer';
+
+  @override
+  String get onboarding_back => 'Retour';
+
+  @override
+  String get onboarding_finish => 'Enregistrer et commencer';
+
+  @override
+  String get onboarding_skip => 'Plus tard';
+
+  @override
+  String get onboarding_saved => 'Préférences enregistrées';
+
+  @override
+  String get weeklyPlan_title => 'Plan hebdomadaire';
+
+  @override
+  String weeklyPlan_sessions(int done, int total) {
+    return '$done/$total séances';
+  }
+
+  @override
+  String get weeklyPlan_adherence => 'Assiduité';
+
+  @override
+  String get weeklyPlan_remaining => 'Restantes';
+
+  @override
+  String get weeklyPlan_completedSets => 'Séries';
+
+  @override
+  String get weeklyPlan_muscleBalance => 'SÉRIES PAR MUSCLE';
+
+  @override
+  String get weeklyPlan_completed => 'Objectif hebdomadaire atteint. Bravo.';
+
+  @override
+  String get weeklyPlan_nextSession => 'PROCHAINE SÉANCE';
+
+  @override
+  String weeklyPlan_exerciseCount(int count) {
+    return '$count exercices';
+  }
+
+  @override
+  String get weeklyPlan_start => 'Commencer';
+
+  @override
+  String get weeklyPlan_noCompatible =>
+      'Il n\'y a pas assez d\'exercices compatibles avec votre équipement.';
+
+  @override
+  String get weeklyPlan_adjustEquipment => 'Ajuster';
+
+  @override
+  String get weeklyPlan_setupTitle => 'Configurez votre plan';
+
+  @override
+  String get weeklyPlan_setupSubtitle =>
+      'Complétez vos préférences pour recevoir une séance adaptée chaque semaine.';
+
+  @override
+  String get weeklyPlan_configure => 'Configurer';
+
+  @override
+  String get weeklyPlan_adaptiveName => 'Séance adaptative';
+
+  @override
   String get train_title => 'Entraînement';
 
   @override
@@ -522,6 +681,10 @@ class SFr extends S {
   @override
   String get train_addExerciseFirst =>
       'Ajoutez au moins un exercice avant de terminer.';
+
+  @override
+  String get train_completeSetFirst =>
+      'Terminez au moins une série avant de finir.';
 
   @override
   String get train_workoutCompleted => 'Entraînement terminé !';
@@ -620,6 +783,21 @@ class SFr extends S {
   }
 
   @override
+  String get train_nextSuggestion => 'Prochaine charge suggérée';
+
+  @override
+  String get train_applySuggestion => 'Appliquer';
+
+  @override
+  String get train_increaseLoad => 'Augmentez la charge';
+
+  @override
+  String get train_addRepetition => 'Ajoutez une répétition';
+
+  @override
+  String get train_consolidateLoad => 'Consolidez cette charge';
+
+  @override
   String get train_abbreviationExercises => 'ex.';
 
   @override
@@ -630,6 +808,9 @@ class SFr extends S {
 
   @override
   String get train_bodyweightLabel => 'Poids du corps';
+
+  @override
+  String get train_chooseWeight => 'Choisir le poids';
 
   @override
   String get picker_title => 'Choisir un exercice';
@@ -678,6 +859,21 @@ class SFr extends S {
   String exercises_exerciseCount(int count, String suffix) {
     return '$count exercice$suffix';
   }
+
+  @override
+  String exercises_countLabel(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count exercices',
+      one: '$count exercice',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get exercises_descriptionUnavailable =>
+      'Les instructions détaillées ne sont pas encore disponibles dans cette langue.';
 
   @override
   String get exercises_clearFilters => 'Effacer les filtres';
@@ -1416,6 +1612,18 @@ class SFr extends S {
   @override
   String get template_fullBody_subtitle =>
       'Tous les groupes musculaires en une séance';
+
+  @override
+  String get template_fullBody_name => 'Corps entier';
+
+  @override
+  String get template_push_name => 'Poussée';
+
+  @override
+  String get template_pull_name => 'Tirage';
+
+  @override
+  String get template_torso_name => 'Haut du corps';
 
   @override
   String get template_push_subtitle => 'Pectoraux · Épaules · Triceps';

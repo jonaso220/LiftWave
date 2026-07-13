@@ -311,6 +311,36 @@ abstract class S {
   /// **'Paralelas'**
   String get equipment_parallelBars;
 
+  /// No description provided for @equipment_rings.
+  ///
+  /// In es, this message translates to:
+  /// **'Anillas'**
+  String get equipment_rings;
+
+  /// No description provided for @equipment_box.
+  ///
+  /// In es, this message translates to:
+  /// **'Cajón'**
+  String get equipment_box;
+
+  /// No description provided for @equipment_rope.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuerda'**
+  String get equipment_rope;
+
+  /// No description provided for @equipment_ball.
+  ///
+  /// In es, this message translates to:
+  /// **'Pelota'**
+  String get equipment_ball;
+
+  /// No description provided for @equipment_kettlebell.
+  ///
+  /// In es, this message translates to:
+  /// **'Kettlebell'**
+  String get equipment_kettlebell;
+
   /// No description provided for @difficulty_beginner.
   ///
   /// In es, this message translates to:
@@ -953,6 +983,264 @@ abstract class S {
   /// **'Para eliminar tu cuenta, cierra sesión, vuelve a iniciar y reintenta.'**
   String get profile_deleteReauthError;
 
+  /// No description provided for @profile_trainingPreferences.
+  ///
+  /// In es, this message translates to:
+  /// **'Preferencias de entrenamiento'**
+  String get profile_trainingPreferences;
+
+  /// No description provided for @profile_trainingPreferencesSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo, experiencia, días y equipamiento'**
+  String get profile_trainingPreferencesSubtitle;
+
+  /// No description provided for @onboarding_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Personaliza tu entrenamiento'**
+  String get onboarding_title;
+
+  /// No description provided for @onboarding_goalTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Cuál es tu objetivo principal?'**
+  String get onboarding_goalTitle;
+
+  /// No description provided for @onboarding_goalSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Usaremos esto para adaptar tus próximas recomendaciones.'**
+  String get onboarding_goalSubtitle;
+
+  /// No description provided for @onboarding_goalMuscle.
+  ///
+  /// In es, this message translates to:
+  /// **'Ganar masa muscular'**
+  String get onboarding_goalMuscle;
+
+  /// No description provided for @onboarding_goalStrength.
+  ///
+  /// In es, this message translates to:
+  /// **'Ganar fuerza'**
+  String get onboarding_goalStrength;
+
+  /// No description provided for @onboarding_goalFatLoss.
+  ///
+  /// In es, this message translates to:
+  /// **'Perder grasa'**
+  String get onboarding_goalFatLoss;
+
+  /// No description provided for @onboarding_goalFitness.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejorar mi condición'**
+  String get onboarding_goalFitness;
+
+  /// No description provided for @onboarding_experienceTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Cuál es tu experiencia?'**
+  String get onboarding_experienceTitle;
+
+  /// No description provided for @onboarding_experienceSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajustaremos el volumen y la progresión a tu nivel.'**
+  String get onboarding_experienceSubtitle;
+
+  /// No description provided for @onboarding_experienceBeginner.
+  ///
+  /// In es, this message translates to:
+  /// **'Principiante'**
+  String get onboarding_experienceBeginner;
+
+  /// No description provided for @onboarding_experienceBeginnerHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Menos de 1 año'**
+  String get onboarding_experienceBeginnerHint;
+
+  /// No description provided for @onboarding_experienceIntermediate.
+  ///
+  /// In es, this message translates to:
+  /// **'Intermedio'**
+  String get onboarding_experienceIntermediate;
+
+  /// No description provided for @onboarding_experienceIntermediateHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Entre 1 y 3 años'**
+  String get onboarding_experienceIntermediateHint;
+
+  /// No description provided for @onboarding_experienceAdvanced.
+  ///
+  /// In es, this message translates to:
+  /// **'Avanzado'**
+  String get onboarding_experienceAdvanced;
+
+  /// No description provided for @onboarding_experienceAdvancedHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Más de 3 años'**
+  String get onboarding_experienceAdvancedHint;
+
+  /// No description provided for @onboarding_daysTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Cuántos días puedes entrenar?'**
+  String get onboarding_daysTitle;
+
+  /// No description provided for @onboarding_daysSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige una frecuencia que puedas mantener.'**
+  String get onboarding_daysSubtitle;
+
+  /// No description provided for @onboarding_daysSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} días por semana'**
+  String onboarding_daysSelected(int count);
+
+  /// No description provided for @onboarding_equipmentTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Qué equipamiento tienes?'**
+  String get onboarding_equipmentTitle;
+
+  /// No description provided for @onboarding_equipmentSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona todo lo que puedas usar habitualmente.'**
+  String get onboarding_equipmentSubtitle;
+
+  /// No description provided for @onboarding_continue.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar'**
+  String get onboarding_continue;
+
+  /// No description provided for @onboarding_back.
+  ///
+  /// In es, this message translates to:
+  /// **'Atrás'**
+  String get onboarding_back;
+
+  /// No description provided for @onboarding_finish.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar y empezar'**
+  String get onboarding_finish;
+
+  /// No description provided for @onboarding_skip.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahora no'**
+  String get onboarding_skip;
+
+  /// No description provided for @onboarding_saved.
+  ///
+  /// In es, this message translates to:
+  /// **'Preferencias guardadas'**
+  String get onboarding_saved;
+
+  /// No description provided for @weeklyPlan_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Plan semanal'**
+  String get weeklyPlan_title;
+
+  /// No description provided for @weeklyPlan_sessions.
+  ///
+  /// In es, this message translates to:
+  /// **'{done}/{total} sesiones'**
+  String weeklyPlan_sessions(int done, int total);
+
+  /// No description provided for @weeklyPlan_adherence.
+  ///
+  /// In es, this message translates to:
+  /// **'Adherencia'**
+  String get weeklyPlan_adherence;
+
+  /// No description provided for @weeklyPlan_remaining.
+  ///
+  /// In es, this message translates to:
+  /// **'Restantes'**
+  String get weeklyPlan_remaining;
+
+  /// No description provided for @weeklyPlan_completedSets.
+  ///
+  /// In es, this message translates to:
+  /// **'Series'**
+  String get weeklyPlan_completedSets;
+
+  /// No description provided for @weeklyPlan_muscleBalance.
+  ///
+  /// In es, this message translates to:
+  /// **'SERIES POR MÚSCULO'**
+  String get weeklyPlan_muscleBalance;
+
+  /// No description provided for @weeklyPlan_completed.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo semanal completado. Buen trabajo.'**
+  String get weeklyPlan_completed;
+
+  /// No description provided for @weeklyPlan_nextSession.
+  ///
+  /// In es, this message translates to:
+  /// **'PRÓXIMA SESIÓN'**
+  String get weeklyPlan_nextSession;
+
+  /// No description provided for @weeklyPlan_exerciseCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} ejercicios'**
+  String weeklyPlan_exerciseCount(int count);
+
+  /// No description provided for @weeklyPlan_start.
+  ///
+  /// In es, this message translates to:
+  /// **'Empezar'**
+  String get weeklyPlan_start;
+
+  /// No description provided for @weeklyPlan_noCompatible.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay suficientes ejercicios compatibles con tu equipamiento.'**
+  String get weeklyPlan_noCompatible;
+
+  /// No description provided for @weeklyPlan_adjustEquipment.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajustar'**
+  String get weeklyPlan_adjustEquipment;
+
+  /// No description provided for @weeklyPlan_setupTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Configura tu plan'**
+  String get weeklyPlan_setupTitle;
+
+  /// No description provided for @weeklyPlan_setupSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa tus preferencias para recibir una sesión adaptada cada semana.'**
+  String get weeklyPlan_setupSubtitle;
+
+  /// No description provided for @weeklyPlan_configure.
+  ///
+  /// In es, this message translates to:
+  /// **'Configurar'**
+  String get weeklyPlan_configure;
+
+  /// No description provided for @weeklyPlan_adaptiveName.
+  ///
+  /// In es, this message translates to:
+  /// **'Sesión adaptativa'**
+  String get weeklyPlan_adaptiveName;
+
   /// No description provided for @train_title.
   ///
   /// In es, this message translates to:
@@ -1060,6 +1348,12 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Añade al menos un ejercicio antes de finalizar.'**
   String get train_addExerciseFirst;
+
+  /// No description provided for @train_completeSetFirst.
+  ///
+  /// In es, this message translates to:
+  /// **'Completa al menos una serie antes de finalizar.'**
+  String get train_completeSetFirst;
 
   /// No description provided for @train_workoutCompleted.
   ///
@@ -1223,6 +1517,36 @@ abstract class S {
   /// **'Último: {weight} kg'**
   String train_lastWeight(String weight);
 
+  /// No description provided for @train_nextSuggestion.
+  ///
+  /// In es, this message translates to:
+  /// **'Próxima carga sugerida'**
+  String get train_nextSuggestion;
+
+  /// No description provided for @train_applySuggestion.
+  ///
+  /// In es, this message translates to:
+  /// **'Aplicar'**
+  String get train_applySuggestion;
+
+  /// No description provided for @train_increaseLoad.
+  ///
+  /// In es, this message translates to:
+  /// **'Sube la carga'**
+  String get train_increaseLoad;
+
+  /// No description provided for @train_addRepetition.
+  ///
+  /// In es, this message translates to:
+  /// **'Suma una repetición'**
+  String get train_addRepetition;
+
+  /// No description provided for @train_consolidateLoad.
+  ///
+  /// In es, this message translates to:
+  /// **'Consolida la carga'**
+  String get train_consolidateLoad;
+
   /// No description provided for @train_abbreviationExercises.
   ///
   /// In es, this message translates to:
@@ -1246,6 +1570,12 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Peso corporal'**
   String get train_bodyweightLabel;
+
+  /// No description provided for @train_chooseWeight.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegir peso'**
+  String get train_chooseWeight;
 
   /// No description provided for @picker_title.
   ///
@@ -1336,6 +1666,18 @@ abstract class S {
   /// In es, this message translates to:
   /// **'{count} ejercicio{suffix}'**
   String exercises_exerciseCount(int count, String suffix);
+
+  /// No description provided for @exercises_countLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{{count} ejercicio} other{{count} ejercicios}}'**
+  String exercises_countLabel(num count);
+
+  /// No description provided for @exercises_descriptionUnavailable.
+  ///
+  /// In es, this message translates to:
+  /// **'Las instrucciones detalladas aún no están disponibles en este idioma.'**
+  String get exercises_descriptionUnavailable;
 
   /// No description provided for @exercises_clearFilters.
   ///
@@ -2674,6 +3016,30 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Todos los grupos musculares en una sesión'**
   String get template_fullBody_subtitle;
+
+  /// No description provided for @template_fullBody_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Full Body'**
+  String get template_fullBody_name;
+
+  /// No description provided for @template_push_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Empuje'**
+  String get template_push_name;
+
+  /// No description provided for @template_pull_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Tracción'**
+  String get template_pull_name;
+
+  /// No description provided for @template_torso_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Torso'**
+  String get template_torso_name;
 
   /// No description provided for @template_push_subtitle.
   ///

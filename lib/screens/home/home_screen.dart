@@ -4,17 +4,22 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/muscle_colors.dart';
+import '../../utils/exercise_localization.dart';
 import '../../data/achievement_store.dart';
 import '../../data/mock_data.dart';
 import '../../data/workout_store.dart';
 import '../../data/progress_store.dart';
+import '../../data/training_preferences_store.dart';
 import '../../data/workout_templates.dart';
 import '../../models/models.dart';
 import '../../services/auth_service.dart';
 import '../../services/subscription_service.dart';
+import '../../services/weekly_plan_service.dart';
 import '../../services/workout_launcher.dart';
 import '../paywall/paywall_screen.dart';
 import '../progress/progress_screen.dart';
+import '../onboarding/training_preferences_screen.dart';
+import 'weekly_plan_card.dart';
 
 class HomeScreen extends StatefulWidget {
   final void Function(int) onNavigate;
@@ -32,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WorkoutStore.instance.addListener(_onStoreChanged);
     ProgressStore.instance.addListener(_onStoreChanged);
     AchievementStore.instance.addListener(_onStoreChanged);
+    TrainingPreferencesStore.instance.addListener(_onStoreChanged);
   }
 
   @override
@@ -39,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WorkoutStore.instance.removeListener(_onStoreChanged);
     ProgressStore.instance.removeListener(_onStoreChanged);
     AchievementStore.instance.removeListener(_onStoreChanged);
+    TrainingPreferencesStore.instance.removeListener(_onStoreChanged);
     super.dispose();
   }
 
@@ -216,6 +223,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                       },
               ),
+              ListTile(
+                leading: const Icon(
+                  Icons.tune_rounded,
+                  color: AppColors.primaryLight,
+                ),
+                title: Text(
+                  l10n.profile_trainingPreferences,
+                  style: const TextStyle(color: AppColors.textPrimary),
+                ),
+                subtitle: Text(
+                  l10n.profile_trainingPreferencesSubtitle,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 12,
+                  ),
+                ),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  await _openTrainingPreferences(context);
+                },
+              ),
               // Restore purchases
               ListTile(
                 leading: const Icon(
@@ -302,6 +330,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _openTrainingPreferences(BuildContext context) async {
+    final saved = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const TrainingPreferencesScreen(isEditing: true),
+      ),
+    );
+    if (saved != true || !context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(S.of(context).onboarding_saved),
+        backgroundColor: AppColors.accent,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   void _confirmDeleteAccount(BuildContext context) {
     final l10n = S.of(context);
     showDialog(
@@ -325,8 +370,16 @@ class _HomeScreenState extends State<HomeScreen> {
           TextButton(
             onPressed: () async {
               Navigator.pop(ctx);
+              String? password;
+              if (AuthService.instance.currentUserUsesPassword) {
+                password = await _requestDeletePassword(context);
+                if (password == null || !context.mounted) return;
+              }
               try {
-                await AuthService.instance.deleteAccount();
+                await AuthService.instance.deleteAccount(password: password);
+              } on AuthCancelledException {
+                // Closing the Google / Apple reauthentication sheet is not an
+                // error and must leave the account untouched.
               } on FirebaseAuthException catch (e) {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -367,6 +420,51 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<String?> _requestDeletePassword(BuildContext context) async {
+    final controller = TextEditingController();
+    final result = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          S.of(context).profile_deleteTitle,
+          style: const TextStyle(color: AppColors.textPrimary),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          obscureText: true,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (value) {
+            if (value.isNotEmpty) Navigator.pop(dialogContext, value);
+          },
+          decoration: InputDecoration(
+            labelText: S.of(context).emailAuth_passwordLabel,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(S.of(context).common_cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              final value = controller.text;
+              if (value.isNotEmpty) Navigator.pop(dialogContext, value);
+            },
+            child: Text(
+              S.of(context).common_delete,
+              style: const TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    return result;
+  }
+
   String _formatDuration(Duration d) {
     final h = d.inHours;
     final m = d.inMinutes % 60;
@@ -392,6 +490,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context);
     final weekWorkouts = _weekWorkouts;
     final lastWorkout = _lastWorkout;
     final totalWeekVolume = weekWorkouts.fold(0, (s, w) => s + w.totalVolume);
@@ -399,6 +498,16 @@ class _HomeScreenState extends State<HomeScreen> {
       Duration.zero,
       (s, w) => s + w.duration,
     );
+    final preferences = TrainingPreferencesStore.instance.preferences;
+    final weeklyPlan = preferences == null
+        ? null
+        : WeeklyPlanService.build(
+            preferences: preferences,
+            workouts: WorkoutStore.instance.workouts,
+            exerciseLibrary: mockExercises,
+            now: DateTime.now(),
+            planName: l10n.weeklyPlan_adaptiveName,
+          );
 
     return Scaffold(
       body: CustomScrollView(
@@ -427,9 +536,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       .fadeIn(delay: 100.ms, duration: 400.ms)
                       .slideY(begin: 0.1, end: 0),
                   const SizedBox(height: 24),
+                  WeeklyPlanCard(
+                    plan: weeklyPlan,
+                    onConfigure: () => _openTrainingPreferences(context),
+                    onStart: (template) {
+                      WorkoutLauncher.instance.queue(template);
+                      widget.onNavigate(1);
+                    },
+                  ).animate().fadeIn(delay: 180.ms, duration: 400.ms),
+                  const SizedBox(height: 24),
                   _buildQuickStart(
                     context,
-                  ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
+                  ).animate().fadeIn(delay: 260.ms, duration: 400.ms),
                   const SizedBox(height: 24),
                   _buildLastWorkoutCard(
                     context,
@@ -636,43 +754,57 @@ class _HomeScreenState extends State<HomeScreen> {
                 (t) => Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: GestureDetector(
-                      onTap: () => launch(t),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 14,
-                          horizontal: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: t.color.withAlpha(30),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: t.color.withAlpha(64),
-                            width: 1,
+                    child: Semantics(
+                      label: ExerciseLocalization.templateName(
+                        l10n,
+                        t.id,
+                        t.name,
+                      ),
+                      button: true,
+                      child: ExcludeSemantics(
+                        child: GestureDetector(
+                          onTap: () => launch(t),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                              horizontal: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: t.color.withAlpha(30),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: t.color.withAlpha(64),
+                                width: 1,
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                Icon(t.icon, color: t.color, size: 24),
+                                const SizedBox(height: 6),
+                                Text(
+                                  ExerciseLocalization.templateName(
+                                    l10n,
+                                    t.id,
+                                    t.name,
+                                  ),
+                                  style: TextStyle(
+                                    color: t.color,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  l10n.train_exerciseCount(t.exercises.length),
+                                  style: const TextStyle(
+                                    color: AppColors.textMuted,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(t.icon, color: t.color, size: 24),
-                            const SizedBox(height: 6),
-                            Text(
-                              t.name,
-                              style: TextStyle(
-                                color: t.color,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${t.exercises.length} ej.',
-                              style: const TextStyle(
-                                color: AppColors.textMuted,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
                         ),
                       ),
                     ),
@@ -804,7 +936,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              workout.name,
+                              ExerciseLocalization.workoutName(
+                                l10n,
+                                workout.name,
+                              ),
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                             const SizedBox(height: 2),
@@ -1323,14 +1458,14 @@ class _RecentExerciseItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    exercise.name,
+                    ExerciseLocalization.name(S.of(context), exercise.name),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${exercise.muscleGroup} · ${exercise.equipment} · ${exercise.difficulty}',
+                    '${ExerciseLocalization.muscle(S.of(context), exercise.muscleGroup)} · ${ExerciseLocalization.equipment(S.of(context), exercise.equipment)} · ${ExerciseLocalization.difficulty(S.of(context), exercise.difficulty)}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],

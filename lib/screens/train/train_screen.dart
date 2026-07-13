@@ -5,16 +5,22 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/achievement_store.dart';
 import '../../data/active_workout_store.dart';
 import '../../data/custom_template_store.dart';
+import '../../data/mock_data.dart';
+import '../../data/training_preferences_store.dart';
 import '../../models/achievement_models.dart';
 import '../../data/workout_templates.dart';
 import '../../models/session_models.dart';
 import '../../models/models.dart';
+import '../../models/training_preferences.dart';
 import '../../data/workout_store.dart';
 import '../exercises/exercise_progress_sheet.dart';
 import '../../services/rest_timer_controller.dart';
+import '../../services/progression_service.dart';
 import '../../services/watch_service.dart';
+import '../../services/weekly_plan_service.dart';
 import '../../services/workout_launcher.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/exercise_localization.dart';
 import '../../utils/muscle_colors.dart';
 import '../../utils/pro_gate.dart';
 import '../../widgets/common/muscle_chip.dart';
@@ -46,6 +52,7 @@ class _TrainScreenState extends State<TrainScreen> {
     super.initState();
     CustomTemplateStore.instance.addListener(_onTemplatesChanged);
     WorkoutLauncher.instance.addListener(_onLauncherChanged);
+    WatchService.instance.onWatchCommand = _handleWatchCommand;
     // Consume any template queued before this screen mounted (e.g. tapped on
     // Home before navigating).
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -59,6 +66,9 @@ class _TrainScreenState extends State<TrainScreen> {
   void dispose() {
     CustomTemplateStore.instance.removeListener(_onTemplatesChanged);
     WorkoutLauncher.instance.removeListener(_onLauncherChanged);
+    if (WatchService.instance.onWatchCommand == _handleWatchCommand) {
+      WatchService.instance.onWatchCommand = null;
+    }
     _timer?.cancel();
     super.dispose();
   }
@@ -157,17 +167,53 @@ class _TrainScreenState extends State<TrainScreen> {
 
   void _onLauncherChanged() => _consumePendingTemplate();
 
+  void _handleWatchCommand(String type, Map<String, dynamic> data) {
+    final restTimer = RestTimerController.instance;
+    switch (type) {
+      case 'startTimer':
+        restTimer.resume(seconds: (data['timerDuration'] as num?)?.toInt());
+        break;
+      case 'stopTimer':
+        restTimer.pause();
+        break;
+      case 'resetTimer':
+        restTimer.reset();
+        break;
+      case 'setTimer':
+        final seconds = (data['timerDuration'] as num?)?.toInt();
+        if (seconds != null && seconds > 0) restTimer.selectPreset(seconds);
+        break;
+    }
+  }
+
   void _consumePendingTemplate() {
     if (_workoutStarted) return;
     final template = WorkoutLauncher.instance.consumeTemplate();
     if (template != null) {
-      _startFromTemplate(template);
+      unawaited(_startQueuedTemplate(template));
       return;
     }
     final workout = WorkoutLauncher.instance.consumeWorkout();
     if (workout != null) {
       _startFromWorkout(workout);
     }
+  }
+
+  Future<void> _startQueuedTemplate(WorkoutTemplate template) async {
+    final isPaidBuiltIn = template.id.startsWith('tpl_') && !template.isFree;
+    if (isPaidBuiltIn && !await requirePro(context)) return;
+    if (!mounted) return;
+    final personalized = _personalizeTemplate(template);
+    if (personalized.exercises.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.of(context).weeklyPlan_noCompatible),
+          backgroundColor: AppColors.bgCardLight,
+        ),
+      );
+      return;
+    }
+    _startFromTemplate(personalized);
   }
 
   void _startFromWorkout(Workout w) {
@@ -198,13 +244,15 @@ class _TrainScreenState extends State<TrainScreen> {
     final l10n = S.of(context);
     WatchService.instance.updateWorkoutState(
       active: _workoutStarted,
-      name: _workoutName ?? l10n.train_freeWorkout,
+      name: _workoutName == null
+          ? l10n.train_freeWorkout
+          : ExerciseLocalization.workoutName(l10n, _workoutName!),
       elapsedSeconds: _elapsedSeconds,
       exercises: _exercises
           .map(
             (e) => {
-              'name': e.name,
-              'muscleGroup': e.muscleGroup,
+              'name': ExerciseLocalization.name(l10n, e.name),
+              'muscleGroup': ExerciseLocalization.muscle(l10n, e.muscleGroup),
               'completedSets': e.completedSets,
               'totalSets': e.sets.length,
             },
@@ -250,13 +298,17 @@ class _TrainScreenState extends State<TrainScreen> {
     setState(() {
       _exercises.clear();
       for (final ex in t.exercises) {
+        final lastWeight = _lastWeightFor(ex.name, equipment: ex.equipment);
         _exercises.add(
           SessionExercise(
             id: '${t.id}_${ex.name}_${DateTime.now().millisecondsSinceEpoch}',
             name: ex.name,
             muscleGroup: ex.muscleGroup,
             equipment: ex.equipment,
-            sets: ex.buildSets(),
+            sets: List.generate(
+              ex.sets,
+              (_) => SessionSet(reps: ex.reps, weight: lastWeight ?? 0),
+            ),
           ),
         );
       }
@@ -268,7 +320,7 @@ class _TrainScreenState extends State<TrainScreen> {
     setState(() {
       _exercises.clear();
       for (final ex in t.exercises) {
-        final lastWeight = _lastWeightFor(ex.name);
+        final lastWeight = _lastWeightFor(ex.name, equipment: ex.equipment);
         _exercises.add(
           SessionExercise(
             id: '${t.id}_${ex.name}_${DateTime.now().millisecondsSinceEpoch}',
@@ -357,6 +409,19 @@ class _TrainScreenState extends State<TrainScreen> {
       );
       return;
     }
+    final completedSets = _exercises.fold<int>(
+      0,
+      (total, exercise) => total + exercise.completedSets,
+    );
+    if (completedSets == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.of(context).train_completeSetFirst),
+          backgroundColor: AppColors.bgCardLight,
+        ),
+      );
+      return;
+    }
     _timer?.cancel();
     _showSummaryDialog();
   }
@@ -406,7 +471,7 @@ class _TrainScreenState extends State<TrainScreen> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  _workoutName!,
+                  ExerciseLocalization.workoutName(l10n, _workoutName!),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.primary,
@@ -731,17 +796,42 @@ class _TrainScreenState extends State<TrainScreen> {
     );
   }
 
-  double? _lastWeightFor(String exerciseName) {
-    for (final w in WorkoutStore.instance.workouts) {
-      for (final e in w.exercises) {
-        if (e.name == exerciseName) {
-          for (final s in e.sets) {
-            if (s.weight > 0) return s.weight;
-          }
-        }
+  ProgressionRecommendation? _recommendationFor(
+    String exerciseName, {
+    String equipment = '',
+  }) {
+    return ProgressionService.recommend(
+      exerciseName: exerciseName,
+      equipment: equipment,
+      workouts: WorkoutStore.instance.workouts,
+    );
+  }
+
+  double? _lastWeightFor(String exerciseName, {String equipment = ''}) {
+    final weight = _recommendationFor(
+      exerciseName,
+      equipment: equipment,
+    )?.previousWeight;
+    return weight == null || weight <= 0 ? null : weight;
+  }
+
+  void _applyRecommendation(
+    int exerciseIndex,
+    ProgressionRecommendation value,
+  ) {
+    HapticFeedback.selectionClick();
+    final exercise = _exercises[exerciseIndex];
+    setState(() {
+      for (var i = 0; i < exercise.sets.length; i++) {
+        final set = exercise.sets[i];
+        if (set.completed) continue;
+        exercise.sets[i] = set.copyWith(
+          reps: value.suggestedReps,
+          weight: value.suggestedWeight,
+        );
       }
-    }
-    return null;
+    });
+    _persistActiveWorkout();
   }
 
   Future<void> _addExercise() async {
@@ -750,7 +840,7 @@ class _TrainScreenState extends State<TrainScreen> {
       MaterialPageRoute(builder: (_) => const ExercisePickerScreen()),
     );
     if (ex == null) return;
-    final lastWeight = _lastWeightFor(ex.name);
+    final lastWeight = _lastWeightFor(ex.name, equipment: ex.equipment);
     setState(() {
       _exercises.add(
         SessionExercise(
@@ -866,17 +956,100 @@ class _TrainScreenState extends State<TrainScreen> {
       if (!await requirePro(context)) return;
       if (!mounted) return;
     }
+    final personalized = _personalizeTemplate(t);
+    if (personalized.exercises.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.of(context).weeklyPlan_noCompatible),
+          backgroundColor: AppColors.bgCardLight,
+        ),
+      );
+      return;
+    }
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => _TemplatePreviewSheet(
-        template: t,
+        template: personalized,
         onStart: () {
           Navigator.pop(context);
-          _startFromTemplate(t);
+          _startFromTemplate(personalized);
         },
       ),
+    );
+  }
+
+  WorkoutTemplate _personalizeTemplate(WorkoutTemplate template) {
+    final preferences = TrainingPreferencesStore.instance.preferences;
+    if (preferences == null) return template;
+
+    final selectedNames = <String>{};
+    final exercises = <TemplateExercise>[];
+    for (final exercise in template.exercises) {
+      var name = exercise.name;
+      var muscleGroup = exercise.muscleGroup;
+      var equipment = exercise.equipment;
+      if (!WeeklyPlanService.supportsEquipment(
+        equipment,
+        preferences.equipment,
+      )) {
+        Exercise? alternative;
+        for (final candidate in mockExercises) {
+          if (candidate.muscleGroup == muscleGroup &&
+              !selectedNames.contains(candidate.name) &&
+              WeeklyPlanService.supportsEquipment(
+                candidate.equipment,
+                preferences.equipment,
+              ) &&
+              (preferences.experience != ExperienceLevel.beginner ||
+                  candidate.difficulty != 'Avanzado')) {
+            alternative = candidate;
+            break;
+          }
+        }
+        if (alternative == null) continue;
+        name = alternative.name;
+        muscleGroup = alternative.muscleGroup;
+        equipment = alternative.equipment;
+      }
+      if (!selectedNames.add(name)) continue;
+
+      final isTimed = exercise.weight == 0 && exercise.reps >= 30;
+      final sets = switch (preferences.experience) {
+        ExperienceLevel.beginner => exercise.sets.clamp(2, 3),
+        ExperienceLevel.intermediate => exercise.sets.clamp(3, 4),
+        ExperienceLevel.advanced => exercise.sets,
+      };
+      final reps = isTimed
+          ? exercise.reps
+          : switch (preferences.goal) {
+              TrainingGoal.strength => exercise.reps.clamp(4, 6),
+              TrainingGoal.muscleGain => exercise.reps.clamp(8, 12),
+              TrainingGoal.fatLoss => exercise.reps.clamp(10, 15),
+              TrainingGoal.generalFitness => exercise.reps.clamp(8, 12),
+            };
+      exercises.add(
+        TemplateExercise(
+          name: name,
+          muscleGroup: muscleGroup,
+          equipment: equipment,
+          sets: sets.toInt(),
+          reps: reps.toInt(),
+          // Built-in routines never guess a safe load. A known historical
+          // load is applied only when the workout actually starts.
+          weight: 0,
+        ),
+      );
+    }
+
+    return WorkoutTemplate(
+      id: template.id,
+      name: template.name,
+      subtitle: template.subtitle,
+      icon: template.icon,
+      color: template.color,
+      exercises: exercises,
     );
   }
 
@@ -1122,16 +1295,27 @@ class _TrainScreenState extends State<TrainScreen> {
                     borderRadius: BorderRadius.circular(16),
                     child: child,
                   ),
-                  itemBuilder: (context, i) => _ExerciseCard(
-                    key: ValueKey(_exercises[i].id),
-                    exercise: _exercises[i],
-                    lastWeight: _lastWeightFor(_exercises[i].name),
-                    onAddSet: () => _addSet(i),
-                    onRemoveSet: (si) => _removeSet(i, si),
-                    onToggleDone: (si) => _toggleSetDone(i, si),
-                    onDelete: () => _removeExercise(i),
-                    onSetChanged: () => setState(() {}),
-                  ),
+                  itemBuilder: (context, i) {
+                    final exercise = _exercises[i];
+                    final recommendation = _recommendationFor(
+                      exercise.name,
+                      equipment: exercise.equipment,
+                    );
+                    return _ExerciseCard(
+                      key: ValueKey(exercise.id),
+                      exercise: exercise,
+                      lastWeight: recommendation?.previousWeight,
+                      recommendation: recommendation,
+                      onApplyRecommendation: recommendation == null
+                          ? null
+                          : () => _applyRecommendation(i, recommendation),
+                      onAddSet: () => _addSet(i),
+                      onRemoveSet: (si) => _removeSet(i, si),
+                      onToggleDone: (si) => _toggleSetDone(i, si),
+                      onDelete: () => _removeExercise(i),
+                      onSetChanged: () => setState(() {}),
+                    );
+                  },
                 ),
         ),
         const RestTimerOverlay(),
@@ -1184,7 +1368,10 @@ class _TrainScreenState extends State<TrainScreen> {
                   children: [
                     Flexible(
                       child: Text(
-                        _workoutName!,
+                        ExerciseLocalization.workoutName(
+                          S.of(context),
+                          _workoutName!,
+                        ),
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: labelColor,

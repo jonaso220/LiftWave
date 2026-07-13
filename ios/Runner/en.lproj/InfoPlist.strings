@@ -1,4 +1,3 @@
 "NSCameraUsageDescription" = "LiftWave needs camera access to take progress photos.";
 "NSPhotoLibraryUsageDescription" = "LiftWave needs access to your photos to add progress photos.";
-"NSPhotoLibraryAddUsageDescription" = "LiftWave saves your progress photos to your gallery.";
 "CFBundleDisplayName" = "LiftWave";

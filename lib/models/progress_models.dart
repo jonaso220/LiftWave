@@ -17,6 +17,20 @@ class BodyMeasurement {
     this.photoPath,
   });
 
+  bool get hasPhoto => photoPath != null && photoPath!.isNotEmpty;
+
+  BodyMeasurement copyWith({String? photoPath}) {
+    return BodyMeasurement(
+      id: id,
+      date: date,
+      weight: weight,
+      waist: waist,
+      chest: chest,
+      hips: hips,
+      photoPath: photoPath ?? this.photoPath,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'date': date.toIso8601String(),
@@ -26,6 +40,9 @@ class BodyMeasurement {
     'hips': hips,
     'photoPath': photoPath,
   };
+
+  Map<String, dynamic> toCloudJson() =>
+      Map<String, dynamic>.from(toJson())..remove('photoPath');
 
   factory BodyMeasurement.fromJson(Map<String, dynamic> json) =>
       BodyMeasurement(

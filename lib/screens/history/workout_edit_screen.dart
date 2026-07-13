@@ -5,6 +5,7 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/workout_store.dart';
 import '../../models/models.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/exercise_localization.dart';
 
 /// Editable view of a past workout. Users can fix reps, weight and notes
 /// they forgot to log correctly. Adding/removing exercises is out of scope.
@@ -43,13 +44,7 @@ class _WorkoutEditScreenState extends State<WorkoutEditScreen> {
     final updatedExercises = _exercises.map((e) => e.toExercise()).toList();
     final newVolume = updatedExercises.fold<int>(
       0,
-      (sum, ex) =>
-          sum +
-          ex.sets.fold<int>(
-            0,
-            (s, set) =>
-                s + (set.completed ? (set.weight * set.reps).round() : 0),
-          ),
+      (sum, exercise) => sum + exercise.completedVolume,
     );
     final updated = Workout(
       id: widget.workout.id,
@@ -133,7 +128,7 @@ class _ExerciseCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    editable.name,
+                    ExerciseLocalization.name(l10n, editable.name),
                     style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 16,
@@ -304,7 +299,7 @@ class _NumberField extends StatelessWidget {
       keyboardType: TextInputType.numberWithOptions(decimal: allowDecimal),
       inputFormatters: [
         FilteringTextInputFormatter.allow(
-          allowDecimal ? RegExp(r'^\d*\.?\d*') : RegExp(r'^\d*'),
+          allowDecimal ? RegExp(r'^\d*[\.,]?\d*') : RegExp(r'^\d*'),
         ),
       ],
       style: const TextStyle(
@@ -402,7 +397,8 @@ class _EditableSet extends ChangeNotifier {
 
   WorkoutSet toSet(int setNumber) {
     final reps = int.tryParse(repsCtrl.text.trim()) ?? 0;
-    final weight = double.tryParse(weightCtrl.text.trim()) ?? 0;
+    final weight =
+        double.tryParse(weightCtrl.text.trim().replaceAll(',', '.')) ?? 0;
     return WorkoutSet(
       setNumber: setNumber,
       reps: reps.clamp(0, 999),

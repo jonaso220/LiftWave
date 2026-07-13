@@ -6,8 +6,6 @@
 	<string>LiftWave necesita acceso a la cámara para tomar fotos de progreso.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>LiftWave necesita acceso a tus fotos para añadir fotos de progreso.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>LiftWave guarda tus fotos de progreso en la galería.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>FLTEnableImpeller</key>

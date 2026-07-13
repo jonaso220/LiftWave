@@ -113,6 +113,21 @@ class SJa extends S {
   String get equipment_parallelBars => '平行棒';
 
   @override
+  String get equipment_rings => 'リング';
+
+  @override
+  String get equipment_box => 'ボックス';
+
+  @override
+  String get equipment_rope => 'ロープ';
+
+  @override
+  String get equipment_ball => 'ボール';
+
+  @override
+  String get equipment_kettlebell => 'ケトルベル';
+
+  @override
   String get difficulty_beginner => '初級';
 
   @override
@@ -449,6 +464,141 @@ class SJa extends S {
       'アカウントを削除するには、ログアウトして再度ログインしてからお試しください。';
 
   @override
+  String get profile_trainingPreferences => 'トレーニング設定';
+
+  @override
+  String get profile_trainingPreferencesSubtitle => '目標、経験、日数、器具';
+
+  @override
+  String get onboarding_title => 'トレーニングをカスタマイズ';
+
+  @override
+  String get onboarding_goalTitle => '主な目標は何ですか？';
+
+  @override
+  String get onboarding_goalSubtitle => '次回のおすすめを調整するために使用します。';
+
+  @override
+  String get onboarding_goalMuscle => '筋肉を増やす';
+
+  @override
+  String get onboarding_goalStrength => '筋力を高める';
+
+  @override
+  String get onboarding_goalFatLoss => '脂肪を減らす';
+
+  @override
+  String get onboarding_goalFitness => '体力を向上する';
+
+  @override
+  String get onboarding_experienceTitle => 'トレーニング経験は？';
+
+  @override
+  String get onboarding_experienceSubtitle => 'レベルに合わせて量と進行を調整します。';
+
+  @override
+  String get onboarding_experienceBeginner => '初心者';
+
+  @override
+  String get onboarding_experienceBeginnerHint => '1年未満';
+
+  @override
+  String get onboarding_experienceIntermediate => '中級者';
+
+  @override
+  String get onboarding_experienceIntermediateHint => '1〜3年';
+
+  @override
+  String get onboarding_experienceAdvanced => '上級者';
+
+  @override
+  String get onboarding_experienceAdvancedHint => '3年以上';
+
+  @override
+  String get onboarding_daysTitle => '週に何日トレーニングできますか？';
+
+  @override
+  String get onboarding_daysSubtitle => '継続できる頻度を選びましょう。';
+
+  @override
+  String onboarding_daysSelected(int count) {
+    return '週$count日';
+  }
+
+  @override
+  String get onboarding_equipmentTitle => '使用できる器具は？';
+
+  @override
+  String get onboarding_equipmentSubtitle => '普段使えるものをすべて選択してください。';
+
+  @override
+  String get onboarding_continue => '続ける';
+
+  @override
+  String get onboarding_back => '戻る';
+
+  @override
+  String get onboarding_finish => '保存して開始';
+
+  @override
+  String get onboarding_skip => '後で';
+
+  @override
+  String get onboarding_saved => '設定を保存しました';
+
+  @override
+  String get weeklyPlan_title => '週間プラン';
+
+  @override
+  String weeklyPlan_sessions(int done, int total) {
+    return '$done/$total セッション';
+  }
+
+  @override
+  String get weeklyPlan_adherence => '達成率';
+
+  @override
+  String get weeklyPlan_remaining => '残り';
+
+  @override
+  String get weeklyPlan_completedSets => 'セット';
+
+  @override
+  String get weeklyPlan_muscleBalance => '部位別セット数';
+
+  @override
+  String get weeklyPlan_completed => '週間目標を達成しました。お疲れさまでした。';
+
+  @override
+  String get weeklyPlan_nextSession => '次のセッション';
+
+  @override
+  String weeklyPlan_exerciseCount(int count) {
+    return '$count種目';
+  }
+
+  @override
+  String get weeklyPlan_start => '開始';
+
+  @override
+  String get weeklyPlan_noCompatible => '使用できる器具に対応する種目が不足しています。';
+
+  @override
+  String get weeklyPlan_adjustEquipment => '調整';
+
+  @override
+  String get weeklyPlan_setupTitle => 'プランを設定';
+
+  @override
+  String get weeklyPlan_setupSubtitle => '設定を完了すると、毎週あなたに合ったセッションを提案します。';
+
+  @override
+  String get weeklyPlan_configure => '設定';
+
+  @override
+  String get weeklyPlan_adaptiveName => '適応セッション';
+
+  @override
   String get train_title => 'トレーニング';
 
   @override
@@ -503,6 +653,9 @@ class SJa extends S {
 
   @override
   String get train_addExerciseFirst => '終了する前に少なくとも1つのエクササイズを追加してください。';
+
+  @override
+  String get train_completeSetFirst => '終了する前に少なくとも1セット完了してください。';
 
   @override
   String get train_workoutCompleted => 'トレーニング完了！';
@@ -600,6 +753,21 @@ class SJa extends S {
   }
 
   @override
+  String get train_nextSuggestion => '次回の推奨負荷';
+
+  @override
+  String get train_applySuggestion => '適用';
+
+  @override
+  String get train_increaseLoad => '負荷を上げる';
+
+  @override
+  String get train_addRepetition => '1回追加';
+
+  @override
+  String get train_consolidateLoad => 'この負荷を定着';
+
+  @override
   String get train_abbreviationExercises => '種目';
 
   @override
@@ -610,6 +778,9 @@ class SJa extends S {
 
   @override
   String get train_bodyweightLabel => '自重';
+
+  @override
+  String get train_chooseWeight => '重量を選択';
 
   @override
   String get picker_title => 'エクササイズを選択';
@@ -657,6 +828,14 @@ class SJa extends S {
   String exercises_exerciseCount(int count, String suffix) {
     return '$count種目$suffix';
   }
+
+  @override
+  String exercises_countLabel(num count) {
+    return '$count種目';
+  }
+
+  @override
+  String get exercises_descriptionUnavailable => '詳しい手順はこの言語ではまだ利用できません。';
 
   @override
   String get exercises_clearFilters => 'フィルターをクリア';
@@ -1352,6 +1531,18 @@ class SJa extends S {
 
   @override
   String get template_fullBody_subtitle => '全身を1セッションでトレーニング';
+
+  @override
+  String get template_fullBody_name => '全身';
+
+  @override
+  String get template_push_name => 'プッシュ';
+
+  @override
+  String get template_pull_name => 'プル';
+
+  @override
+  String get template_torso_name => '上半身';
 
   @override
   String get template_push_subtitle => '胸・肩・三頭筋';

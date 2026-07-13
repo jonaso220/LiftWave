@@ -7,8 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0C13FCE62F674377005C9EA9 /* LiftWave Watch App Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 0C13FCE52F674377005C9EA9 /* LiftWave Watch App Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		0C13FCE62F674377005C9EA9 /* LiftWave Watch App Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 0C13FCE52F674377005C9EA9 /* LiftWave Watch App Watch App.app */; platformFilter = watchos; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0C99AA001F674377005C9EA9 /* WatchSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C99AA011F674377005C9EA9 /* WatchSessionManager.swift */; };
+		0CA1000000000000000000B1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CA1000000000000000000A1 /* ContentView.swift */; };
+		0CA1000000000000000000B2 /* LiftWave_Watch_AppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CA1000000000000000000A2 /* LiftWave_Watch_AppApp.swift */; };
+		0CA1000000000000000000B3 /* WatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CA1000000000000000000A3 /* WatchConnectivityService.swift */; };
+		0CA1000000000000000000B4 /* WatchState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CA1000000000000000000A4 /* WatchState.swift */; };
+		0CA1000000000000000000B5 /* LiftWaveComplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CA1000000000000000000A5 /* LiftWaveComplication.swift */; };
+		0CA1000000000000000000B6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0CA1000000000000000000A7 /* Assets.xcassets */; };
+		0CA1000000000000000000B7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 0CA1000000000000000000A6 /* Localizable.xcstrings */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		1B8556AFFAF72B6D5A9EF46C /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30F6F5D82264116F5ED9894B /* Pods_Runner.framework */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
@@ -19,15 +26,17 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
-		0CA1000000000000000000B1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CA1000000000000000000A1 /* ContentView.swift */; };
-		0CA1000000000000000000B2 /* LiftWave_Watch_AppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CA1000000000000000000A2 /* LiftWave_Watch_AppApp.swift */; };
-		0CA1000000000000000000B3 /* WatchConnectivityService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CA1000000000000000000A3 /* WatchConnectivityService.swift */; };
-		0CA1000000000000000000B4 /* WatchState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CA1000000000000000000A4 /* WatchState.swift */; };
-		0CA1000000000000000000B5 /* LiftWaveComplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CA1000000000000000000A5 /* LiftWaveComplication.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
 		0C13FCE72F674377005C9EA9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0C13FCE42F674377005C9EA9;
+			remoteInfo = "LiftWave Watch App Watch App";
+		};
+		0CA2000000000000000000C1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
 			proxyType = 1;
@@ -72,6 +81,13 @@
 		0C13FCE02F674377005C9EA9 /* LiftWave Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LiftWave Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C13FCE52F674377005C9EA9 /* LiftWave Watch App Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LiftWave Watch App Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C99AA011F674377005C9EA9 /* WatchSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchSessionManager.swift; sourceTree = "<group>"; };
+		0CA1000000000000000000A1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		0CA1000000000000000000A2 /* LiftWave_Watch_AppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiftWave_Watch_AppApp.swift; sourceTree = "<group>"; };
+		0CA1000000000000000000A3 /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
+		0CA1000000000000000000A4 /* WatchState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchState.swift; sourceTree = "<group>"; };
+		0CA1000000000000000000A5 /* LiftWaveComplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiftWaveComplication.swift; sourceTree = "<group>"; };
+		0CA1000000000000000000A6 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		0CA1000000000000000000A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		30F6F5D82264116F5ED9894B /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -95,15 +111,7 @@
 		9D72531BCFC61320148837AD /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		B3959148A8F7803EB9A7EE93 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		C880C4B23DD1D0AFEE21F4FB /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
-		0CA1000000000000000000A1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		0CA1000000000000000000A2 /* LiftWave_Watch_AppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiftWave_Watch_AppApp.swift; sourceTree = "<group>"; };
-		0CA1000000000000000000A3 /* WatchConnectivityService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityService.swift; sourceTree = "<group>"; };
-		0CA1000000000000000000A4 /* WatchState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchState.swift; sourceTree = "<group>"; };
-		0CA1000000000000000000A5 /* LiftWaveComplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiftWaveComplication.swift; sourceTree = "<group>"; };
-		0CA1000000000000000000A6 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-
 
 /* Begin PBXFrameworksBuildPhase section */
 		0C13FCE22F674377005C9EA9 /* Frameworks */ = {
@@ -132,6 +140,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0C13FCE92F674377005C9EA9 /* LiftWave Watch App Watch App */ = {
+			isa = PBXGroup;
+			children = (
+				0CA1000000000000000000A1 /* ContentView.swift */,
+				0CA1000000000000000000A2 /* LiftWave_Watch_AppApp.swift */,
+				0CA1000000000000000000A3 /* WatchConnectivityService.swift */,
+				0CA1000000000000000000A4 /* WatchState.swift */,
+				0CA1000000000000000000A5 /* LiftWaveComplication.swift */,
+				0CA1000000000000000000A6 /* Localizable.xcstrings */,
+				0CA1000000000000000000A7 /* Assets.xcassets */,
+			);
+			path = "LiftWave Watch App Watch App";
+			sourceTree = "<group>";
+		};
 		331C8082294A63A400263BE5 /* RunnerTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -214,19 +236,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		0C13FCE92F674377005C9EA9 /* LiftWave Watch App Watch App */ = {
-			isa = PBXGroup;
-			children = (
-				0CA1000000000000000000A1 /* ContentView.swift */,
-				0CA1000000000000000000A2 /* LiftWave_Watch_AppApp.swift */,
-				0CA1000000000000000000A3 /* WatchConnectivityService.swift */,
-				0CA1000000000000000000A4 /* WatchState.swift */,
-				0CA1000000000000000000A5 /* LiftWaveComplication.swift */,
-				0CA1000000000000000000A6 /* Localizable.xcstrings */,
-			);
-			path = "LiftWave Watch App Watch App";
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -235,7 +244,6 @@
 			buildConfigurationList = 0C13FCF82F674377005C9EA9 /* Build configuration list for PBXNativeTarget "LiftWave Watch App" */;
 			buildPhases = (
 				0C13FCDE2F674377005C9EA9 /* Resources */,
-				0C13FCF32F674377005C9EA9 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
@@ -292,6 +300,7 @@
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
+				0C13FCF32F674377005C9EA9 /* Embed Watch Content */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				201F6EEDFB86946272977D7C /* [CP] Embed Pods Frameworks */,
@@ -300,6 +309,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				0CA2000000000000000000D1 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			productName = Runner;
@@ -372,6 +382,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0CA1000000000000000000B6 /* Assets.xcassets in Resources */,
+				0CA1000000000000000000B7 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -547,6 +559,12 @@
 			target = 0C13FCE42F674377005C9EA9 /* LiftWave Watch App Watch App */;
 			targetProxy = 0C13FCE72F674377005C9EA9 /* PBXContainerItemProxy */;
 		};
+		0CA2000000000000000000D1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = watchos;
+			target = 0C13FCE42F674377005C9EA9 /* LiftWave Watch App Watch App */;
+			targetProxy = 0CA2000000000000000000C1 /* PBXContainerItemProxy */;
+		};
 		331C8086294A63A400263BE5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 97C146ED1CF9000F007C117D /* Runner */;
@@ -584,13 +602,13 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = MAFKA6L5JR;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				INFOPLIST_KEY_CFBundleDisplayName = "LiftWave Watch App";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.3.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.liftwave.liftwave.watchapp;
@@ -613,13 +631,13 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = MAFKA6L5JR;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				INFOPLIST_KEY_CFBundleDisplayName = "LiftWave Watch App";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.3.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.liftwave.liftwave.watchapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -639,13 +657,13 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = MAFKA6L5JR;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				INFOPLIST_KEY_CFBundleDisplayName = "LiftWave Watch App";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.3.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.liftwave.liftwave.watchapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -667,7 +685,7 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = MAFKA6L5JR;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -682,13 +700,14 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.3.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.liftwave.liftwave.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = watchos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -714,7 +733,7 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = MAFKA6L5JR;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -729,12 +748,13 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.3.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.liftwave.liftwave.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = watchos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -758,7 +778,7 @@
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_TEAM = MAFKA6L5JR;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -773,12 +793,13 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.3.0;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.liftwave.liftwave.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = watchos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -850,6 +871,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = MAFKA6L5JR;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -870,9 +892,9 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 12;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.liftwave.liftwave.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -888,9 +910,9 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 12;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.liftwave.liftwave.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -904,9 +926,9 @@
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 12;
 				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.liftwave.liftwave.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -1033,6 +1055,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = MAFKA6L5JR;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1056,6 +1079,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEVELOPMENT_TEAM = MAFKA6L5JR;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

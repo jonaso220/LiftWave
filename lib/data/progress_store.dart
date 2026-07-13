@@ -1,36 +1,45 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/progress_models.dart';
-import '../services/firebase_service.dart';
 
-/// Singleton that holds body measurements.
-/// Primary storage: Firestore (cloud sync).
-/// Secondary storage: SharedPreferences (local cache / offline fallback).
+import '../models/progress_models.dart';
+import 'persistent_sync_queue.dart';
+
+/// Body measurements with user-scoped local caching and durable cloud sync.
 class ProgressStore extends ChangeNotifier {
   ProgressStore._() {
-    // Listen to auth state: reload on login, clear on logout
     FirebaseAuth.instance.authStateChanges().listen((user) {
       if (user != null) {
-        _load();
+        _uid = user.uid;
+        _syncQueue = PersistentSyncQueue('measurements_sync_queue_${user.uid}');
+        _load(user.uid);
       } else {
+        _uid = null;
+        _syncQueue = null;
         _measurements.clear();
         notifyListeners();
       }
     });
   }
+
   static final ProgressStore instance = ProgressStore._();
 
-  static const _localKey = 'body_measurements';
+  static const _legacyLocalKey = 'body_measurements';
 
   List<BodyMeasurement> _measurements = [];
+  String? _uid;
+  PersistentSyncQueue? _syncQueue;
+  final Set<String> _syncingUids = {};
 
-  /// Measurements sorted oldest → newest (for charting).
+  static String _localKeyFor(String uid) => 'body_measurements_$uid';
+
   List<BodyMeasurement> get measurements => List.unmodifiable(_measurements);
 
-  /// Newest measurement first (for display lists).
   List<BodyMeasurement> get measurementsDesc =>
       List.unmodifiable(_measurements.reversed.toList());
 
@@ -38,79 +47,142 @@ class ProgressStore extends ChangeNotifier {
       _measurements.isEmpty ? null : _measurements.last;
 
   List<BodyMeasurement> get withPhoto =>
-      _measurements.where((m) => m.photoPath != null).toList();
+      _measurements.where((measurement) => measurement.hasPhoto).toList();
 
-  // ── Load ─────────────────────────────────────────────────────────────────
+  Future<void> _load(String uid) async {
+    await _migrateLegacyCache(uid);
+    await _loadLocal(uid);
+    if (_uid != uid) return;
 
-  Future<void> _load() async {
-    // 1. Show local cache immediately
-    await _loadLocal();
+    final localById = <String, BodyMeasurement>{
+      for (final measurement in _measurements) measurement.id: measurement,
+    };
+    final queue = _syncQueue;
+    final pending = queue == null
+        ? const <PendingMutation>[]
+        : await queue.load();
 
-    // 2. Fetch from Firestore and merge
     try {
-      final snap = await FirebaseService.instance.measurementsRef
-          .orderBy('date', descending: false)
-          .get();
+      final ref = FirebaseFirestore.instance.collection(
+        'users/$uid/measurements',
+      );
+      final snap = await ref.orderBy('date', descending: false).get();
+      if (_uid != uid) return;
 
-      if (snap.docs.isNotEmpty) {
-        _measurements = snap.docs.map((doc) {
-          final data = Map<String, dynamic>.from(doc.data());
-          if (data['date'] is Timestamp) {
-            data['date'] = (data['date'] as Timestamp)
-                .toDate()
-                .toIso8601String();
-          }
-          return BodyMeasurement.fromJson(data);
-        }).toList()..sort((a, b) => a.date.compareTo(b.date));
-
-        await _persistLocal();
+      final merged = <String, BodyMeasurement>{};
+      for (final doc in snap.docs) {
+        final data = Map<String, dynamic>.from(doc.data());
+        if (data['date'] is Timestamp) {
+          data['date'] = (data['date'] as Timestamp).toDate().toIso8601String();
+        }
+        // Device-local paths from old builds are not valid on this device.
+        data.remove('photoPath');
+        var remote = BodyMeasurement.fromJson(data);
+        final localPath = localById[remote.id]?.photoPath;
+        if (localPath != null) remote = remote.copyWith(photoPath: localPath);
+        merged[remote.id] = remote;
       }
+
+      final resolved = mergeAuthoritativeCloudWithPending(
+        cloud: merged,
+        pending: pending,
+        decode: (payload) {
+          var localPending = BodyMeasurement.fromJson(payload);
+          final localPath = localById[localPending.id]?.photoPath;
+          if (localPath != null) {
+            localPending = localPending.copyWith(photoPath: localPath);
+          }
+          return localPending;
+        },
+      );
+
+      _measurements = resolved.values.toList()
+        ..sort((a, b) => a.date.compareTo(b.date));
+      await _persistLocal(uid);
     } catch (e) {
       debugPrint('ProgressStore._load Firestore error: $e');
     }
 
+    if (_uid != uid) return;
     notifyListeners();
+    unawaited(_flushPending(uid));
   }
 
-  Future<void> _loadLocal() async {
+  Future<void> _migrateLegacyCache(String uid) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final raw = prefs.getStringList(_localKey) ?? [];
-      _measurements =
-          raw.map((s) => BodyMeasurement.fromJson(jsonDecode(s))).toList()
+      final legacy = prefs.getStringList(_legacyLocalKey);
+      if (legacy == null) return;
+
+      final scopedKey = _localKeyFor(uid);
+      final scoped = prefs.getStringList(scopedKey) ?? const <String>[];
+      final byId = <String, String>{};
+      for (final raw in [...scoped, ...legacy]) {
+        final json = Map<String, dynamic>.from(jsonDecode(raw) as Map);
+        byId[json['id'] as String] = raw;
+      }
+      await prefs.setStringList(scopedKey, byId.values.toList());
+      await prefs.remove(_legacyLocalKey);
+    } catch (e) {
+      debugPrint('ProgressStore legacy migration error: $e');
+    }
+  }
+
+  Future<void> _loadLocal(String uid) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getStringList(_localKeyFor(uid)) ?? const [];
+      final loaded =
+          raw.map((item) => BodyMeasurement.fromJson(jsonDecode(item))).toList()
             ..sort((a, b) => a.date.compareTo(b.date));
+      if (_uid != uid) return;
+      _measurements = loaded;
       notifyListeners();
     } catch (e) {
       debugPrint('ProgressStore._loadLocal error: $e');
     }
   }
 
-  // ── Add ──────────────────────────────────────────────────────────────────
+  Future<void> add(BodyMeasurement measurement) async {
+    final uid = _uid;
+    final queue = _syncQueue;
+    if (uid == null || queue == null) return;
 
-  Future<void> add(BodyMeasurement m) async {
-    _measurements.add(m);
+    _measurements.removeWhere((item) => item.id == measurement.id);
+    _measurements.add(measurement);
     _measurements.sort((a, b) => a.date.compareTo(b.date));
     notifyListeners();
 
-    await Future.wait([_persistLocal(), _saveToFirestore(m)]);
+    await _persistLocal(uid);
+    await queue.enqueueUpsert(measurement.id, measurement.toCloudJson());
+    unawaited(_flushPending(uid));
   }
-
-  // ── Remove ───────────────────────────────────────────────────────────────
 
   Future<void> remove(String id) async {
-    _measurements.removeWhere((m) => m.id == id);
+    final uid = _uid;
+    final queue = _syncQueue;
+    if (uid == null || queue == null) return;
+
+    final index = _measurements.indexWhere(
+      (measurement) => measurement.id == id,
+    );
+    final removed = index == -1 ? null : _measurements.removeAt(index);
     notifyListeners();
 
-    await Future.wait([_persistLocal(), _deleteFromFirestore(id)]);
+    await _persistLocal(uid);
+    await queue.enqueueDelete(id);
+    if (removed?.photoPath != null) {
+      unawaited(_deleteLocalPhoto(removed!.photoPath!));
+    }
+    unawaited(_flushPending(uid));
   }
 
-  // ── Private helpers ───────────────────────────────────────────────────────
-
-  Future<void> _persistLocal() async {
+  Future<void> _persistLocal(String uid) async {
+    if (_uid != uid) return;
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(
-        _localKey,
+        _localKeyFor(uid),
         _measurements.map((m) => jsonEncode(m.toJson())).toList(),
       );
     } catch (e) {
@@ -118,19 +190,53 @@ class ProgressStore extends ChangeNotifier {
     }
   }
 
-  Future<void> _saveToFirestore(BodyMeasurement m) async {
+  Future<void> _flushPending(String uid) async {
+    if (_syncingUids.contains(uid)) return;
+    final queue = _uid == uid ? _syncQueue : null;
+    if (queue == null) return;
+
+    _syncingUids.add(uid);
+    var madeProgress = false;
     try {
-      await FirebaseService.instance.measurementsRef.doc(m.id).set(m.toJson());
-    } catch (e) {
-      debugPrint('ProgressStore._saveToFirestore error: $e');
+      final ref = FirebaseFirestore.instance.collection(
+        'users/$uid/measurements',
+      );
+      for (final operation in await queue.load()) {
+        try {
+          if (operation.type == PendingMutationType.delete) {
+            await ref
+                .doc(operation.documentId)
+                .delete()
+                .timeout(const Duration(seconds: 8));
+          } else if (operation.payload != null) {
+            await ref
+                .doc(operation.documentId)
+                .set(operation.payload!)
+                .timeout(const Duration(seconds: 8));
+          }
+          await queue.removeIfCurrent(operation);
+          madeProgress = true;
+        } catch (e) {
+          debugPrint('ProgressStore sync pending error: $e');
+          break;
+        }
+      }
+    } finally {
+      _syncingUids.remove(uid);
+    }
+
+    if (madeProgress && _uid == uid && (await queue.load()).isNotEmpty) {
+      unawaited(_flushPending(uid));
     }
   }
 
-  Future<void> _deleteFromFirestore(String id) async {
+  Future<void> _deleteLocalPhoto(String path) async {
     try {
-      await FirebaseService.instance.measurementsRef.doc(id).delete();
-    } catch (e) {
-      debugPrint('ProgressStore._deleteFromFirestore error: $e');
+      final file = File(path);
+      if (await file.exists()) await file.delete();
+    } on FileSystemException {
+      // The measurement is already gone from the app; stale file cleanup can
+      // safely be ignored if the OS removed it first.
     }
   }
 }

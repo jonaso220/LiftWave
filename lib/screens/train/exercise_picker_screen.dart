@@ -4,6 +4,7 @@ import '../../data/custom_exercise_store.dart';
 import '../../data/mock_data.dart';
 import '../../models/models.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/exercise_localization.dart';
 import '../../utils/muscle_colors.dart';
 import '../../widgets/common/muscle_chip.dart';
 
@@ -25,7 +26,12 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
 
   List<Exercise> get _filtered => _allExercises.where((e) {
     final matchQ =
-        _query.isEmpty || e.name.toLowerCase().contains(_query.toLowerCase());
+        _query.isEmpty ||
+        ExerciseLocalization.name(
+          S.of(context),
+          e.name,
+          id: e.id,
+        ).toLowerCase().contains(_query.toLowerCase());
     final matchM = _muscle == 'Todos' || e.muscleGroup == _muscle;
     return matchQ && matchM;
   }).toList();
@@ -172,24 +178,33 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         children: muscleGroups.map((m) {
           final sel = m == _muscle;
-          return GestureDetector(
-            onTap: () => setState(() => _muscle = m),
-            child: Container(
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              decoration: BoxDecoration(
-                color: sel ? AppColors.primary : AppColors.bgCard,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: sel ? AppColors.primary : AppColors.bgCardLight,
+          return Semantics(
+            label: ExerciseLocalization.muscle(S.of(context), m),
+            button: true,
+            selected: sel,
+            excludeSemantics: true,
+            child: GestureDetector(
+              onTap: () => setState(() => _muscle = m),
+              child: Container(
+                margin: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 6,
                 ),
-              ),
-              child: Text(
-                m,
-                style: TextStyle(
-                  color: sel ? Colors.white : AppColors.textSecondary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
+                decoration: BoxDecoration(
+                  color: sel ? AppColors.primary : AppColors.bgCard,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: sel ? AppColors.primary : AppColors.bgCardLight,
+                  ),
+                ),
+                child: Text(
+                  ExerciseLocalization.muscle(S.of(context), m),
+                  style: TextStyle(
+                    color: sel ? Colors.white : AppColors.textSecondary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -350,7 +365,7 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        m,
+                        ExerciseLocalization.muscle(S.of(context), m),
                         style: TextStyle(
                           color: sel ? Colors.white : AppColors.textSecondary,
                           fontSize: 13,
@@ -390,7 +405,7 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        e,
+                        ExerciseLocalization.equipment(S.of(context), e),
                         style: TextStyle(
                           color: sel ? Colors.white : AppColors.textSecondary,
                           fontSize: 13,
@@ -440,6 +455,12 @@ class _ExerciseRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = colorForMuscle(exercise.muscleGroup);
+    final l10n = S.of(context);
+    final displayName = ExerciseLocalization.name(
+      l10n,
+      exercise.name,
+      id: exercise.id,
+    );
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -468,7 +489,7 @@ class _ExerciseRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    exercise.name,
+                    displayName,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -479,7 +500,10 @@ class _ExerciseRow extends StatelessWidget {
                       MuscleChip(label: exercise.muscleGroup),
                       const SizedBox(width: 6),
                       Text(
-                        exercise.equipment,
+                        ExerciseLocalization.equipment(
+                          l10n,
+                          exercise.equipment,
+                        ),
                         style: const TextStyle(
                           color: AppColors.textMuted,
                           fontSize: 11,

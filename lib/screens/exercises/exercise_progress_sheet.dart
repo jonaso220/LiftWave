@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/workout_store.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/exercise_localization.dart';
 
 class ExerciseProgressSheet extends StatefulWidget {
   final String exerciseName;
@@ -21,11 +22,13 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
     for (final w in WorkoutStore.instance.workouts.reversed) {
       for (final e in w.exercises) {
         if (e.name == widget.exerciseName) {
-          final maxWeight = e.sets.fold<double>(
+          final completedSets = e.effectiveCompletedSets.toList();
+          if (completedSets.isEmpty) continue;
+          final maxWeight = completedSets.fold<double>(
             0,
             (m, s) => math.max(m, s.weight),
           );
-          final volume = e.sets.fold<int>(
+          final volume = completedSets.fold<int>(
             0,
             (s, set) => s + (set.reps * set.weight).round(),
           );
@@ -81,7 +84,10 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      widget.exerciseName,
+                      ExerciseLocalization.name(
+                        S.of(context),
+                        widget.exerciseName,
+                      ),
                       style: const TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 18,

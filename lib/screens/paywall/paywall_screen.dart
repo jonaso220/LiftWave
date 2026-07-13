@@ -72,9 +72,11 @@ class _PaywallScreenState extends State<PaywallScreen> {
       }
     }
 
-    // Default to the first package with a visible trial; fall back to last
-    // (usually yearly = best value) if none has a trial.
-    int defaultIndex = packages.length - 1;
+    // Prefer an eligible trial, otherwise the explicitly annual package.
+    int defaultIndex = packages.indexWhere(
+      (package) => package.packageType == PackageType.annual,
+    );
+    if (defaultIndex < 0) defaultIndex = 0;
     for (int i = 0; i < packages.length; i++) {
       if (_hasVisibleTrial(packages[i])) {
         defaultIndex = i;
@@ -99,7 +101,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
   bool _hasVisibleTrial(Package package) {
     final intro = package.storeProduct.introductoryPrice;
     if (intro == null || intro.price != 0) return false;
-    final eligible = _trialEligibility[package.storeProduct.identifier] ?? true;
+    final eligible =
+        _trialEligibility[package.storeProduct.identifier] ?? !Platform.isIOS;
     return eligible;
   }
 
@@ -420,122 +423,122 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   Widget _buildPricingCards() {
     final packages = _packages;
-    final titles = [
-      S.of(context).paywall_weekly,
-      S.of(context).paywall_monthly,
-      S.of(context).paywall_yearly,
-    ];
-    final suffixes = [
-      S.of(context).paywall_perWeek,
-      S.of(context).paywall_perMonth,
-      S.of(context).paywall_perYear,
-    ];
 
     return Row(
       children: List.generate(packages.length, (i) {
         final pkg = packages[i];
         final isSelected = i == _selectedIndex;
-        final isYearly = i == packages.length - 1 && packages.length >= 3;
+        final isYearly = pkg.packageType == PackageType.annual;
         final hasTrial = _hasVisibleTrial(pkg);
-        final title = i < titles.length ? titles[i] : pkg.storeProduct.title;
-        final suffix = i < suffixes.length ? suffixes[i] : '';
+        final title = _packageTitle(pkg);
+        final suffix = _packageSuffix(pkg);
 
         return Expanded(
-          child: GestureDetector(
-            onTap: () => setState(() => _selectedIndex = i),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              margin: EdgeInsets.only(
-                left: i == 0 ? 0 : 4,
-                right: i == packages.length - 1 ? 0 : 4,
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColors.primary.withAlpha(20)
-                    : AppColors.bgCard,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: isSelected ? AppColors.primary : AppColors.bgCardLight,
-                  width: isSelected ? 2 : 1,
+          child: Semantics(
+            label: '$title, ${pkg.storeProduct.priceString}, $suffix',
+            button: true,
+            selected: isSelected,
+            child: GestureDetector(
+              onTap: () => setState(() => _selectedIndex = i),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                margin: EdgeInsets.only(
+                  left: i == 0 ? 0 : 4,
+                  right: i == packages.length - 1 ? 0 : 4,
                 ),
-              ),
-              child: Column(
-                children: [
-                  if (isYearly) ...[
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.accentYellow,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        S.of(context).paywall_bestValue,
-                        style: const TextStyle(
-                          color: AppColors.bgDark,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w800,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 14,
+                  horizontal: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppColors.primary.withAlpha(20)
+                      : AppColors.bgCard,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColors.primary
+                        : AppColors.bgCardLight,
+                    width: isSelected ? 2 : 1,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    if (isYearly) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.accentYellow,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          S.of(context).paywall_bestValue,
+                          style: const TextStyle(
+                            color: AppColors.bgDark,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                  ] else
-                    const SizedBox(height: 19),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      color: isSelected
-                          ? AppColors.textPrimary
-                          : AppColors.textSecondary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    pkg.storeProduct.priceString,
-                    style: TextStyle(
-                      color: isSelected
-                          ? AppColors.textPrimary
-                          : AppColors.textSecondary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                  Text(
-                    suffix,
-                    style: const TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 11,
-                    ),
-                  ),
-                  if (hasTrial) ...[
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 3,
+                      const SizedBox(height: 8),
+                    ] else
+                      const SizedBox(height: 19),
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: isSelected
+                            ? AppColors.textPrimary
+                            : AppColors.textSecondary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
-                      decoration: BoxDecoration(
-                        color: AppColors.accent.withAlpha(30),
-                        borderRadius: BorderRadius.circular(6),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      pkg.storeProduct.priceString,
+                      style: TextStyle(
+                        color: isSelected
+                            ? AppColors.textPrimary
+                            : AppColors.textSecondary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.5,
                       ),
-                      child: Text(
-                        _trialBadgeText(pkg.storeProduct.introductoryPrice!),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: AppColors.accent,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
+                    ),
+                    Text(
+                      suffix,
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 11,
+                      ),
+                    ),
+                    if (hasTrial) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.accent.withAlpha(30),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          _trialBadgeText(pkg.storeProduct.introductoryPrice!),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.accent,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
@@ -543,6 +546,20 @@ class _PaywallScreenState extends State<PaywallScreen> {
       }),
     );
   }
+
+  String _packageTitle(Package package) => switch (package.packageType) {
+    PackageType.weekly => S.of(context).paywall_weekly,
+    PackageType.monthly => S.of(context).paywall_monthly,
+    PackageType.annual => S.of(context).paywall_yearly,
+    _ => package.storeProduct.title,
+  };
+
+  String _packageSuffix(Package package) => switch (package.packageType) {
+    PackageType.weekly => S.of(context).paywall_perWeek,
+    PackageType.monthly => S.of(context).paywall_perMonth,
+    PackageType.annual => S.of(context).paywall_perYear,
+    _ => '',
+  };
 
   // ── Trial banner ────────────────────────────────────────────────────────────
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/exercise_localization.dart';
 import '../../utils/muscle_colors.dart';
 import '../../data/custom_exercise_store.dart';
 import '../../data/mock_data.dart';
@@ -82,7 +83,11 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
     return _allExercises.where((e) {
       final matchSearch =
           _searchQuery.isEmpty ||
-          e.name.toLowerCase().contains(_searchQuery.toLowerCase());
+          ExerciseLocalization.name(
+            S.of(context),
+            e.name,
+            id: e.id,
+          ).toLowerCase().contains(_searchQuery.toLowerCase());
       final matchMuscle =
           _selectedMuscle == 'Todos' || e.muscleGroup == _selectedMuscle;
       final matchEquip =
@@ -123,12 +128,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                   Row(
                     children: [
                       Text(
-                        S
-                            .of(context)
-                            .exercises_exerciseCount(
-                              filtered.length,
-                              filtered.length != 1 ? 's' : '',
-                            ),
+                        S.of(context).exercises_countLabel(filtered.length),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -239,31 +239,37 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
           child: Row(
             children: muscleGroups.map((m) {
               final isSelected = m == _selectedMuscle;
-              return GestureDetector(
-                onTap: () => setState(() => _selectedMuscle = m),
-                child: Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 7,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primary : AppColors.bgCard,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isSelected
-                          ? AppColors.primary
-                          : AppColors.bgCardLight,
+              return Semantics(
+                label: ExerciseLocalization.muscle(S.of(context), m),
+                button: true,
+                selected: isSelected,
+                excludeSemantics: true,
+                child: GestureDetector(
+                  onTap: () => setState(() => _selectedMuscle = m),
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 7,
                     ),
-                  ),
-                  child: Text(
-                    m,
-                    style: TextStyle(
-                      color: isSelected
-                          ? Colors.white
-                          : AppColors.textSecondary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppColors.primary : AppColors.bgCard,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.bgCardLight,
+                      ),
+                    ),
+                    child: Text(
+                      ExerciseLocalization.muscle(S.of(context), m),
+                      style: TextStyle(
+                        color: isSelected
+                            ? Colors.white
+                            : AppColors.textSecondary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -293,33 +299,39 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
           child: Row(
             children: equipmentList.map((eq) {
               final isSelected = eq == _selectedEquipment;
-              return GestureDetector(
-                onTap: () => setState(() => _selectedEquipment = eq),
-                child: Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 7,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppColors.accentOrange
-                        : AppColors.bgCard,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
+              return Semantics(
+                label: ExerciseLocalization.equipment(S.of(context), eq),
+                button: true,
+                selected: isSelected,
+                excludeSemantics: true,
+                child: GestureDetector(
+                  onTap: () => setState(() => _selectedEquipment = eq),
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
                       color: isSelected
                           ? AppColors.accentOrange
-                          : AppColors.bgCardLight,
+                          : AppColors.bgCard,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isSelected
+                            ? AppColors.accentOrange
+                            : AppColors.bgCardLight,
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    eq,
-                    style: TextStyle(
-                      color: isSelected
-                          ? Colors.white
-                          : AppColors.textSecondary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                    child: Text(
+                      ExerciseLocalization.equipment(S.of(context), eq),
+                      style: TextStyle(
+                        color: isSelected
+                            ? Colors.white
+                            : AppColors.textSecondary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -384,141 +396,164 @@ class _ExerciseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final diffColor = _difficultyColor(exercise.difficulty);
+    final l10n = S.of(context);
+    final displayName = ExerciseLocalization.name(
+      l10n,
+      exercise.name,
+      id: exercise.id,
+    );
+    final displayEquipment = ExerciseLocalization.equipment(
+      l10n,
+      exercise.equipment,
+    );
+    final displayDifficulty = ExerciseLocalization.difficulty(
+      l10n,
+      exercise.difficulty,
+    );
 
     final isCustom = onDelete != null;
-    return GestureDetector(
-      onTap: () => _showDetail(context),
-      onLongPress: isCustom ? onDelete : null,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isCustom
-                ? AppColors.primary.withAlpha(60)
-                : AppColors.bgCardLight,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primary.withValues(alpha: 0.2),
-                    AppColors.primaryLight.withValues(alpha: 0.1),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                isCustom ? Icons.edit_rounded : Icons.fitness_center_rounded,
-                color: AppColors.primary,
-                size: 22,
-              ),
+    return Semantics(
+      label: displayName,
+      button: true,
+      excludeSemantics: !isCustom,
+      child: GestureDetector(
+        onTap: () => _showDetail(context),
+        onLongPress: isCustom ? onDelete : null,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.bgCard,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isCustom
+                  ? AppColors.primary.withAlpha(60)
+                  : AppColors.bgCardLight,
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          exercise.name,
-                          style: Theme.of(context).textTheme.titleLarge,
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primary.withValues(alpha: 0.2),
+                      AppColors.primaryLight.withValues(alpha: 0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  isCustom ? Icons.edit_rounded : Icons.fitness_center_rounded,
+                  color: AppColors.primary,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            displayName,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
                         ),
-                      ),
-                      if (isCustom) ...[
+                        if (isCustom) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withAlpha(30),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              S.of(context).common_custom,
+                              style: const TextStyle(
+                                color: AppColors.primary,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        MuscleChip(label: exercise.muscleGroup),
                         const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
+                            horizontal: 8,
+                            vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withAlpha(30),
-                            borderRadius: BorderRadius.circular(4),
+                            color: AppColors.bgCardLight,
+                            borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            S.of(context).common_custom,
+                            displayEquipment,
                             style: const TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 9,
-                              fontWeight: FontWeight.w700,
+                              color: AppColors.textMuted,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
                       ],
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Row(
-                    children: [
-                      MuscleChip(label: exercise.muscleGroup),
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.bgCardLight,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          exercise.equipment,
-                          style: const TextStyle(
-                            color: AppColors.textMuted,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w500,
-                          ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  if (isCustom)
+                    Semantics(
+                      label: S.of(context).common_delete,
+                      button: true,
+                      child: GestureDetector(
+                        onTap: onDelete,
+                        child: const Icon(
+                          Icons.delete_outline_rounded,
+                          color: AppColors.textMuted,
+                          size: 20,
                         ),
                       ),
-                    ],
-                  ),
+                    )
+                  else ...[
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: diffColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      displayDifficulty,
+                      style: TextStyle(
+                        color: diffColor,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ],
               ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (isCustom)
-                  GestureDetector(
-                    onTap: onDelete,
-                    child: const Icon(
-                      Icons.delete_outline_rounded,
-                      color: AppColors.textMuted,
-                      size: 20,
-                    ),
-                  )
-                else ...[
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: diffColor,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    exercise.difficulty,
-                    style: TextStyle(
-                      color: diffColor,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -559,6 +594,30 @@ class _ExerciseDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final muscleColor = colorForMuscle(exercise.muscleGroup);
     final diffColor = _difficultyColor(exercise.difficulty);
+    final l10n = S.of(context);
+    final displayName = ExerciseLocalization.name(
+      l10n,
+      exercise.name,
+      id: exercise.id,
+    );
+    final displayDifficulty = ExerciseLocalization.difficulty(
+      l10n,
+      exercise.difficulty,
+    );
+    final displayEquipment = ExerciseLocalization.equipment(
+      l10n,
+      exercise.equipment,
+    );
+    final description = ExerciseLocalization.description(
+      l10n,
+      exercise.description,
+      id: exercise.id,
+    );
+    final benefits = ExerciseLocalization.benefits(
+      l10n,
+      exercise.benefits,
+      id: exercise.id,
+    );
 
     return DraggableScrollableSheet(
       initialChildSize: 0.6,
@@ -604,7 +663,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          exercise.name,
+                          displayName,
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: 4),
@@ -622,7 +681,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                exercise.difficulty,
+                                displayDifficulty,
                                 style: TextStyle(
                                   color: diffColor,
                                   fontSize: 11,
@@ -657,7 +716,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                     child: _InfoTile(
                       icon: Icons.build_rounded,
                       label: S.of(context).exercises_materialLabel,
-                      value: exercise.equipment,
+                      value: displayEquipment,
                       color: AppColors.accentOrange,
                     ),
                   ),
@@ -669,7 +728,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
               _SectionTitle(title: S.of(context).exercises_executionTitle),
               const SizedBox(height: 10),
               Text(
-                exercise.description,
+                description,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   height: 1.65,
                   color: AppColors.textSecondary,
@@ -696,7 +755,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            m,
+                            ExerciseLocalization.secondaryMuscle(l10n, m),
                             style: const TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 12,
@@ -711,10 +770,10 @@ class _ExerciseDetailSheet extends StatelessWidget {
               ],
 
               // ── Beneficios ──
-              if (exercise.benefits.isNotEmpty) ...[
+              if (benefits.isNotEmpty) ...[
                 _SectionTitle(title: S.of(context).exercises_benefits),
                 const SizedBox(height: 10),
-                ...exercise.benefits.map(
+                ...benefits.map(
                   (b) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Row(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,8 +9,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'data/achievement_store.dart';
 import 'data/custom_exercise_store.dart';
 import 'data/custom_template_store.dart';
-import 'navigation/main_navigation.dart';
 import 'screens/auth/login_screen.dart';
+import 'screens/onboarding/training_onboarding_gate.dart';
 import 'services/firebase_service.dart';
 import 'services/subscription_service.dart';
 import 'services/watch_service.dart';
@@ -20,11 +22,7 @@ void main() async {
 
   // Inicializa Firebase
   await FirebaseService.instance.init();
-  await SubscriptionService.instance.init();
   WatchService.instance.init();
-  await CustomExerciseStore.instance.load();
-  await CustomTemplateStore.instance.load();
-  await AchievementStore.instance.load();
 
   GoogleFonts.config.allowRuntimeFetching = true;
 
@@ -37,6 +35,23 @@ void main() async {
     ),
   );
   runApp(const LiftWaveApp());
+
+  // Network-backed services must never hold the first Flutter frame hostage.
+  // Their listeners notify the UI as soon as cached/cloud state is ready.
+  unawaited(_initializeBackgroundServices());
+}
+
+Future<void> _initializeBackgroundServices() async {
+  try {
+    await Future.wait([
+      SubscriptionService.instance.init(),
+      CustomExerciseStore.instance.load(),
+      CustomTemplateStore.instance.load(),
+      AchievementStore.instance.load(),
+    ]);
+  } catch (error) {
+    debugPrint('Background service initialization failed: $error');
+  }
 }
 
 class LiftWaveApp extends StatelessWidget {
@@ -73,7 +88,7 @@ class LiftWaveApp extends StatelessWidget {
           }
           // Logged in → main app
           if (snapshot.hasData) {
-            return const MainNavigation();
+            return const TrainingOnboardingGate();
           }
           // Not logged in → login
           return const LoginScreen();

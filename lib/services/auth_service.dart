@@ -8,6 +8,8 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
+import 'user_data_deletion_service.dart';
+
 /// Thrown when the user cancels the sign-in flow (not an error).
 class AuthCancelledException implements Exception {}
 
@@ -122,8 +124,22 @@ class AuthService {
     await Future.wait([GoogleSignIn().signOut(), _auth.signOut()]);
   }
 
-  Future<void> deleteAccount() async {
-    await _auth.currentUser?.delete();
+  bool get currentUserUsesPassword =>
+      currentUser?.providerData.any(
+        (provider) => provider.providerId == EmailAuthProvider.PROVIDER_ID,
+      ) ==
+      true;
+
+  Future<void> deleteAccount({String? password}) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    // Reauthenticate before deleting any data, so a stale Firebase session
+    // cannot leave the account half-deleted.
+    await _reauthenticate(user, password: password);
+    await UserDataDeletionService.deleteCloudData(user.uid);
+    await UserDataDeletionService.deleteLocalData(user.uid);
+    await user.delete();
   }
 
   // ── Error message helper ──────────────────────────────────────────────────
@@ -148,6 +164,8 @@ class AuthService {
         return l10n.authError_tooManyRequests;
       case 'network-request-failed':
         return l10n.authError_networkFailed;
+      case 'requires-recent-login':
+        return l10n.profile_deleteReauthError;
       default:
         return l10n.authError_default;
     }
@@ -168,5 +186,73 @@ class AuthService {
   String _sha256of(String input) {
     final bytes = utf8.encode(input);
     return sha256.convert(bytes).toString();
+  }
+
+  Future<void> _reauthenticate(User user, {String? password}) async {
+    final providerIds = user.providerData
+        .map((provider) => provider.providerId)
+        .toSet();
+
+    if (providerIds.contains(EmailAuthProvider.PROVIDER_ID)) {
+      final email = user.email;
+      if (email == null || password == null || password.isEmpty) {
+        throw FirebaseAuthException(
+          code: 'wrong-password',
+          message: 'A password is required to delete this account.',
+        );
+      }
+      await user.reauthenticateWithCredential(
+        EmailAuthProvider.credential(email: email, password: password),
+      );
+      return;
+    }
+
+    if (providerIds.contains(GoogleAuthProvider.PROVIDER_ID)) {
+      final googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) throw AuthCancelledException();
+      final googleAuth = await googleUser.authentication;
+      await user.reauthenticateWithCredential(
+        GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        ),
+      );
+      return;
+    }
+
+    if (providerIds.contains('apple.com')) {
+      try {
+        final rawNonce = _generateNonce();
+        final nonce = _sha256of(rawNonce);
+        final appleCredential = await SignInWithApple.getAppleIDCredential(
+          scopes: [AppleIDAuthorizationScopes.email],
+          nonce: nonce,
+        );
+        final idToken = appleCredential.identityToken;
+        if (idToken == null) {
+          throw FirebaseAuthException(
+            code: 'invalid-credential',
+            message: 'Apple did not return an identity token.',
+          );
+        }
+        await user.reauthenticateWithCredential(
+          OAuthProvider('apple.com').credential(
+            idToken: idToken,
+            accessToken: appleCredential.authorizationCode,
+            rawNonce: rawNonce,
+          ),
+        );
+      } on SignInWithAppleAuthorizationException catch (error) {
+        if (error.code == AuthorizationErrorCode.canceled) {
+          throw AuthCancelledException();
+        }
+        rethrow;
+      }
+      return;
+    }
+
+    // Unknown providers can still delete successfully when the session is
+    // recent; Firebase will return requires-recent-login otherwise.
+    await user.reload();
   }
 }

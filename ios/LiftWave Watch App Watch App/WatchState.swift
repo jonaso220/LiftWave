@@ -20,8 +20,8 @@ class WatchState: ObservableObject {
     // ── Local timer ─────────────────────────────────────────────────────
     private var timer: Timer?
 
-    func startTimer(duration: Int) {
-        timerTotal = duration
+    func startTimer(duration: Int, total: Int? = nil) {
+        timerTotal = total ?? duration
         timerRemaining = duration
         timerRunning = true
         timer?.invalidate()
@@ -29,6 +29,9 @@ class WatchState: ObservableObject {
             guard let self else { return }
             if self.timerRemaining > 0 {
                 self.timerRemaining -= 1
+                if self.timerRemaining == 0 {
+                    self.stopTimer()
+                }
             } else {
                 self.stopTimer()
             }
@@ -59,14 +62,14 @@ class WatchState: ObservableObject {
                 self.elapsedSeconds = elapsed
             }
             if let running = data["timerRunning"] as? Bool {
-                if running && !self.timerRunning {
-                    let remaining = data["timerRemaining"] as? Int ?? 60
-                    let total = data["timerTotal"] as? Int ?? remaining
+                let remaining = data["timerRemaining"] as? Int ?? self.timerRemaining
+                let total = data["timerTotal"] as? Int ?? self.timerTotal
+                if running {
+                    self.startTimer(duration: remaining, total: total)
+                } else {
+                    self.stopTimer()
                     self.timerTotal = total
                     self.timerRemaining = remaining
-                    self.startTimer(duration: remaining)
-                } else if !running && self.timerRunning {
-                    self.stopTimer()
                 }
             }
             if let exerciseList = data["exercises"] as? [[String: Any]] {

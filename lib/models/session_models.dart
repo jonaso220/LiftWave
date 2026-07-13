@@ -43,8 +43,13 @@ class SessionExercise {
     this.notes,
   });
 
-  int get totalVolume =>
-      sets.fold(0, (sum, s) => sum + (s.reps * s.weight).round());
+  /// Training volume for sets the user actually completed.
+  ///
+  /// Planned or partially entered sets must not affect workout summaries,
+  /// history totals, achievements, or progression suggestions.
+  int get totalVolume => sets
+      .where((s) => s.completed)
+      .fold(0, (sum, s) => sum + (s.reps * s.weight).round());
 
   int get completedSets => sets.where((s) => s.completed).length;
 

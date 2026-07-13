@@ -54,6 +54,8 @@ class _ExerciseCard extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback onSetChanged;
   final double? _lastWeight;
+  final ProgressionRecommendation? recommendation;
+  final VoidCallback? onApplyRecommendation;
 
   const _ExerciseCard({
     super.key,
@@ -63,6 +65,8 @@ class _ExerciseCard extends StatelessWidget {
     required this.onToggleDone,
     required this.onDelete,
     required this.onSetChanged,
+    this.recommendation,
+    this.onApplyRecommendation,
     double? lastWeight,
   }) : _lastWeight = lastWeight;
 
@@ -113,7 +117,7 @@ class _ExerciseCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        exercise.name,
+                        ExerciseLocalization.name(l10n, exercise.name),
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
@@ -214,6 +218,11 @@ class _ExerciseCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 0, 14, 6),
             child: _ExerciseNotesField(exercise: exercise),
           ),
+          if (done == 0 && recommendation != null)
+            _ProgressionSuggestion(
+              recommendation: recommendation!,
+              onApply: onApplyRecommendation,
+            ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
             child: Row(
@@ -272,6 +281,109 @@ class _ExerciseCard extends StatelessWidget {
   }
 }
 
+class _ProgressionSuggestion extends StatelessWidget {
+  final ProgressionRecommendation recommendation;
+  final VoidCallback? onApply;
+
+  const _ProgressionSuggestion({
+    required this.recommendation,
+    required this.onApply,
+  });
+
+  String _formatWeight(double value) => value == value.roundToDouble()
+      ? value.toStringAsFixed(0)
+      : value.toStringAsFixed(1);
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    final reason = switch (recommendation.action) {
+      ProgressionAction.increaseLoad => l10n.train_increaseLoad,
+      ProgressionAction.addRepetition ||
+      ProgressionAction.bodyweightRepetition => l10n.train_addRepetition,
+      ProgressionAction.consolidateLoad => l10n.train_consolidateLoad,
+    };
+    final target = recommendation.suggestedWeight > 0
+        ? '${_formatWeight(recommendation.suggestedWeight)} kg × '
+              '${recommendation.suggestedReps}'
+        : '${recommendation.suggestedReps} ${l10n.common_reps.toLowerCase()}';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 2, 14, 10),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withAlpha(20),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.primary.withAlpha(64)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withAlpha(38),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: const Icon(
+                Icons.trending_up_rounded,
+                color: AppColors.primaryLight,
+                size: 19,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.train_nextSuggestion,
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    target,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  Text(
+                    reason,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            TextButton(
+              onPressed: onApply,
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primaryLight,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                minimumSize: const Size(0, 36),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: Text(
+                l10n.train_applySuggestion,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ── Set row ───────────────────────────────────────────────────────────────────
 
 class _SetRow extends StatefulWidget {
@@ -307,6 +419,14 @@ class _SetRowState extends State<_SetRow> {
     _weightCtrl = TextEditingController(
       text: widget.set.weight > 0 ? _fmt(widget.set.weight) : '',
     );
+  }
+
+  @override
+  void didUpdateWidget(covariant _SetRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (identical(oldWidget.set, widget.set)) return;
+    _repsCtrl.text = widget.set.reps > 0 ? '${widget.set.reps}' : '';
+    _weightCtrl.text = widget.set.weight > 0 ? _fmt(widget.set.weight) : '';
   }
 
   @override
@@ -375,7 +495,8 @@ class _SetRowState extends State<_SetRow> {
                     done: done,
                     onChanged: (v) {
                       widget.set.weight =
-                          double.tryParse(v) ?? widget.set.weight;
+                          double.tryParse(v.replaceAll(',', '.')) ??
+                          widget.set.weight;
                       widget.onChanged();
                     },
                   ),
@@ -460,7 +581,7 @@ class _NumField extends StatelessWidget {
             : const TextInputType.numberWithOptions(decimal: true),
         inputFormatters: isInteger
             ? [FilteringTextInputFormatter.digitsOnly]
-            : [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))],
+            : [FilteringTextInputFormatter.allow(RegExp(r'^\d*[\.,]?\d*'))],
         style: TextStyle(
           color: done ? AppColors.accent : AppColors.textPrimary,
           fontSize: 15,

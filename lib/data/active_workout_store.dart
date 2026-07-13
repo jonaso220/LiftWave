@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,7 +19,12 @@ class ActiveWorkoutStore {
   ActiveWorkoutStore._();
   static final ActiveWorkoutStore instance = ActiveWorkoutStore._();
 
-  static const _key = 'active_workout_state';
+  static const _legacyKey = 'active_workout_state';
+
+  String get _key {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    return uid == null ? _legacyKey : '${_legacyKey}_$uid';
+  }
 
   Future<void> save({
     required bool workoutStarted,
@@ -46,7 +52,14 @@ class ActiveWorkoutStore {
 
   Future<ActiveWorkoutSnapshot?> load() async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_key);
+    var raw = prefs.getString(_key);
+    if (raw == null && _key != _legacyKey) {
+      raw = prefs.getString(_legacyKey);
+      if (raw != null) {
+        await prefs.setString(_key, raw);
+        await prefs.remove(_legacyKey);
+      }
+    }
     if (raw == null) return null;
     try {
       final map = jsonDecode(raw) as Map<String, dynamic>;

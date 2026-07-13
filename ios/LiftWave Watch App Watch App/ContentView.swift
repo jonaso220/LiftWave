@@ -205,6 +205,9 @@ struct RestTimerView: View {
                     crownValue = Double(state.timerTotal)
                     showCompletedAnimation = false
                     WKInterfaceDevice.current().play(.click)
+                    WatchConnectivityService.shared.sendToPhone([
+                        "type": "resetTimer"
+                    ])
                 } label: {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 14, weight: .semibold))
@@ -236,6 +239,10 @@ struct RestTimerView: View {
                         let newDuration = min(state.timerTotal + 30, 600)
                         state.resetTimer(duration: newDuration)
                         crownValue = Double(newDuration)
+                        WatchConnectivityService.shared.sendToPhone([
+                            "type": "setTimer",
+                            "timerDuration": newDuration
+                        ])
                     }
                     WKInterfaceDevice.current().play(.click)
                 } label: {
@@ -258,6 +265,10 @@ struct RestTimerView: View {
                             crownValue = Double(seconds)
                             showCompletedAnimation = false
                             WKInterfaceDevice.current().play(.click)
+                            WatchConnectivityService.shared.sendToPhone([
+                                "type": "setTimer",
+                                "timerDuration": seconds
+                            ])
                         } label: {
                             Text(presetLabel(seconds))
                                 .font(.system(size: 11, weight: .bold, design: .rounded))

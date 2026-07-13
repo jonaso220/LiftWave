@@ -4,6 +4,7 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/workout_store.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/muscle_colors.dart';
+import '../../utils/exercise_localization.dart';
 import '../../models/models.dart';
 import 'workout_edit_screen.dart';
 
@@ -140,7 +141,10 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          workout.name,
+                          ExerciseLocalization.workoutName(
+                            S.of(context),
+                            workout.name,
+                          ),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 22,
@@ -178,15 +182,20 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 12),
-                  ...workout.exercises.asMap().entries.map(
-                    (entry) => _ExerciseDetailCard(exercise: entry.value)
-                        .animate()
-                        .fadeIn(
-                          delay: Duration(milliseconds: 80 * entry.key),
-                          duration: 300.ms,
-                        )
-                        .slideY(begin: 0.05, end: 0),
-                  ),
+                  ...workout.exercises
+                      .where((exercise) => exercise.completedSetCount > 0)
+                      .toList()
+                      .asMap()
+                      .entries
+                      .map(
+                        (entry) => _ExerciseDetailCard(exercise: entry.value)
+                            .animate()
+                            .fadeIn(
+                              delay: Duration(milliseconds: 80 * entry.key),
+                              duration: 300.ms,
+                            )
+                            .slideY(begin: 0.05, end: 0),
+                      ),
                   const SizedBox(height: 32),
                 ],
               ),
@@ -212,7 +221,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         Expanded(
           child: _DetailStatCard(
             icon: Icons.fitness_center_rounded,
-            value: '${workout.exercises.length}',
+            value: '${workout.completedExerciseCount}',
             label: S.of(context).common_exercises,
             color: AppColors.primary,
           ),
@@ -316,7 +325,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        exercise.name,
+                        ExerciseLocalization.name(S.of(context), exercise.name),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 3),
@@ -342,7 +351,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  S.of(context).history_setsCount(exercise.sets.length),
+                  S.of(context).history_setsCount(exercise.completedSetCount),
                   style: const TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 12,
@@ -431,7 +440,7 @@ class _ExerciseDetailCard extends StatelessWidget {
               ],
             ),
           ),
-          ...exercise.sets.map(
+          ...exercise.effectiveCompletedSets.map(
             (set) => Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(

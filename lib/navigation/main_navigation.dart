@@ -70,49 +70,56 @@ class _MainNavigationState extends State<MainNavigation> {
               final item = entry.value;
               final isSelected = index == _currentIndex;
 
-              return GestureDetector(
-                onTap: () => _navigateTo(index),
-                behavior: HitTestBehavior.opaque,
-                child: SizedBox(
-                  width: 72 * scale,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 14 * scale,
-                          vertical: 6 * scale,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppColors.primary.withAlpha(38)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(12 * scale),
-                        ),
-                        child: Icon(
-                          item.icon,
-                          color: isSelected
-                              ? AppColors.primary
-                              : AppColors.textMuted,
-                          size: (isSelected ? 22 : 20) * scale,
-                        ),
+              return Semantics(
+                label: item.label,
+                button: true,
+                selected: isSelected,
+                child: ExcludeSemantics(
+                  child: GestureDetector(
+                    onTap: () => _navigateTo(index),
+                    behavior: HitTestBehavior.opaque,
+                    child: SizedBox(
+                      width: 72 * scale,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 14 * scale,
+                              vertical: 6 * scale,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.primary.withAlpha(38)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(12 * scale),
+                            ),
+                            child: Icon(
+                              item.icon,
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.textMuted,
+                              size: (isSelected ? 22 : 20) * scale,
+                            ),
+                          ),
+                          SizedBox(height: 2 * scale),
+                          AnimatedDefaultTextStyle(
+                            duration: const Duration(milliseconds: 200),
+                            style: TextStyle(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.textMuted,
+                              fontSize: 10,
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                            ),
+                            child: Text(item.label),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 2 * scale),
-                      AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 200),
-                        style: TextStyle(
-                          color: isSelected
-                              ? AppColors.primary
-                              : AppColors.textMuted,
-                          fontSize: 10,
-                          fontWeight: isSelected
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                        ),
-                        child: Text(item.label),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               );

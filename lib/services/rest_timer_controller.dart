@@ -26,6 +26,8 @@ class RestTimerController extends ChangeNotifier {
   bool _isVisible = false;
   bool _isCustom = false;
   Timer? _ticker;
+  DateTime? _deadline;
+  DateTime Function() _now = DateTime.now;
 
   int get total => _total;
   int get remaining => _remaining;
@@ -45,6 +47,7 @@ class RestTimerController extends ChangeNotifier {
     _ticker?.cancel();
     _total = s;
     _remaining = s;
+    _deadline = _now().add(Duration(seconds: s));
     _isRunning = true;
     _isVisible = true;
     HapticFeedback.lightImpact();
@@ -57,15 +60,31 @@ class RestTimerController extends ChangeNotifier {
   void toggle() {
     HapticFeedback.lightImpact();
     if (_isRunning) {
+      _updateRemainingFromClock();
       _ticker?.cancel();
       _isRunning = false;
+      _deadline = null;
     } else {
       if (_remaining == 0) _remaining = _total;
       _isRunning = true;
+      _deadline = _now().add(Duration(seconds: _remaining));
       _runTicker();
     }
     _syncWatch();
     notifyListeners();
+  }
+
+  void pause() {
+    if (!_isRunning) return;
+    toggle();
+  }
+
+  void resume({int? seconds}) {
+    if (seconds != null && seconds > 0) {
+      startWithDefault(seconds: seconds);
+    } else if (!_isRunning) {
+      toggle();
+    }
   }
 
   void reset() {
@@ -73,6 +92,7 @@ class RestTimerController extends ChangeNotifier {
     _ticker?.cancel();
     _remaining = _total;
     _isRunning = false;
+    _deadline = null;
     _syncWatch();
     notifyListeners();
   }
@@ -83,6 +103,7 @@ class RestTimerController extends ChangeNotifier {
     _remaining = seconds;
     _preferredSeconds = seconds;
     _isRunning = false;
+    _deadline = null;
     _isCustom = false;
     _syncWatch();
     notifyListeners();
@@ -95,6 +116,7 @@ class RestTimerController extends ChangeNotifier {
     _remaining = seconds;
     _preferredSeconds = seconds;
     _isRunning = false;
+    _deadline = null;
     _isCustom = true;
     _syncWatch();
     notifyListeners();
@@ -102,8 +124,16 @@ class RestTimerController extends ChangeNotifier {
 
   void addTime(int seconds) {
     HapticFeedback.selectionClick();
+    if (_isRunning) _updateRemainingFromClock();
     _remaining = (_remaining + seconds).clamp(0, 3600);
     if (_remaining > _total) _total = _remaining;
+    if (_isRunning) {
+      if (_remaining == 0) {
+        _finish();
+        return;
+      }
+      _deadline = _now().add(Duration(seconds: _remaining));
+    }
     _syncWatch();
     notifyListeners();
   }
@@ -114,25 +144,47 @@ class RestTimerController extends ChangeNotifier {
     _remaining = _total;
     _isRunning = false;
     _isVisible = false;
+    _deadline = null;
     _syncWatch();
     notifyListeners();
   }
 
   void _runTicker() {
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      final previous = _remaining;
+      _updateRemainingFromClock();
       if (_remaining <= 0) {
-        _ticker?.cancel();
-        _isRunning = false;
-        HapticFeedback.heavyImpact();
-        _syncWatch();
-        notifyListeners();
-      } else {
-        _remaining--;
-        if (_remaining == 3) HapticFeedback.selectionClick();
-        _syncWatch();
-        notifyListeners();
+        _finish();
+        return;
       }
+      if (previous > 3 && _remaining <= 3) {
+        HapticFeedback.selectionClick();
+      }
+      _syncWatch();
+      notifyListeners();
     });
+  }
+
+  void _updateRemainingFromClock() {
+    final deadline = _deadline;
+    if (deadline == null) return;
+    final milliseconds = deadline.difference(_now()).inMilliseconds;
+    _remaining = milliseconds <= 0 ? 0 : (milliseconds / 1000).ceil();
+  }
+
+  void _finish() {
+    _ticker?.cancel();
+    _remaining = 0;
+    _isRunning = false;
+    _deadline = null;
+    HapticFeedback.heavyImpact();
+    _syncWatch();
+    notifyListeners();
+  }
+
+  @visibleForTesting
+  void setClockForTesting(DateTime Function()? clock) {
+    _now = clock ?? DateTime.now;
   }
 
   void _syncWatch() {

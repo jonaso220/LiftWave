@@ -1,134 +1,160 @@
+import 'dart:async';
 import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/models.dart';
-import '../services/firebase_service.dart';
 
-/// User-created exercises.
-/// Primary storage: Firestore (cloud sync, survives device changes).
-/// Secondary storage: SharedPreferences (local cache / offline fallback).
+import '../models/models.dart';
+import 'persistent_sync_queue.dart';
+
+/// User-created exercises with per-user caching and retryable cloud mutations.
 class CustomExerciseStore extends ChangeNotifier {
   CustomExerciseStore._() {
     FirebaseAuth.instance.authStateChanges().listen((user) {
       if (user != null) {
         _uid = user.uid;
-        _syncWithCloud();
+        _syncQueue = PersistentSyncQueue(
+          'custom_exercises_sync_queue_${user.uid}',
+        );
+        _syncWithCloud(user.uid);
       } else {
         _uid = null;
+        _syncQueue = null;
         _exercises.clear();
         notifyListeners();
       }
     });
   }
+
   static final instance = CustomExerciseStore._();
 
-  /// Pre-cloud builds stored exercises under a single device-global key.
-  /// We migrate those into the signed-in user's space on first sync.
   static const _legacyKey = 'custom_exercises';
 
   final List<Exercise> _exercises = [];
   String? _uid;
   bool _loaded = false;
+  PersistentSyncQueue? _syncQueue;
+  final Set<String> _syncingUids = {};
 
-  String get _localKey => _uid == null ? _legacyKey : 'custom_exercises_$_uid';
+  static String _localKeyFor(String uid) => 'custom_exercises_$uid';
 
   List<Exercise> get exercises => List.unmodifiable(_exercises);
 
-  /// Loads the local cache immediately at startup (before auth resolves).
   Future<void> load() async {
     if (_loaded) return;
     _loaded = true;
-    await _loadLocal();
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    await _loadLocal(uid);
   }
 
-  Future<void> _loadLocal() async {
+  Future<void> _loadLocal(String? uid) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final raw = prefs.getString(_localKey);
-      _exercises.clear();
+      final raw = prefs.getString(uid == null ? _legacyKey : _localKeyFor(uid));
+      final loaded = <Exercise>[];
       if (raw != null) {
         final list = jsonDecode(raw) as List;
-        for (final j in list) {
-          _exercises.add(_fromJson(j as Map<String, dynamic>));
-        }
+        loaded.addAll(
+          list.map((item) => _fromJson(Map<String, dynamic>.from(item as Map))),
+        );
       }
+      if (_uid != uid && uid != null) return;
+      _exercises
+        ..clear()
+        ..addAll(loaded);
       notifyListeners();
     } catch (e) {
       debugPrint('CustomExerciseStore._loadLocal error: $e');
     }
   }
 
-  Future<void> _syncWithCloud() async {
-    // 1. Show this user's local cache immediately.
-    await _loadLocal();
+  Future<void> _syncWithCloud(String uid) async {
+    await _loadLocal(uid);
+    await _migrateLegacy(uid);
+    if (_uid != uid) return;
 
-    // 2. Pull legacy device-global exercises into this user's space.
-    await _migrateLegacy();
+    final queue = _syncQueue;
+    final pending = queue == null
+        ? const <PendingMutation>[]
+        : await queue.load();
 
-    // 3. Merge with Firestore.
     try {
-      final snap = await FirebaseService.instance.customExercisesRef.get();
-      final cloud = snap.docs.map((d) => _fromJson(d.data())).toList();
-      final cloudIds = cloud.map((e) => e.id).toSet();
+      final ref = FirebaseFirestore.instance.collection(
+        'users/$uid/customExercises',
+      );
+      final snap = await ref.get();
+      if (_uid != uid) return;
 
-      // Local items not yet in the cloud (first-time sync / offline adds).
-      final localOnly = _exercises
-          .where((e) => !cloudIds.contains(e.id))
-          .toList();
+      final merged = <String, Exercise>{
+        for (final doc in snap.docs) doc.id: _fromJson(doc.data()),
+      };
+      final resolved = mergeAuthoritativeCloudWithPending(
+        cloud: merged,
+        pending: pending,
+        decode: _fromJson,
+      );
 
-      final byId = <String, Exercise>{for (final e in _exercises) e.id: e};
-      for (final e in cloud) {
-        byId[e.id] = e;
-      }
       _exercises
         ..clear()
-        ..addAll(byId.values);
-
-      await Future.wait([_persistLocal(), ...localOnly.map(_saveToFirestore)]);
+        ..addAll(resolved.values);
+      await _persistLocal(uid);
       notifyListeners();
     } catch (e) {
       debugPrint('CustomExerciseStore._syncWithCloud error: $e');
     }
+    unawaited(_flushPending(uid));
   }
 
-  Future<void> _migrateLegacy() async {
-    if (_uid == null) return;
+  Future<void> _migrateLegacy(String uid) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final legacy = prefs.getString(_legacyKey);
       if (legacy == null) return;
       final list = jsonDecode(legacy) as List;
-      for (final j in list) {
-        final e = _fromJson(j as Map<String, dynamic>);
-        if (!_exercises.any((x) => x.id == e.id)) _exercises.add(e);
+      for (final item in list) {
+        final exercise = _fromJson(Map<String, dynamic>.from(item as Map));
+        if (!_exercises.any((current) => current.id == exercise.id)) {
+          _exercises.add(exercise);
+        }
       }
       await prefs.remove(_legacyKey);
-      await _persistLocal();
+      await _persistLocal(uid);
     } catch (e) {
       debugPrint('CustomExerciseStore._migrateLegacy error: $e');
     }
   }
 
   Future<void> add(Exercise exercise) async {
+    final uid = _uid;
+    final queue = _syncQueue;
+    if (uid == null || queue == null) return;
+    _exercises.removeWhere((item) => item.id == exercise.id);
     _exercises.add(exercise);
     notifyListeners();
-    await Future.wait([_persistLocal(), _saveToFirestore(exercise)]);
+    await _persistLocal(uid);
+    await queue.enqueueUpsert(exercise.id, _toJson(exercise));
+    unawaited(_flushPending(uid));
   }
 
   Future<void> remove(String id) async {
-    _exercises.removeWhere((e) => e.id == id);
+    final uid = _uid;
+    final queue = _syncQueue;
+    if (uid == null || queue == null) return;
+    _exercises.removeWhere((exercise) => exercise.id == id);
     notifyListeners();
-    await Future.wait([_persistLocal(), _deleteFromFirestore(id)]);
+    await _persistLocal(uid);
+    await queue.enqueueDelete(id);
+    unawaited(_flushPending(uid));
   }
 
-  // ── Persistence helpers ─────────────────────────────────────────────────
-
-  Future<void> _persistLocal() async {
+  Future<void> _persistLocal(String uid) async {
+    if (_uid != uid) return;
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(
-        _localKey,
+        _localKeyFor(uid),
         jsonEncode(_exercises.map(_toJson).toList()),
       );
     } catch (e) {
@@ -136,41 +162,59 @@ class CustomExerciseStore extends ChangeNotifier {
     }
   }
 
-  Future<void> _saveToFirestore(Exercise e) async {
-    if (_uid == null) return;
+  Future<void> _flushPending(String uid) async {
+    if (_syncingUids.contains(uid)) return;
+    final queue = _uid == uid ? _syncQueue : null;
+    if (queue == null) return;
+    _syncingUids.add(uid);
+    var madeProgress = false;
     try {
-      await FirebaseService.instance.customExercisesRef
-          .doc(e.id)
-          .set(_toJson(e));
-    } catch (err) {
-      debugPrint('CustomExerciseStore._saveToFirestore error: $err');
+      final ref = FirebaseFirestore.instance.collection(
+        'users/$uid/customExercises',
+      );
+      for (final operation in await queue.load()) {
+        try {
+          if (operation.type == PendingMutationType.delete) {
+            await ref
+                .doc(operation.documentId)
+                .delete()
+                .timeout(const Duration(seconds: 8));
+          } else if (operation.payload != null) {
+            await ref
+                .doc(operation.documentId)
+                .set(operation.payload!)
+                .timeout(const Duration(seconds: 8));
+          }
+          await queue.removeIfCurrent(operation);
+          madeProgress = true;
+        } catch (e) {
+          debugPrint('CustomExerciseStore sync pending error: $e');
+          break;
+        }
+      }
+    } finally {
+      _syncingUids.remove(uid);
+    }
+    if (madeProgress && _uid == uid && (await queue.load()).isNotEmpty) {
+      unawaited(_flushPending(uid));
     }
   }
 
-  Future<void> _deleteFromFirestore(String id) async {
-    if (_uid == null) return;
-    try {
-      await FirebaseService.instance.customExercisesRef.doc(id).delete();
-    } catch (e) {
-      debugPrint('CustomExerciseStore._deleteFromFirestore error: $e');
-    }
-  }
-
-  static Map<String, dynamic> _toJson(Exercise e) => {
-    'id': e.id,
-    'name': e.name,
-    'muscleGroup': e.muscleGroup,
-    'equipment': e.equipment,
-    'difficulty': e.difficulty,
-    'description': e.description,
+  static Map<String, dynamic> _toJson(Exercise exercise) => {
+    'id': exercise.id,
+    'name': exercise.name,
+    'muscleGroup': exercise.muscleGroup,
+    'equipment': exercise.equipment,
+    'difficulty': exercise.difficulty,
+    'description': exercise.description,
   };
 
-  static Exercise _fromJson(Map<String, dynamic> j) => Exercise(
-    id: j['id'] as String,
-    name: j['name'] as String,
-    muscleGroup: j['muscleGroup'] as String,
-    equipment: j['equipment'] as String,
-    difficulty: j['difficulty'] as String? ?? 'Intermedio',
-    description: j['description'] as String? ?? '',
+  static Exercise _fromJson(Map<String, dynamic> json) => Exercise(
+    id: json['id'] as String,
+    name: json['name'] as String,
+    muscleGroup: json['muscleGroup'] as String,
+    equipment: json['equipment'] as String,
+    difficulty: json['difficulty'] as String? ?? 'Intermedio',
+    description: json['description'] as String? ?? '',
   );
 }

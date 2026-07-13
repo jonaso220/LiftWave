@@ -1,9 +1,692 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
-import 'package:liftwave/main.dart';
+import 'package:flutter/material.dart';
+import 'package:liftwave/data/persistent_sync_queue.dart';
+import 'package:liftwave/data/workout_templates.dart';
+import 'package:liftwave/l10n/generated/app_localizations.dart';
+import 'package:liftwave/l10n/generated/app_localizations_en.dart';
+import 'package:liftwave/models/models.dart';
+import 'package:liftwave/models/progress_models.dart';
+import 'package:liftwave/models/session_models.dart';
+import 'package:liftwave/models/training_preferences.dart';
+import 'package:liftwave/services/progression_service.dart';
+import 'package:liftwave/services/rest_timer_controller.dart';
+import 'package:liftwave/services/user_data_deletion_service.dart';
+import 'package:liftwave/services/weekly_plan_service.dart';
+import 'package:liftwave/screens/onboarding/training_preferences_screen.dart';
+import 'package:liftwave/theme/app_theme.dart';
+import 'package:liftwave/utils/csv_exporter.dart';
+import 'package:liftwave/utils/exercise_localization.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('LiftWave app smoke test', (WidgetTester tester) async {
-    await tester.pumpWidget(const LiftWaveApp());
-    expect(find.text('LiftWave'), findsWidgets);
+  test('session volume counts only completed sets', () {
+    final exercise = SessionExercise(
+      id: 'bench',
+      name: 'Bench press',
+      muscleGroup: 'Chest',
+      equipment: 'Barbell',
+      sets: [
+        SessionSet(reps: 10, weight: 50, completed: true),
+        SessionSet(reps: 8, weight: 60, completed: false),
+        SessionSet(reps: 6, weight: 70, completed: true),
+      ],
+    );
+
+    expect(exercise.totalVolume, 920);
+    expect(exercise.completedSets, 2);
+  });
+
+  test('history metrics and CSV ignore unfinished sets', () {
+    final workout = Workout(
+      id: 'completed-only',
+      name: 'Session',
+      date: DateTime(2026, 7, 13),
+      duration: const Duration(minutes: 30),
+      exercises: const [
+        WorkoutExercise(
+          id: 'bench',
+          name: 'Press de banca',
+          muscleGroup: 'Pecho',
+          sets: [
+            WorkoutSet(setNumber: 1, reps: 10, weight: 50, completed: true),
+            WorkoutSet(setNumber: 2, reps: 8, weight: 80, completed: false),
+          ],
+        ),
+      ],
+      totalVolume: 500,
+    );
+
+    expect(workout.totalSets, 1);
+    expect(workout.completedExerciseCount, 1);
+    final csv = CsvExporter.buildCsv([workout], 'header');
+    expect(csv, contains(',1,10,50.0,500'));
+    expect(csv, isNot(contains(',2,8,80.0,640')));
+  });
+
+  test('legacy workouts still treat their stored sets as completed', () {
+    final workout = Workout.fromJson({
+      'id': 'legacy',
+      'name': 'Legacy',
+      'date': '2026-07-13T10:00:00.000',
+      'durationSeconds': 1200,
+      'totalVolume': 1000,
+      'exercises': [
+        {
+          'id': 'legacy-exercise',
+          'name': 'Press de banca',
+          'muscleGroup': 'Pecho',
+          'sets': [
+            {'setNumber': 1, 'reps': 10, 'weight': 100},
+          ],
+        },
+      ],
+    });
+
+    expect(workout.totalSets, 1);
+    expect(workout.totalVolume, 1000);
+  });
+
+  test('exercise content uses localized display values', () {
+    final l10n = SEn();
+    expect(ExerciseLocalization.name(l10n, 'Press de banca'), 'Bench Press');
+    expect(
+      ExerciseLocalization.name(l10n, 'Sentadilla búlgara'),
+      'Bulgarian Split Squat',
+    );
+    expect(ExerciseLocalization.muscle(l10n, 'Piernas'), 'Legs');
+    expect(ExerciseLocalization.equipment(l10n, 'Cajón'), 'Plyo Box');
+    expect(
+      ExerciseLocalization.description(
+        l10n,
+        'Descripción escrita por el usuario',
+        id: 'custom-user-exercise',
+      ),
+      'Descripción escrita por el usuario',
+    );
+  });
+
+  test('built-in routines never prescribe an unverified starting weight', () {
+    final weights = workoutTemplates
+        .expand((template) => template.exercises)
+        .map((exercise) => exercise.weight);
+    expect(weights, everyElement(0));
+  });
+
+  testWidgets('rest timer finishes on the zero tick', (tester) async {
+    final timer = RestTimerController.instance;
+    var now = DateTime(2026, 7, 13, 12);
+    timer.setClockForTesting(() => now);
+    timer.dismiss();
+    timer.startWithDefault(seconds: 1);
+    now = now.add(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(timer.remaining, 0);
+    expect(timer.isRunning, isFalse);
+    expect(timer.hasFinished, isTrue);
+    timer.dismiss();
+    timer.setClockForTesting(null);
+  });
+
+  test('account cleanup removes user caches and referenced photos', () async {
+    SharedPreferences.setMockInitialValues({});
+    final directory = await Directory.systemTemp.createTemp('liftwave-delete');
+    final photo = File('${directory.path}/progress.jpg');
+    await photo.writeAsString('private');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('body_measurements_user-1', [
+      jsonEncode({'id': 'm1', 'photoPath': photo.path}),
+    ]);
+    await prefs.setString('workouts_cache_user-1', '[]');
+    await prefs.setString('workouts_sync_queue_user-1', '[]');
+
+    await UserDataDeletionService.deleteLocalData('user-1');
+
+    expect(await photo.exists(), isFalse);
+    expect(prefs.containsKey('body_measurements_user-1'), isFalse);
+    expect(prefs.containsKey('workouts_cache_user-1'), isFalse);
+    expect(prefs.containsKey('workouts_sync_queue_user-1'), isFalse);
+    await directory.delete(recursive: true);
+  });
+
+  test('authoritative cloud merge does not resurrect cache-only records', () {
+    final resolved = mergeAuthoritativeCloudWithPending<String>(
+      cloud: const {'cloud': 'remote value'},
+      pending: const [],
+      decode: (payload) => payload['value'] as String,
+    );
+
+    expect(resolved, {'cloud': 'remote value'});
+    expect(resolved.containsKey('stale-local-record'), isFalse);
+  });
+
+  test('saved workout volume can be recalculated from completed sets', () {
+    final workout = Workout(
+      id: 'workout-1',
+      name: 'Push',
+      date: DateTime(2026, 7, 13),
+      duration: const Duration(minutes: 45),
+      exercises: const [
+        WorkoutExercise(
+          id: 'bench',
+          name: 'Bench press',
+          muscleGroup: 'Chest',
+          sets: [
+            WorkoutSet(setNumber: 1, reps: 10, weight: 50, completed: true),
+            WorkoutSet(setNumber: 2, reps: 8, weight: 60, completed: false),
+          ],
+        ),
+      ],
+      totalVolume: 500,
+    );
+
+    expect(workout.calculatedVolume, 500);
+  });
+
+  test('incorrect stored volume is repaired when completion data exists', () {
+    final workout = Workout.fromJson({
+      'id': 'workout-2',
+      'name': 'Pull',
+      'date': '2026-07-13T12:00:00.000',
+      'durationSeconds': 1800,
+      'totalVolume': 9999,
+      'exercises': [
+        {
+          'id': 'row',
+          'name': 'Row',
+          'muscleGroup': 'Back',
+          'sets': [
+            {'setNumber': 1, 'reps': 10, 'weight': 40, 'completed': true},
+            {'setNumber': 2, 'reps': 10, 'weight': 50, 'completed': false},
+          ],
+        },
+      ],
+    });
+
+    expect(workout.totalVolume, 400);
+  });
+
+  test('legacy workout volume is retained without completion flags', () {
+    final workout = Workout.fromJson({
+      'id': 'legacy-workout',
+      'name': 'Legacy',
+      'date': '2025-01-01T12:00:00.000',
+      'durationSeconds': 1800,
+      'totalVolume': 1200,
+      'exercises': [
+        {
+          'id': 'squat',
+          'name': 'Squat',
+          'muscleGroup': 'Legs',
+          'sets': [
+            {'setNumber': 1, 'reps': 10, 'weight': 60},
+          ],
+        },
+      ],
+    });
+
+    expect(workout.totalVolume, 1200);
+    expect(workout.exercises.single.sets.single.completionRecorded, isFalse);
+  });
+
+  test('progress photos stay local and local paths are not sent to cloud', () {
+    final legacy = BodyMeasurement.fromJson({
+      'id': 'measurement-1',
+      'date': '2026-07-13T12:00:00.000',
+      'weight': 80,
+      'photoPath': '/local/photo.jpg',
+    });
+
+    expect(legacy.hasPhoto, isTrue);
+    expect(legacy.toCloudJson().containsKey('photoPath'), isFalse);
+  });
+
+  test(
+    'sync queue keeps the latest mutation and protects newer writes',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final queue = PersistentSyncQueue('test_sync_queue');
+
+      await queue.enqueueUpsert('workout-1', {'value': 1});
+      final stale = (await queue.load()).single;
+      await queue.enqueueUpsert('workout-1', {'value': 2});
+      await queue.removeIfCurrent(stale);
+
+      var current = (await queue.load()).single;
+      expect(current.payload?['value'], 2);
+
+      await queue.enqueueDelete('workout-1');
+      current = (await queue.load()).single;
+      expect(current.type, PendingMutationType.delete);
+    },
+  );
+
+  group('progression recommendations', () {
+    Workout workout({
+      required String id,
+      required DateTime date,
+      required List<WorkoutSet> sets,
+    }) {
+      return Workout(
+        id: id,
+        name: 'Push',
+        date: date,
+        duration: const Duration(minutes: 45),
+        exercises: [
+          WorkoutExercise(
+            id: 'bench',
+            name: 'Bench Press',
+            muscleGroup: 'Chest',
+            sets: sets,
+          ),
+        ],
+        totalVolume: 0,
+      );
+    }
+
+    test('uses the latest completed working sets and ignores warmups', () {
+      final older = workout(
+        id: 'older',
+        date: DateTime(2026, 7, 1),
+        sets: const [
+          WorkoutSet(setNumber: 1, reps: 8, weight: 40, completed: true),
+        ],
+      );
+      final latest = workout(
+        id: 'latest',
+        date: DateTime(2026, 7, 12),
+        sets: const [
+          WorkoutSet(setNumber: 1, reps: 10, weight: 20, completed: true),
+          WorkoutSet(setNumber: 2, reps: 12, weight: 50, completed: true),
+          WorkoutSet(setNumber: 3, reps: 12, weight: 50, completed: true),
+          WorkoutSet(setNumber: 4, reps: 15, weight: 60, completed: false),
+        ],
+      );
+
+      final result = ProgressionService.recommend(
+        exerciseName: '  bench   press ',
+        equipment: 'Barbell',
+        workouts: [older, latest],
+      );
+
+      expect(result, isNotNull);
+      expect(result!.previousWeight, 50);
+      expect(result.suggestedWeight, 52.5);
+      expect(result.suggestedReps, ProgressionService.targetMinReps);
+      expect(result.action, ProgressionAction.increaseLoad);
+    });
+
+    test('adds one repetition while inside the target range', () {
+      final result = ProgressionService.recommend(
+        exerciseName: 'Bench Press',
+        equipment: 'Dumbbells',
+        workouts: [
+          workout(
+            id: 'latest',
+            date: DateTime(2026, 7, 12),
+            sets: const [
+              WorkoutSet(setNumber: 1, reps: 10, weight: 30, completed: true),
+              WorkoutSet(setNumber: 2, reps: 9, weight: 30, completed: true),
+            ],
+          ),
+        ],
+      );
+
+      expect(result!.suggestedWeight, 30);
+      expect(result.suggestedReps, 10);
+      expect(result.action, ProgressionAction.addRepetition);
+    });
+
+    test('keeps the load when the target minimum was not reached', () {
+      final result = ProgressionService.recommend(
+        exerciseName: 'Bench Press',
+        equipment: 'Dumbbells',
+        workouts: [
+          workout(
+            id: 'latest',
+            date: DateTime(2026, 7, 12),
+            sets: const [
+              WorkoutSet(setNumber: 1, reps: 7, weight: 30, completed: true),
+              WorkoutSet(setNumber: 2, reps: 6, weight: 30, completed: true),
+            ],
+          ),
+        ],
+      );
+
+      expect(result!.suggestedWeight, 30);
+      expect(result.suggestedReps, 6);
+      expect(result.action, ProgressionAction.consolidateLoad);
+    });
+
+    test('skips sessions without completed sets and handles bodyweight', () {
+      final result = ProgressionService.recommend(
+        exerciseName: 'Bench Press',
+        equipment: 'Bodyweight',
+        workouts: [
+          workout(
+            id: 'incomplete',
+            date: DateTime(2026, 7, 12),
+            sets: const [
+              WorkoutSet(setNumber: 1, reps: 20, weight: 0, completed: false),
+            ],
+          ),
+          workout(
+            id: 'completed',
+            date: DateTime(2026, 7, 10),
+            sets: const [
+              WorkoutSet(setNumber: 1, reps: 10, weight: 0, completed: true),
+              WorkoutSet(setNumber: 2, reps: 12, weight: 0, completed: true),
+            ],
+          ),
+        ],
+      );
+
+      expect(result!.suggestedWeight, 0);
+      expect(result.suggestedReps, 11);
+      expect(result.action, ProgressionAction.bodyweightRepetition);
+    });
+  });
+
+  group('training preferences', () {
+    test('round-trips stable values for per-user persistence', () {
+      const preferences = TrainingPreferences(
+        goal: TrainingGoal.muscleGain,
+        experience: ExperienceLevel.intermediate,
+        daysPerWeek: 4,
+        equipment: {TrainingEquipment.dumbbells, TrainingEquipment.barbell},
+      );
+
+      final restored = TrainingPreferences.fromJson(preferences.toJson());
+
+      expect(restored.goal, TrainingGoal.muscleGain);
+      expect(restored.experience, ExperienceLevel.intermediate);
+      expect(restored.daysPerWeek, 4);
+      expect(restored.equipment, {
+        TrainingEquipment.dumbbells,
+        TrainingEquipment.barbell,
+      });
+    });
+
+    test('repairs unsupported or incomplete preference data safely', () {
+      final restored = TrainingPreferences.fromJson({
+        'goal': 'unknown',
+        'experience': 'unknown',
+        'daysPerWeek': 12,
+        'equipment': ['unknown'],
+      });
+
+      expect(restored.goal, TrainingGoal.generalFitness);
+      expect(restored.experience, ExperienceLevel.beginner);
+      expect(restored.daysPerWeek, 7);
+      expect(restored.equipment, {TrainingEquipment.noEquipment});
+    });
+
+    testWidgets('onboarding exposes each preference step', (tester) async {
+      const initial = TrainingPreferences(
+        goal: TrainingGoal.generalFitness,
+        experience: ExperienceLevel.beginner,
+        daysPerWeek: 3,
+        equipment: {TrainingEquipment.noEquipment},
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.dark,
+          locale: const Locale('es'),
+          localizationsDelegates: S.localizationsDelegates,
+          supportedLocales: S.supportedLocales,
+          home: const TrainingPreferencesScreen(initialPreferences: initial),
+        ),
+      );
+
+      expect(find.text('¿Cuál es tu objetivo principal?'), findsOneWidget);
+      await tester.tap(find.text('Continuar'));
+      await tester.pumpAndSettle();
+      expect(find.text('¿Cuál es tu experiencia?'), findsOneWidget);
+
+      await tester.tap(find.text('Continuar'));
+      await tester.pumpAndSettle();
+      expect(find.text('¿Cuántos días puedes entrenar?'), findsOneWidget);
+
+      await tester.tap(find.text('Continuar'));
+      await tester.pumpAndSettle();
+      expect(find.text('¿Qué equipamiento tienes?'), findsOneWidget);
+      expect(find.text('Guardar y empezar'), findsOneWidget);
+    });
+  });
+
+  group('adaptive weekly plan', () {
+    const preferences = TrainingPreferences(
+      goal: TrainingGoal.generalFitness,
+      experience: ExperienceLevel.beginner,
+      daysPerWeek: 3,
+      equipment: {TrainingEquipment.noEquipment},
+    );
+
+    Workout workout({
+      required String id,
+      required DateTime date,
+      required List<WorkoutExercise> exercises,
+    }) {
+      return Workout(
+        id: id,
+        name: 'Session',
+        date: date,
+        duration: const Duration(minutes: 40),
+        exercises: exercises,
+        totalVolume: 0,
+      );
+    }
+
+    test('calculates adherence and muscle sets from the current week', () {
+      final current = workout(
+        id: 'current',
+        date: DateTime(2026, 7, 14),
+        exercises: const [
+          WorkoutExercise(
+            id: 'pushups',
+            name: 'Push-ups',
+            muscleGroup: 'Pecho',
+            sets: [
+              WorkoutSet(setNumber: 1, reps: 12, weight: 0, completed: true),
+              WorkoutSet(setNumber: 2, reps: 10, weight: 0, completed: false),
+            ],
+          ),
+        ],
+      );
+      final previous = workout(
+        id: 'previous',
+        date: DateTime(2026, 7, 10),
+        exercises: const [
+          WorkoutExercise(
+            id: 'squat',
+            name: 'Squat',
+            muscleGroup: 'Piernas',
+            sets: [
+              WorkoutSet(setNumber: 1, reps: 10, weight: 20, completed: true),
+            ],
+          ),
+        ],
+      );
+
+      final plan = WeeklyPlanService.build(
+        preferences: preferences,
+        workouts: [previous, current],
+        exerciseLibrary: const [
+          Exercise(
+            id: 'bodyweight-chest',
+            name: 'Push-ups',
+            muscleGroup: 'Pecho',
+            equipment: 'Peso corporal',
+            difficulty: 'Principiante',
+            description: '',
+          ),
+        ],
+        now: DateTime(2026, 7, 15),
+        planName: 'Adaptive session',
+      );
+
+      expect(plan.completedWorkouts, 1);
+      expect(plan.remainingWorkouts, 2);
+      expect(plan.adherence, closeTo(1 / 3, 0.001));
+      expect(plan.completedSetsByMuscle['Pecho'], 1);
+      expect(plan.completedSetsByMuscle.containsKey('Piernas'), isFalse);
+    });
+
+    test('creates a conservative session compatible with equipment', () {
+      final plan = WeeklyPlanService.build(
+        preferences: preferences,
+        workouts: const [],
+        exerciseLibrary: const [
+          Exercise(
+            id: 'bodyweight-chest',
+            name: 'Push-ups',
+            muscleGroup: 'Pecho',
+            equipment: 'Peso corporal',
+            difficulty: 'Principiante',
+            description: '',
+          ),
+          Exercise(
+            id: 'advanced-back',
+            name: 'Advanced row',
+            muscleGroup: 'Espalda',
+            equipment: 'Peso corporal',
+            difficulty: 'Avanzado',
+            description: '',
+          ),
+          Exercise(
+            id: 'barbell-legs',
+            name: 'Squat',
+            muscleGroup: 'Piernas',
+            equipment: 'Barra',
+            difficulty: 'Principiante',
+            description: '',
+          ),
+          Exercise(
+            id: 'bodyweight-core',
+            name: 'Plancha',
+            muscleGroup: 'Core',
+            equipment: 'Peso corporal',
+            difficulty: 'Principiante',
+            description: '',
+          ),
+        ],
+        now: DateTime(2026, 7, 15),
+        planName: 'Adaptive session',
+      );
+
+      expect(plan.nextWorkout, isNotNull);
+      expect(
+        plan.nextWorkout!.exercises.map((exercise) => exercise.name),
+        containsAll(['Push-ups', 'Plancha']),
+      );
+      expect(
+        plan.nextWorkout!.exercises.every(
+          (exercise) =>
+              exercise.equipment == 'Peso corporal' &&
+              exercise.sets == 2 &&
+              exercise.weight == 0,
+        ),
+        isTrue,
+      );
+      expect(
+        plan.nextWorkout!.exercises.any(
+          (exercise) => exercise.name == 'Advanced row',
+        ),
+        isFalse,
+      );
+    });
+
+    test('stops recommending sessions after reaching the weekly target', () {
+      final completed = List.generate(
+        3,
+        (index) => workout(
+          id: 'workout-$index',
+          date: DateTime(2026, 7, 13 + index),
+          exercises: const [
+            WorkoutExercise(
+              id: 'completed-set',
+              name: 'Push-ups',
+              muscleGroup: 'Pecho',
+              sets: [
+                WorkoutSet(setNumber: 1, reps: 10, weight: 0, completed: true),
+              ],
+            ),
+          ],
+        ),
+      );
+
+      final plan = WeeklyPlanService.build(
+        preferences: preferences,
+        workouts: completed,
+        exerciseLibrary: const [],
+        now: DateTime(2026, 7, 15),
+        planName: 'Adaptive session',
+      );
+
+      expect(plan.targetReached, isTrue);
+      expect(plan.remainingWorkouts, 0);
+      expect(plan.nextWorkout, isNull);
+    });
+
+    test('does not count workouts without a completed set', () {
+      final empty = workout(
+        id: 'empty',
+        date: DateTime(2026, 7, 15),
+        exercises: const [
+          WorkoutExercise(
+            id: 'planned',
+            name: 'Push-ups',
+            muscleGroup: 'Pecho',
+            sets: [WorkoutSet(setNumber: 1, reps: 10, weight: 0)],
+          ),
+        ],
+      );
+
+      final plan = WeeklyPlanService.build(
+        preferences: preferences,
+        workouts: [empty],
+        exerciseLibrary: const [],
+        now: DateTime(2026, 7, 15),
+        planName: 'Adaptive session',
+      );
+
+      expect(plan.completedWorkouts, 0);
+      expect(plan.remainingWorkouts, 3);
+    });
+
+    test('adapts sets and repetitions to goal and experience', () {
+      const strengthPreferences = TrainingPreferences(
+        goal: TrainingGoal.strength,
+        experience: ExperienceLevel.advanced,
+        daysPerWeek: 2,
+        equipment: {TrainingEquipment.barbell},
+      );
+
+      final plan = WeeklyPlanService.build(
+        preferences: strengthPreferences,
+        workouts: const [],
+        exerciseLibrary: const [
+          Exercise(
+            id: 'barbell-squat',
+            name: 'Squat',
+            muscleGroup: 'Piernas',
+            equipment: 'Barra',
+            difficulty: 'Intermedio',
+            description: '',
+          ),
+        ],
+        now: DateTime(2026, 7, 15),
+        planName: 'Adaptive session',
+      );
+
+      final exercise = plan.nextWorkout!.exercises.single;
+      expect(exercise.sets, 4);
+      expect(exercise.reps, 5);
+      expect(exercise.weight, 0);
+    });
   });
 }

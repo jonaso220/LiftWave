@@ -5,12 +5,14 @@ class WorkoutSet {
   final int reps;
   final double weight;
   final bool completed;
+  final bool completionRecorded;
 
   const WorkoutSet({
     required this.setNumber,
     required this.reps,
     required this.weight,
     this.completed = false,
+    this.completionRecorded = true,
   });
 
   Map<String, dynamic> toJson() => {
@@ -25,6 +27,7 @@ class WorkoutSet {
     reps: (j['reps'] as num).toInt(),
     weight: (j['weight'] as num).toDouble(),
     completed: j['completed'] as bool? ?? false,
+    completionRecorded: j.containsKey('completed'),
   );
 }
 
@@ -42,6 +45,20 @@ class WorkoutExercise {
     required this.sets,
     this.notes,
   });
+
+  bool get hasCompletionData => sets.any((set) => set.completionRecorded);
+
+  /// Sets that count as performed. Records created before completion flags
+  /// existed represent finished workouts, so their sets remain valid.
+  Iterable<WorkoutSet> get effectiveCompletedSets =>
+      hasCompletionData ? sets.where((set) => set.completed) : sets;
+
+  int get completedSetCount => effectiveCompletedSets.length;
+
+  int get completedVolume => effectiveCompletedSets.fold(
+    0,
+    (sum, set) => sum + (set.reps * set.weight).round(),
+  );
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -81,7 +98,16 @@ class Workout {
     this.notes,
   });
 
-  int get totalSets => exercises.fold(0, (sum, e) => sum + e.sets.length);
+  int get totalSets =>
+      exercises.fold(0, (sum, exercise) => sum + exercise.completedSetCount);
+
+  int get completedExerciseCount =>
+      exercises.where((exercise) => exercise.completedSetCount > 0).length;
+
+  bool get hasCompletedWork => totalSets > 0;
+
+  int get calculatedVolume =>
+      exercises.fold(0, (sum, exercise) => sum + exercise.completedVolume);
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -93,17 +119,39 @@ class Workout {
     'notes': notes,
   };
 
-  factory Workout.fromJson(Map<String, dynamic> j) => Workout(
-    id: j['id'] as String,
-    name: j['name'] as String,
-    date: DateTime.parse(j['date'] as String),
-    duration: Duration(seconds: (j['durationSeconds'] as num).toInt()),
-    exercises: (j['exercises'] as List)
-        .map((e) => WorkoutExercise.fromJson(e as Map<String, dynamic>))
-        .toList(),
-    totalVolume: (j['totalVolume'] as num).toInt(),
-    notes: j['notes'] as String?,
-  );
+  factory Workout.fromJson(Map<String, dynamic> j) {
+    final rawExercises = j['exercises'] as List;
+    final exercises = rawExercises
+        .map(
+          (exercise) => WorkoutExercise.fromJson(
+            Map<String, dynamic>.from(exercise as Map),
+          ),
+        )
+        .toList();
+    final hasCompletionData = rawExercises.any((exercise) {
+      final map = Map<String, dynamic>.from(exercise as Map);
+      return (map['sets'] as List).any(
+        (set) => Map<String, dynamic>.from(set as Map).containsKey('completed'),
+      );
+    });
+    final storedVolume = (j['totalVolume'] as num).toInt();
+    final completedVolume = exercises.fold<int>(
+      0,
+      (sum, exercise) => sum + exercise.completedVolume,
+    );
+
+    return Workout(
+      id: j['id'] as String,
+      name: j['name'] as String,
+      date: DateTime.parse(j['date'] as String),
+      duration: Duration(seconds: (j['durationSeconds'] as num).toInt()),
+      exercises: exercises,
+      // Very old records did not persist completion flags; retain their stored
+      // total because recalculating would incorrectly turn it into zero.
+      totalVolume: hasCompletionData ? completedVolume : storedVolume,
+      notes: j['notes'] as String?,
+    );
+  }
 }
 
 // ── Exercise library models ───────────────────────────────────────────────────
