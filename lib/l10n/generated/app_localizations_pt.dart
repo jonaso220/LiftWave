@@ -801,6 +801,60 @@ class SPt extends S {
   String get train_defaultRoutineName => 'Minha rotina';
 
   @override
+  String get train_createRoutine => 'Criar rotina';
+
+  @override
+  String get train_createRoutineHint =>
+      'Escolha os exercícios e deixe tudo preparado para treinar quando quiser.';
+
+  @override
+  String get train_routineNameRequired => 'Digite um nome para a rotina.';
+
+  @override
+  String train_addRoutineForDay(String day) {
+    return 'Adicionar outra rotina para $day';
+  }
+
+  @override
+  String get train_trainingDay => 'Dia de treino';
+
+  @override
+  String get train_noAssignedDay => 'Sem dia atribuído';
+
+  @override
+  String get train_trainingDayHint =>
+      'Agrupe por dia para manter a rotina completa junta.';
+
+  @override
+  String get train_organizeRoutine => 'Organizar rotina';
+
+  @override
+  String train_blockCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count blocos',
+      one: '1 bloco',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get train_noRoutinesForDay => 'Ainda não há blocos para este dia.';
+
+  @override
+  String get train_reorderBlocksHint =>
+      'Pressione e arraste para alterar a ordem.';
+
+  @override
+  String get train_startCompleteRoutine => 'Iniciar rotina completa';
+
+  @override
+  String train_routineForDay(String day) {
+    return 'Rotina de $day';
+  }
+
+  @override
   String get train_bodyweightLabel => 'Peso corporal';
 
   @override
@@ -971,6 +1025,29 @@ class SPt extends S {
 
   @override
   String get history_volumeKg => 'Volume kg';
+
+  @override
+  String get history_routinesByDay => 'Rotinas por dia';
+
+  @override
+  String history_sessionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sessões',
+      one: '1 sessão',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String history_dayRoutineTitle(String day) {
+    return 'Treinos de $day';
+  }
+
+  @override
+  String get history_dayRoutineHint =>
+      'Os blocos do mesmo dia aparecem juntos e em ordem.';
 
   @override
   String get history_dayMon => 'S';

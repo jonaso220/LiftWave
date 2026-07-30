@@ -37,6 +37,7 @@ class WorkoutExercise {
   final String muscleGroup;
   final List<WorkoutSet> sets;
   final String? notes;
+  final String? routineBlockName;
 
   const WorkoutExercise({
     required this.id,
@@ -44,14 +45,18 @@ class WorkoutExercise {
     required this.muscleGroup,
     required this.sets,
     this.notes,
+    this.routineBlockName,
   });
 
   bool get hasCompletionData => sets.any((set) => set.completionRecorded);
 
+  bool isSetEffectivelyCompleted(WorkoutSet set) =>
+      hasCompletionData ? set.completed : true;
+
   /// Sets that count as performed. Records created before completion flags
   /// existed represent finished workouts, so their sets remain valid.
   Iterable<WorkoutSet> get effectiveCompletedSets =>
-      hasCompletionData ? sets.where((set) => set.completed) : sets;
+      sets.where(isSetEffectivelyCompleted);
 
   int get completedSetCount => effectiveCompletedSets.length;
 
@@ -66,6 +71,7 @@ class WorkoutExercise {
     'muscleGroup': muscleGroup,
     'sets': sets.map((s) => s.toJson()).toList(),
     'notes': notes,
+    'routineBlockName': routineBlockName,
   };
 
   factory WorkoutExercise.fromJson(Map<String, dynamic> j) => WorkoutExercise(
@@ -76,6 +82,7 @@ class WorkoutExercise {
         .map((s) => WorkoutSet.fromJson(s as Map<String, dynamic>))
         .toList(),
     notes: j['notes'] as String?,
+    routineBlockName: j['routineBlockName'] as String?,
   );
 }
 
@@ -87,6 +94,8 @@ class Workout {
   final List<WorkoutExercise> exercises;
   final int totalVolume;
   final String? notes;
+  final String? routineDay;
+  final int? routineOrder;
 
   const Workout({
     required this.id,
@@ -96,6 +105,8 @@ class Workout {
     required this.exercises,
     required this.totalVolume,
     this.notes,
+    this.routineDay,
+    this.routineOrder,
   });
 
   int get totalSets =>
@@ -117,6 +128,8 @@ class Workout {
     'exercises': exercises.map((e) => e.toJson()).toList(),
     'totalVolume': totalVolume,
     'notes': notes,
+    'routineDay': routineDay,
+    'routineOrder': routineOrder,
   };
 
   factory Workout.fromJson(Map<String, dynamic> j) {
@@ -150,6 +163,8 @@ class Workout {
       // total because recalculating would incorrectly turn it into zero.
       totalVolume: hasCompletionData ? completedVolume : storedVolume,
       notes: j['notes'] as String?,
+      routineDay: j['routineDay'] as String?,
+      routineOrder: (j['routineOrder'] as num?)?.toInt(),
     );
   }
 }

@@ -32,6 +32,8 @@ class ActiveWorkoutStore {
     required DateTime? startedAt,
     required int elapsedSeconds,
     required String? workoutName,
+    required String? routineDay,
+    required int? routineOrder,
     required List<SessionExercise> exercises,
   }) async {
     final prefs = await SharedPreferences.getInstance();
@@ -45,6 +47,8 @@ class ActiveWorkoutStore {
       'startedAt': startedAt?.toIso8601String(),
       'elapsedSeconds': elapsedSeconds,
       'workoutName': workoutName,
+      'routineDay': routineDay,
+      'routineOrder': routineOrder,
       'exercises': exercises.map((e) => e.toJson()).toList(),
     });
     await prefs.setString(_key, json);
@@ -76,6 +80,8 @@ class ActiveWorkoutStore {
         startedAt: startedAt != null ? DateTime.parse(startedAt) : null,
         elapsedSeconds: (map['elapsedSeconds'] as num?)?.toInt() ?? 0,
         workoutName: map['workoutName'] as String?,
+        routineDay: map['routineDay'] as String?,
+        routineOrder: (map['routineOrder'] as num?)?.toInt(),
         exercises: exercises,
       );
     } catch (e) {
@@ -96,6 +102,8 @@ class ActiveWorkoutSnapshot {
   final DateTime? startedAt;
   final int elapsedSeconds;
   final String? workoutName;
+  final String? routineDay;
+  final int? routineOrder;
   final List<SessionExercise> exercises;
 
   ActiveWorkoutSnapshot({
@@ -103,6 +111,8 @@ class ActiveWorkoutSnapshot {
     required this.startedAt,
     required this.elapsedSeconds,
     required this.workoutName,
+    required this.routineDay,
+    required this.routineOrder,
     required this.exercises,
   });
 }

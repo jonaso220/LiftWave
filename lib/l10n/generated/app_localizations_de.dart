@@ -803,6 +803,62 @@ class SDe extends S {
   String get train_defaultRoutineName => 'Meine Routine';
 
   @override
+  String get train_createRoutine => 'Routine erstellen';
+
+  @override
+  String get train_createRoutineHint =>
+      'Wähle die Übungen aus und bereite die Routine für dein nächstes Training vor.';
+
+  @override
+  String get train_routineNameRequired =>
+      'Gib einen Namen für die Routine ein.';
+
+  @override
+  String train_addRoutineForDay(String day) {
+    return 'Weitere Routine für $day hinzufügen';
+  }
+
+  @override
+  String get train_trainingDay => 'Trainingstag';
+
+  @override
+  String get train_noAssignedDay => 'Kein Tag zugewiesen';
+
+  @override
+  String get train_trainingDayHint =>
+      'Nach Tag gruppieren, damit die ganze Routine zusammenbleibt.';
+
+  @override
+  String get train_organizeRoutine => 'Routine organisieren';
+
+  @override
+  String train_blockCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Blöcke',
+      one: '1 Block',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get train_noRoutinesForDay =>
+      'Für diesen Tag gibt es noch keine Blöcke.';
+
+  @override
+  String get train_reorderBlocksHint =>
+      'Gedrückt halten und ziehen, um die Reihenfolge zu ändern.';
+
+  @override
+  String get train_startCompleteRoutine => 'Komplette Routine starten';
+
+  @override
+  String train_routineForDay(String day) {
+    return '$day-Routine';
+  }
+
+  @override
   String get train_bodyweightLabel => 'Körpergewicht';
 
   @override
@@ -972,6 +1028,29 @@ class SDe extends S {
 
   @override
   String get history_volumeKg => 'Volumen kg';
+
+  @override
+  String get history_routinesByDay => 'Routinen nach Tag';
+
+  @override
+  String history_sessionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Einheiten',
+      one: '1 Einheit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String history_dayRoutineTitle(String day) {
+    return 'Trainings am $day';
+  }
+
+  @override
+  String get history_dayRoutineHint =>
+      'Blöcke desselben Tages erscheinen zusammen und in Reihenfolge.';
 
   @override
   String get history_dayMon => 'Mo';

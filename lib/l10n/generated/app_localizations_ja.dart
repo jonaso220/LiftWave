@@ -777,6 +777,56 @@ class SJa extends S {
   String get train_defaultRoutineName => 'マイルーティン';
 
   @override
+  String get train_createRoutine => 'ルーティンを作成';
+
+  @override
+  String get train_createRoutineHint => 'エクササイズを選び、次のトレーニングに備えて準備できます。';
+
+  @override
+  String get train_routineNameRequired => 'ルーティン名を入力してください。';
+
+  @override
+  String train_addRoutineForDay(String day) {
+    return '$dayに別のルーティンを追加';
+  }
+
+  @override
+  String get train_trainingDay => 'トレーニング日';
+
+  @override
+  String get train_noAssignedDay => '曜日未設定';
+
+  @override
+  String get train_trainingDayHint => '曜日ごとにまとめて、ルーティン全体を一緒に表示します。';
+
+  @override
+  String get train_organizeRoutine => 'ルーティンを整理';
+
+  @override
+  String train_blockCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countブロック',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get train_noRoutinesForDay => 'この曜日にはまだブロックがありません。';
+
+  @override
+  String get train_reorderBlocksHint => '長押ししてドラッグすると順番を変更できます。';
+
+  @override
+  String get train_startCompleteRoutine => 'ルーティン全体を開始';
+
+  @override
+  String train_routineForDay(String day) {
+    return '$dayのルーティン';
+  }
+
+  @override
   String get train_bodyweightLabel => '自重';
 
   @override
@@ -936,6 +986,27 @@ class SJa extends S {
 
   @override
   String get history_volumeKg => 'ボリューム kg';
+
+  @override
+  String get history_routinesByDay => '曜日別ルーティン';
+
+  @override
+  String history_sessionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countセッション',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String history_dayRoutineTitle(String day) {
+    return '$dayのトレーニング';
+  }
+
+  @override
+  String get history_dayRoutineHint => '同じ曜日のブロックが順番にまとめて表示されます。';
 
   @override
   String get history_dayMon => '月';

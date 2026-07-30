@@ -13,11 +13,15 @@ class CustomTemplate {
   final String id;
   final String name;
   final List<TemplateExercise> exercises;
+  final String? routineDay;
+  final int? routineOrder;
 
   CustomTemplate({
     required this.id,
     required this.name,
     required this.exercises,
+    this.routineDay,
+    this.routineOrder,
   });
 
   List<String> get muscleGroups =>
@@ -27,6 +31,8 @@ class CustomTemplate {
     'id': id,
     'name': name,
     'exercises': exercises.map((exercise) => exercise.toJson()).toList(),
+    'routineDay': routineDay,
+    'routineOrder': routineOrder,
   };
 
   factory CustomTemplate.fromJson(Map<String, dynamic> json) => CustomTemplate(
@@ -39,6 +45,22 @@ class CustomTemplate {
           ),
         )
         .toList(),
+    routineDay: json['routineDay'] as String?,
+    routineOrder: (json['routineOrder'] as num?)?.toInt(),
+  );
+
+  CustomTemplate copyWith({
+    String? name,
+    List<TemplateExercise>? exercises,
+    String? routineDay,
+    int? routineOrder,
+    bool clearRoutineDay = false,
+  }) => CustomTemplate(
+    id: id,
+    name: name ?? this.name,
+    exercises: exercises ?? this.exercises,
+    routineDay: clearRoutineDay ? null : routineDay ?? this.routineDay,
+    routineOrder: clearRoutineDay ? null : routineOrder ?? this.routineOrder,
   );
 }
 
@@ -174,6 +196,48 @@ class CustomTemplateStore extends ChangeNotifier {
     notifyListeners();
     await _persistLocal(uid);
     await queue.enqueueUpsert(template.id, template.toJson());
+    unawaited(_flushPending(uid));
+  }
+
+  Future<void> update(CustomTemplate template) async {
+    final uid = _uid;
+    final queue = _syncQueue;
+    if (uid == null || queue == null) return;
+    final index = _templates.indexWhere((item) => item.id == template.id);
+    if (index == -1) return;
+    _templates[index] = template;
+    notifyListeners();
+    await _persistLocal(uid);
+    await queue.enqueueUpsert(template.id, template.toJson());
+    unawaited(_flushPending(uid));
+  }
+
+  Future<void> reorderDay(
+    String routineDay,
+    List<CustomTemplate> ordered,
+  ) async {
+    for (var index = 0; index < ordered.length; index++) {
+      final template = ordered[index].copyWith(
+        routineDay: routineDay,
+        routineOrder: index + 1,
+      );
+      final currentIndex = _templates.indexWhere(
+        (item) => item.id == template.id,
+      );
+      if (currentIndex != -1) _templates[currentIndex] = template;
+    }
+    notifyListeners();
+
+    final uid = _uid;
+    final queue = _syncQueue;
+    if (uid == null || queue == null) return;
+    await _persistLocal(uid);
+    for (var index = 0; index < ordered.length; index++) {
+      final template = _templates.firstWhere(
+        (item) => item.id == ordered[index].id,
+      );
+      await queue.enqueueUpsert(template.id, template.toJson());
+    }
     unawaited(_flushPending(uid));
   }
 

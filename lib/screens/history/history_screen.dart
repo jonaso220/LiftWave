@@ -9,6 +9,7 @@ import '../../models/models.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/csv_exporter.dart';
 import '../../utils/pro_gate.dart';
+import '../../utils/routine_days.dart';
 import 'workout_detail_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -79,6 +80,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     final allWorkouts = WorkoutStore.instance.workouts;
     final weekWorkouts = _weekWorkouts;
+    final isPro = SubscriptionService.instance.isPro;
+    final displayWorkouts = isPro
+        ? allWorkouts
+        : allWorkouts.take(_freeHistoryLimit).toList();
+    final populatedDays = RoutineDay.values
+        .where(
+          (day) =>
+              displayWorkouts.any((workout) => _dayForWorkout(workout) == day),
+        )
+        .toList();
 
     return Scaffold(
       body: CustomScrollView(
@@ -113,6 +124,50 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
 
           // ── Section title ──────────────────────────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+              child: Text(
+                allWorkouts.isEmpty ? '' : S.of(context).history_routinesByDay,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+            ),
+          ),
+
+          if (displayWorkouts.isNotEmpty)
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 1.45,
+                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final day = populatedDays[index];
+                  final workouts = displayWorkouts
+                      .where((workout) => _dayForWorkout(workout) == day)
+                      .toList();
+                  return _RoutineDayHistoryCard(
+                    day: day,
+                    workouts: workouts,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => _RoutineDayHistoryScreen(
+                          day: day,
+                          visibleWorkoutIds: workouts
+                              .map((workout) => workout.id)
+                              .toSet(),
+                        ),
+                      ),
+                    ),
+                  );
+                }, childCount: populatedDays.length),
+              ),
+            ),
+
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
@@ -170,10 +225,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
-                    final isPro = SubscriptionService.instance.isPro;
-                    final displayWorkouts = isPro
-                        ? allWorkouts
-                        : allWorkouts.take(_freeHistoryLimit).toList();
                     if (index >= displayWorkouts.length) return null;
                     final workout = displayWorkouts[index];
                     return _WorkoutHistoryCard(workout: workout)
@@ -260,6 +311,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
     );
   }
+
+  RoutineDay _dayForWorkout(Workout workout) => routineDayForWorkout(
+    storedDay: workout.routineDay,
+    name: workout.name,
+    date: workout.date,
+  );
 }
 
 // ── Week summary card ─────────────────────────────────────────────────────────
@@ -468,102 +525,299 @@ class _WorkoutHistoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    final completedExercises = workout.completedExerciseCount;
     final muscleTags = workout.exercises
+        .where((exercise) => exercise.completedSetCount > 0)
         .map((e) => e.muscleGroup)
         .toSet()
         .toList();
+    final displayName = ExerciseLocalization.workoutName(l10n, workout.name);
+    final dateLabel =
+        '${_formatDate(workout.date, context)} · '
+        '${_formatDuration(workout.duration)}';
 
-    return GestureDetector(
-      onTap: () => Navigator.push(
+    void openWorkout() {
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => WorkoutDetailScreen(workout: workout),
         ),
-      ),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.bgCardLight, width: 1),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      );
+    }
+
+    return Semantics(
+      label:
+          '$displayName. $dateLabel. '
+          '${l10n.train_exerciseCount(completedExercises)}. '
+          '${l10n.common_sets}: ${workout.totalSets}. '
+          '${l10n.common_volume}: ${workout.totalVolume} kg',
+      button: true,
+      onTap: openWorkout,
+      child: ExcludeSemantics(
+        child: GestureDetector(
+          onTap: openWorkout,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.bgCard,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.bgCardLight, width: 1),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(30),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.fitness_center_rounded,
-                    color: AppColors.primary,
-                    size: 18,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        ExerciseLocalization.workoutName(
-                          S.of(context),
-                          workout.name,
-                        ),
-                        style: Theme.of(context).textTheme.titleLarge,
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withAlpha(30),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${_formatDate(workout.date, context)} · ${_formatDuration(workout.duration)}',
-                        style: Theme.of(context).textTheme.bodySmall,
+                      child: const Icon(
+                        Icons.fitness_center_rounded,
+                        color: AppColors.primary,
+                        size: 18,
                       ),
-                    ],
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            displayName,
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            dateLabel,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(
+                      Icons.chevron_right_rounded,
+                      color: AppColors.textMuted,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    _HistStat(
+                      label: l10n.common_exercises,
+                      value: '$completedExercises',
+                    ),
+                    const SizedBox(width: 12),
+                    _HistStat(
+                      label: l10n.common_sets,
+                      value: '${workout.totalSets}',
+                    ),
+                    const SizedBox(width: 12),
+                    _HistStat(
+                      label: l10n.common_volume,
+                      value: '${workout.totalVolume} kg',
+                    ),
+                  ],
+                ),
+                if (muscleTags.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 6,
+                    children: muscleTags
+                        .map((m) => _SmallMuscleTag(muscle: m))
+                        .toList(),
                   ),
-                ),
-                const Icon(
-                  Icons.chevron_right_rounded,
-                  color: AppColors.textMuted,
-                ),
+                ],
               ],
             ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                _HistStat(
-                  label: S.of(context).common_exercises,
-                  value: '${workout.exercises.length}',
-                ),
-                const SizedBox(width: 12),
-                _HistStat(
-                  label: S.of(context).common_sets,
-                  value: '${workout.totalSets}',
-                ),
-                const SizedBox(width: 12),
-                _HistStat(
-                  label: S.of(context).common_volume,
-                  value: '${workout.totalVolume} kg',
-                ),
-              ],
-            ),
-            if (muscleTags.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 6,
-                children: muscleTags
-                    .map((m) => _SmallMuscleTag(muscle: m))
-                    .toList(),
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     );
   }
+}
+
+class _RoutineDayHistoryCard extends StatelessWidget {
+  final RoutineDay day;
+  final List<Workout> workouts;
+  final VoidCallback onTap;
+
+  const _RoutineDayHistoryCard({
+    required this.day,
+    required this.workouts,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    final label = routineDayLabel(context, day);
+    final totalExercises = workouts.fold(
+      0,
+      (sum, workout) => sum + workout.completedExerciseCount,
+    );
+    return Semantics(
+      label:
+          '$label. ${l10n.history_sessionCount(workouts.length)}. '
+          '${l10n.train_exerciseCount(totalExercises)}',
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: AppColors.bgCard,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.primary.withAlpha(55)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withAlpha(28),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.calendar_view_day_rounded,
+                      color: AppColors.primary,
+                      size: 18,
+                    ),
+                  ),
+                  const Spacer(),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppColors.textMuted,
+                    size: 20,
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                l10n.history_sessionCount(workouts.length),
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RoutineDayHistoryScreen extends StatefulWidget {
+  final RoutineDay day;
+  final Set<String> visibleWorkoutIds;
+
+  const _RoutineDayHistoryScreen({
+    required this.day,
+    required this.visibleWorkoutIds,
+  });
+
+  @override
+  State<_RoutineDayHistoryScreen> createState() =>
+      _RoutineDayHistoryScreenState();
+}
+
+class _RoutineDayHistoryScreenState extends State<_RoutineDayHistoryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WorkoutStore.instance.addListener(_onChanged);
+  }
+
+  @override
+  void dispose() {
+    WorkoutStore.instance.removeListener(_onChanged);
+    super.dispose();
+  }
+
+  void _onChanged() {
+    if (mounted) setState(() {});
+  }
+
+  List<Workout> get _workouts {
+    final workouts = WorkoutStore.instance.workouts
+        .where((workout) => widget.visibleWorkoutIds.contains(workout.id))
+        .where(
+          (workout) =>
+              routineDayForWorkout(
+                storedDay: workout.routineDay,
+                name: workout.name,
+                date: workout.date,
+              ) ==
+              widget.day,
+        )
+        .toList();
+    workouts.sort(_compareRoutineWorkouts);
+    return workouts;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final workouts = _workouts;
+    final label = routineDayLabel(context, widget.day);
+    return Scaffold(
+      appBar: AppBar(title: Text(label)),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        children: [
+          Text(
+            S.of(context).history_dayRoutineTitle(label),
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            S.of(context).history_dayRoutineHint,
+            style: const TextStyle(
+              color: AppColors.textMuted,
+              fontSize: 12,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ...workouts.map((workout) => _WorkoutHistoryCard(workout: workout)),
+        ],
+      ),
+    );
+  }
+}
+
+int _compareRoutineWorkouts(Workout a, Workout b) {
+  final aDay = DateTime(a.date.year, a.date.month, a.date.day);
+  final bDay = DateTime(b.date.year, b.date.month, b.date.day);
+  final byDate = bDay.compareTo(aDay);
+  if (byDate != 0) return byDate;
+
+  final aOrder = a.routineOrder ?? routineOrderFromName(a.name, fallback: 999);
+  final bOrder = b.routineOrder ?? routineOrderFromName(b.name, fallback: 999);
+  final byOrder = aOrder.compareTo(bOrder);
+  return byOrder != 0
+      ? byOrder
+      : a.name.toLowerCase().compareTo(b.name.toLowerCase());
 }
 
 // ── Small helpers ─────────────────────────────────────────────────────────────

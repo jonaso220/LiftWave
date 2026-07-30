@@ -89,15 +89,17 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
           SliverAppBar(
             expandedHeight: 180,
             pinned: true,
-            leading: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.bgCard.withValues(alpha: 0.8),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
+            leading: Container(
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.bgCard.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: IconButton(
+                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                onPressed: () => Navigator.pop(context),
+                padding: EdgeInsets.zero,
+                icon: const Icon(
                   Icons.arrow_back_ios_new_rounded,
                   color: AppColors.textPrimary,
                   size: 18,
@@ -105,21 +107,19 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
               ),
             ),
             actions: [
-              GestureDetector(
-                onTap: _openEditor,
-                child: Container(
-                  margin: const EdgeInsets.all(8),
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: AppColors.bgCard.withValues(alpha: 0.8),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.edit_rounded,
-                      color: AppColors.textPrimary,
-                      size: 18,
-                    ),
+              Container(
+                margin: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.bgCard.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: IconButton(
+                  tooltip: S.of(context).editWorkout_title,
+                  onPressed: _openEditor,
+                  icon: const Icon(
+                    Icons.edit_rounded,
+                    color: AppColors.textPrimary,
+                    size: 18,
                   ),
                 ),
               ),
@@ -182,20 +182,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 12),
-                  ...workout.exercises
-                      .where((exercise) => exercise.completedSetCount > 0)
-                      .toList()
-                      .asMap()
-                      .entries
-                      .map(
-                        (entry) => _ExerciseDetailCard(exercise: entry.value)
-                            .animate()
-                            .fadeIn(
-                              delay: Duration(milliseconds: 80 * entry.key),
-                              duration: 300.ms,
-                            )
-                            .slideY(begin: 0.05, end: 0),
-                      ),
+                  ..._buildExerciseCards(),
                   const SizedBox(height: 32),
                 ],
               ),
@@ -204,6 +191,32 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildExerciseCards() {
+    final exercises = workout.exercises
+        .where((exercise) => exercise.completedSetCount > 0)
+        .toList();
+    final widgets = <Widget>[];
+    String? previousBlock;
+    for (var index = 0; index < exercises.length; index++) {
+      final exercise = exercises[index];
+      final block = exercise.routineBlockName;
+      if (block != null && block != previousBlock) {
+        widgets.add(_RoutineBlockTitle(name: block));
+      }
+      widgets.add(
+        _ExerciseDetailCard(exercise: exercise)
+            .animate()
+            .fadeIn(
+              delay: Duration(milliseconds: 80 * index),
+              duration: 300.ms,
+            )
+            .slideY(begin: 0.05, end: 0),
+      );
+      previousBlock = block;
+    }
+    return widgets;
   }
 
   Widget _buildSummaryCards(BuildContext context) {
@@ -236,6 +249,39 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _RoutineBlockTitle extends StatelessWidget {
+  final String name;
+
+  const _RoutineBlockTitle({required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 10, 2, 8),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.view_agenda_rounded,
+            color: AppColors.primary,
+            size: 18,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              name,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

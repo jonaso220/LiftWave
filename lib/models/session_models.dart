@@ -33,6 +33,7 @@ class SessionExercise {
   final String equipment;
   final List<SessionSet> sets;
   String? notes;
+  final String? routineBlockName;
 
   SessionExercise({
     required this.id,
@@ -41,6 +42,7 @@ class SessionExercise {
     required this.equipment,
     required this.sets,
     this.notes,
+    this.routineBlockName,
   });
 
   /// Training volume for sets the user actually completed.
@@ -60,6 +62,7 @@ class SessionExercise {
     'equipment': equipment,
     'sets': sets.map((s) => s.toJson()).toList(),
     'notes': notes,
+    'routineBlockName': routineBlockName,
   };
 
   factory SessionExercise.fromJson(Map<String, dynamic> j) => SessionExercise(
@@ -71,5 +74,6 @@ class SessionExercise {
         .map((s) => SessionSet.fromJson(Map<String, dynamic>.from(s as Map)))
         .toList(),
     notes: j['notes'] as String?,
+    routineBlockName: j['routineBlockName'] as String?,
   );
 }

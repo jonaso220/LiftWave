@@ -1565,6 +1565,84 @@ abstract class S {
   /// **'Mi rutina'**
   String get train_defaultRoutineName;
 
+  /// No description provided for @train_createRoutine.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear rutina'**
+  String get train_createRoutine;
+
+  /// No description provided for @train_createRoutineHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige los ejercicios y déjala preparada para entrenarla cuando quieras.'**
+  String get train_createRoutineHint;
+
+  /// No description provided for @train_routineNameRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'Escribe un nombre para la rutina.'**
+  String get train_routineNameRequired;
+
+  /// No description provided for @train_addRoutineForDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir otra rutina para el {day}'**
+  String train_addRoutineForDay(String day);
+
+  /// No description provided for @train_trainingDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Día de entrenamiento'**
+  String get train_trainingDay;
+
+  /// No description provided for @train_noAssignedDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin día asignado'**
+  String get train_noAssignedDay;
+
+  /// No description provided for @train_trainingDayHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Agrúpala por día para encontrar toda la rutina junta.'**
+  String get train_trainingDayHint;
+
+  /// No description provided for @train_organizeRoutine.
+  ///
+  /// In es, this message translates to:
+  /// **'Organizar rutina'**
+  String get train_organizeRoutine;
+
+  /// No description provided for @train_blockCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 bloque} other{{count} bloques}}'**
+  String train_blockCount(int count);
+
+  /// No description provided for @train_noRoutinesForDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no hay bloques para este día.'**
+  String get train_noRoutinesForDay;
+
+  /// No description provided for @train_reorderBlocksHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Mantén presionado y arrastra para cambiar el orden.'**
+  String get train_reorderBlocksHint;
+
+  /// No description provided for @train_startCompleteRoutine.
+  ///
+  /// In es, this message translates to:
+  /// **'Empezar rutina completa'**
+  String get train_startCompleteRoutine;
+
+  /// No description provided for @train_routineForDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Rutina del {day}'**
+  String train_routineForDay(String day);
+
   /// No description provided for @train_bodyweightLabel.
   ///
   /// In es, this message translates to:
@@ -1870,6 +1948,30 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Volumen kg'**
   String get history_volumeKg;
+
+  /// No description provided for @history_routinesByDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Rutinas por día'**
+  String get history_routinesByDay;
+
+  /// No description provided for @history_sessionCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 sesión} other{{count} sesiones}}'**
+  String history_sessionCount(int count);
+
+  /// No description provided for @history_dayRoutineTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrenamientos del {day}'**
+  String history_dayRoutineTitle(String day);
+
+  /// No description provided for @history_dayRoutineHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Los bloques del mismo día aparecen juntos y en orden.'**
+  String get history_dayRoutineHint;
 
   /// No description provided for @history_dayMon.
   ///

@@ -23,15 +23,28 @@ import '../../theme/app_theme.dart';
 import '../../utils/exercise_localization.dart';
 import '../../utils/muscle_colors.dart';
 import '../../utils/pro_gate.dart';
+import '../../utils/routine_days.dart';
 import '../../widgets/common/muscle_chip.dart';
 import '../../widgets/rest_timer_overlay.dart';
 import 'exercise_picker_screen.dart';
+import 'routine_builder_screen.dart';
 
 part 'train_screen_templates.dart';
 part 'train_screen_cards.dart';
 
+int _compareRoutineTemplates(CustomTemplate a, CustomTemplate b) {
+  final aOrder = a.routineOrder ?? routineOrderFromName(a.name, fallback: 999);
+  final bOrder = b.routineOrder ?? routineOrderFromName(b.name, fallback: 999);
+  final byOrder = aOrder.compareTo(bOrder);
+  return byOrder != 0
+      ? byOrder
+      : a.name.toLowerCase().compareTo(b.name.toLowerCase());
+}
+
 class TrainScreen extends StatefulWidget {
-  const TrainScreen({super.key});
+  final VoidCallback? onSessionRestored;
+
+  const TrainScreen({super.key, this.onSessionRestored});
 
   @override
   State<TrainScreen> createState() => _TrainScreenState();
@@ -44,6 +57,8 @@ class _TrainScreenState extends State<TrainScreen> {
   int _elapsedSeconds = 0;
   final List<SessionExercise> _exercises = [];
   String? _workoutName; // null → 'Entrenamiento libre'
+  String? _routineDay;
+  int? _routineOrder;
   DateTime? _startedAt;
   bool _restoreChecked = false;
 
@@ -118,6 +133,7 @@ class _TrainScreenState extends State<TrainScreen> {
     if (!mounted) return;
     if (shouldRestore == true) {
       _restoreFromSnapshot(snapshot);
+      widget.onSessionRestored?.call();
     } else {
       await ActiveWorkoutStore.instance.clear();
     }
@@ -129,6 +145,8 @@ class _TrainScreenState extends State<TrainScreen> {
         ..clear()
         ..addAll(snap.exercises);
       _workoutName = snap.workoutName;
+      _routineDay = snap.routineDay;
+      _routineOrder = snap.routineOrder;
       _workoutStarted = true;
       _startedAt = snap.startedAt;
       if (snap.startedAt != null) {
@@ -159,11 +177,61 @@ class _TrainScreenState extends State<TrainScreen> {
       startedAt: _startedAt,
       elapsedSeconds: _elapsedSeconds,
       workoutName: _workoutName,
+      routineDay: _routineDay,
+      routineOrder: _routineOrder,
       exercises: _exercises,
     );
   }
 
   void _onTemplatesChanged() => setState(() {});
+
+  RoutineDay? _dayForTemplate(CustomTemplate template) =>
+      RoutineDay.fromStorage(template.routineDay) ??
+      routineDayFromName(template.name);
+
+  List<CustomTemplate> _templatesForDay(RoutineDay day) {
+    final result = CustomTemplateStore.instance.templates
+        .where((template) => _dayForTemplate(template) == day)
+        .toList();
+    result.sort(_compareRoutineTemplates);
+    return result;
+  }
+
+  int _nextRoutineOrder(RoutineDay day) {
+    final orders = _templatesForDay(day).map(
+      (template) =>
+          template.routineOrder ??
+          routineOrderFromName(template.name, fallback: 0),
+    );
+    return orders.isEmpty ? 1 : orders.reduce((a, b) => a > b ? a : b) + 1;
+  }
+
+  Future<void> _createRoutine({RoutineDay? initialDay}) async {
+    final l10n = S.of(context);
+    final order = initialDay == null ? null : _nextRoutineOrder(initialDay);
+    final template = await Navigator.push<CustomTemplate>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RoutineBuilderScreen(
+          initialDay: initialDay,
+          routineOrder: order,
+          initialName: order == null
+              ? l10n.train_defaultRoutineName
+              : '${l10n.train_defaultRoutineName} $order',
+        ),
+      ),
+    );
+    if (template == null || !mounted) return;
+
+    await CustomTemplateStore.instance.add(template);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.train_routineSaved(template.name)),
+        backgroundColor: AppColors.bgCardLight,
+      ),
+    );
+  }
 
   void _onLauncherChanged() => _consumePendingTemplate();
 
@@ -227,6 +295,7 @@ class _TrainScreenState extends State<TrainScreen> {
             name: ex.name,
             muscleGroup: ex.muscleGroup,
             equipment: '',
+            routineBlockName: ex.routineBlockName,
             sets: ex.sets
                 .map(
                   (s) =>
@@ -237,7 +306,11 @@ class _TrainScreenState extends State<TrainScreen> {
         );
       }
     });
-    _startWorkout(name: w.name);
+    _startWorkout(
+      name: w.name,
+      routineDay: w.routineDay,
+      routineOrder: w.routineOrder,
+    );
   }
 
   void _syncWatch() {
@@ -263,10 +336,12 @@ class _TrainScreenState extends State<TrainScreen> {
 
   // ── Workout control ──────────────────────────────────────────────────────
 
-  void _startWorkout({String? name}) {
+  void _startWorkout({String? name, String? routineDay, int? routineOrder}) {
     setState(() {
       _workoutStarted = true;
       _workoutName = name;
+      _routineDay = routineDay;
+      _routineOrder = routineOrder;
       _elapsedSeconds = 0;
       _timerRunning = false;
       _startedAt = null;
@@ -327,6 +402,7 @@ class _TrainScreenState extends State<TrainScreen> {
             name: ex.name,
             muscleGroup: ex.muscleGroup,
             equipment: ex.equipment,
+            routineBlockName: t.name,
             sets: List.generate(
               ex.sets,
               (_) => SessionSet(reps: ex.reps, weight: lastWeight ?? ex.weight),
@@ -335,7 +411,41 @@ class _TrainScreenState extends State<TrainScreen> {
         );
       }
     });
-    _startWorkout(name: t.name);
+    _startWorkout(
+      name: t.name,
+      routineDay: t.routineDay,
+      routineOrder: t.routineOrder,
+    );
+  }
+
+  void _startRoutineDay(RoutineDay day, List<CustomTemplate> blocks) {
+    final sorted = [...blocks]..sort(_compareRoutineTemplates);
+    setState(() {
+      _exercises.clear();
+      for (final block in sorted) {
+        for (final ex in block.exercises) {
+          final lastWeight = _lastWeightFor(ex.name, equipment: ex.equipment);
+          _exercises.add(
+            SessionExercise(
+              id: '${block.id}_${ex.name}_${DateTime.now().microsecondsSinceEpoch}',
+              name: ex.name,
+              muscleGroup: ex.muscleGroup,
+              equipment: ex.equipment,
+              routineBlockName: block.name,
+              sets: List.generate(
+                ex.sets,
+                (_) =>
+                    SessionSet(reps: ex.reps, weight: lastWeight ?? ex.weight),
+              ),
+            ),
+          );
+        }
+      }
+    });
+    _startWorkout(
+      name: S.of(context).train_routineForDay(routineDayLabel(context, day)),
+      routineDay: day.storageKey,
+    );
   }
 
   void _cancelWorkout() {
@@ -391,6 +501,8 @@ class _TrainScreenState extends State<TrainScreen> {
       _workoutStarted = false;
       _timerRunning = false;
       _workoutName = null;
+      _routineDay = null;
+      _routineOrder = null;
       _exercises.clear();
       _elapsedSeconds = 0;
       _startedAt = null;
@@ -431,6 +543,9 @@ class _TrainScreenState extends State<TrainScreen> {
     final totalSets = _exercises.fold(0, (s, e) => s + e.sets.length);
     final totalVolume = _exercises.fold(0, (s, e) => s + e.totalVolume);
     final completedSets = _exercises.fold(0, (s, e) => s + e.completedSets);
+    final completedExercises = _exercises
+        .where((exercise) => exercise.completedSets > 0)
+        .length;
 
     showDialog(
       context: context,
@@ -493,7 +608,7 @@ class _TrainScreenState extends State<TrainScreen> {
             _SummaryStat(
               icon: Icons.fitness_center_rounded,
               label: l10n.common_exercises,
-              value: '${_exercises.length}',
+              value: '$completedExercises',
               color: AppColors.primary,
             ),
             const SizedBox(height: 8),
@@ -546,6 +661,8 @@ class _TrainScreenState extends State<TrainScreen> {
                       _workoutStarted = false;
                       _timerRunning = false;
                       _workoutName = null;
+                      _routineDay = null;
+                      _routineOrder = null;
                       _exercises.clear();
                       _elapsedSeconds = 0;
                       _startedAt = null;
@@ -591,6 +708,7 @@ class _TrainScreenState extends State<TrainScreen> {
               name: e.name,
               muscleGroup: e.muscleGroup,
               notes: e.notes,
+              routineBlockName: e.routineBlockName,
               sets: e.sets
                   .asMap()
                   .entries
@@ -607,6 +725,8 @@ class _TrainScreenState extends State<TrainScreen> {
           )
           .toList(),
       totalVolume: _exercises.fold(0, (s, e) => s + e.totalVolume),
+      routineDay: _routineDay,
+      routineOrder: _routineOrder,
     );
     WorkoutStore.instance.add(workout);
   }
@@ -711,87 +831,152 @@ class _TrainScreenState extends State<TrainScreen> {
     final nameCtrl = TextEditingController(
       text: _workoutName ?? l10n.train_defaultRoutineName,
     );
+    RoutineDay? selectedDay =
+        RoutineDay.fromStorage(_routineDay) ??
+        routineDayFromName(nameCtrl.text);
     showDialog(
       context: dialogCtx,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.bgCard,
-        title: Text(
-          l10n.train_saveAsRoutine,
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        content: TextField(
-          controller: nameCtrl,
-          autofocus: true,
-          style: const TextStyle(color: AppColors.textPrimary),
-          textCapitalization: TextCapitalization.sentences,
-          decoration: InputDecoration(
-            hintText: l10n.train_routineNameHint,
-            filled: true,
-            fillColor: AppColors.bgCardLight,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 12,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.bgCard,
+          title: Text(
+            l10n.train_saveAsRoutine,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
             ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              l10n.common_cancel,
-              style: const TextStyle(color: AppColors.textMuted),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final name = nameCtrl.text.trim();
-              if (name.isEmpty) return;
-              final template = CustomTemplate(
-                id: 'custom_tpl_${DateTime.now().millisecondsSinceEpoch}',
-                name: name,
-                exercises: _exercises
-                    .map(
-                      (e) => TemplateExercise(
-                        name: e.name,
-                        muscleGroup: e.muscleGroup,
-                        equipment: e.equipment,
-                        sets: e.sets.length,
-                        reps: e.sets.isNotEmpty ? e.sets.first.reps : 10,
-                        weight: e.sets.isNotEmpty ? e.sets.first.weight : 0,
-                      ),
-                    )
-                    .toList(),
-              );
-              CustomTemplateStore.instance.add(template);
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(dialogCtx).showSnackBar(
-                SnackBar(
-                  content: Text(l10n.train_routineSaved(name)),
-                  backgroundColor: AppColors.bgCardLight,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: nameCtrl,
+                autofocus: true,
+                style: const TextStyle(color: AppColors.textPrimary),
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  hintText: l10n.train_routineNameHint,
+                  filled: true,
+                  fillColor: AppColors.bgCardLight,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                 ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.accentOrange,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                l10n.train_trainingDay,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 6),
+              DropdownButtonFormField<String>(
+                initialValue: selectedDay?.storageKey ?? '',
+                dropdownColor: AppColors.bgCardLight,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: AppColors.bgCardLight,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                ),
+                items: [
+                  DropdownMenuItem<String>(
+                    value: '',
+                    child: Text(l10n.train_noAssignedDay),
+                  ),
+                  ...RoutineDay.values.map(
+                    (day) => DropdownMenuItem<String>(
+                      value: day.storageKey,
+                      child: Text(routineDayLabel(context, day)),
+                    ),
+                  ),
+                ],
+                onChanged: (value) => setDialogState(
+                  () => selectedDay = RoutineDay.fromStorage(value),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n.train_trainingDayHint,
+                style: const TextStyle(
+                  color: AppColors.textMuted,
+                  fontSize: 11,
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(
+                l10n.common_cancel,
+                style: const TextStyle(color: AppColors.textMuted),
               ),
             ),
-            child: Text(
-              l10n.common_save,
-              style: const TextStyle(fontWeight: FontWeight.w700),
+            ElevatedButton(
+              onPressed: () {
+                final name = nameCtrl.text.trim();
+                if (name.isEmpty) return;
+                final day = selectedDay;
+                final template = CustomTemplate(
+                  id: 'custom_tpl_${DateTime.now().millisecondsSinceEpoch}',
+                  name: name,
+                  routineDay: day?.storageKey,
+                  routineOrder: day == null ? null : _nextRoutineOrder(day),
+                  exercises: _exercises
+                      .map(
+                        (e) => TemplateExercise(
+                          name: e.name,
+                          muscleGroup: e.muscleGroup,
+                          equipment: e.equipment,
+                          sets: e.sets.length,
+                          reps: e.sets.isNotEmpty ? e.sets.first.reps : 10,
+                          weight: e.sets.isNotEmpty ? e.sets.first.weight : 0,
+                        ),
+                      )
+                      .toList(),
+                );
+                CustomTemplateStore.instance.add(template);
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(dialogCtx).showSnackBar(
+                  SnackBar(
+                    content: Text(l10n.train_routineSaved(name)),
+                    backgroundColor: AppColors.bgCardLight,
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accentOrange,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(
+                l10n.common_save,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -1072,6 +1257,120 @@ class _TrainScreenState extends State<TrainScreen> {
     );
   }
 
+  void _openRoutineDay(RoutineDay day) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => _RoutineDayScreen(
+          day: day,
+          dayForTemplate: _dayForTemplate,
+          onStartAll: (blocks) {
+            Navigator.pop(context);
+            _startRoutineDay(day, blocks);
+          },
+          onStartBlock: (template) {
+            Navigator.pop(context);
+            _showCustomTemplatePreview(template);
+          },
+          onAddRoutine: () => _createRoutine(initialDay: day),
+          onOrganize: _organizeTemplate,
+          onDelete: _confirmDeleteTemplate,
+        ),
+      ),
+    );
+  }
+
+  void _organizeTemplate(CustomTemplate template) {
+    final l10n = S.of(context);
+    RoutineDay? selectedDay = _dayForTemplate(template);
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          backgroundColor: AppColors.bgCard,
+          title: Text(
+            l10n.train_organizeRoutine,
+            style: const TextStyle(color: AppColors.textPrimary),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                template.name,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 14),
+              DropdownButtonFormField<String>(
+                initialValue: selectedDay?.storageKey ?? '',
+                dropdownColor: AppColors.bgCardLight,
+                style: const TextStyle(color: AppColors.textPrimary),
+                decoration: InputDecoration(
+                  labelText: l10n.train_trainingDay,
+                  labelStyle: const TextStyle(color: AppColors.textMuted),
+                  filled: true,
+                  fillColor: AppColors.bgCardLight,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                items: [
+                  DropdownMenuItem<String>(
+                    value: '',
+                    child: Text(l10n.train_noAssignedDay),
+                  ),
+                  ...RoutineDay.values.map(
+                    (day) => DropdownMenuItem<String>(
+                      value: day.storageKey,
+                      child: Text(routineDayLabel(context, day)),
+                    ),
+                  ),
+                ],
+                onChanged: (value) => setDialogState(
+                  () => selectedDay = RoutineDay.fromStorage(value),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(l10n.common_cancel),
+            ),
+            TextButton(
+              onPressed: () {
+                final oldDay = _dayForTemplate(template);
+                final day = selectedDay;
+                final updated = day == null
+                    ? template.copyWith(clearRoutineDay: true)
+                    : template.copyWith(
+                        routineDay: day.storageKey,
+                        routineOrder: oldDay == day
+                            ? template.routineOrder ??
+                                  routineOrderFromName(template.name)
+                            : _nextRoutineOrder(day),
+                      );
+                CustomTemplateStore.instance.update(updated);
+                Navigator.pop(ctx);
+              },
+              child: Text(
+                l10n.common_save,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _confirmDeleteTemplate(CustomTemplate ct) {
     final l10n = S.of(context);
     showDialog(
@@ -1120,6 +1419,13 @@ class _TrainScreenState extends State<TrainScreen> {
 
   Widget _buildEmptyState() {
     final l10n = S.of(context);
+    final customTemplates = CustomTemplateStore.instance.templates;
+    final populatedDays = RoutineDay.values
+        .where((day) => _templatesForDay(day).isNotEmpty)
+        .toList();
+    final unassignedTemplates = customTemplates
+        .where((template) => _dayForTemplate(template) == null)
+        .toList();
     return CustomScrollView(
       slivers: [
         SliverAppBar(title: Text(l10n.train_title), floating: true),
@@ -1220,43 +1526,88 @@ class _TrainScreenState extends State<TrainScreen> {
         ),
 
         // Custom templates
-        if (CustomTemplateStore.instance.templates.isNotEmpty) ...[
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-            sliver: SliverToBoxAdapter(
-              child: Text(
-                l10n.train_myRoutines,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          sliver: SliverToBoxAdapter(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.train_myRoutines,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: _createRoutine,
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  label: Text(l10n.train_createRoutine),
+                ),
+              ],
             ),
           ),
+        ),
+        if (customTemplates.isNotEmpty) ...[
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, i) {
-                final ct = CustomTemplateStore.instance.templates[i];
-                return _CustomTemplateCard(
-                  template: ct,
-                  onTap: () => _showCustomTemplatePreview(ct),
-                  onDelete: () => _confirmDeleteTemplate(ct),
+                final day = populatedDays[i];
+                final templates = _templatesForDay(day);
+                return _RoutineDayCard(
+                  day: day,
+                  blockCount: templates.length,
+                  exerciseCount: templates.fold(
+                    0,
+                    (sum, template) => sum + template.exercises.length,
+                  ),
+                  onTap: () => _openRoutineDay(day),
                 );
-              }, childCount: CustomTemplateStore.instance.templates.length),
+              }, childCount: populatedDays.length),
             ),
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-              child: Text(
-                l10n.train_predefinedRoutines,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          if (unassignedTemplates.isNotEmpty) ...[
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+              sliver: SliverToBoxAdapter(
+                child: Text(
+                  l10n.train_noAssignedDay,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
-          ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate((context, i) {
+                  final ct = unassignedTemplates[i];
+                  return _CustomTemplateCard(
+                    template: ct,
+                    onTap: () => _showCustomTemplatePreview(ct),
+                    onOrganize: () => _organizeTemplate(ct),
+                    onDelete: () => _confirmDeleteTemplate(ct),
+                  );
+                }, childCount: unassignedTemplates.length),
+              ),
+            ),
+          ],
         ],
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+            child: Text(
+              l10n.train_predefinedRoutines,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
 
         // Template list
         SliverPadding(
@@ -1297,23 +1648,35 @@ class _TrainScreenState extends State<TrainScreen> {
                   ),
                   itemBuilder: (context, i) {
                     final exercise = _exercises[i];
+                    final showBlockHeader =
+                        exercise.routineBlockName != null &&
+                        (i == 0 ||
+                            _exercises[i - 1].routineBlockName !=
+                                exercise.routineBlockName);
                     final recommendation = _recommendationFor(
                       exercise.name,
                       equipment: exercise.equipment,
                     );
-                    return _ExerciseCard(
+                    return Column(
                       key: ValueKey(exercise.id),
-                      exercise: exercise,
-                      lastWeight: recommendation?.previousWeight,
-                      recommendation: recommendation,
-                      onApplyRecommendation: recommendation == null
-                          ? null
-                          : () => _applyRecommendation(i, recommendation),
-                      onAddSet: () => _addSet(i),
-                      onRemoveSet: (si) => _removeSet(i, si),
-                      onToggleDone: (si) => _toggleSetDone(i, si),
-                      onDelete: () => _removeExercise(i),
-                      onSetChanged: () => setState(() {}),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (showBlockHeader)
+                          _RoutineBlockHeader(name: exercise.routineBlockName!),
+                        _ExerciseCard(
+                          exercise: exercise,
+                          lastWeight: recommendation?.previousWeight,
+                          recommendation: recommendation,
+                          onApplyRecommendation: recommendation == null
+                              ? null
+                              : () => _applyRecommendation(i, recommendation),
+                          onAddSet: () => _addSet(i),
+                          onRemoveSet: (si) => _removeSet(i, si),
+                          onToggleDone: (si) => _toggleSetDone(i, si),
+                          onDelete: () => _removeExercise(i),
+                          onSetChanged: () => setState(() {}),
+                        ),
+                      ],
                     );
                   },
                 ),

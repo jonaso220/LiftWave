@@ -124,11 +124,13 @@ class _TemplateCard extends StatelessWidget {
 class _CustomTemplateCard extends StatelessWidget {
   final CustomTemplate template;
   final VoidCallback onTap;
+  final VoidCallback onOrganize;
   final VoidCallback onDelete;
 
   const _CustomTemplateCard({
     required this.template,
     required this.onTap,
+    required this.onOrganize,
     required this.onDelete,
   });
 
@@ -199,10 +201,17 @@ class _CustomTemplateCard extends StatelessWidget {
               const SizedBox(width: 8),
               Column(
                 children: [
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    color: AppColors.textMuted,
-                    size: 18,
+                  Semantics(
+                    label: l10n.train_organizeRoutine,
+                    button: true,
+                    child: GestureDetector(
+                      onTap: onOrganize,
+                      child: const Icon(
+                        Icons.event_note_rounded,
+                        color: AppColors.primary,
+                        size: 19,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Semantics(
@@ -218,6 +227,407 @@ class _CustomTemplateCard extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RoutineDayCard extends StatelessWidget {
+  final RoutineDay day;
+  final int blockCount;
+  final int exerciseCount;
+  final VoidCallback onTap;
+
+  const _RoutineDayCard({
+    required this.day,
+    required this.blockCount,
+    required this.exerciseCount,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    final label = routineDayLabel(context, day);
+    return Semantics(
+      label:
+          '$label. ${l10n.train_blockCount(blockCount)}. '
+          '${l10n.train_exerciseCount(exerciseCount)}',
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.bgCard,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.primary.withAlpha(60)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withAlpha(30),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  Icons.calendar_view_day_rounded,
+                  color: AppColors.primary,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '${l10n.train_blockCount(blockCount)} · '
+                      '${l10n.train_exerciseCount(exerciseCount)}',
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.textMuted,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RoutineDayScreen extends StatefulWidget {
+  final RoutineDay day;
+  final RoutineDay? Function(CustomTemplate) dayForTemplate;
+  final void Function(List<CustomTemplate>) onStartAll;
+  final void Function(CustomTemplate) onStartBlock;
+  final VoidCallback onAddRoutine;
+  final void Function(CustomTemplate) onOrganize;
+  final void Function(CustomTemplate) onDelete;
+
+  const _RoutineDayScreen({
+    required this.day,
+    required this.dayForTemplate,
+    required this.onStartAll,
+    required this.onStartBlock,
+    required this.onAddRoutine,
+    required this.onOrganize,
+    required this.onDelete,
+  });
+
+  @override
+  State<_RoutineDayScreen> createState() => _RoutineDayScreenState();
+}
+
+class _RoutineDayScreenState extends State<_RoutineDayScreen> {
+  @override
+  void initState() {
+    super.initState();
+    CustomTemplateStore.instance.addListener(_onChanged);
+  }
+
+  @override
+  void dispose() {
+    CustomTemplateStore.instance.removeListener(_onChanged);
+    super.dispose();
+  }
+
+  void _onChanged() {
+    if (mounted) setState(() {});
+  }
+
+  List<CustomTemplate> get _blocks {
+    final result = CustomTemplateStore.instance.templates
+        .where((template) => widget.dayForTemplate(template) == widget.day)
+        .toList();
+    result.sort(_compareRoutineTemplates);
+    return result;
+  }
+
+  void _reorder(int oldIndex, int newIndex) {
+    final blocks = _blocks;
+    if (newIndex > oldIndex) newIndex--;
+    final moved = blocks.removeAt(oldIndex);
+    blocks.insert(newIndex, moved);
+    CustomTemplateStore.instance.reorderDay(widget.day.storageKey, blocks);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    final blocks = _blocks;
+    final label = routineDayLabel(context, widget.day);
+    final exerciseCount = blocks.fold(
+      0,
+      (sum, template) => sum + template.exercises.length,
+    );
+
+    return Scaffold(
+      appBar: AppBar(title: Text(label)),
+      body: blocks.isEmpty
+          ? Center(
+              child: Text(
+                l10n.train_noRoutinesForDay,
+                style: const TextStyle(color: AppColors.textMuted),
+              ),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withAlpha(20),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: AppColors.primary.withAlpha(45),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.train_routineForDay(label),
+                          style: const TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${l10n.train_blockCount(blocks.length)} · '
+                          '${l10n.train_exerciseCount(exerciseCount)}',
+                          style: const TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.train_reorderBlocksHint,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: ReorderableListView.builder(
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
+                    itemCount: blocks.length,
+                    onReorder: _reorder,
+                    itemBuilder: (context, index) {
+                      final block = blocks[index];
+                      return _RoutineBlockTile(
+                        key: ValueKey(block.id),
+                        index: index,
+                        template: block,
+                        onTap: () => widget.onStartBlock(block),
+                        onOrganize: () => widget.onOrganize(block),
+                        onDelete: () => widget.onDelete(block),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: widget.onAddRoutine,
+                  icon: const Icon(Icons.add_rounded),
+                  label: Text(l10n.train_addRoutineForDay(label)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: BorderSide(color: AppColors.primary.withAlpha(115)),
+                    padding: const EdgeInsets.symmetric(vertical: 13),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    textStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+              if (blocks.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => widget.onStartAll(blocks),
+                    icon: const Icon(Icons.play_arrow_rounded),
+                    label: Text(l10n.train_startCompleteRoutine),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RoutineBlockTile extends StatelessWidget {
+  final int index;
+  final CustomTemplate template;
+  final VoidCallback onTap;
+  final VoidCallback onOrganize;
+  final VoidCallback onDelete;
+
+  const _RoutineBlockTile({
+    super.key,
+    required this.index,
+    required this.template,
+    required this.onTap,
+    required this.onOrganize,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: AppColors.bgCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.bgCardLight),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              ReorderableDragStartListener(
+                index: index,
+                child: const Padding(
+                  padding: EdgeInsets.only(right: 10),
+                  child: Icon(
+                    Icons.drag_handle_rounded,
+                    color: AppColors.textMuted,
+                  ),
+                ),
+              ),
+              Container(
+                width: 36,
+                height: 36,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withAlpha(25),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${index + 1}',
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      template.name,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.train_exerciseCount(template.exercises.length),
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuButton<String>(
+                color: AppColors.bgCardLight,
+                onSelected: (value) {
+                  if (value == 'organize') onOrganize();
+                  if (value == 'delete') onDelete();
+                },
+                itemBuilder: (_) => [
+                  PopupMenuItem(
+                    value: 'organize',
+                    child: Text(
+                      l10n.train_organizeRoutine,
+                      style: const TextStyle(color: AppColors.textPrimary),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Text(
+                      l10n.common_delete,
+                      style: const TextStyle(color: AppColors.error),
+                    ),
+                  ),
+                ],
+                icon: const Icon(
+                  Icons.more_horiz_rounded,
+                  color: AppColors.textMuted,
+                ),
               ),
             ],
           ),

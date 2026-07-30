@@ -461,65 +461,74 @@ class _ExerciseRow extends StatelessWidget {
       exercise.name,
       id: exercise.id,
     );
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        margin: const EdgeInsets.only(bottom: 6),
-        decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.bgCardLight),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: color.withAlpha(38),
-                borderRadius: BorderRadius.circular(10),
+    return Semantics(
+      button: true,
+      label: '$displayName, ${l10n.picker_addExercise}',
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          margin: const EdgeInsets.only(bottom: 6),
+          decoration: BoxDecoration(
+            color: AppColors.bgCard,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.bgCardLight),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: color.withAlpha(38),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.fitness_center_rounded,
+                  color: color,
+                  size: 18,
+                ),
               ),
-              child: Icon(Icons.fitness_center_rounded, color: color, size: 18),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    displayName,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Row(
-                    children: [
-                      MuscleChip(label: exercise.muscleGroup),
-                      const SizedBox(width: 6),
-                      Text(
-                        ExerciseLocalization.equipment(
-                          l10n,
-                          exercise.equipment,
-                        ),
-                        style: const TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 11,
-                        ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      displayName,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 3),
+                    Row(
+                      children: [
+                        MuscleChip(label: exercise.muscleGroup),
+                        const SizedBox(width: 6),
+                        Text(
+                          ExerciseLocalization.equipment(
+                            l10n,
+                            exercise.equipment,
+                          ),
+                          style: const TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const Icon(
-              Icons.add_circle_rounded,
-              color: AppColors.primary,
-              size: 22,
-            ),
-          ],
+              const Icon(
+                Icons.add_circle_rounded,
+                color: AppColors.primary,
+                size: 22,
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -54,6 +54,8 @@ class _WorkoutEditScreenState extends State<WorkoutEditScreen> {
       exercises: updatedExercises,
       totalVolume: newVolume,
       notes: widget.workout.notes,
+      routineDay: widget.workout.routineDay,
+      routineOrder: widget.workout.routineOrder,
     );
     await WorkoutStore.instance.update(updated);
     if (!mounted) return;
@@ -327,6 +329,7 @@ class _EditableExercise extends ChangeNotifier {
   final String id;
   final String name;
   final String muscleGroup;
+  final String? routineBlockName;
   final TextEditingController notesCtrl;
   final List<_EditableSet> sets;
 
@@ -334,6 +337,7 @@ class _EditableExercise extends ChangeNotifier {
     required this.id,
     required this.name,
     required this.muscleGroup,
+    required this.routineBlockName,
     required this.notesCtrl,
     required this.sets,
   });
@@ -343,8 +347,16 @@ class _EditableExercise extends ChangeNotifier {
       id: w.id,
       name: w.name,
       muscleGroup: w.muscleGroup,
+      routineBlockName: w.routineBlockName,
       notesCtrl: TextEditingController(text: w.notes ?? ''),
-      sets: w.sets.map(_EditableSet.from).toList(),
+      sets: w.sets
+          .map(
+            (set) => _EditableSet.from(
+              set,
+              completed: w.isSetEffectivelyCompleted(set),
+            ),
+          )
+          .toList(),
     );
   }
 
@@ -355,6 +367,7 @@ class _EditableExercise extends ChangeNotifier {
       muscleGroup: muscleGroup,
       sets: sets.asMap().entries.map((e) => e.value.toSet(e.key + 1)).toList(),
       notes: notesCtrl.text.trim().isEmpty ? null : notesCtrl.text.trim(),
+      routineBlockName: routineBlockName,
     );
   }
 
@@ -379,15 +392,16 @@ class _EditableSet extends ChangeNotifier {
     required bool completed,
   }) : _completed = completed;
 
-  factory _EditableSet.from(WorkoutSet s) => _EditableSet._(
-    repsCtrl: TextEditingController(text: '${s.reps}'),
-    weightCtrl: TextEditingController(
-      text: s.weight % 1 == 0
-          ? s.weight.toStringAsFixed(0)
-          : s.weight.toString(),
-    ),
-    completed: s.completed,
-  );
+  factory _EditableSet.from(WorkoutSet s, {required bool completed}) =>
+      _EditableSet._(
+        repsCtrl: TextEditingController(text: '${s.reps}'),
+        weightCtrl: TextEditingController(
+          text: s.weight % 1 == 0
+              ? s.weight.toStringAsFixed(0)
+              : s.weight.toString(),
+        ),
+        completed: completed,
+      );
 
   bool get completed => _completed;
   void toggleCompleted() {

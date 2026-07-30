@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:liftwave/data/persistent_sync_queue.dart';
+import 'package:liftwave/data/custom_template_store.dart';
 import 'package:liftwave/data/workout_templates.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:liftwave/l10n/generated/app_localizations_en.dart';
@@ -19,6 +20,7 @@ import 'package:liftwave/screens/onboarding/training_preferences_screen.dart';
 import 'package:liftwave/theme/app_theme.dart';
 import 'package:liftwave/utils/csv_exporter.dart';
 import 'package:liftwave/utils/exercise_localization.dart';
+import 'package:liftwave/utils/routine_days.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -55,6 +57,14 @@ void main() {
             WorkoutSet(setNumber: 2, reps: 8, weight: 80, completed: false),
           ],
         ),
+        WorkoutExercise(
+          id: 'row',
+          name: 'Remo con barra',
+          muscleGroup: 'Espalda',
+          sets: [
+            WorkoutSet(setNumber: 1, reps: 10, weight: 60, completed: false),
+          ],
+        ),
       ],
       totalVolume: 500,
     );
@@ -87,6 +97,100 @@ void main() {
 
     expect(workout.totalSets, 1);
     expect(workout.totalVolume, 1000);
+    expect(
+      workout.exercises.single.isSetEffectivelyCompleted(
+        workout.exercises.single.sets.single,
+      ),
+      isTrue,
+    );
+  });
+
+  test('legacy routine names are grouped by weekday and ordinal', () {
+    expect(routineDayFromName('1er biserie Martes julio'), RoutineDay.tuesday);
+    expect(
+      routineDayFromName('4ta bi serie jueves julio'),
+      RoutineDay.thursday,
+    );
+    expect(routineOrderFromName('2do. Circuito martes'), 2);
+    expect(routineOrderFromName('Rutina sin número'), 999);
+  });
+
+  test('explicit routine day wins over legacy name and completion date', () {
+    final resolved = routineDayForWorkout(
+      storedDay: RoutineDay.thursday.storageKey,
+      name: 'Circuito martes',
+      date: DateTime(2026, 7, 27),
+    );
+
+    expect(resolved, RoutineDay.thursday);
+  });
+
+  test('routine metadata and block names survive workout serialization', () {
+    final workout = Workout(
+      id: 'routine-workout',
+      name: 'Rutina del martes',
+      date: DateTime(2026, 7, 28),
+      duration: const Duration(minutes: 40),
+      routineDay: RoutineDay.tuesday.storageKey,
+      exercises: const [
+        WorkoutExercise(
+          id: 'squat',
+          name: 'Sentadilla',
+          muscleGroup: 'Piernas',
+          routineBlockName: '1er biserie',
+          sets: [
+            WorkoutSet(setNumber: 1, reps: 10, weight: 20, completed: true),
+          ],
+        ),
+      ],
+      totalVolume: 200,
+    );
+
+    final restored = Workout.fromJson(workout.toJson());
+    expect(restored.routineDay, RoutineDay.tuesday.storageKey);
+    expect(restored.exercises.single.routineBlockName, '1er biserie');
+  });
+
+  test('custom routine organization remains backward compatible', () {
+    final legacy = CustomTemplate.fromJson({
+      'id': 'legacy-template',
+      'name': '2do circuito martes',
+      'exercises': <Map<String, Object>>[],
+    });
+    final organized = legacy.copyWith(
+      routineDay: RoutineDay.tuesday.storageKey,
+      routineOrder: 2,
+    );
+    final restored = CustomTemplate.fromJson(organized.toJson());
+
+    expect(legacy.routineDay, isNull);
+    expect(restored.routineDay, RoutineDay.tuesday.storageKey);
+    expect(restored.routineOrder, 2);
+  });
+
+  test('planned routines can be saved without completing a workout', () {
+    final planned = CustomTemplate(
+      id: 'planned-tuesday',
+      name: 'Martes fuerza',
+      routineDay: RoutineDay.tuesday.storageKey,
+      routineOrder: 3,
+      exercises: const [
+        TemplateExercise(
+          name: 'Press de banca',
+          muscleGroup: 'Pecho',
+          equipment: 'Barra',
+          sets: 4,
+          reps: 8,
+          weight: 0,
+        ),
+      ],
+    );
+
+    final restored = CustomTemplate.fromJson(planned.toJson());
+    expect(restored.routineDay, RoutineDay.tuesday.storageKey);
+    expect(restored.routineOrder, 3);
+    expect(restored.exercises.single.sets, 4);
+    expect(restored.exercises.single.reps, 8);
   });
 
   test('exercise content uses localized display values', () {

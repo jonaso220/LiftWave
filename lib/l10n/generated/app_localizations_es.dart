@@ -804,6 +804,60 @@ class SEs extends S {
   String get train_defaultRoutineName => 'Mi rutina';
 
   @override
+  String get train_createRoutine => 'Crear rutina';
+
+  @override
+  String get train_createRoutineHint =>
+      'Elige los ejercicios y déjala preparada para entrenarla cuando quieras.';
+
+  @override
+  String get train_routineNameRequired => 'Escribe un nombre para la rutina.';
+
+  @override
+  String train_addRoutineForDay(String day) {
+    return 'Añadir otra rutina para el $day';
+  }
+
+  @override
+  String get train_trainingDay => 'Día de entrenamiento';
+
+  @override
+  String get train_noAssignedDay => 'Sin día asignado';
+
+  @override
+  String get train_trainingDayHint =>
+      'Agrúpala por día para encontrar toda la rutina junta.';
+
+  @override
+  String get train_organizeRoutine => 'Organizar rutina';
+
+  @override
+  String train_blockCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bloques',
+      one: '1 bloque',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get train_noRoutinesForDay => 'Todavía no hay bloques para este día.';
+
+  @override
+  String get train_reorderBlocksHint =>
+      'Mantén presionado y arrastra para cambiar el orden.';
+
+  @override
+  String get train_startCompleteRoutine => 'Empezar rutina completa';
+
+  @override
+  String train_routineForDay(String day) {
+    return 'Rutina del $day';
+  }
+
+  @override
   String get train_bodyweightLabel => 'Peso corporal';
 
   @override
@@ -973,6 +1027,29 @@ class SEs extends S {
 
   @override
   String get history_volumeKg => 'Volumen kg';
+
+  @override
+  String get history_routinesByDay => 'Rutinas por día';
+
+  @override
+  String history_sessionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sesiones',
+      one: '1 sesión',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String history_dayRoutineTitle(String day) {
+    return 'Entrenamientos del $day';
+  }
+
+  @override
+  String get history_dayRoutineHint =>
+      'Los bloques del mismo día aparecen juntos y en orden.';
 
   @override
   String get history_dayMon => 'L';

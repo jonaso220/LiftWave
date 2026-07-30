@@ -777,6 +777,56 @@ class SKo extends S {
   String get train_defaultRoutineName => '내 루틴';
 
   @override
+  String get train_createRoutine => '루틴 만들기';
+
+  @override
+  String get train_createRoutineHint => '운동을 선택하고 다음 훈련을 위해 미리 준비하세요.';
+
+  @override
+  String get train_routineNameRequired => '루틴 이름을 입력하세요.';
+
+  @override
+  String train_addRoutineForDay(String day) {
+    return '$day에 다른 루틴 추가';
+  }
+
+  @override
+  String get train_trainingDay => '운동 요일';
+
+  @override
+  String get train_noAssignedDay => '요일 미지정';
+
+  @override
+  String get train_trainingDayHint => '요일별로 묶어 전체 루틴을 한곳에서 확인하세요.';
+
+  @override
+  String get train_organizeRoutine => '루틴 정리';
+
+  @override
+  String train_blockCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count개 블록',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get train_noRoutinesForDay => '이 요일에는 아직 블록이 없습니다.';
+
+  @override
+  String get train_reorderBlocksHint => '길게 누르고 드래그하여 순서를 변경하세요.';
+
+  @override
+  String get train_startCompleteRoutine => '전체 루틴 시작';
+
+  @override
+  String train_routineForDay(String day) {
+    return '$day 루틴';
+  }
+
+  @override
   String get train_bodyweightLabel => '체중';
 
   @override
@@ -936,6 +986,27 @@ class SKo extends S {
 
   @override
   String get history_volumeKg => '볼륨 kg';
+
+  @override
+  String get history_routinesByDay => '요일별 루틴';
+
+  @override
+  String history_sessionCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count회 세션',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String history_dayRoutineTitle(String day) {
+    return '$day 운동';
+  }
+
+  @override
+  String get history_dayRoutineHint => '같은 요일의 블록이 순서대로 함께 표시됩니다.';
 
   @override
   String get history_dayMon => '월';

@@ -25,7 +25,7 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     final screens = [
       HomeScreen(onNavigate: _navigateTo),
-      const TrainScreen(),
+      TrainScreen(onSessionRestored: () => _navigateTo(1)),
       const HistoryScreen(),
       const ExercisesScreen(),
     ];

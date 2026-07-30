@@ -1,5 +1,46 @@
 part of 'train_screen.dart';
 
+class _RoutineBlockHeader extends StatelessWidget {
+  final String name;
+
+  const _RoutineBlockHeader({required this.name});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 10, 4, 8),
+      child: Row(
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withAlpha(28),
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: const Icon(
+              Icons.view_agenda_rounded,
+              color: AppColors.primary,
+              size: 16,
+            ),
+          ),
+          const SizedBox(width: 9),
+          Expanded(
+            child: Text(
+              name,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 // ── Exercise card ────────────────────────────────────────────────────────────
 
 /// Notes field for an exercise card. Owns its own [TextEditingController] so
@@ -58,7 +99,6 @@ class _ExerciseCard extends StatelessWidget {
   final VoidCallback? onApplyRecommendation;
 
   const _ExerciseCard({
-    super.key,
     required this.exercise,
     required this.onAddSet,
     required this.onRemoveSet,
@@ -442,6 +482,7 @@ class _SetRowState extends State<_SetRow> {
   @override
   Widget build(BuildContext context) {
     final done = widget.set.completed;
+    final setLabel = '${S.of(context).train_setHeader} ${widget.index + 1}';
     return Container(
       color: done ? AppColors.accent.withAlpha(13) : Colors.transparent,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -502,14 +543,21 @@ class _SetRowState extends State<_SetRow> {
                   ),
                 ),
                 if (widget.onRemove != null)
-                  GestureDetector(
+                  Semantics(
+                    label: '${S.of(context).common_delete} $setLabel',
+                    button: true,
                     onTap: widget.onRemove,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 4),
-                      child: Icon(
-                        Icons.remove_circle_outline_rounded,
-                        color: AppColors.textMuted.withAlpha(128),
-                        size: 16,
+                    child: ExcludeSemantics(
+                      child: GestureDetector(
+                        onTap: widget.onRemove,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Icon(
+                            Icons.remove_circle_outline_rounded,
+                            color: AppColors.textMuted.withAlpha(128),
+                            size: 16,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -518,31 +566,27 @@ class _SetRowState extends State<_SetRow> {
           ),
           Expanded(
             flex: 1,
-            child: GestureDetector(
-              onTap: () {
-                HapticFeedback.lightImpact();
-                widget.onToggle();
-              },
-              child: Center(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: done ? AppColors.accent : AppColors.bgCardLight,
-                    borderRadius: BorderRadius.circular(8),
-                    border: done
-                        ? null
-                        : Border.all(color: AppColors.bgCardLight),
-                  ),
-                  child: done
-                      ? const Icon(
-                          Icons.check_rounded,
-                          color: Colors.white,
-                          size: 16,
-                        )
-                      : null,
+            child: Center(
+              child: Checkbox(
+                value: done,
+                onChanged: (_) {
+                  HapticFeedback.lightImpact();
+                  widget.onToggle();
+                },
+                semanticLabel: setLabel,
+                activeColor: AppColors.accent,
+                checkColor: Colors.white,
+                fillColor: WidgetStateProperty.resolveWith(
+                  (states) => states.contains(WidgetState.selected)
+                      ? AppColors.accent
+                      : AppColors.bgCardLight,
                 ),
+                side: BorderSide.none,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity.compact,
               ),
             ),
           ),
