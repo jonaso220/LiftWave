@@ -62,6 +62,19 @@ class SFr extends S {
   String get common_pro => 'PRO';
 
   @override
+  String get common_discardChangesTitle => 'Ignorer les modifications ?';
+
+  @override
+  String get common_discardChangesBody =>
+      'Les modifications effectuées ne seront pas enregistrées.';
+
+  @override
+  String get common_keepEditing => 'Continuer la modification';
+
+  @override
+  String get common_discard => 'Ignorer';
+
+  @override
   String get muscle_all => 'Tous';
 
   @override
@@ -356,6 +369,37 @@ class SFr extends S {
 
   @override
   String get restTimer_title => 'Repos';
+
+  @override
+  String get restTimer_openControls =>
+      'Ouvrir les commandes du minuteur de repos';
+
+  @override
+  String restTimer_addSeconds(int seconds) {
+    return 'Ajouter $seconds secondes';
+  }
+
+  @override
+  String restTimer_subtractSeconds(int seconds) {
+    return 'Retirer $seconds secondes';
+  }
+
+  @override
+  String get restTimer_pause => 'Mettre le minuteur en pause';
+
+  @override
+  String get restTimer_resume => 'Reprendre le minuteur';
+
+  @override
+  String get restTimer_dismiss => 'Fermer le minuteur';
+
+  @override
+  String get restTimer_reset => 'Réinitialiser le minuteur';
+
+  @override
+  String restTimer_preset(String time) {
+    return 'Utiliser un repos de $time';
+  }
 
   @override
   String get restTimer_resting => 'REPOS';
@@ -808,6 +852,32 @@ class SFr extends S {
 
   @override
   String get train_createRoutine => 'Créer une routine';
+
+  @override
+  String get train_editRoutine => 'Modifier la routine';
+
+  @override
+  String train_routineUpdated(String name) {
+    return 'Routine \"$name\" mise à jour';
+  }
+
+  @override
+  String get train_addFirstExercise => 'Ajouter le premier exercice';
+
+  @override
+  String get train_addFirstExerciseHint =>
+      'Touchez ici ou « Ajouter un exercice » pour ajouter le premier.';
+
+  @override
+  String get train_removeSet => 'Supprimer la série';
+
+  @override
+  String get train_removeCompletedSetTitle => 'Supprimer la série terminée ?';
+
+  @override
+  String train_removeCompletedSetBody(int setNumber) {
+    return 'La série $setNumber est terminée et ne comptera plus dans votre entraînement.';
+  }
 
   @override
   String get train_createRoutineHint =>

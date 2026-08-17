@@ -59,6 +59,7 @@ class _TrainScreenState extends State<TrainScreen> {
   String? _workoutName; // null → 'Entrenamiento libre'
   String? _routineDay;
   int? _routineOrder;
+  WorkoutLaunchSource _launchSource = WorkoutLaunchSource.freeSession;
   DateTime? _startedAt;
   bool _restoreChecked = false;
 
@@ -147,26 +148,14 @@ class _TrainScreenState extends State<TrainScreen> {
       _workoutName = snap.workoutName;
       _routineDay = snap.routineDay;
       _routineOrder = snap.routineOrder;
+      _launchSource = snap.launchSource;
       _workoutStarted = true;
       _startedAt = snap.startedAt;
-      if (snap.startedAt != null) {
-        _elapsedSeconds = DateTime.now()
-            .difference(snap.startedAt!)
-            .inSeconds
-            .clamp(0, 86400);
-      } else {
-        _elapsedSeconds = snap.elapsedSeconds;
-      }
+      _elapsedSeconds = snap.elapsedAt(DateTime.now());
       _timerRunning = snap.timerRunning;
     });
     _syncWatch();
-    if (_timerRunning) {
-      _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-        setState(() => _elapsedSeconds++);
-        if (_elapsedSeconds % 5 == 0) _syncWatch();
-        _persistActiveWorkout();
-      });
-    }
+    if (_timerRunning) _scheduleWorkoutTimer();
     _persistActiveWorkout();
   }
 
@@ -179,6 +168,7 @@ class _TrainScreenState extends State<TrainScreen> {
       workoutName: _workoutName,
       routineDay: _routineDay,
       routineOrder: _routineOrder,
+      launchSource: _launchSource,
       exercises: _exercises,
     );
   }
@@ -228,6 +218,30 @@ class _TrainScreenState extends State<TrainScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(l10n.train_routineSaved(template.name)),
+        backgroundColor: AppColors.bgCardLight,
+      ),
+    );
+  }
+
+  Future<void> _editRoutine(CustomTemplate template) async {
+    final updated = await Navigator.push<CustomTemplate>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RoutineBuilderScreen(
+          initialName: template.name,
+          initialDay: _dayForTemplate(template),
+          routineOrder: template.routineOrder,
+          initialTemplate: template,
+        ),
+      ),
+    );
+    if (updated == null || !mounted) return;
+
+    await CustomTemplateStore.instance.update(updated);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(S.of(context).train_routineUpdated(updated.name)),
         backgroundColor: AppColors.bgCardLight,
       ),
     );
@@ -310,6 +324,7 @@ class _TrainScreenState extends State<TrainScreen> {
       name: w.name,
       routineDay: w.routineDay,
       routineOrder: w.routineOrder,
+      launchSource: WorkoutLaunchSource.workoutHistory,
     );
   }
 
@@ -336,19 +351,36 @@ class _TrainScreenState extends State<TrainScreen> {
 
   // ── Workout control ──────────────────────────────────────────────────────
 
-  void _startWorkout({String? name, String? routineDay, int? routineOrder}) {
+  void _startWorkout({
+    String? name,
+    String? routineDay,
+    int? routineOrder,
+    WorkoutLaunchSource launchSource = WorkoutLaunchSource.freeSession,
+  }) {
+    final now = DateTime.now();
     setState(() {
       _workoutStarted = true;
       _workoutName = name;
       _routineDay = routineDay;
       _routineOrder = routineOrder;
+      _launchSource = launchSource;
       _elapsedSeconds = 0;
-      _timerRunning = false;
-      _startedAt = null;
+      _timerRunning = true;
+      _startedAt = now;
     });
-    _timer?.cancel();
+    _scheduleWorkoutTimer();
+    HapticFeedback.lightImpact();
     _syncWatch();
     _persistActiveWorkout();
+  }
+
+  void _scheduleWorkoutTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() => _elapsedSeconds++);
+      if (_elapsedSeconds % 5 == 0) _syncWatch();
+      if (_elapsedSeconds % 10 == 0) _persistActiveWorkout();
+    });
   }
 
   void _startTimer() {
@@ -360,13 +392,7 @@ class _TrainScreenState extends State<TrainScreen> {
     });
     _syncWatch();
     _persistActiveWorkout();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() => _elapsedSeconds++);
-      if (_elapsedSeconds % 5 == 0) _syncWatch(); // sync every 5s
-      if (_elapsedSeconds % 10 == 0) {
-        _persistActiveWorkout(); // persist every 10s
-      }
-    });
+    _scheduleWorkoutTimer();
   }
 
   void _startFromTemplate(WorkoutTemplate t) {
@@ -388,7 +414,7 @@ class _TrainScreenState extends State<TrainScreen> {
         );
       }
     });
-    _startWorkout(name: t.name);
+    _startWorkout(name: t.name, launchSource: WorkoutLaunchSource.savedRoutine);
   }
 
   void _startFromCustomTemplate(CustomTemplate t) {
@@ -415,6 +441,7 @@ class _TrainScreenState extends State<TrainScreen> {
       name: t.name,
       routineDay: t.routineDay,
       routineOrder: t.routineOrder,
+      launchSource: WorkoutLaunchSource.savedRoutine,
     );
   }
 
@@ -445,6 +472,7 @@ class _TrainScreenState extends State<TrainScreen> {
     _startWorkout(
       name: S.of(context).train_routineForDay(routineDayLabel(context, day)),
       routineDay: day.storageKey,
+      launchSource: WorkoutLaunchSource.savedRoutine,
     );
   }
 
@@ -503,6 +531,7 @@ class _TrainScreenState extends State<TrainScreen> {
       _workoutName = null;
       _routineDay = null;
       _routineOrder = null;
+      _launchSource = WorkoutLaunchSource.freeSession;
       _exercises.clear();
       _elapsedSeconds = 0;
       _startedAt = null;
@@ -535,6 +564,11 @@ class _TrainScreenState extends State<TrainScreen> {
       return;
     }
     _timer?.cancel();
+    setState(() {
+      _timerRunning = false;
+      _startedAt = null;
+    });
+    _persistActiveWorkout();
     _showSummaryDialog();
   }
 
@@ -630,24 +664,26 @@ class _TrainScreenState extends State<TrainScreen> {
         actions: [
           Column(
             children: [
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () => _saveAsTemplate(ctx),
-                  icon: const Icon(Icons.bookmark_add_rounded, size: 18),
-                  label: Text(l10n.train_saveAsRoutine),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.accentOrange,
-                    side: const BorderSide(color: AppColors.accentOrange),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              if (_launchSource.canSaveAsRoutine) ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _saveAsTemplate(ctx),
+                    icon: const Icon(Icons.bookmark_add_rounded, size: 18),
+                    label: Text(l10n.train_saveAsRoutine),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.accentOrange,
+                      side: const BorderSide(color: AppColors.accentOrange),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 11),
+                      textStyle: const TextStyle(fontWeight: FontWeight.w600),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 11),
-                    textStyle: const TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
+                const SizedBox(height: 8),
+              ],
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -663,6 +699,7 @@ class _TrainScreenState extends State<TrainScreen> {
                       _workoutName = null;
                       _routineDay = null;
                       _routineOrder = null;
+                      _launchSource = WorkoutLaunchSource.freeSession;
                       _exercises.clear();
                       _elapsedSeconds = 0;
                       _startedAt = null;
@@ -1105,8 +1142,41 @@ class _TrainScreenState extends State<TrainScreen> {
     _persistActiveWorkout();
   }
 
-  void _removeSet(int exIndex, int setIndex) {
+  Future<void> _removeSet(int exIndex, int setIndex) async {
     if (_exercises[exIndex].sets.length <= 1) return;
+    final set = _exercises[exIndex].sets[setIndex];
+    if (set.completed) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: AppColors.bgCard,
+          title: Text(S.of(context).train_removeCompletedSetTitle),
+          content: Text(
+            S.of(context).train_removeCompletedSetBody(setIndex + 1),
+            style: const TextStyle(color: AppColors.textSecondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(S.of(context).common_cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(
+                S.of(context).common_delete,
+                style: const TextStyle(color: AppColors.error),
+              ),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true || !mounted) return;
+    }
+    if (exIndex >= _exercises.length ||
+        setIndex >= _exercises[exIndex].sets.length ||
+        !identical(_exercises[exIndex].sets[setIndex], set)) {
+      return;
+    }
     setState(() => _exercises[exIndex].sets.removeAt(setIndex));
     _persistActiveWorkout();
   }
@@ -1253,6 +1323,10 @@ class _TrainScreenState extends State<TrainScreen> {
           Navigator.pop(context);
           _confirmDeleteTemplate(ct);
         },
+        onEdit: () {
+          Navigator.pop(context);
+          _editRoutine(ct);
+        },
       ),
     );
   }
@@ -1273,6 +1347,7 @@ class _TrainScreenState extends State<TrainScreen> {
             _showCustomTemplatePreview(template);
           },
           onAddRoutine: () => _createRoutine(initialDay: day),
+          onEdit: _editRoutine,
           onOrganize: _organizeTemplate,
           onDelete: _confirmDeleteTemplate,
         ),
@@ -1589,6 +1664,7 @@ class _TrainScreenState extends State<TrainScreen> {
                   return _CustomTemplateCard(
                     template: ct,
                     onTap: () => _showCustomTemplatePreview(ct),
+                    onEdit: () => _editRoutine(ct),
                     onOrganize: () => _organizeTemplate(ct),
                     onDelete: () => _confirmDeleteTemplate(ct),
                   );

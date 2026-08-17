@@ -124,12 +124,14 @@ class _TemplateCard extends StatelessWidget {
 class _CustomTemplateCard extends StatelessWidget {
   final CustomTemplate template;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
   final VoidCallback onOrganize;
   final VoidCallback onDelete;
 
   const _CustomTemplateCard({
     required this.template,
     required this.onTap,
+    required this.onEdit,
     required this.onOrganize,
     required this.onDelete,
   });
@@ -201,6 +203,19 @@ class _CustomTemplateCard extends StatelessWidget {
               const SizedBox(width: 8),
               Column(
                 children: [
+                  Semantics(
+                    label: l10n.train_editRoutine,
+                    button: true,
+                    child: GestureDetector(
+                      onTap: onEdit,
+                      child: const Icon(
+                        Icons.edit_rounded,
+                        color: AppColors.primaryLight,
+                        size: 19,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Semantics(
                     label: l10n.train_organizeRoutine,
                     button: true,
@@ -326,6 +341,7 @@ class _RoutineDayScreen extends StatefulWidget {
   final void Function(List<CustomTemplate>) onStartAll;
   final void Function(CustomTemplate) onStartBlock;
   final VoidCallback onAddRoutine;
+  final void Function(CustomTemplate) onEdit;
   final void Function(CustomTemplate) onOrganize;
   final void Function(CustomTemplate) onDelete;
 
@@ -335,6 +351,7 @@ class _RoutineDayScreen extends StatefulWidget {
     required this.onStartAll,
     required this.onStartBlock,
     required this.onAddRoutine,
+    required this.onEdit,
     required this.onOrganize,
     required this.onDelete,
   });
@@ -348,11 +365,13 @@ class _RoutineDayScreenState extends State<_RoutineDayScreen> {
   void initState() {
     super.initState();
     CustomTemplateStore.instance.addListener(_onChanged);
+    WorkoutStore.instance.addListener(_onChanged);
   }
 
   @override
   void dispose() {
     CustomTemplateStore.instance.removeListener(_onChanged);
+    WorkoutStore.instance.removeListener(_onChanged);
     super.dispose();
   }
 
@@ -449,11 +468,24 @@ class _RoutineDayScreenState extends State<_RoutineDayScreen> {
                     onReorder: _reorder,
                     itemBuilder: (context, index) {
                       final block = blocks[index];
+                      final isCompleted = routineBlockWasCompleted(
+                        day: widget.day,
+                        blockName: block.name,
+                        blockOrder:
+                            block.routineOrder ??
+                            routineOrderFromName(
+                              block.name,
+                              fallback: index + 1,
+                            ),
+                        workouts: WorkoutStore.instance.workouts,
+                      );
                       return _RoutineBlockTile(
                         key: ValueKey(block.id),
                         index: index,
                         template: block,
+                        isCompleted: isCompleted,
                         onTap: () => widget.onStartBlock(block),
+                        onEdit: () => widget.onEdit(block),
                         onOrganize: () => widget.onOrganize(block),
                         onDelete: () => widget.onDelete(block),
                       );
@@ -522,7 +554,9 @@ class _RoutineDayScreenState extends State<_RoutineDayScreen> {
 class _RoutineBlockTile extends StatelessWidget {
   final int index;
   final CustomTemplate template;
+  final bool isCompleted;
   final VoidCallback onTap;
+  final VoidCallback onEdit;
   final VoidCallback onOrganize;
   final VoidCallback onDelete;
 
@@ -530,7 +564,9 @@ class _RoutineBlockTile extends StatelessWidget {
     super.key,
     required this.index,
     required this.template,
+    required this.isCompleted,
     required this.onTap,
+    required this.onEdit,
     required this.onOrganize,
     required this.onDelete,
   });
@@ -541,9 +577,15 @@ class _RoutineBlockTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: AppColors.bgCard,
+        color: isCompleted
+            ? AppColors.routineCompleted.withAlpha(24)
+            : AppColors.bgCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.bgCardLight),
+        border: Border.all(
+          color: isCompleted
+              ? AppColors.routineCompleted.withAlpha(155)
+              : AppColors.bgCardLight,
+        ),
       ),
       child: InkWell(
         onTap: onTap,
@@ -567,13 +609,17 @@ class _RoutineBlockTile extends StatelessWidget {
                 height: 36,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(25),
+                  color: isCompleted
+                      ? AppColors.routineCompleted.withAlpha(38)
+                      : AppColors.primary.withAlpha(25),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   '${index + 1}',
-                  style: const TextStyle(
-                    color: AppColors.primary,
+                  style: TextStyle(
+                    color: isCompleted
+                        ? AppColors.routineCompleted
+                        : AppColors.primary,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -602,13 +648,33 @@ class _RoutineBlockTile extends StatelessWidget {
                   ],
                 ),
               ),
+              if (isCompleted)
+                Semantics(
+                  label: l10n.train_workoutCompleted,
+                  child: const Padding(
+                    padding: EdgeInsets.only(right: 2),
+                    child: Icon(
+                      Icons.check_circle_rounded,
+                      color: AppColors.routineCompleted,
+                      size: 21,
+                    ),
+                  ),
+                ),
               PopupMenuButton<String>(
                 color: AppColors.bgCardLight,
                 onSelected: (value) {
+                  if (value == 'edit') onEdit();
                   if (value == 'organize') onOrganize();
                   if (value == 'delete') onDelete();
                 },
                 itemBuilder: (_) => [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Text(
+                      l10n.train_editRoutine,
+                      style: const TextStyle(color: AppColors.textPrimary),
+                    ),
+                  ),
                   PopupMenuItem(
                     value: 'organize',
                     child: Text(
@@ -817,11 +883,13 @@ class _CustomTemplatePreviewSheet extends StatelessWidget {
   final CustomTemplate template;
   final VoidCallback onStart;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
 
   const _CustomTemplatePreviewSheet({
     required this.template,
     required this.onStart,
     required this.onDelete,
+    required this.onEdit,
   });
 
   @override
@@ -893,6 +961,16 @@ class _CustomTemplatePreviewSheet extends StatelessWidget {
                     ),
                   ),
                   IconButton(
+                    tooltip: l10n.train_editRoutine,
+                    onPressed: onEdit,
+                    icon: const Icon(
+                      Icons.edit_rounded,
+                      color: AppColors.primaryLight,
+                      size: 22,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: l10n.train_deleteRoutine,
                     onPressed: onDelete,
                     icon: const Icon(
                       Icons.delete_outline_rounded,

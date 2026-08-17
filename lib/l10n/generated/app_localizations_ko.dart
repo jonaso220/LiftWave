@@ -62,6 +62,18 @@ class SKo extends S {
   String get common_pro => 'PRO';
 
   @override
+  String get common_discardChangesTitle => '변경 사항을 취소할까요?';
+
+  @override
+  String get common_discardChangesBody => '변경한 내용이 저장되지 않습니다.';
+
+  @override
+  String get common_keepEditing => '계속 편집';
+
+  @override
+  String get common_discard => '취소';
+
+  @override
   String get muscle_all => '전체';
 
   @override
@@ -346,6 +358,36 @@ class SKo extends S {
 
   @override
   String get restTimer_title => '휴식';
+
+  @override
+  String get restTimer_openControls => '휴식 타이머 제어 열기';
+
+  @override
+  String restTimer_addSeconds(int seconds) {
+    return '$seconds초 추가';
+  }
+
+  @override
+  String restTimer_subtractSeconds(int seconds) {
+    return '$seconds초 빼기';
+  }
+
+  @override
+  String get restTimer_pause => '타이머 일시 정지';
+
+  @override
+  String get restTimer_resume => '타이머 다시 시작';
+
+  @override
+  String get restTimer_dismiss => '타이머 닫기';
+
+  @override
+  String get restTimer_reset => '타이머 초기화';
+
+  @override
+  String restTimer_preset(String time) {
+    return '$time 휴식 사용';
+  }
 
   @override
   String get restTimer_resting => '휴식 중';
@@ -778,6 +820,31 @@ class SKo extends S {
 
   @override
   String get train_createRoutine => '루틴 만들기';
+
+  @override
+  String get train_editRoutine => '루틴 편집';
+
+  @override
+  String train_routineUpdated(String name) {
+    return '루틴 \"$name\" 업데이트됨';
+  }
+
+  @override
+  String get train_addFirstExercise => '첫 운동 추가';
+
+  @override
+  String get train_addFirstExerciseHint => '여기 또는 ‘운동 추가’를 눌러 첫 운동을 추가하세요.';
+
+  @override
+  String get train_removeSet => '세트 삭제';
+
+  @override
+  String get train_removeCompletedSetTitle => '완료한 세트를 삭제할까요?';
+
+  @override
+  String train_removeCompletedSetBody(int setNumber) {
+    return '$setNumber번 세트는 완료되었으며 삭제하면 운동 기록에 포함되지 않습니다.';
+  }
 
   @override
   String get train_createRoutineHint => '운동을 선택하고 다음 훈련을 위해 미리 준비하세요.';

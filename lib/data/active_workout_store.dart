@@ -11,6 +11,7 @@ import '../models/session_models.dart';
 ///
 /// State persisted:
 ///   - workoutName (nullable — null for free session)
+///   - launchSource (controls whether this plan can be saved as a routine)
 ///   - startedAt (absolute timestamp, so elapsed seconds recompute correctly
 ///     after a relaunch)
 ///   - timerWasRunning (bool — restores running/paused state)
@@ -34,6 +35,7 @@ class ActiveWorkoutStore {
     required String? workoutName,
     required String? routineDay,
     required int? routineOrder,
+    required WorkoutLaunchSource launchSource,
     required List<SessionExercise> exercises,
   }) async {
     final prefs = await SharedPreferences.getInstance();
@@ -49,6 +51,7 @@ class ActiveWorkoutStore {
       'workoutName': workoutName,
       'routineDay': routineDay,
       'routineOrder': routineOrder,
+      'launchSource': launchSource.storageKey,
       'exercises': exercises.map((e) => e.toJson()).toList(),
     });
     await prefs.setString(_key, json);
@@ -82,6 +85,9 @@ class ActiveWorkoutStore {
         workoutName: map['workoutName'] as String?,
         routineDay: map['routineDay'] as String?,
         routineOrder: (map['routineOrder'] as num?)?.toInt(),
+        launchSource: WorkoutLaunchSource.fromStorage(
+          map['launchSource'] as String?,
+        ),
         exercises: exercises,
       );
     } catch (e) {
@@ -104,6 +110,7 @@ class ActiveWorkoutSnapshot {
   final String? workoutName;
   final String? routineDay;
   final int? routineOrder;
+  final WorkoutLaunchSource launchSource;
   final List<SessionExercise> exercises;
 
   ActiveWorkoutSnapshot({
@@ -113,6 +120,14 @@ class ActiveWorkoutSnapshot {
     required this.workoutName,
     required this.routineDay,
     required this.routineOrder,
+    required this.launchSource,
     required this.exercises,
   });
+
+  /// Rebuilds the visible elapsed time without advancing a paused session.
+  int elapsedAt(DateTime now) {
+    final started = startedAt;
+    if (!timerRunning || started == null) return elapsedSeconds;
+    return now.difference(started).inSeconds.clamp(0, 86400);
+  }
 }

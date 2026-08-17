@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 
@@ -14,12 +16,14 @@ class RoutineBuilderScreen extends StatefulWidget {
   final RoutineDay? initialDay;
   final int? routineOrder;
   final String initialName;
+  final CustomTemplate? initialTemplate;
 
   const RoutineBuilderScreen({
     super.key,
     required this.initialName,
     this.initialDay,
     this.routineOrder,
+    this.initialTemplate,
   });
 
   @override
@@ -31,12 +35,21 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
   late RoutineDay? _selectedDay;
   final List<_PlannedExercise> _exercises = [];
   bool _showNameError = false;
+  bool _allowPop = false;
+  late final String _initialSignature;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.initialName);
     _selectedDay = widget.initialDay;
+    final initialTemplate = widget.initialTemplate;
+    if (initialTemplate != null) {
+      _exercises.addAll(
+        initialTemplate.exercises.map(_PlannedExercise.fromTemplate),
+      );
+    }
+    _initialSignature = _draftSignature();
   }
 
   @override
@@ -57,6 +70,93 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
     });
   }
 
+  String _draftSignature() => jsonEncode({
+    'name': _nameController.text,
+    'routineDay': _selectedDay?.storageKey,
+    'exercises': _exercises
+        .map(
+          (draft) => {
+            'name': draft.exercise.name,
+            'muscleGroup': draft.exercise.muscleGroup,
+            'equipment': draft.exercise.equipment,
+            'sets': draft.sets,
+            'reps': draft.reps,
+          },
+        )
+        .toList(),
+  });
+
+  bool get _hasUnsavedChanges => _draftSignature() != _initialSignature;
+
+  int _orderForDay(RoutineDay day) {
+    final initial = widget.initialTemplate;
+    final initialDay = initial == null
+        ? widget.initialDay
+        : RoutineDay.fromStorage(initial.routineDay) ??
+              routineDayFromName(initial.name) ??
+              widget.initialDay;
+    if (initial != null && initialDay == day) {
+      return initial.routineOrder ??
+          widget.routineOrder ??
+          routineOrderFromName(initial.name, fallback: 1);
+    }
+    if (initial == null &&
+        widget.initialDay == day &&
+        widget.routineOrder != null) {
+      return widget.routineOrder!;
+    }
+
+    final orders = CustomTemplateStore.instance.templates
+        .where((template) => template.id != initial?.id)
+        .where(
+          (template) =>
+              (RoutineDay.fromStorage(template.routineDay) ??
+                  routineDayFromName(template.name)) ==
+              day,
+        )
+        .map(
+          (template) =>
+              template.routineOrder ??
+              routineOrderFromName(template.name, fallback: 0),
+        );
+    return orders.isEmpty ? 1 : orders.reduce((a, b) => a > b ? a : b) + 1;
+  }
+
+  Future<void> _confirmDiscardAndPop() async {
+    if (!_hasUnsavedChanges) {
+      setState(() => _allowPop = true);
+      Navigator.pop(context);
+      return;
+    }
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: Text(S.of(context).common_discardChangesTitle),
+        content: Text(
+          S.of(context).common_discardChangesBody,
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(S.of(context).common_keepEditing),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              S.of(context).common_discard,
+              style: const TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (discard != true || !mounted) return;
+    setState(() => _allowPop = true);
+    Navigator.pop(context);
+  }
+
   void _save() {
     final l10n = S.of(context);
     final name = _nameController.text.trim();
@@ -74,13 +174,17 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
       return;
     }
 
+    final day = _selectedDay;
+    _allowPop = true;
     Navigator.pop(
       context,
       CustomTemplate(
-        id: 'custom_tpl_${DateTime.now().millisecondsSinceEpoch}',
+        id:
+            widget.initialTemplate?.id ??
+            'custom_tpl_${DateTime.now().millisecondsSinceEpoch}',
         name: name,
-        routineDay: _selectedDay?.storageKey,
-        routineOrder: _selectedDay == null ? null : widget.routineOrder,
+        routineDay: day?.storageKey,
+        routineOrder: day == null ? null : _orderForDay(day),
         exercises: _exercises
             .map(
               (draft) => TemplateExercise(
@@ -100,158 +204,194 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.train_createRoutine)),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
-        children: [
-          Text(
-            l10n.train_createRoutineHint,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 13,
-              height: 1.45,
-            ),
+    return PopScope<CustomTemplate>(
+      canPop: _allowPop || !_hasUnsavedChanges,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (!didPop) await _confirmDiscardAndPop();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: BackButton(onPressed: _confirmDiscardAndPop),
+          title: Text(
+            widget.initialTemplate == null
+                ? l10n.train_createRoutine
+                : l10n.train_editRoutine,
           ),
-          const SizedBox(height: 18),
-          Text(
-            l10n.train_routineNameHint,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _nameController,
-            autofocus: widget.initialDay == null,
-            textCapitalization: TextCapitalization.sentences,
-            style: const TextStyle(color: AppColors.textPrimary),
-            onChanged: (_) {
-              if (_showNameError) setState(() => _showNameError = false);
-            },
-            decoration: InputDecoration(
-              hintText: l10n.train_routineNameHint,
-              errorText: _showNameError ? l10n.train_routineNameRequired : null,
-            ),
-          ),
-          const SizedBox(height: 18),
-          Text(
-            l10n.train_trainingDay,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            initialValue: _selectedDay?.storageKey ?? '',
-            dropdownColor: AppColors.bgCardLight,
-            style: const TextStyle(color: AppColors.textPrimary),
-            decoration: const InputDecoration(),
-            items: [
-              DropdownMenuItem<String>(
-                value: '',
-                child: Text(l10n.train_noAssignedDay),
+        ),
+        body: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
+          children: [
+            Text(
+              l10n.train_createRoutineHint,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 13,
+                height: 1.45,
               ),
-              ...RoutineDay.values.map(
-                (day) => DropdownMenuItem<String>(
-                  value: day.storageKey,
-                  child: Text(routineDayLabel(context, day)),
+            ),
+            const SizedBox(height: 18),
+            Text(
+              l10n.train_routineNameHint,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _nameController,
+              autofocus: widget.initialDay == null,
+              textCapitalization: TextCapitalization.sentences,
+              style: const TextStyle(color: AppColors.textPrimary),
+              onChanged: (_) => setState(() => _showNameError = false),
+              decoration: InputDecoration(
+                hintText: l10n.train_routineNameHint,
+                errorText: _showNameError
+                    ? l10n.train_routineNameRequired
+                    : null,
+              ),
+            ),
+            const SizedBox(height: 18),
+            Text(
+              l10n.train_trainingDay,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              initialValue: _selectedDay?.storageKey ?? '',
+              dropdownColor: AppColors.bgCardLight,
+              style: const TextStyle(color: AppColors.textPrimary),
+              decoration: const InputDecoration(),
+              items: [
+                DropdownMenuItem<String>(
+                  value: '',
+                  child: Text(l10n.train_noAssignedDay),
                 ),
-              ),
-            ],
-            onChanged: (value) {
-              setState(() => _selectedDay = RoutineDay.fromStorage(value));
-            },
-          ),
-          const SizedBox(height: 10),
-          Text(
-            l10n.train_trainingDayHint,
-            style: const TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 11,
-              height: 1.35,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l10n.common_exercises,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
+                ...RoutineDay.values.map(
+                  (day) => DropdownMenuItem<String>(
+                    value: day.storageKey,
+                    child: Text(routineDayLabel(context, day)),
                   ),
                 ),
+              ],
+              onChanged: (value) {
+                setState(() => _selectedDay = RoutineDay.fromStorage(value));
+              },
+            ),
+            const SizedBox(height: 10),
+            Text(
+              l10n.train_trainingDayHint,
+              style: const TextStyle(
+                color: AppColors.textMuted,
+                fontSize: 11,
+                height: 1.35,
               ),
-              TextButton.icon(
-                onPressed: _addExercise,
-                icon: const Icon(Icons.add_rounded, size: 18),
-                label: Text(l10n.train_addExercise),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          if (_exercises.isEmpty)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
-              decoration: BoxDecoration(
-                color: AppColors.bgCard,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.bgCardLight),
-              ),
-              child: Column(
-                children: [
-                  const Icon(
-                    Icons.playlist_add_rounded,
-                    color: AppColors.primary,
-                    size: 32,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    l10n.train_addExerciseHint,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 12,
-                      height: 1.4,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.common_exercises,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
-                ],
-              ),
-            )
-          else
-            ...List.generate(
-              _exercises.length,
-              (index) => _PlannedExerciseCard(
-                key: ValueKey('${_exercises[index].exercise.id}-$index'),
-                draft: _exercises[index],
-                onChanged: () => setState(() {}),
-                onRemove: () => setState(() => _exercises.removeAt(index)),
-              ),
+                ),
+                TextButton.icon(
+                  onPressed: _addExercise,
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  label: Text(l10n.train_addExercise),
+                ),
+              ],
             ),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-          child: ElevatedButton.icon(
-            onPressed: _save,
-            icon: const Icon(Icons.check_rounded),
-            label: Text(l10n.common_save),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+            const SizedBox(height: 8),
+            if (_exercises.isEmpty)
+              Semantics(
+                label: l10n.train_addFirstExercise,
+                hint: l10n.train_addFirstExerciseHint,
+                button: true,
+                excludeSemantics: true,
+                child: InkWell(
+                  onTap: _addExercise,
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 28,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.bgCard,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.bgCardLight),
+                    ),
+                    child: Column(
+                      children: [
+                        const Icon(
+                          Icons.playlist_add_rounded,
+                          color: AppColors.primary,
+                          size: 32,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          l10n.train_addFirstExercise,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          l10n.train_addFirstExerciseHint,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 12,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            else
+              ...List.generate(
+                _exercises.length,
+                (index) => _PlannedExerciseCard(
+                  key: ValueKey('${_exercises[index].exercise.id}-$index'),
+                  draft: _exercises[index],
+                  onChanged: () => setState(() {}),
+                  onRemove: () => setState(() => _exercises.removeAt(index)),
+                ),
               ),
-              textStyle: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
+          ],
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+            child: ElevatedButton.icon(
+              onPressed: _save,
+              icon: const Icon(Icons.check_rounded),
+              label: Text(l10n.common_save),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ),
@@ -267,6 +407,18 @@ class _PlannedExercise {
   int reps;
 
   _PlannedExercise({required this.exercise}) : sets = 3, reps = 10;
+
+  _PlannedExercise.fromTemplate(TemplateExercise template)
+    : exercise = Exercise(
+        id: 'routine_${template.name}_${template.equipment}',
+        name: template.name,
+        muscleGroup: template.muscleGroup,
+        equipment: template.equipment,
+        difficulty: '',
+        description: '',
+      ),
+      sets = template.sets,
+      reps = template.reps;
 }
 
 class _PlannedExerciseCard extends StatelessWidget {

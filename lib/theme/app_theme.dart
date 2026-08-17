@@ -24,6 +24,7 @@ class AppColors {
 
   // Status
   static const Color success = Color(0xFF00D4AA);
+  static const Color routineCompleted = Color(0xFF5E9B75);
   static const Color warning = Color(0xFFFFD166);
   static const Color error = Color(0xFFFF6B6B);
 

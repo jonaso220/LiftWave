@@ -209,6 +209,30 @@ abstract class S {
   /// **'PRO'**
   String get common_pro;
 
+  /// No description provided for @common_discardChangesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Descartar cambios?'**
+  String get common_discardChangesTitle;
+
+  /// No description provided for @common_discardChangesBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Los cambios que hiciste no se guardarán.'**
+  String get common_discardChangesBody;
+
+  /// No description provided for @common_keepEditing.
+  ///
+  /// In es, this message translates to:
+  /// **'Seguir editando'**
+  String get common_keepEditing;
+
+  /// No description provided for @common_discard.
+  ///
+  /// In es, this message translates to:
+  /// **'Descartar'**
+  String get common_discard;
+
   /// No description provided for @muscle_all.
   ///
   /// In es, this message translates to:
@@ -760,6 +784,54 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Descanso'**
   String get restTimer_title;
+
+  /// No description provided for @restTimer_openControls.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir controles del temporizador de descanso'**
+  String get restTimer_openControls;
+
+  /// No description provided for @restTimer_addSeconds.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir {seconds} segundos'**
+  String restTimer_addSeconds(int seconds);
+
+  /// No description provided for @restTimer_subtractSeconds.
+  ///
+  /// In es, this message translates to:
+  /// **'Restar {seconds} segundos'**
+  String restTimer_subtractSeconds(int seconds);
+
+  /// No description provided for @restTimer_pause.
+  ///
+  /// In es, this message translates to:
+  /// **'Pausar temporizador'**
+  String get restTimer_pause;
+
+  /// No description provided for @restTimer_resume.
+  ///
+  /// In es, this message translates to:
+  /// **'Reanudar temporizador'**
+  String get restTimer_resume;
+
+  /// No description provided for @restTimer_dismiss.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar temporizador'**
+  String get restTimer_dismiss;
+
+  /// No description provided for @restTimer_reset.
+  ///
+  /// In es, this message translates to:
+  /// **'Reiniciar temporizador'**
+  String get restTimer_reset;
+
+  /// No description provided for @restTimer_preset.
+  ///
+  /// In es, this message translates to:
+  /// **'Usar descanso de {time}'**
+  String restTimer_preset(String time);
 
   /// No description provided for @restTimer_resting.
   ///
@@ -1570,6 +1642,48 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Crear rutina'**
   String get train_createRoutine;
+
+  /// No description provided for @train_editRoutine.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar rutina'**
+  String get train_editRoutine;
+
+  /// No description provided for @train_routineUpdated.
+  ///
+  /// In es, this message translates to:
+  /// **'Rutina \"{name}\" actualizada'**
+  String train_routineUpdated(String name);
+
+  /// No description provided for @train_addFirstExercise.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir primer ejercicio'**
+  String get train_addFirstExercise;
+
+  /// No description provided for @train_addFirstExerciseHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Toca aquí o «Añadir ejercicio» para agregar el primero.'**
+  String get train_addFirstExerciseHint;
+
+  /// No description provided for @train_removeSet.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar serie'**
+  String get train_removeSet;
+
+  /// No description provided for @train_removeCompletedSetTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Eliminar la serie completada?'**
+  String get train_removeCompletedSetTitle;
+
+  /// No description provided for @train_removeCompletedSetBody.
+  ///
+  /// In es, this message translates to:
+  /// **'La serie {setNumber} ya está completada y dejará de contar en tu entrenamiento.'**
+  String train_removeCompletedSetBody(int setNumber);
 
   /// No description provided for @train_createRoutineHint.
   ///

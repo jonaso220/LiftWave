@@ -62,6 +62,18 @@ class SJa extends S {
   String get common_pro => 'PRO';
 
   @override
+  String get common_discardChangesTitle => '変更を破棄しますか？';
+
+  @override
+  String get common_discardChangesBody => '行った変更は保存されません。';
+
+  @override
+  String get common_keepEditing => '編集を続ける';
+
+  @override
+  String get common_discard => '破棄';
+
+  @override
   String get muscle_all => 'すべて';
 
   @override
@@ -346,6 +358,36 @@ class SJa extends S {
 
   @override
   String get restTimer_title => '休憩';
+
+  @override
+  String get restTimer_openControls => '休憩タイマーの操作を開く';
+
+  @override
+  String restTimer_addSeconds(int seconds) {
+    return '$seconds秒追加';
+  }
+
+  @override
+  String restTimer_subtractSeconds(int seconds) {
+    return '$seconds秒減らす';
+  }
+
+  @override
+  String get restTimer_pause => 'タイマーを一時停止';
+
+  @override
+  String get restTimer_resume => 'タイマーを再開';
+
+  @override
+  String get restTimer_dismiss => 'タイマーを閉じる';
+
+  @override
+  String get restTimer_reset => 'タイマーをリセット';
+
+  @override
+  String restTimer_preset(String time) {
+    return '休憩を$timeに設定';
+  }
 
   @override
   String get restTimer_resting => '休憩中';
@@ -778,6 +820,31 @@ class SJa extends S {
 
   @override
   String get train_createRoutine => 'ルーティンを作成';
+
+  @override
+  String get train_editRoutine => 'ルーティンを編集';
+
+  @override
+  String train_routineUpdated(String name) {
+    return 'ルーティン「$name」を更新しました';
+  }
+
+  @override
+  String get train_addFirstExercise => '最初の種目を追加';
+
+  @override
+  String get train_addFirstExerciseHint => 'ここ、または「種目を追加」をタップしてください。';
+
+  @override
+  String get train_removeSet => 'セットを削除';
+
+  @override
+  String get train_removeCompletedSetTitle => '完了したセットを削除しますか？';
+
+  @override
+  String train_removeCompletedSetBody(int setNumber) {
+    return 'セット$setNumberは完了済みのため、削除するとトレーニングに集計されません。';
+  }
 
   @override
   String get train_createRoutineHint => 'エクササイズを選び、次のトレーニングに備えて準備できます。';

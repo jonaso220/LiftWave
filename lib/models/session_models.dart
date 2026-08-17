@@ -1,3 +1,22 @@
+enum WorkoutLaunchSource {
+  freeSession('freeSession'),
+  savedRoutine('savedRoutine'),
+  workoutHistory('workoutHistory');
+
+  const WorkoutLaunchSource(this.storageKey);
+
+  final String storageKey;
+
+  bool get canSaveAsRoutine => this != savedRoutine;
+
+  static WorkoutLaunchSource fromStorage(String? value) {
+    for (final source in values) {
+      if (source.storageKey == value) return source;
+    }
+    return freeSession;
+  }
+}
+
 class SessionSet {
   int reps;
   double weight;

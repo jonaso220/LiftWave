@@ -56,98 +56,116 @@ class _RestTimerOverlayState extends State<RestTimerOverlay> {
       curve: Curves.easeOutCubic,
       child: Material(
         color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showFullSheet(context),
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.bgCard,
-              border: Border(
-                top: BorderSide(color: _timerColor.withAlpha(120), width: 1),
+        child: Semantics(
+          container: true,
+          explicitChildNodes: true,
+          button: true,
+          label: l10n.restTimer_openControls,
+          child: InkWell(
+            onTap: () => _showFullSheet(context),
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.bgCard,
+                border: Border(
+                  top: BorderSide(color: _timerColor.withAlpha(120), width: 1),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: _timerColor.withAlpha(40),
+                    blurRadius: 16,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: _timerColor.withAlpha(40),
-                  blurRadius: 16,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: SafeArea(
-              top: false,
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: _timerColor.withAlpha(30),
-                        borderRadius: BorderRadius.circular(10),
+              child: SafeArea(
+                top: false,
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: _timerColor.withAlpha(30),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          _c.hasFinished
+                              ? Icons.check_circle_rounded
+                              : Icons.timer_rounded,
+                          color: _timerColor,
+                          size: 20,
+                        ),
                       ),
-                      child: Icon(
-                        _c.hasFinished
-                            ? Icons.check_circle_rounded
-                            : Icons.timer_rounded,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _c.hasFinished
+                                  ? l10n.restTimer_done
+                                  : l10n.restTimer_resting,
+                              style: TextStyle(
+                                color: _timerColor,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              _formatTime(_c.remaining),
+                              style: TextStyle(
+                                color: AppColors.textPrimary,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.5,
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      _MiniButton(
+                        label: '-15s',
+                        semanticLabel: l10n.restTimer_subtractSeconds(15),
+                        onTap: () => _c.addTime(-15),
+                      ),
+                      const SizedBox(width: 6),
+                      _MiniButton(
+                        label: '+15s',
+                        semanticLabel: l10n.restTimer_addSeconds(15),
+                        onTap: () => _c.addTime(15),
+                      ),
+                      const SizedBox(width: 6),
+                      _IconButton(
+                        icon: _c.isRunning
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded,
                         color: _timerColor,
-                        size: 20,
+                        filled: true,
+                        semanticLabel: _c.isRunning
+                            ? l10n.restTimer_pause
+                            : l10n.restTimer_resume,
+                        onTap: _c.toggle,
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _c.hasFinished
-                                ? l10n.restTimer_done
-                                : l10n.restTimer_resting,
-                            style: TextStyle(
-                              color: _timerColor,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.3,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _formatTime(_c.remaining),
-                            style: TextStyle(
-                              color: AppColors.textPrimary,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.5,
-                              fontFeatures: const [
-                                FontFeature.tabularFigures(),
-                              ],
-                            ),
-                          ),
-                        ],
+                      const SizedBox(width: 6),
+                      _IconButton(
+                        icon: Icons.close_rounded,
+                        color: AppColors.textMuted,
+                        semanticLabel: l10n.restTimer_dismiss,
+                        onTap: _c.dismiss,
                       ),
-                    ),
-                    _MiniButton(label: '-15s', onTap: () => _c.addTime(-15)),
-                    const SizedBox(width: 6),
-                    _MiniButton(label: '+15s', onTap: () => _c.addTime(15)),
-                    const SizedBox(width: 6),
-                    _IconButton(
-                      icon: _c.isRunning
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
-                      color: _timerColor,
-                      filled: true,
-                      onTap: _c.toggle,
-                    ),
-                    const SizedBox(width: 6),
-                    _IconButton(
-                      icon: Icons.close_rounded,
-                      color: AppColors.textMuted,
-                      onTap: _c.dismiss,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -172,25 +190,40 @@ class _RestTimerOverlayState extends State<RestTimerOverlay> {
 
 class _MiniButton extends StatelessWidget {
   final String label;
+  final String semanticLabel;
   final VoidCallback onTap;
-  const _MiniButton({required this.label, required this.onTap});
+  const _MiniButton({
+    required this.label,
+    required this.semanticLabel,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.bgCardLight,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
+    return Semantics(
+      label: semanticLabel,
+      button: true,
+      excludeSemantics: true,
+      child: Tooltip(
+        message: semanticLabel,
+        child: Material(
+          color: AppColors.bgCardLight,
+          borderRadius: BorderRadius.circular(8),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(8),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+              child: Center(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -203,25 +236,36 @@ class _IconButton extends StatelessWidget {
   final IconData icon;
   final Color color;
   final bool filled;
+  final String semanticLabel;
   final VoidCallback onTap;
   const _IconButton({
     required this.icon,
     required this.color,
     this.filled = false,
+    required this.semanticLabel,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: filled ? color.withAlpha(30) : Colors.transparent,
-      borderRadius: BorderRadius.circular(10),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Padding(
-          padding: const EdgeInsets.all(6),
-          child: Icon(icon, color: color, size: 22),
+    return Semantics(
+      label: semanticLabel,
+      button: true,
+      excludeSemantics: true,
+      child: Tooltip(
+        message: semanticLabel,
+        child: Material(
+          color: filled ? color.withAlpha(30) : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(10),
+            child: SizedBox(
+              width: 44,
+              height: 44,
+              child: Icon(icon, color: color, size: 22),
+            ),
+          ),
         ),
       ),
     );
@@ -318,13 +362,29 @@ class _RestTimerSheetState extends State<_RestTimerSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _AdjustChip(label: '-1m', onTap: () => _c.addTime(-60)),
+              _AdjustChip(
+                label: '-1m',
+                semanticLabel: l10n.restTimer_subtractSeconds(60),
+                onTap: () => _c.addTime(-60),
+              ),
               const SizedBox(width: 8),
-              _AdjustChip(label: '-30s', onTap: () => _c.addTime(-30)),
+              _AdjustChip(
+                label: '-30s',
+                semanticLabel: l10n.restTimer_subtractSeconds(30),
+                onTap: () => _c.addTime(-30),
+              ),
               const SizedBox(width: 8),
-              _AdjustChip(label: '+30s', onTap: () => _c.addTime(30)),
+              _AdjustChip(
+                label: '+30s',
+                semanticLabel: l10n.restTimer_addSeconds(30),
+                onTap: () => _c.addTime(30),
+              ),
               const SizedBox(width: 8),
-              _AdjustChip(label: '+1m', onTap: () => _c.addTime(60)),
+              _AdjustChip(
+                label: '+1m',
+                semanticLabel: l10n.restTimer_addSeconds(60),
+                onTap: () => _c.addTime(60),
+              ),
             ],
           ),
           const SizedBox(height: 24),
@@ -336,6 +396,7 @@ class _RestTimerSheetState extends State<_RestTimerSheet> {
                 onTap: _c.reset,
                 size: 52,
                 color: AppColors.textSecondary,
+                semanticLabel: l10n.restTimer_reset,
               ),
               const SizedBox(width: 20),
               _CircleAction(
@@ -346,6 +407,9 @@ class _RestTimerSheetState extends State<_RestTimerSheet> {
                 size: 72,
                 color: AppColors.primary,
                 filled: true,
+                semanticLabel: _c.isRunning
+                    ? l10n.restTimer_pause
+                    : l10n.restTimer_resume,
               ),
               const SizedBox(width: 20),
               _CircleAction(
@@ -356,6 +420,7 @@ class _RestTimerSheetState extends State<_RestTimerSheet> {
                 },
                 size: 52,
                 color: AppColors.textSecondary,
+                semanticLabel: l10n.restTimer_dismiss,
               ),
             ],
           ),
@@ -366,32 +431,40 @@ class _RestTimerSheetState extends State<_RestTimerSheet> {
             alignment: WrapAlignment.center,
             children: RestTimerController.presets.map((s) {
               final selected = s == _c.total && !_c.isCustom;
-              return GestureDetector(
-                onTap: () => _c.selectPreset(s),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: selected
-                        ? AppColors.primary.withAlpha(30)
-                        : AppColors.bgCardLight,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: selected
-                          ? AppColors.primary
-                          : AppColors.bgCardLight,
+              final label = _presetLabel(s);
+              return Semantics(
+                label: l10n.restTimer_preset(label),
+                button: true,
+                selected: selected,
+                excludeSemantics: true,
+                child: GestureDetector(
+                  onTap: () => _c.selectPreset(s),
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: 44),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
                     ),
-                  ),
-                  child: Text(
-                    _presetLabel(s),
-                    style: TextStyle(
+                    decoration: BoxDecoration(
                       color: selected
-                          ? AppColors.primary
-                          : AppColors.textSecondary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                          ? AppColors.primary.withAlpha(30)
+                          : AppColors.bgCardLight,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: selected
+                            ? AppColors.primary
+                            : AppColors.bgCardLight,
+                      ),
+                    ),
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        color: selected
+                            ? AppColors.primary
+                            : AppColors.textSecondary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
@@ -407,25 +480,36 @@ class _RestTimerSheetState extends State<_RestTimerSheet> {
 
 class _AdjustChip extends StatelessWidget {
   final String label;
+  final String semanticLabel;
   final VoidCallback onTap;
-  const _AdjustChip({required this.label, required this.onTap});
+  const _AdjustChip({
+    required this.label,
+    required this.semanticLabel,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppColors.bgCardLight,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
+    return Semantics(
+      label: semanticLabel,
+      button: true,
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: AppColors.bgCardLight,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ),
@@ -439,29 +523,39 @@ class _CircleAction extends StatelessWidget {
   final double size;
   final Color color;
   final bool filled;
+  final String semanticLabel;
   const _CircleAction({
     required this.icon,
     required this.onTap,
     required this.size,
     required this.color,
     this.filled = false,
+    required this.semanticLabel,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: filled ? color : color.withAlpha(25),
-      shape: const CircleBorder(),
-      child: InkWell(
-        onTap: onTap,
-        customBorder: const CircleBorder(),
-        child: SizedBox(
-          width: size,
-          height: size,
-          child: Icon(
-            icon,
-            color: filled ? Colors.white : color,
-            size: size * 0.45,
+    return Semantics(
+      label: semanticLabel,
+      button: true,
+      excludeSemantics: true,
+      child: Tooltip(
+        message: semanticLabel,
+        child: Material(
+          color: filled ? color : color.withAlpha(25),
+          shape: const CircleBorder(),
+          child: InkWell(
+            onTap: onTap,
+            customBorder: const CircleBorder(),
+            child: SizedBox(
+              width: size < 44 ? 44 : size,
+              height: size < 44 ? 44 : size,
+              child: Icon(
+                icon,
+                color: filled ? Colors.white : color,
+                size: size * 0.45,
+              ),
+            ),
           ),
         ),
       ),

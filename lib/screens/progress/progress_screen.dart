@@ -60,6 +60,7 @@ class _ProgressScreenState extends State<ProgressScreen>
         title: Text(S.of(context).progressScreen_title),
         actions: [
           IconButton(
+            tooltip: S.of(context).progressScreen_addMeasurement,
             icon: Container(
               width: 34,
               height: 34,
@@ -74,6 +75,7 @@ class _ProgressScreenState extends State<ProgressScreen>
               ),
             ),
             onPressed: _showAddSheet,
+            constraints: const BoxConstraints.tightFor(width: 48, height: 48),
           ),
           const SizedBox(width: 8),
         ],

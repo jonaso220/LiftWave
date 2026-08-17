@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
@@ -20,6 +22,8 @@ class WorkoutEditScreen extends StatefulWidget {
 class _WorkoutEditScreenState extends State<WorkoutEditScreen> {
   late final List<_EditableExercise> _exercises;
   bool _saving = false;
+  bool _allowPop = false;
+  late final String _initialSignature;
 
   @override
   void initState() {
@@ -27,11 +31,71 @@ class _WorkoutEditScreenState extends State<WorkoutEditScreen> {
     _exercises = widget.workout.exercises
         .map((e) => _EditableExercise.from(e))
         .toList();
+    for (final exercise in _exercises) {
+      exercise.notesCtrl.addListener(_onDraftChanged);
+      for (final set in exercise.sets) {
+        set.repsCtrl.addListener(_onDraftChanged);
+        set.weightCtrl.addListener(_onDraftChanged);
+        set.addListener(_onDraftChanged);
+      }
+    }
+    _initialSignature = _draftSignature();
+  }
+
+  void _onDraftChanged() {
+    if (mounted) setState(() {});
+  }
+
+  String _draftSignature() => jsonEncode(
+    _exercises.map((exercise) => exercise.toExercise().toJson()).toList(),
+  );
+
+  bool get _hasUnsavedChanges => _draftSignature() != _initialSignature;
+
+  Future<void> _confirmDiscardAndPop() async {
+    if (!_hasUnsavedChanges) {
+      setState(() => _allowPop = true);
+      Navigator.pop(context);
+      return;
+    }
+    final discard = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: Text(S.of(context).common_discardChangesTitle),
+        content: Text(
+          S.of(context).common_discardChangesBody,
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(S.of(context).common_keepEditing),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              S.of(context).common_discard,
+              style: const TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (discard != true || !mounted) return;
+    setState(() => _allowPop = true);
+    Navigator.pop(context);
   }
 
   @override
   void dispose() {
     for (final e in _exercises) {
+      e.notesCtrl.removeListener(_onDraftChanged);
+      for (final set in e.sets) {
+        set.repsCtrl.removeListener(_onDraftChanged);
+        set.weightCtrl.removeListener(_onDraftChanged);
+        set.removeListener(_onDraftChanged);
+      }
       e.dispose();
     }
     super.dispose();
@@ -59,43 +123,51 @@ class _WorkoutEditScreenState extends State<WorkoutEditScreen> {
     );
     await WorkoutStore.instance.update(updated);
     if (!mounted) return;
+    _allowPop = true;
     Navigator.pop(context, true);
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
-    return Scaffold(
-      backgroundColor: AppColors.bgDark,
-      appBar: AppBar(
-        title: Text(l10n.editWorkout_title),
-        backgroundColor: AppColors.bgCard,
-        actions: [
-          TextButton(
-            onPressed: _saving ? null : _save,
-            child: _saving
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: AppColors.primary,
+    return PopScope<bool>(
+      canPop: _allowPop || !_hasUnsavedChanges,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (!didPop) await _confirmDiscardAndPop();
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.bgDark,
+        appBar: AppBar(
+          leading: BackButton(onPressed: _confirmDiscardAndPop),
+          title: Text(l10n.editWorkout_title),
+          backgroundColor: AppColors.bgCard,
+          actions: [
+            TextButton(
+              onPressed: _saving ? null : _save,
+              child: _saving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.primary,
+                      ),
+                    )
+                  : Text(
+                      l10n.common_save,
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  )
-                : Text(
-                    l10n.common_save,
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-          ),
-        ],
-      ),
-      body: ListView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        itemCount: _exercises.length,
-        itemBuilder: (ctx, i) => _ExerciseCard(editable: _exercises[i]),
+            ),
+          ],
+        ),
+        body: ListView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          itemCount: _exercises.length,
+          itemBuilder: (ctx, i) => _ExerciseCard(editable: _exercises[i]),
+        ),
       ),
     );
   }

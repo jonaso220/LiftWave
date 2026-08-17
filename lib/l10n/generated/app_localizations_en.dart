@@ -62,6 +62,19 @@ class SEn extends S {
   String get common_pro => 'PRO';
 
   @override
+  String get common_discardChangesTitle => 'Discard changes?';
+
+  @override
+  String get common_discardChangesBody =>
+      'The changes you made will not be saved.';
+
+  @override
+  String get common_keepEditing => 'Keep editing';
+
+  @override
+  String get common_discard => 'Discard';
+
+  @override
   String get muscle_all => 'All';
 
   @override
@@ -351,6 +364,36 @@ class SEn extends S {
 
   @override
   String get restTimer_title => 'Rest';
+
+  @override
+  String get restTimer_openControls => 'Open rest timer controls';
+
+  @override
+  String restTimer_addSeconds(int seconds) {
+    return 'Add $seconds seconds';
+  }
+
+  @override
+  String restTimer_subtractSeconds(int seconds) {
+    return 'Subtract $seconds seconds';
+  }
+
+  @override
+  String get restTimer_pause => 'Pause timer';
+
+  @override
+  String get restTimer_resume => 'Resume timer';
+
+  @override
+  String get restTimer_dismiss => 'Close timer';
+
+  @override
+  String get restTimer_reset => 'Reset timer';
+
+  @override
+  String restTimer_preset(String time) {
+    return 'Use a $time rest';
+  }
 
   @override
   String get restTimer_resting => 'RESTING';
@@ -798,6 +841,32 @@ class SEn extends S {
 
   @override
   String get train_createRoutine => 'Create routine';
+
+  @override
+  String get train_editRoutine => 'Edit routine';
+
+  @override
+  String train_routineUpdated(String name) {
+    return 'Routine \"$name\" updated';
+  }
+
+  @override
+  String get train_addFirstExercise => 'Add first exercise';
+
+  @override
+  String get train_addFirstExerciseHint =>
+      'Tap here or “Add exercise” to add the first one.';
+
+  @override
+  String get train_removeSet => 'Remove set';
+
+  @override
+  String get train_removeCompletedSetTitle => 'Remove completed set?';
+
+  @override
+  String train_removeCompletedSetBody(int setNumber) {
+    return 'Set $setNumber is completed and will no longer count toward your workout.';
+  }
 
   @override
   String get train_createRoutineHint =>

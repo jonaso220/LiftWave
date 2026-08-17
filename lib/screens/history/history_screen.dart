@@ -312,10 +312,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  RoutineDay _dayForWorkout(Workout workout) => routineDayForWorkout(
+  RoutineDay? _dayForWorkout(Workout workout) => routineDayForHistoryGrouping(
     storedDay: workout.routineDay,
     name: workout.name,
-    date: workout.date,
   );
 }
 
@@ -764,10 +763,9 @@ class _RoutineDayHistoryScreenState extends State<_RoutineDayHistoryScreen> {
         .where((workout) => widget.visibleWorkoutIds.contains(workout.id))
         .where(
           (workout) =>
-              routineDayForWorkout(
+              routineDayForHistoryGrouping(
                 storedDay: workout.routineDay,
                 name: workout.name,
-                date: workout.date,
               ) ==
               widget.day,
         )

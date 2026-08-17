@@ -62,6 +62,19 @@ class SPt extends S {
   String get common_pro => 'PRO';
 
   @override
+  String get common_discardChangesTitle => 'Descartar alterações?';
+
+  @override
+  String get common_discardChangesBody =>
+      'As alterações feitas não serão salvas.';
+
+  @override
+  String get common_keepEditing => 'Continuar editando';
+
+  @override
+  String get common_discard => 'Descartar';
+
+  @override
   String get muscle_all => 'Todos';
 
   @override
@@ -352,6 +365,37 @@ class SPt extends S {
 
   @override
   String get restTimer_title => 'Descanso';
+
+  @override
+  String get restTimer_openControls =>
+      'Abrir controles do temporizador de descanso';
+
+  @override
+  String restTimer_addSeconds(int seconds) {
+    return 'Adicionar $seconds segundos';
+  }
+
+  @override
+  String restTimer_subtractSeconds(int seconds) {
+    return 'Subtrair $seconds segundos';
+  }
+
+  @override
+  String get restTimer_pause => 'Pausar temporizador';
+
+  @override
+  String get restTimer_resume => 'Retomar temporizador';
+
+  @override
+  String get restTimer_dismiss => 'Fechar temporizador';
+
+  @override
+  String get restTimer_reset => 'Reiniciar temporizador';
+
+  @override
+  String restTimer_preset(String time) {
+    return 'Usar descanso de $time';
+  }
 
   @override
   String get restTimer_resting => 'DESCANSANDO';
@@ -802,6 +846,32 @@ class SPt extends S {
 
   @override
   String get train_createRoutine => 'Criar rotina';
+
+  @override
+  String get train_editRoutine => 'Editar rotina';
+
+  @override
+  String train_routineUpdated(String name) {
+    return 'Rotina \"$name\" atualizada';
+  }
+
+  @override
+  String get train_addFirstExercise => 'Adicionar primeiro exercício';
+
+  @override
+  String get train_addFirstExerciseHint =>
+      'Toque aqui ou em “Adicionar exercício” para incluir o primeiro.';
+
+  @override
+  String get train_removeSet => 'Remover série';
+
+  @override
+  String get train_removeCompletedSetTitle => 'Remover série concluída?';
+
+  @override
+  String train_removeCompletedSetBody(int setNumber) {
+    return 'A série $setNumber está concluída e deixará de contar no treino.';
+  }
 
   @override
   String get train_createRoutineHint =>

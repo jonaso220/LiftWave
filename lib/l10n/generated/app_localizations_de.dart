@@ -62,6 +62,19 @@ class SDe extends S {
   String get common_pro => 'PRO';
 
   @override
+  String get common_discardChangesTitle => 'Änderungen verwerfen?';
+
+  @override
+  String get common_discardChangesBody =>
+      'Deine Änderungen werden nicht gespeichert.';
+
+  @override
+  String get common_keepEditing => 'Weiter bearbeiten';
+
+  @override
+  String get common_discard => 'Verwerfen';
+
+  @override
   String get muscle_all => 'Alle';
 
   @override
@@ -354,6 +367,36 @@ class SDe extends S {
 
   @override
   String get restTimer_title => 'Pause';
+
+  @override
+  String get restTimer_openControls => 'Steuerung des Pausentimers öffnen';
+
+  @override
+  String restTimer_addSeconds(int seconds) {
+    return '$seconds Sekunden hinzufügen';
+  }
+
+  @override
+  String restTimer_subtractSeconds(int seconds) {
+    return '$seconds Sekunden abziehen';
+  }
+
+  @override
+  String get restTimer_pause => 'Timer pausieren';
+
+  @override
+  String get restTimer_resume => 'Timer fortsetzen';
+
+  @override
+  String get restTimer_dismiss => 'Timer schließen';
+
+  @override
+  String get restTimer_reset => 'Timer zurücksetzen';
+
+  @override
+  String restTimer_preset(String time) {
+    return 'Pause von $time verwenden';
+  }
 
   @override
   String get restTimer_resting => 'PAUSE';
@@ -804,6 +847,32 @@ class SDe extends S {
 
   @override
   String get train_createRoutine => 'Routine erstellen';
+
+  @override
+  String get train_editRoutine => 'Routine bearbeiten';
+
+  @override
+  String train_routineUpdated(String name) {
+    return 'Routine \"$name\" aktualisiert';
+  }
+
+  @override
+  String get train_addFirstExercise => 'Erste Übung hinzufügen';
+
+  @override
+  String get train_addFirstExerciseHint =>
+      'Tippe hier oder auf „Übung hinzufügen“, um die erste Übung hinzuzufügen.';
+
+  @override
+  String get train_removeSet => 'Satz entfernen';
+
+  @override
+  String get train_removeCompletedSetTitle => 'Abgeschlossenen Satz entfernen?';
+
+  @override
+  String train_removeCompletedSetBody(int setNumber) {
+    return 'Satz $setNumber ist abgeschlossen und zählt danach nicht mehr zum Training.';
+  }
 
   @override
   String get train_createRoutineHint =>

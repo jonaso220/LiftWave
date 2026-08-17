@@ -3,11 +3,13 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
+import 'package:liftwave/data/active_workout_store.dart';
 import 'package:liftwave/data/persistent_sync_queue.dart';
 import 'package:liftwave/data/custom_template_store.dart';
 import 'package:liftwave/data/workout_templates.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:liftwave/l10n/generated/app_localizations_en.dart';
+import 'package:liftwave/l10n/generated/app_localizations_es.dart';
 import 'package:liftwave/models/models.dart';
 import 'package:liftwave/models/progress_models.dart';
 import 'package:liftwave/models/session_models.dart';
@@ -17,6 +19,8 @@ import 'package:liftwave/services/rest_timer_controller.dart';
 import 'package:liftwave/services/user_data_deletion_service.dart';
 import 'package:liftwave/services/weekly_plan_service.dart';
 import 'package:liftwave/screens/onboarding/training_preferences_screen.dart';
+import 'package:liftwave/screens/history/workout_edit_screen.dart';
+import 'package:liftwave/screens/train/routine_builder_screen.dart';
 import 'package:liftwave/theme/app_theme.dart';
 import 'package:liftwave/utils/csv_exporter.dart';
 import 'package:liftwave/utils/exercise_localization.dart';
@@ -39,6 +43,48 @@ void main() {
 
     expect(exercise.totalVolume, 920);
     expect(exercise.completedSets, 2);
+  });
+
+  test('only sessions without a saved routine can be saved as one', () {
+    expect(WorkoutLaunchSource.freeSession.canSaveAsRoutine, isTrue);
+    expect(WorkoutLaunchSource.workoutHistory.canSaveAsRoutine, isTrue);
+    expect(WorkoutLaunchSource.savedRoutine.canSaveAsRoutine, isFalse);
+    expect(
+      WorkoutLaunchSource.fromStorage('savedRoutine'),
+      WorkoutLaunchSource.savedRoutine,
+    );
+    expect(
+      WorkoutLaunchSource.fromStorage(null),
+      WorkoutLaunchSource.freeSession,
+    );
+  });
+
+  test('active workout restoration advances only a running timer', () {
+    final startedAt = DateTime(2026, 8, 17, 10);
+    ActiveWorkoutSnapshot snapshot({required bool running}) =>
+        ActiveWorkoutSnapshot(
+          timerRunning: running,
+          startedAt: startedAt,
+          elapsedSeconds: 75,
+          workoutName: 'Rutina',
+          routineDay: RoutineDay.monday.storageKey,
+          routineOrder: 1,
+          launchSource: WorkoutLaunchSource.savedRoutine,
+          exercises: const [],
+        );
+
+    expect(
+      snapshot(
+        running: true,
+      ).elapsedAt(startedAt.add(const Duration(minutes: 3))),
+      180,
+    );
+    expect(
+      snapshot(
+        running: false,
+      ).elapsedAt(startedAt.add(const Duration(minutes: 3))),
+      75,
+    );
   });
 
   test('history metrics and CSV ignore unfinished sets', () {
@@ -123,6 +169,322 @@ void main() {
     );
 
     expect(resolved, RoutineDay.thursday);
+  });
+
+  test('history day groups routines but leaves free sessions unassigned', () {
+    expect(
+      routineDayForHistoryGrouping(
+        storedDay: RoutineDay.tuesday.storageKey,
+        name: 'Entrenamiento libre',
+      ),
+      RoutineDay.tuesday,
+    );
+    expect(
+      routineDayForHistoryGrouping(storedDay: null, name: 'Rutina del jueves'),
+      RoutineDay.thursday,
+    );
+    expect(
+      routineDayForHistoryGrouping(
+        storedDay: null,
+        name: 'Entrenamiento libre',
+      ),
+      isNull,
+    );
+  });
+
+  test('routine progress marks only blocks with completed sets', () {
+    final workout = Workout(
+      id: 'partial-monday',
+      name: 'Rutina del lunes',
+      date: DateTime(2026, 8, 17),
+      duration: const Duration(minutes: 30),
+      routineDay: RoutineDay.monday.storageKey,
+      exercises: const [
+        WorkoutExercise(
+          id: 'completed-block',
+          name: 'Press de banca',
+          muscleGroup: 'Pecho',
+          routineBlockName: 'Rutina 1',
+          sets: [
+            WorkoutSet(setNumber: 1, reps: 10, weight: 40, completed: true),
+          ],
+        ),
+        WorkoutExercise(
+          id: 'pending-block',
+          name: 'Remo con barra',
+          muscleGroup: 'Espalda',
+          routineBlockName: 'Rutina 2',
+          sets: [
+            WorkoutSet(setNumber: 1, reps: 10, weight: 40, completed: false),
+          ],
+        ),
+      ],
+      totalVolume: 400,
+    );
+
+    expect(
+      routineBlockWasCompleted(
+        day: RoutineDay.monday,
+        blockName: 'Rutina 1',
+        blockOrder: 1,
+        workouts: [workout],
+        now: DateTime(2026, 8, 20),
+      ),
+      isTrue,
+    );
+    expect(
+      routineBlockWasCompleted(
+        day: RoutineDay.monday,
+        blockName: 'Rutina 2',
+        blockOrder: 2,
+        workouts: [workout],
+        now: DateTime(2026, 8, 20),
+      ),
+      isFalse,
+    );
+  });
+
+  test('routine progress supports legacy single-block workout metadata', () {
+    final workout = Workout(
+      id: 'legacy-block',
+      name: 'Nombre anterior',
+      date: DateTime(2026, 8, 17),
+      duration: const Duration(minutes: 20),
+      routineDay: RoutineDay.monday.storageKey,
+      routineOrder: 2,
+      exercises: const [
+        WorkoutExercise(
+          id: 'legacy-exercise',
+          name: 'Sentadilla',
+          muscleGroup: 'Piernas',
+          sets: [
+            WorkoutSet(setNumber: 1, reps: 8, weight: 50, completed: true),
+          ],
+        ),
+      ],
+      totalVolume: 400,
+    );
+
+    expect(
+      routineBlockWasCompleted(
+        day: RoutineDay.monday,
+        blockName: 'Rutina 2',
+        blockOrder: 2,
+        workouts: [workout],
+        now: DateTime(2026, 8, 20),
+      ),
+      isTrue,
+    );
+  });
+
+  test('routine progress resets at Monday calendar-week boundaries', () {
+    Workout completedOn(DateTime date) => Workout(
+      id: date.toIso8601String(),
+      name: 'Rutina 1',
+      date: date,
+      duration: const Duration(minutes: 20),
+      routineDay: RoutineDay.monday.storageKey,
+      routineOrder: 1,
+      exercises: const [
+        WorkoutExercise(
+          id: 'exercise',
+          name: 'Sentadilla',
+          muscleGroup: 'Piernas',
+          sets: [
+            WorkoutSet(setNumber: 1, reps: 8, weight: 50, completed: true),
+          ],
+        ),
+      ],
+      totalVolume: 400,
+    );
+
+    final previousSunday = completedOn(DateTime(2026, 8, 16, 23, 59));
+    final currentMonday = completedOn(DateTime(2026, 8, 17));
+    final currentSunday = completedOn(DateTime(2026, 8, 23, 23, 59));
+    final nextMonday = completedOn(DateTime(2026, 8, 24));
+
+    bool wasCompleted(Iterable<Workout> workouts) => routineBlockWasCompleted(
+      day: RoutineDay.monday,
+      blockName: 'Rutina 1',
+      blockOrder: 1,
+      workouts: workouts,
+      now: DateTime(2026, 8, 20),
+    );
+
+    expect(wasCompleted([previousSunday, nextMonday]), isFalse);
+    expect(wasCompleted([currentMonday]), isTrue);
+    expect(wasCompleted([currentSunday]), isTrue);
+    expect(wasCompleted([previousSunday, currentMonday, nextMonday]), isTrue);
+  });
+
+  testWidgets('empty routine call to action is fully tappable', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.dark,
+        localizationsDelegates: S.localizationsDelegates,
+        supportedLocales: S.supportedLocales,
+        home: const RoutineBuilderScreen(initialName: 'Rutina nueva'),
+      ),
+    );
+
+    final emptyHint = find.text(SEn().train_addFirstExerciseHint);
+    final tappableArea = find.ancestor(
+      of: emptyHint,
+      matching: find.byType(InkWell),
+    );
+
+    expect(emptyHint, findsOneWidget);
+    expect(tappableArea, findsOneWidget);
+    expect(tester.widget<InkWell>(tappableArea).onTap, isNotNull);
+  });
+
+  testWidgets('editing a routine preserves its id and planned values', (
+    tester,
+  ) async {
+    final template = CustomTemplate(
+      id: 'saved-routine',
+      name: 'Rutina original',
+      routineDay: RoutineDay.monday.storageKey,
+      routineOrder: 2,
+      exercises: const [
+        TemplateExercise(
+          name: 'Press de banca',
+          muscleGroup: 'Pecho',
+          equipment: 'Barra',
+          sets: 4,
+          reps: 8,
+          weight: 20,
+        ),
+      ],
+    );
+    CustomTemplate? result;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('es'),
+        theme: AppTheme.dark,
+        localizationsDelegates: S.localizationsDelegates,
+        supportedLocales: S.supportedLocales,
+        home: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () async {
+              result = await Navigator.push<CustomTemplate>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => RoutineBuilderScreen(
+                    initialName: template.name,
+                    initialDay: RoutineDay.monday,
+                    routineOrder: template.routineOrder,
+                    initialTemplate: template,
+                  ),
+                ),
+              );
+            },
+            child: const Text('Abrir'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Abrir'));
+    await tester.pumpAndSettle();
+    expect(find.text(SEs().train_editRoutine), findsOneWidget);
+    expect(find.text('4'), findsOneWidget);
+    expect(find.text('8'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).first, 'Rutina actualizada');
+    await tester.tap(find.widgetWithText(ElevatedButton, SEs().common_save));
+    await tester.pumpAndSettle();
+
+    expect(result, isNotNull);
+    expect(result!.id, template.id);
+    expect(result!.name, 'Rutina actualizada');
+    expect(result!.routineOrder, 2);
+    expect(result!.exercises.single.sets, 4);
+    expect(result!.exercises.single.reps, 8);
+  });
+
+  testWidgets('routine builder confirms before discarding changes', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('es'),
+        theme: AppTheme.dark,
+        localizationsDelegates: S.localizationsDelegates,
+        supportedLocales: S.supportedLocales,
+        home: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () => Navigator.push<void>(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    const RoutineBuilderScreen(initialName: 'Rutina nueva'),
+              ),
+            ),
+            child: const Text('Abrir'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Abrir'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, 'Rutina cambiada');
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.text(SEs().common_discardChangesTitle), findsOneWidget);
+    await tester.tap(find.text(SEs().common_keepEditing));
+    await tester.pumpAndSettle();
+    expect(find.text(SEs().train_createRoutine), findsOneWidget);
+  });
+
+  testWidgets('history editor confirms before discarding changes', (
+    tester,
+  ) async {
+    final workout = Workout(
+      id: 'history-edit',
+      name: 'Rutina',
+      date: DateTime(2026, 8, 17),
+      duration: const Duration(minutes: 20),
+      totalVolume: 400,
+      exercises: const [
+        WorkoutExercise(
+          id: 'bench',
+          name: 'Press de banca',
+          muscleGroup: 'Pecho',
+          sets: [
+            WorkoutSet(setNumber: 1, reps: 10, weight: 40, completed: true),
+          ],
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('es'),
+        theme: AppTheme.dark,
+        localizationsDelegates: S.localizationsDelegates,
+        supportedLocales: S.supportedLocales,
+        home: Builder(
+          builder: (context) => ElevatedButton(
+            onPressed: () => Navigator.push<void>(
+              context,
+              MaterialPageRoute(
+                builder: (_) => WorkoutEditScreen(workout: workout),
+              ),
+            ),
+            child: const Text('Abrir'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Abrir'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, 'Nota corregida');
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.text(SEs().common_discardChangesTitle), findsOneWidget);
   });
 
   test('routine metadata and block names survive workout serialization', () {

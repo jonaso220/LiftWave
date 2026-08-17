@@ -543,22 +543,18 @@ class _SetRowState extends State<_SetRow> {
                   ),
                 ),
                 if (widget.onRemove != null)
-                  Semantics(
-                    label: '${S.of(context).common_delete} $setLabel',
-                    button: true,
-                    onTap: widget.onRemove,
-                    child: ExcludeSemantics(
-                      child: GestureDetector(
-                        onTap: widget.onRemove,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 4),
-                          child: Icon(
-                            Icons.remove_circle_outline_rounded,
-                            color: AppColors.textMuted.withAlpha(128),
-                            size: 16,
-                          ),
-                        ),
-                      ),
+                  IconButton(
+                    tooltip: '${S.of(context).train_removeSet}: $setLabel',
+                    onPressed: widget.onRemove,
+                    constraints: const BoxConstraints.tightFor(
+                      width: 44,
+                      height: 44,
+                    ),
+                    padding: EdgeInsets.zero,
+                    icon: Icon(
+                      Icons.remove_circle_outline_rounded,
+                      color: AppColors.textMuted.withAlpha(180),
+                      size: 20,
                     ),
                   ),
               ],
