@@ -58,11 +58,29 @@ fi
 
 cd ios
 
+run_locked_pod_install() {
+  pod_executable_path="$(pod env | sed -n 's/^[[:space:]]*Executable Path:[[:space:]]*//p' | head -n 1)"
+
+  if [ -n "$pod_executable_path" ] && [ -f "$pod_executable_path" ]; then
+    pod_gem_home="$(dirname "$(dirname "$pod_executable_path")")"
+    pod_ruby="$(sed -n '1s/^#!//p' "$pod_executable_path")"
+
+    if [ -x "$pod_ruby" ]; then
+      env GEM_HOME="$pod_gem_home" \
+        "$pod_ruby" "$CI_PRIMARY_REPOSITORY_PATH/ios/ci_scripts/cocoapods_cdn_mirror.rb" \
+        install --deployment
+      return
+    fi
+  fi
+
+  echo "CocoaPods runtime could not be derived; using the installed pod command"
+  pod install --deployment
+}
+
 # The CDN can also rate-limit dependency downloads. Keep the lockfile as the
 # source of truth and retry transient failures before failing the build.
 retry_command \
   "CocoaPods dependency installation" \
   6 \
   20 \
-  ruby "$CI_PRIMARY_REPOSITORY_PATH/ios/ci_scripts/cocoapods_cdn_mirror.rb" \
-  install --deployment
+  run_locked_pod_install
