@@ -27,4 +27,21 @@ if ! command -v pod >/dev/null 2>&1; then
 fi
 
 cd ios
-pod install
+
+# CocoaPods' CDN can briefly rate-limit shared Xcode Cloud runners. Retry the
+# same locked install before failing the build; deterministic errors still
+# surface after the final attempt.
+pod_install_attempt=1
+pod_install_max_attempts=4
+
+until pod install; do
+  if [ "$pod_install_attempt" -ge "$pod_install_max_attempts" ]; then
+    echo "pod install failed after $pod_install_attempt attempts"
+    exit 1
+  fi
+
+  pod_install_wait_seconds=$((pod_install_attempt * 20))
+  echo "pod install failed; retrying in ${pod_install_wait_seconds}s"
+  sleep "$pod_install_wait_seconds"
+  pod_install_attempt=$((pod_install_attempt + 1))
+done
