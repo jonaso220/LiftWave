@@ -1,6 +1,10 @@
 # Uncomment this line to define a global platform for your project
 # platform :ios, '13.0'
 
+# Keep CocoaPods' current index while the CI bootstrap redirects its GitHub
+# podspec downloads to CocoaPods' jsDelivr mirror.
+source 'https://cdn.cocoapods.org/'
+
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
