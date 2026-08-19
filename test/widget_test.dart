@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:liftwave/data/active_workout_store.dart';
 import 'package:liftwave/data/persistent_sync_queue.dart';
 import 'package:liftwave/data/custom_template_store.dart';
@@ -17,6 +18,7 @@ import 'package:liftwave/models/training_preferences.dart';
 import 'package:liftwave/services/progression_service.dart';
 import 'package:liftwave/services/rest_timer_controller.dart';
 import 'package:liftwave/services/user_data_deletion_service.dart';
+import 'package:liftwave/services/watch_service.dart';
 import 'package:liftwave/services/weekly_plan_service.dart';
 import 'package:liftwave/screens/onboarding/training_preferences_screen.dart';
 import 'package:liftwave/screens/history/workout_edit_screen.dart';
@@ -595,6 +597,76 @@ void main() {
     expect(timer.hasFinished, isTrue);
     timer.dismiss();
     timer.setClockForTesting(null);
+  });
+
+  testWidgets('rest timer catches up after a background gap', (tester) async {
+    final timer = RestTimerController.instance;
+    var now = DateTime(2026, 7, 13, 12);
+    timer.setClockForTesting(() => now);
+    timer.dismiss();
+    timer.startWithDefault(seconds: 90);
+    now = now.add(const Duration(seconds: 40));
+    timer.syncFromClock();
+
+    expect(timer.remaining, 50);
+    expect(timer.isRunning, isTrue);
+    timer.dismiss();
+    timer.setClockForTesting(null);
+  });
+
+  testWidgets('rest timer finishes when the background gap overruns', (
+    tester,
+  ) async {
+    final timer = RestTimerController.instance;
+    var now = DateTime(2026, 7, 13, 12);
+    timer.setClockForTesting(() => now);
+    timer.dismiss();
+    timer.startWithDefault(seconds: 10);
+    now = now.add(const Duration(seconds: 15));
+    timer.syncFromClock();
+
+    expect(timer.remaining, 0);
+    expect(timer.isRunning, isFalse);
+    expect(timer.hasFinished, isTrue);
+    timer.dismiss();
+    timer.setClockForTesting(null);
+  });
+
+  testWidgets('watch updates keep workout and rest timer keys together', (
+    tester,
+  ) async {
+    final calls = <MethodCall>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('com.liftwave.liftwave/watch'),
+      (call) async {
+        calls.add(call);
+        return null;
+      },
+    );
+
+    await WatchService.instance.updateWorkoutState(
+      active: true,
+      name: 'Push',
+      elapsedSeconds: 12,
+      exercises: const [
+        {'id': 'bench', 'completedSets': 1, 'totalSets': 4},
+      ],
+    );
+    await WatchService.instance.updateTimerState(
+      running: true,
+      remaining: 40,
+      total: 90,
+    );
+
+    expect(calls, hasLength(2));
+    expect(calls.last.arguments['workoutActive'], isTrue);
+    expect(calls.last.arguments['workoutName'], 'Push');
+    expect(calls.last.arguments['timerRemaining'], 40);
+    expect(calls.last.arguments['timerRunning'], isTrue);
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('com.liftwave.liftwave/watch'),
+      null,
+    );
   });
 
   test('account cleanup removes user caches and referenced photos', () async {

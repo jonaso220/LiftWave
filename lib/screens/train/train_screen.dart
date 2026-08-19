@@ -50,7 +50,7 @@ class TrainScreen extends StatefulWidget {
   State<TrainScreen> createState() => _TrainScreenState();
 }
 
-class _TrainScreenState extends State<TrainScreen> {
+class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
   bool _workoutStarted = false;
   bool _timerRunning = false;
   Timer? _timer;
@@ -66,6 +66,7 @@ class _TrainScreenState extends State<TrainScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     CustomTemplateStore.instance.addListener(_onTemplatesChanged);
     WorkoutLauncher.instance.addListener(_onLauncherChanged);
     WatchService.instance.onWatchCommand = _handleWatchCommand;
@@ -80,6 +81,7 @@ class _TrainScreenState extends State<TrainScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     CustomTemplateStore.instance.removeListener(_onTemplatesChanged);
     WorkoutLauncher.instance.removeListener(_onLauncherChanged);
     if (WatchService.instance.onWatchCommand == _handleWatchCommand) {
@@ -87,6 +89,24 @@ class _TrainScreenState extends State<TrainScreen> {
     }
     _timer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!_workoutStarted) return;
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _catchUpFromClock(syncWatch: true);
+        RestTimerController.instance.syncFromClock();
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        _catchUpFromClock(syncWatch: false);
+        RestTimerController.instance.syncFromClock();
+        _persistActiveWorkout();
+      case AppLifecycleState.detached:
+        break;
+    }
   }
 
   Future<void> _checkForActiveSessionToRestore() async {
@@ -329,6 +349,7 @@ class _TrainScreenState extends State<TrainScreen> {
   }
 
   void _syncWatch() {
+    if (!mounted) return;
     final l10n = S.of(context);
     WatchService.instance.updateWorkoutState(
       active: _workoutStarted,
@@ -339,6 +360,7 @@ class _TrainScreenState extends State<TrainScreen> {
       exercises: _exercises
           .map(
             (e) => {
+              'id': e.id,
               'name': ExerciseLocalization.name(l10n, e.name),
               'muscleGroup': ExerciseLocalization.muscle(l10n, e.muscleGroup),
               'completedSets': e.completedSets,
@@ -347,6 +369,23 @@ class _TrainScreenState extends State<TrainScreen> {
           )
           .toList(),
     );
+  }
+
+  /// Rebuilds elapsed time from [_startedAt] so a suspended Dart ticker does
+  /// not freeze the session clock after the phone is locked.
+  void _catchUpFromClock({required bool syncWatch}) {
+    if (!_timerRunning || _startedAt == null) return;
+    final elapsed = DateTime.now()
+        .difference(_startedAt!)
+        .inSeconds
+        .clamp(0, 86400);
+    if (elapsed == _elapsedSeconds) return;
+    if (mounted) {
+      setState(() => _elapsedSeconds = elapsed);
+    } else {
+      _elapsedSeconds = elapsed;
+    }
+    if (syncWatch) _syncWatch();
   }
 
   // ── Workout control ──────────────────────────────────────────────────────
@@ -377,9 +416,17 @@ class _TrainScreenState extends State<TrainScreen> {
   void _scheduleWorkoutTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() => _elapsedSeconds++);
-      if (_elapsedSeconds % 5 == 0) _syncWatch();
-      if (_elapsedSeconds % 10 == 0) _persistActiveWorkout();
+      if (!_timerRunning || _startedAt == null) return;
+      final elapsed = DateTime.now()
+          .difference(_startedAt!)
+          .inSeconds
+          .clamp(0, 86400);
+      if (elapsed == _elapsedSeconds) return;
+      final crossedFive = elapsed ~/ 5 != _elapsedSeconds ~/ 5;
+      final crossedTen = elapsed ~/ 10 != _elapsedSeconds ~/ 10;
+      setState(() => _elapsedSeconds = elapsed);
+      if (crossedFive) _syncWatch();
+      if (crossedTen) _persistActiveWorkout();
     });
   }
 
@@ -1054,6 +1101,7 @@ class _TrainScreenState extends State<TrainScreen> {
       }
     });
     _persistActiveWorkout();
+    _syncWatch();
   }
 
   Future<void> _addExercise() async {
@@ -1075,6 +1123,7 @@ class _TrainScreenState extends State<TrainScreen> {
       );
     });
     _persistActiveWorkout();
+    _syncWatch();
   }
 
   void _removeExercise(int index) {
@@ -1083,6 +1132,7 @@ class _TrainScreenState extends State<TrainScreen> {
     if (!hasCompletedSets) {
       setState(() => _exercises.removeAt(index));
       _persistActiveWorkout();
+      _syncWatch();
       return;
     }
     final l10n = S.of(context);
@@ -1111,6 +1161,7 @@ class _TrainScreenState extends State<TrainScreen> {
               Navigator.pop(ctx);
               setState(() => _exercises.removeAt(index));
               _persistActiveWorkout();
+              _syncWatch();
             },
             child: Text(
               l10n.common_delete,
@@ -1129,6 +1180,7 @@ class _TrainScreenState extends State<TrainScreen> {
       _exercises.insert(newIndex, item);
     });
     _persistActiveWorkout();
+    _syncWatch();
   }
 
   void _addSet(int exIndex) {
@@ -1140,6 +1192,7 @@ class _TrainScreenState extends State<TrainScreen> {
       ex.sets.add(SessionSet(reps: last.reps, weight: last.weight));
     });
     _persistActiveWorkout();
+    _syncWatch();
   }
 
   Future<void> _removeSet(int exIndex, int setIndex) async {
@@ -1179,6 +1232,7 @@ class _TrainScreenState extends State<TrainScreen> {
     }
     setState(() => _exercises[exIndex].sets.removeAt(setIndex));
     _persistActiveWorkout();
+    _syncWatch();
   }
 
   void _toggleSetDone(int exIndex, int setIndex) {
@@ -1188,6 +1242,7 @@ class _TrainScreenState extends State<TrainScreen> {
       s.completed = !wasCompleted;
     });
     _persistActiveWorkout();
+    _syncWatch();
     // Auto-start the rest timer when a set transitions to completed.
     if (!wasCompleted) {
       RestTimerController.instance.startWithDefault();

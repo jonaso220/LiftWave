@@ -138,6 +138,21 @@ class RestTimerController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Recalculates remaining time from [_deadline]. Call when the app returns
+  /// from background so a frozen Dart ticker does not leave the overlay stale.
+  void syncFromClock() {
+    if (!_isRunning) return;
+    final previous = _remaining;
+    _updateRemainingFromClock();
+    if (_remaining <= 0) {
+      _finish();
+      return;
+    }
+    if (_remaining == previous) return;
+    _syncWatch();
+    notifyListeners();
+  }
+
   /// Hide the overlay and stop the timer entirely.
   void dismiss() {
     _ticker?.cancel();

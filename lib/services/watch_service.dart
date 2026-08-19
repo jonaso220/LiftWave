@@ -8,6 +8,9 @@ class WatchService {
 
   static const _channel = MethodChannel('com.liftwave.liftwave/watch');
 
+  Map<String, dynamic> _workoutPayload = const {};
+  Map<String, dynamic> _timerPayload = const {};
+
   /// Callback for commands received from the Watch.
   void Function(String type, Map<String, dynamic> data)? onWatchCommand;
 
@@ -28,16 +31,13 @@ class WatchService {
     int elapsedSeconds = 0,
     List<Map<String, dynamic>> exercises = const [],
   }) async {
-    try {
-      await _channel.invokeMethod('updateWorkoutState', {
-        'workoutActive': active,
-        'workoutName': name,
-        'elapsedSeconds': elapsedSeconds,
-        'exercises': exercises,
-      });
-    } catch (e) {
-      debugPrint('WatchService.updateWorkoutState error: $e');
-    }
+    _workoutPayload = {
+      'workoutActive': active,
+      'workoutName': name,
+      'elapsedSeconds': elapsedSeconds,
+      'exercises': exercises,
+    };
+    await _push();
   }
 
   /// Send current timer state to the Watch.
@@ -46,14 +46,21 @@ class WatchService {
     required int remaining,
     required int total,
   }) async {
+    _timerPayload = {
+      'timerRunning': running,
+      'timerRemaining': remaining,
+      'timerTotal': total,
+    };
+    await _push();
+  }
+
+  Future<void> _push() async {
+    final payload = <String, dynamic>{..._workoutPayload, ..._timerPayload};
+    if (payload.isEmpty) return;
     try {
-      await _channel.invokeMethod('updateTimerState', {
-        'timerRunning': running,
-        'timerRemaining': remaining,
-        'timerTotal': total,
-      });
+      await _channel.invokeMethod('updateWorkoutState', payload);
     } catch (e) {
-      debugPrint('WatchService.updateTimerState error: $e');
+      debugPrint('WatchService.push error: $e');
     }
   }
 }
