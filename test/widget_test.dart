@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:liftwave/data/active_workout_store.dart';
 import 'package:liftwave/data/persistent_sync_queue.dart';
 import 'package:liftwave/data/custom_template_store.dart';
@@ -17,6 +18,7 @@ import 'package:liftwave/models/training_preferences.dart';
 import 'package:liftwave/services/progression_service.dart';
 import 'package:liftwave/services/rest_timer_controller.dart';
 import 'package:liftwave/services/user_data_deletion_service.dart';
+import 'package:liftwave/services/watch_service.dart';
 import 'package:liftwave/services/weekly_plan_service.dart';
 import 'package:liftwave/screens/onboarding/training_preferences_screen.dart';
 import 'package:liftwave/screens/history/workout_edit_screen.dart';
@@ -597,6 +599,76 @@ void main() {
     timer.setClockForTesting(null);
   });
 
+  testWidgets('rest timer catches up after a background gap', (tester) async {
+    final timer = RestTimerController.instance;
+    var now = DateTime(2026, 7, 13, 12);
+    timer.setClockForTesting(() => now);
+    timer.dismiss();
+    timer.startWithDefault(seconds: 90);
+    now = now.add(const Duration(seconds: 40));
+    timer.syncFromClock();
+
+    expect(timer.remaining, 50);
+    expect(timer.isRunning, isTrue);
+    timer.dismiss();
+    timer.setClockForTesting(null);
+  });
+
+  testWidgets('rest timer finishes when the background gap overruns', (
+    tester,
+  ) async {
+    final timer = RestTimerController.instance;
+    var now = DateTime(2026, 7, 13, 12);
+    timer.setClockForTesting(() => now);
+    timer.dismiss();
+    timer.startWithDefault(seconds: 10);
+    now = now.add(const Duration(seconds: 15));
+    timer.syncFromClock();
+
+    expect(timer.remaining, 0);
+    expect(timer.isRunning, isFalse);
+    expect(timer.hasFinished, isTrue);
+    timer.dismiss();
+    timer.setClockForTesting(null);
+  });
+
+  testWidgets('watch updates keep workout and rest timer keys together', (
+    tester,
+  ) async {
+    final calls = <MethodCall>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('com.liftwave.liftwave/watch'),
+      (call) async {
+        calls.add(call);
+        return null;
+      },
+    );
+
+    await WatchService.instance.updateWorkoutState(
+      active: true,
+      name: 'Push',
+      elapsedSeconds: 12,
+      exercises: const [
+        {'id': 'bench', 'completedSets': 1, 'totalSets': 4},
+      ],
+    );
+    await WatchService.instance.updateTimerState(
+      running: true,
+      remaining: 40,
+      total: 90,
+    );
+
+    expect(calls, hasLength(2));
+    expect(calls.last.arguments['workoutActive'], isTrue);
+    expect(calls.last.arguments['workoutName'], 'Push');
+    expect(calls.last.arguments['timerRemaining'], 40);
+    expect(calls.last.arguments['timerRunning'], isTrue);
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('com.liftwave.liftwave/watch'),
+      null,
+    );
+  });
+
   test('account cleanup removes user caches and referenced photos', () async {
     SharedPreferences.setMockInitialValues({});
     final directory = await Directory.systemTemp.createTemp('liftwave-delete');
@@ -608,6 +680,9 @@ void main() {
     ]);
     await prefs.setString('workouts_cache_user-1', '[]');
     await prefs.setString('workouts_sync_queue_user-1', '[]');
+    await prefs.setBool('custom_exercises_cloud_seeded_user-1', true);
+    await prefs.setBool('custom_templates_cloud_seeded_user-1', true);
+    await prefs.setBool('measurements_cloud_seeded_user-1', true);
 
     await UserDataDeletionService.deleteLocalData('user-1');
 
@@ -615,6 +690,9 @@ void main() {
     expect(prefs.containsKey('body_measurements_user-1'), isFalse);
     expect(prefs.containsKey('workouts_cache_user-1'), isFalse);
     expect(prefs.containsKey('workouts_sync_queue_user-1'), isFalse);
+    expect(prefs.containsKey('custom_exercises_cloud_seeded_user-1'), isFalse);
+    expect(prefs.containsKey('custom_templates_cloud_seeded_user-1'), isFalse);
+    expect(prefs.containsKey('measurements_cloud_seeded_user-1'), isFalse);
     await directory.delete(recursive: true);
   });
 
@@ -626,6 +704,80 @@ void main() {
     );
 
     expect(resolved, {'cloud': 'remote value'});
+    expect(resolved.containsKey('stale-local-record'), isFalse);
+  });
+
+  test(
+    'first cloud snapshot seeds local-only records into the sync queue',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final queue = PersistentSyncQueue('seed_queue');
+
+      final pending = await seedLocalOnlyOnFirstCloudSync<String>(
+        queue: queue,
+        seededKey: 'seeded_flag',
+        local: const {'local-only': 'keep me', 'shared': 'stale'},
+        cloud: const {'shared': 'remote', 'cloud-only': 'from cloud'},
+        pending: const [],
+        encode: (value) => {'value': value},
+      );
+
+      expect(pending, hasLength(1));
+      expect(pending.single.documentId, 'local-only');
+      expect(pending.single.type, PendingMutationType.upsert);
+      expect(pending.single.payload, {'value': 'keep me'});
+
+      final resolved = mergeAuthoritativeCloudWithPending<String>(
+        cloud: const {'shared': 'remote', 'cloud-only': 'from cloud'},
+        pending: pending,
+        decode: (payload) => payload['value'] as String,
+      );
+      expect(resolved, {
+        'shared': 'remote',
+        'cloud-only': 'from cloud',
+        'local-only': 'keep me',
+      });
+    },
+  );
+
+  test('first cloud snapshot does not seed a locally deleted record', () async {
+    SharedPreferences.setMockInitialValues({});
+    final queue = PersistentSyncQueue('seed_queue_delete');
+    await queue.enqueueDelete('gone');
+
+    final pending = await seedLocalOnlyOnFirstCloudSync<String>(
+      queue: queue,
+      seededKey: 'seeded_flag_delete',
+      local: const {'gone': 'stale cache'},
+      cloud: const {},
+      pending: await queue.load(),
+      encode: (value) => {'value': value},
+    );
+
+    expect(pending, hasLength(1));
+    expect(pending.single.documentId, 'gone');
+    expect(pending.single.type, PendingMutationType.delete);
+  });
+
+  test('later snapshots do not re-upload cache-only records', () async {
+    SharedPreferences.setMockInitialValues({'seeded_flag_later': true});
+    final queue = PersistentSyncQueue('seed_queue_later');
+
+    final pending = await seedLocalOnlyOnFirstCloudSync<String>(
+      queue: queue,
+      seededKey: 'seeded_flag_later',
+      local: const {'stale-local-record': 'should stay local'},
+      cloud: const {'cloud': 'remote value'},
+      pending: const [],
+      encode: (value) => {'value': value},
+    );
+
+    expect(pending, isEmpty);
+    final resolved = mergeAuthoritativeCloudWithPending<String>(
+      cloud: const {'cloud': 'remote value'},
+      pending: pending,
+      decode: (payload) => payload['value'] as String,
+    );
     expect(resolved.containsKey('stale-local-record'), isFalse);
   });
 

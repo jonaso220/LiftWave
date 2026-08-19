@@ -7,6 +7,10 @@ class WatchSessionManager: NSObject, WCSessionDelegate {
     static let shared = WatchSessionManager()
 
     private var channel: FlutterMethodChannel?
+    /// Latest combined payload. `updateApplicationContext` replaces the whole
+    /// dictionary, so workout-only and timer-only updates must be merged here
+    /// or the Watch loses whichever half arrived last.
+    private var lastPayload: [String: Any] = [:]
 
     private override init() {
         super.init()
@@ -19,12 +23,7 @@ class WatchSessionManager: NSObject, WCSessionDelegate {
         channel?.setMethodCallHandler { [weak self] call, result in
             NSLog("WatchSessionManager: received method call: %@", call.method)
             switch call.method {
-            case "updateWorkoutState":
-                if let args = call.arguments as? [String: Any] {
-                    self?.sendToWatch(args)
-                }
-                result(nil)
-            case "updateTimerState":
+            case "updateWorkoutState", "updateTimerState":
                 if let args = call.arguments as? [String: Any] {
                     self?.sendToWatch(args)
                 }
@@ -54,17 +53,19 @@ class WatchSessionManager: NSObject, WCSessionDelegate {
             return
         }
 
-        NSLog("WatchSessionManager: sending to watch, reachable=%d, paired=%d, keys=%@", WCSession.default.isReachable ? 1 : 0, WCSession.default.isPaired ? 1 : 0, data.keys.joined(separator: ","))
+        lastPayload.merge(data) { _, new in new }
+        let payload = lastPayload
 
-        // Try live message first, fall back to application context
+        NSLog("WatchSessionManager: sending to watch, reachable=%d, paired=%d, keys=%@", WCSession.default.isReachable ? 1 : 0, WCSession.default.isPaired ? 1 : 0, payload.keys.joined(separator: ","))
+
+        // Always keep the latest full snapshot so a Watch launch while the
+        // phone is locked still sees both workout and rest-timer keys.
+        try? WCSession.default.updateApplicationContext(payload)
+
         if WCSession.default.isReachable {
-            WCSession.default.sendMessage(data, replyHandler: nil) { error in
+            WCSession.default.sendMessage(payload, replyHandler: nil) { error in
                 print("iOS sendMessage error: \(error.localizedDescription)")
-                // Fallback to application context
-                try? WCSession.default.updateApplicationContext(data)
             }
-        } else {
-            try? WCSession.default.updateApplicationContext(data)
         }
     }
 

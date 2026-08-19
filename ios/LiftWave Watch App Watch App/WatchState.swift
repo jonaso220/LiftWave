@@ -73,8 +73,9 @@ class WatchState: ObservableObject {
                 }
             }
             if let exerciseList = data["exercises"] as? [[String: Any]] {
-                self.exercises = exerciseList.map { dict in
+                self.exercises = exerciseList.enumerated().map { index, dict in
                     WatchExercise(
+                        id: dict["id"] as? String ?? "\(index)",
                         name: dict["name"] as? String ?? "",
                         muscleGroup: dict["muscleGroup"] as? String ?? "",
                         completedSets: dict["completedSets"] as? Int ?? 0,
@@ -86,10 +87,11 @@ class WatchState: ObservableObject {
     }
 }
 
-struct WatchExercise: Identifiable {
-    let id = UUID()
+struct WatchExercise: Identifiable, Equatable {
+    let id: String
     let name: String
     let muscleGroup: String
     let completedSets: Int
     let totalSets: Int
 }
+

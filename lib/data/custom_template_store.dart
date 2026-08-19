@@ -95,6 +95,9 @@ class CustomTemplateStore extends ChangeNotifier {
 
   static String _localKeyFor(String uid) => 'custom_templates_$uid';
 
+  static String _seededKeyFor(String uid) =>
+      'custom_templates_cloud_seeded_$uid';
+
   List<CustomTemplate> get templates => List.unmodifiable(_templates);
 
   Future<void> load() async {
@@ -133,8 +136,11 @@ class CustomTemplateStore extends ChangeNotifier {
     await _migrateLegacy(uid);
     if (_uid != uid) return;
 
+    final localById = {
+      for (final template in _templates) template.id: template,
+    };
     final queue = _syncQueue;
-    final pending = queue == null
+    var pending = queue == null
         ? const <PendingMutation>[]
         : await queue.load();
 
@@ -149,6 +155,16 @@ class CustomTemplateStore extends ChangeNotifier {
         for (final doc in snap.docs)
           doc.id: CustomTemplate.fromJson(doc.data()),
       };
+      if (queue != null) {
+        pending = await seedLocalOnlyOnFirstCloudSync(
+          queue: queue,
+          seededKey: _seededKeyFor(uid),
+          local: localById,
+          cloud: merged,
+          pending: pending,
+          encode: (template) => template.toJson(),
+        );
+      }
       final resolved = mergeAuthoritativeCloudWithPending(
         cloud: merged,
         pending: pending,

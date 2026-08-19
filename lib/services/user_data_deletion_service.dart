@@ -84,6 +84,9 @@ class UserDataDeletionService {
       'training_preferences_sync_queue_$uid',
       'achievements_unlocked_$uid',
       'active_workout_state_$uid',
+      'custom_exercises_cloud_seeded_$uid',
+      'custom_templates_cloud_seeded_$uid',
+      'measurements_cloud_seeded_$uid',
     ]) {
       await prefs.remove(key);
     }

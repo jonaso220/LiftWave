@@ -40,6 +40,9 @@ class CustomExerciseStore extends ChangeNotifier {
 
   static String _localKeyFor(String uid) => 'custom_exercises_$uid';
 
+  static String _seededKeyFor(String uid) =>
+      'custom_exercises_cloud_seeded_$uid';
+
   List<Exercise> get exercises => List.unmodifiable(_exercises);
 
   Future<void> load() async {
@@ -75,8 +78,9 @@ class CustomExerciseStore extends ChangeNotifier {
     await _migrateLegacy(uid);
     if (_uid != uid) return;
 
+    final localById = {for (final exercise in _exercises) exercise.id: exercise};
     final queue = _syncQueue;
-    final pending = queue == null
+    var pending = queue == null
         ? const <PendingMutation>[]
         : await queue.load();
 
@@ -90,6 +94,16 @@ class CustomExerciseStore extends ChangeNotifier {
       final merged = <String, Exercise>{
         for (final doc in snap.docs) doc.id: _fromJson(doc.data()),
       };
+      if (queue != null) {
+        pending = await seedLocalOnlyOnFirstCloudSync(
+          queue: queue,
+          seededKey: _seededKeyFor(uid),
+          local: localById,
+          cloud: merged,
+          pending: pending,
+          encode: _toJson,
+        );
+      }
       final resolved = mergeAuthoritativeCloudWithPending(
         cloud: merged,
         pending: pending,

@@ -38,6 +38,8 @@ class ProgressStore extends ChangeNotifier {
 
   static String _localKeyFor(String uid) => 'body_measurements_$uid';
 
+  static String _seededKeyFor(String uid) => 'measurements_cloud_seeded_$uid';
+
   List<BodyMeasurement> get measurements => List.unmodifiable(_measurements);
 
   List<BodyMeasurement> get measurementsDesc =>
@@ -58,7 +60,7 @@ class ProgressStore extends ChangeNotifier {
       for (final measurement in _measurements) measurement.id: measurement,
     };
     final queue = _syncQueue;
-    final pending = queue == null
+    var pending = queue == null
         ? const <PendingMutation>[]
         : await queue.load();
 
@@ -81,6 +83,17 @@ class ProgressStore extends ChangeNotifier {
         final localPath = localById[remote.id]?.photoPath;
         if (localPath != null) remote = remote.copyWith(photoPath: localPath);
         merged[remote.id] = remote;
+      }
+
+      if (queue != null) {
+        pending = await seedLocalOnlyOnFirstCloudSync(
+          queue: queue,
+          seededKey: _seededKeyFor(uid),
+          local: localById,
+          cloud: merged,
+          pending: pending,
+          encode: (measurement) => measurement.toCloudJson(),
+        );
       }
 
       final resolved = mergeAuthoritativeCloudWithPending(
