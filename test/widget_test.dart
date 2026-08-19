@@ -608,6 +608,9 @@ void main() {
     ]);
     await prefs.setString('workouts_cache_user-1', '[]');
     await prefs.setString('workouts_sync_queue_user-1', '[]');
+    await prefs.setBool('custom_exercises_cloud_seeded_user-1', true);
+    await prefs.setBool('custom_templates_cloud_seeded_user-1', true);
+    await prefs.setBool('measurements_cloud_seeded_user-1', true);
 
     await UserDataDeletionService.deleteLocalData('user-1');
 
@@ -615,6 +618,9 @@ void main() {
     expect(prefs.containsKey('body_measurements_user-1'), isFalse);
     expect(prefs.containsKey('workouts_cache_user-1'), isFalse);
     expect(prefs.containsKey('workouts_sync_queue_user-1'), isFalse);
+    expect(prefs.containsKey('custom_exercises_cloud_seeded_user-1'), isFalse);
+    expect(prefs.containsKey('custom_templates_cloud_seeded_user-1'), isFalse);
+    expect(prefs.containsKey('measurements_cloud_seeded_user-1'), isFalse);
     await directory.delete(recursive: true);
   });
 
@@ -626,6 +632,80 @@ void main() {
     );
 
     expect(resolved, {'cloud': 'remote value'});
+    expect(resolved.containsKey('stale-local-record'), isFalse);
+  });
+
+  test(
+    'first cloud snapshot seeds local-only records into the sync queue',
+    () async {
+      SharedPreferences.setMockInitialValues({});
+      final queue = PersistentSyncQueue('seed_queue');
+
+      final pending = await seedLocalOnlyOnFirstCloudSync<String>(
+        queue: queue,
+        seededKey: 'seeded_flag',
+        local: const {'local-only': 'keep me', 'shared': 'stale'},
+        cloud: const {'shared': 'remote', 'cloud-only': 'from cloud'},
+        pending: const [],
+        encode: (value) => {'value': value},
+      );
+
+      expect(pending, hasLength(1));
+      expect(pending.single.documentId, 'local-only');
+      expect(pending.single.type, PendingMutationType.upsert);
+      expect(pending.single.payload, {'value': 'keep me'});
+
+      final resolved = mergeAuthoritativeCloudWithPending<String>(
+        cloud: const {'shared': 'remote', 'cloud-only': 'from cloud'},
+        pending: pending,
+        decode: (payload) => payload['value'] as String,
+      );
+      expect(resolved, {
+        'shared': 'remote',
+        'cloud-only': 'from cloud',
+        'local-only': 'keep me',
+      });
+    },
+  );
+
+  test('first cloud snapshot does not seed a locally deleted record', () async {
+    SharedPreferences.setMockInitialValues({});
+    final queue = PersistentSyncQueue('seed_queue_delete');
+    await queue.enqueueDelete('gone');
+
+    final pending = await seedLocalOnlyOnFirstCloudSync<String>(
+      queue: queue,
+      seededKey: 'seeded_flag_delete',
+      local: const {'gone': 'stale cache'},
+      cloud: const {},
+      pending: await queue.load(),
+      encode: (value) => {'value': value},
+    );
+
+    expect(pending, hasLength(1));
+    expect(pending.single.documentId, 'gone');
+    expect(pending.single.type, PendingMutationType.delete);
+  });
+
+  test('later snapshots do not re-upload cache-only records', () async {
+    SharedPreferences.setMockInitialValues({'seeded_flag_later': true});
+    final queue = PersistentSyncQueue('seed_queue_later');
+
+    final pending = await seedLocalOnlyOnFirstCloudSync<String>(
+      queue: queue,
+      seededKey: 'seeded_flag_later',
+      local: const {'stale-local-record': 'should stay local'},
+      cloud: const {'cloud': 'remote value'},
+      pending: const [],
+      encode: (value) => {'value': value},
+    );
+
+    expect(pending, isEmpty);
+    final resolved = mergeAuthoritativeCloudWithPending<String>(
+      cloud: const {'cloud': 'remote value'},
+      pending: pending,
+      decode: (payload) => payload['value'] as String,
+    );
     expect(resolved.containsKey('stale-local-record'), isFalse);
   });
 

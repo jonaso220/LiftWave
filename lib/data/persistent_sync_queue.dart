@@ -24,6 +24,40 @@ Map<String, T> mergeAuthoritativeCloudWithPending<T>({
   return resolved;
 }
 
+/// Enqueues local-only documents on the first successful cloud snapshot.
+///
+/// [mergeAuthoritativeCloudWithPending] correctly ignores the cache after the
+/// first sync — a cache-only id that vanished from Firestore was deleted on
+/// another device. The first snapshot is different: pre-cloud local data (and
+/// legacy unscoped keys) would otherwise be dropped against an empty
+/// collection and never uploaded.
+///
+/// Runs once per [seededKey]. Records already in the cloud, or already queued
+/// as an upsert or delete, are left untouched. Call this only after a
+/// successful cloud fetch; a failed fetch must not set the flag.
+Future<List<PendingMutation>> seedLocalOnlyOnFirstCloudSync<T>({
+  required PersistentSyncQueue queue,
+  required String seededKey,
+  required Map<String, T> local,
+  required Map<String, T> cloud,
+  required List<PendingMutation> pending,
+  required Map<String, dynamic> Function(T value) encode,
+}) async {
+  final prefs = await SharedPreferences.getInstance();
+  if (prefs.getBool(seededKey) == true) return pending;
+
+  final pendingById = {
+    for (final operation in pending) operation.documentId: operation,
+  };
+  for (final entry in local.entries) {
+    if (cloud.containsKey(entry.key)) continue;
+    if (pendingById.containsKey(entry.key)) continue;
+    await queue.enqueueUpsert(entry.key, encode(entry.value));
+  }
+  await prefs.setBool(seededKey, true);
+  return queue.load();
+}
+
 class PendingMutation {
   final String documentId;
   final PendingMutationType type;
