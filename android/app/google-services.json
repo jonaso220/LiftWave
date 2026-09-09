@@ -15,6 +15,38 @@
       },
       "oauth_client": [
         {
+          "client_id": "133055660088-7co0jag0t9akf78g4f7a8qtdnb3a6j9t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.liftwave.liftwave",
+            "certificate_hash": "d6c524e7a0fb2895f59836dfab9023fd077d1844"
+          }
+        },
+        {
+          "client_id": "133055660088-c3l1i97gql71bnemvtirdt9gpdh20hmh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.liftwave.liftwave",
+            "certificate_hash": "9a887ecc65aeee9195f359b037253b7ff2563324"
+          }
+        },
+        {
+          "client_id": "133055660088-e68bdf3tjdrfknd8ibqjc3cte0nm248m.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.liftwave.liftwave",
+            "certificate_hash": "7256bb252917e5147683e95c9fd8899d0ea8e194"
+          }
+        },
+        {
+          "client_id": "133055660088-o60p1pqtf0i1qsg65tt3utvjuoeqvmgl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.liftwave.liftwave",
+            "certificate_hash": "6cb68a4a7c59ea5336b51d153b166febfaeed81d"
+          }
+        },
+        {
           "client_id": "133055660088-qgkln18uqibcc3h77krvb3b2jbbm7bj3.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

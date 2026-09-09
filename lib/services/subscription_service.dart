@@ -13,8 +13,15 @@ class SubscriptionService extends ChangeNotifier {
 
   // ── Configuration ──────────────────────────────────────────────────────────
 
-  /// RevenueCat public API key.
-  static const _apiKey = 'appl_hFAiSbSftEmUrGJKulhWsHCFYqL';
+  /// Public SDK keys for each store in the same RevenueCat project.
+  static const _appleApiKey = 'appl_hFAiSbSftEmUrGJKulhWsHCFYqL';
+  static const _googleApiKey = 'goog_ClCAfxRRVPXCKSAolthAKfhmdav';
+
+  static String get _apiKey => switch (defaultTargetPlatform) {
+    TargetPlatform.android => _googleApiKey,
+    TargetPlatform.iOS || TargetPlatform.macOS => _appleApiKey,
+    _ => throw UnsupportedError('Subscriptions are unavailable on this platform'),
+  };
 
   /// Entitlement identifier configured in the RevenueCat dashboard.
   static const _entitlementId = 'LiftWave Pro';
@@ -145,8 +152,8 @@ class SubscriptionService extends ChangeNotifier {
   Future<bool> purchasePackage(Package package) async {
     await init();
     try {
-      final customerInfo = await Purchases.purchasePackage(package);
-      _updateStatus(customerInfo);
+      final result = await Purchases.purchase(PurchaseParams.package(package));
+      _updateStatus(result.customerInfo);
       return isPro;
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
