@@ -27,7 +27,7 @@ class _MainNavigationState extends State<MainNavigation> {
       HomeScreen(onNavigate: _navigateTo),
       TrainScreen(onSessionRestored: () => _navigateTo(1)),
       const HistoryScreen(),
-      const ExercisesScreen(),
+      ExercisesScreen(onStartWorkout: () => _navigateTo(1)),
     ];
 
     return Scaffold(

@@ -26,6 +26,7 @@ import '../../utils/pro_gate.dart';
 import '../../utils/routine_days.dart';
 import '../../widgets/common/muscle_chip.dart';
 import '../../widgets/rest_timer_overlay.dart';
+import '../../widgets/session_set_row.dart';
 import 'exercise_picker_screen.dart';
 import 'routine_builder_screen.dart';
 
@@ -289,6 +290,14 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
   }
 
   void _consumePendingTemplate() {
+    final exercises = WorkoutLauncher.instance.consumeExercises();
+    if (exercises.isNotEmpty) {
+      for (final exercise in exercises) {
+        _appendExercise(exercise);
+      }
+      if (!_workoutStarted) _startWorkout();
+      return;
+    }
     if (_workoutStarted) return;
     final template = WorkoutLauncher.instance.consumeTemplate();
     if (template != null) {
@@ -1109,7 +1118,11 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       context,
       MaterialPageRoute(builder: (_) => const ExercisePickerScreen()),
     );
-    if (ex == null) return;
+    if (ex == null || !mounted) return;
+    _appendExercise(ex);
+  }
+
+  void _appendExercise(Exercise ex) {
     final lastWeight = _lastWeightFor(ex.name, equipment: ex.equipment);
     setState(() {
       _exercises.add(

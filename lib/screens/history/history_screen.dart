@@ -124,17 +124,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
 
           // ── Section title ──────────────────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
-              child: Text(
-                allWorkouts.isEmpty ? '' : S.of(context).history_routinesByDay,
-                style: Theme.of(context).textTheme.headlineSmall,
+          if (populatedDays.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                child: Text(
+                  S.of(context).history_routinesByDay,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
               ),
             ),
-          ),
 
-          if (displayWorkouts.isNotEmpty)
+          if (populatedDays.isNotEmpty)
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverGrid(
@@ -168,15 +169,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
             ),
 
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
-              child: Text(
-                allWorkouts.isEmpty ? '' : S.of(context).history_allWorkouts,
-                style: Theme.of(context).textTheme.headlineSmall,
+          if (allWorkouts.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                child: Text(
+                  S.of(context).history_allWorkouts,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
               ),
             ),
-          ),
 
           // ── Empty state ────────────────────────────────────────────────────
           if (allWorkouts.isEmpty)
@@ -870,7 +872,7 @@ class _SmallMuscleTag extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        muscle,
+        ExerciseLocalization.muscle(S.of(context), muscle),
         style: TextStyle(color: c, fontSize: 10, fontWeight: FontWeight.w600),
       ),
     );

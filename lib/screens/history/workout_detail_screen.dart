@@ -4,6 +4,7 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/workout_store.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/muscle_colors.dart';
+import '../../utils/weight_format.dart';
 import '../../utils/exercise_localization.dart';
 import '../../models/models.dart';
 import 'workout_edit_screen.dart';
@@ -385,7 +386,10 @@ class _ExerciseDetailCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          exercise.muscleGroup,
+                          ExerciseLocalization.muscle(
+                            S.of(context),
+                            exercise.muscleGroup,
+                          ),
                           style: TextStyle(
                             color: color,
                             fontSize: 11,
@@ -531,7 +535,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                     flex: 2,
                     child: Text(
                       set.weight > 0
-                          ? '${set.weight.toStringAsFixed(0)} kg'
+                          ? '${formatWeight(set.weight, S.of(context).localeName)} kg'
                           : S.of(context).common_bodyweight,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
@@ -545,7 +549,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                     flex: 2,
                     child: Text(
                       set.weight > 0
-                          ? '${(set.reps * set.weight).toStringAsFixed(0)} kg'
+                          ? '${formatWeight(set.reps * set.weight, S.of(context).localeName)} kg'
                           : '-',
                       textAlign: TextAlign.center,
                       style: TextStyle(

@@ -1268,7 +1268,7 @@ abstract class S {
   /// No description provided for @weeklyPlan_exerciseCount.
   ///
   /// In es, this message translates to:
-  /// **'{count} ejercicios'**
+  /// **'{count, plural, =1{1 ejercicio} other{{count} ejercicios}}'**
   String weeklyPlan_exerciseCount(int count);
 
   /// No description provided for @weeklyPlan_start.
@@ -1520,7 +1520,7 @@ abstract class S {
   /// No description provided for @train_exerciseCount.
   ///
   /// In es, this message translates to:
-  /// **'{count} ejercicios'**
+  /// **'{count, plural, =1{1 ejercicio} other{{count} ejercicios}}'**
   String train_exerciseCount(int count);
 
   /// No description provided for @train_startTemplate.
@@ -2138,7 +2138,7 @@ abstract class S {
   /// No description provided for @history_setsCount.
   ///
   /// In es, this message translates to:
-  /// **'{count} series'**
+  /// **'{count, plural, =1{1 serie} other{{count} series}}'**
   String history_setsCount(int count);
 
   /// No description provided for @history_setHeader.

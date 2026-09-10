@@ -7,11 +7,14 @@ import '../../utils/muscle_colors.dart';
 import '../../data/custom_exercise_store.dart';
 import '../../data/mock_data.dart';
 import '../../models/models.dart';
+import '../../services/workout_launcher.dart';
 import '../../widgets/common/muscle_chip.dart';
 import 'exercise_progress_sheet.dart';
 
 class ExercisesScreen extends StatefulWidget {
-  const ExercisesScreen({super.key});
+  final VoidCallback? onStartWorkout;
+
+  const ExercisesScreen({super.key, this.onStartWorkout});
 
   @override
   State<ExercisesScreen> createState() => _ExercisesScreenState();
@@ -173,6 +176,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                       final isCustom = ex.id.startsWith('custom_');
                       return _ExerciseCard(
                             exercise: ex,
+                            onStartWorkout: widget.onStartWorkout,
                             onDelete: isCustom
                                 ? () => _confirmDelete(ex)
                                 : null,
@@ -377,8 +381,13 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
 class _ExerciseCard extends StatelessWidget {
   final Exercise exercise;
   final VoidCallback? onDelete;
+  final VoidCallback? onStartWorkout;
 
-  const _ExerciseCard({required this.exercise, this.onDelete});
+  const _ExerciseCard({
+    required this.exercise,
+    this.onDelete,
+    this.onStartWorkout,
+  });
 
   Color _difficultyColor(String diff) {
     switch (diff) {
@@ -567,7 +576,10 @@ class _ExerciseCard extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       isScrollControlled: true,
-      builder: (_) => _ExerciseDetailSheet(exercise: exercise),
+      builder: (_) => _ExerciseDetailSheet(
+        exercise: exercise,
+        onStartWorkout: onStartWorkout,
+      ),
     );
   }
 }
@@ -575,7 +587,9 @@ class _ExerciseCard extends StatelessWidget {
 class _ExerciseDetailSheet extends StatelessWidget {
   final Exercise exercise;
 
-  const _ExerciseDetailSheet({required this.exercise});
+  final VoidCallback? onStartWorkout;
+
+  const _ExerciseDetailSheet({required this.exercise, this.onStartWorkout});
 
   Color _difficultyColor(String diff) {
     switch (diff) {
@@ -707,7 +721,10 @@ class _ExerciseDetailSheet extends StatelessWidget {
                     child: _InfoTile(
                       icon: Icons.category_rounded,
                       label: S.of(context).exercises_muscleGroupLabel,
-                      value: exercise.muscleGroup,
+                      value: ExerciseLocalization.muscle(
+                        S.of(context),
+                        exercise.muscleGroup,
+                      ),
                       color: muscleColor,
                     ),
                   ),
@@ -838,7 +855,11 @@ class _ExerciseDetailSheet extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    WorkoutLauncher.instance.queueExercise(exercise);
+                    onStartWorkout?.call();
+                  },
                   icon: const Icon(Icons.add_rounded),
                   label: Text(S.of(context).exercises_addToWorkout),
                   style: ElevatedButton.styleFrom(

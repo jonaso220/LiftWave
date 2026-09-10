@@ -12,21 +12,40 @@ class WorkoutLauncher extends ChangeNotifier {
 
   WorkoutTemplate? _pendingTemplate;
   Workout? _pendingWorkout;
+  final List<Exercise> _pendingExercises = [];
 
   WorkoutTemplate? get pendingTemplate => _pendingTemplate;
   Workout? get pendingWorkout => _pendingWorkout;
-  bool get hasPending => _pendingTemplate != null || _pendingWorkout != null;
+  bool get hasPending =>
+      _pendingTemplate != null ||
+      _pendingWorkout != null ||
+      _pendingExercises.isNotEmpty;
 
   void queue(WorkoutTemplate template) {
+    _pendingExercises.clear();
     _pendingTemplate = template;
     _pendingWorkout = null;
     notifyListeners();
   }
 
   void queueWorkout(Workout workout) {
+    _pendingExercises.clear();
     _pendingWorkout = workout;
     _pendingTemplate = null;
     notifyListeners();
+  }
+
+  void queueExercise(Exercise exercise) {
+    _pendingTemplate = null;
+    _pendingWorkout = null;
+    _pendingExercises.add(exercise);
+    notifyListeners();
+  }
+
+  List<Exercise> consumeExercises() {
+    final exercises = List<Exercise>.of(_pendingExercises);
+    _pendingExercises.clear();
+    return exercises;
   }
 
   WorkoutTemplate? consumeTemplate() {

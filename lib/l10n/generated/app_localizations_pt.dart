@@ -635,7 +635,13 @@ class SPt extends S {
 
   @override
   String weeklyPlan_exerciseCount(int count) {
-    return '$count exercícios';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count exercícios',
+      one: '1 exercício',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -776,7 +782,13 @@ class SPt extends S {
 
   @override
   String train_exerciseCount(int count) {
-    return '$count exercícios';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count exercícios',
+      one: '1 exercício',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1145,7 +1157,13 @@ class SPt extends S {
 
   @override
   String history_setsCount(int count) {
-    return '$count séries';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count séries',
+      one: '1 série',
+    );
+    return '$_temp0';
   }
 
   @override

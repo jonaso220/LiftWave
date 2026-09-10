@@ -246,7 +246,7 @@
   "weeklyPlan_muscleBalance": "SÉRIES PAR MUSCLE",
   "weeklyPlan_completed": "Objectif hebdomadaire atteint. Bravo.",
   "weeklyPlan_nextSession": "PROCHAINE SÉANCE",
-  "weeklyPlan_exerciseCount": "{count} exercices",
+  "weeklyPlan_exerciseCount": "{count, plural, =1{1 exercice} other{{count} exercices}}",
   "weeklyPlan_start": "Commencer",
   "weeklyPlan_noCompatible": "Il n'y a pas assez d'exercices compatibles avec votre équipement.",
   "weeklyPlan_adjustEquipment": "Ajuster",
@@ -304,7 +304,7 @@
   "train_addExerciseHint": "Appuyez sur le bouton ci-dessous pour ajouter le premier exercice.",
   "train_addExercise": "Ajouter un exercice",
   "train_exercise": "Exercice",
-  "train_exerciseCount": "{count} exercices",
+  "train_exerciseCount": "{count, plural, =1{1 exercice} other{{count} exercices}}",
   "@train_exerciseCount": {
     "placeholders": {
       "count": {
@@ -443,7 +443,7 @@
   "history_daySat": "S",
   "history_daySun": "D",
   "history_exercisesPerformed": "Exercices réalisés",
-  "history_setsCount": "{count} séries",
+  "history_setsCount": "{count, plural, =1{1 série} other{{count} séries}}",
   "@history_setsCount": {
     "placeholders": {
       "count": {

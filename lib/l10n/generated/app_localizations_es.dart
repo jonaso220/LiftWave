@@ -638,7 +638,13 @@ class SEs extends S {
 
   @override
   String weeklyPlan_exerciseCount(int count) {
-    return '$count ejercicios';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ejercicios',
+      one: '1 ejercicio',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -779,7 +785,13 @@ class SEs extends S {
 
   @override
   String train_exerciseCount(int count) {
-    return '$count ejercicios';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ejercicios',
+      one: '1 ejercicio',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1147,7 +1159,13 @@ class SEs extends S {
 
   @override
   String history_setsCount(int count) {
-    return '$count series';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count series',
+      one: '1 serie',
+    );
+    return '$_temp0';
   }
 
   @override
