@@ -1,0 +1,8 @@
+{
+  "framework": "flutter",
+  "version_file": "pubspec.yaml",
+  "package": "com.liftwave.liftwave",
+  "track": "alpha",
+  "bundle": "build/app/outputs/bundle/release/app-release.aab",
+  "console_url": "https://play.google.com/console/u/0/developers/6498754936802314094/app/4973434834351252981/publishing"
+}
