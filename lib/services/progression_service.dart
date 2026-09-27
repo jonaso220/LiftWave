@@ -36,6 +36,28 @@ class ProgressionService {
     required String equipment,
     required List<Workout> workouts,
   }) {
+    final latestExercise = _latestExercise(exerciseName, workouts);
+    if (latestExercise == null) return null;
+    return _recommendFrom(latestExercise, equipment);
+  }
+
+  /// Sets the user completed the last time they logged [exerciseName], in
+  /// the order they were performed. Empty when there is no previous session.
+  static List<WorkoutSet> previousSets({
+    required String exerciseName,
+    required List<Workout> workouts,
+  }) {
+    final latestExercise = _latestExercise(exerciseName, workouts);
+    if (latestExercise == null) return const [];
+    return latestExercise.sets
+        .where((set) => set.completed && set.reps > 0)
+        .toList();
+  }
+
+  static WorkoutExercise? _latestExercise(
+    String exerciseName,
+    List<Workout> workouts,
+  ) {
     final normalizedName = _normalize(exerciseName);
     WorkoutExercise? latestExercise;
     DateTime? latestDate;
@@ -56,8 +78,13 @@ class ProgressionService {
       }
     }
 
-    if (latestExercise == null) return null;
+    return latestExercise;
+  }
 
+  static ProgressionRecommendation _recommendFrom(
+    WorkoutExercise latestExercise,
+    String equipment,
+  ) {
     final completed = latestExercise.sets
         .where((set) => set.completed && set.reps > 0)
         .toList();

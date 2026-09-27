@@ -714,14 +714,14 @@ class SDe extends S {
   String get train_resumeDiscard => 'Verwerfen';
 
   @override
-  String get train_cancelWorkout => 'Training abbrechen';
+  String get train_cancelWorkout => 'Training verwerfen?';
 
   @override
   String get train_cancelConfirm =>
-      'Wirklich abbrechen? Der Fortschritt geht verloren.';
+      'Die in dieser Einheit erfassten Sätze gehen verloren.';
 
   @override
-  String get train_continue => 'Fortsetzen';
+  String get train_continue => 'Weiter trainieren';
 
   @override
   String get train_addExerciseFirst =>
@@ -877,6 +877,15 @@ class SDe extends S {
 
   @override
   String get train_removeSet => 'Satz entfernen';
+
+  @override
+  String get train_discardWorkout => 'Verwerfen';
+
+  @override
+  String get train_previousHeader => 'VORHER';
+
+  @override
+  String get train_usePrevious => 'Vorherige Werte übernehmen';
 
   @override
   String get train_removeCompletedSetTitle => 'Abgeschlossenen Satz entfernen?';

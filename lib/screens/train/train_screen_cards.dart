@@ -90,11 +90,12 @@ class _ExerciseNotesFieldState extends State<_ExerciseNotesField> {
 class _ExerciseCard extends StatelessWidget {
   final SessionExercise exercise;
   final VoidCallback onAddSet;
-  final void Function(int) onRemoveSet;
+  final Future<void> Function(int) onRemoveSet;
   final void Function(int) onToggleDone;
   final VoidCallback onDelete;
   final VoidCallback onSetChanged;
   final double? _lastWeight;
+  final List<WorkoutSet> previousSets;
   final ProgressionRecommendation? recommendation;
   final VoidCallback? onApplyRecommendation;
 
@@ -105,6 +106,7 @@ class _ExerciseCard extends StatelessWidget {
     required this.onToggleDone,
     required this.onDelete,
     required this.onSetChanged,
+    this.previousSets = const [],
     this.recommendation,
     this.onApplyRecommendation,
     double? lastWeight,
@@ -264,29 +266,60 @@ class _ExerciseCard extends StatelessWidget {
               onApply: onApplyRecommendation,
             ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             child: Row(
               children: [
-                _ColHeader(label: l10n.train_setHeader, flex: 1),
-                _ColHeader(label: l10n.train_repsHeader, flex: 2),
-                _ColHeader(label: l10n.train_weightHeader, flex: 3),
-                const _ColHeader(label: '', flex: 1),
+                _ColHeader(
+                  label: l10n.train_setHeader,
+                  flex: SessionSetColumns.set,
+                ),
+                _ColHeader(
+                  label: l10n.train_previousHeader,
+                  flex: SessionSetColumns.previous,
+                ),
+                const _ColHeader(label: 'KG', flex: SessionSetColumns.weight),
+                _ColHeader(
+                  label: l10n.train_repsHeader,
+                  flex: SessionSetColumns.reps,
+                ),
+                const _ColHeader(label: '', flex: SessionSetColumns.done),
               ],
             ),
           ),
           const Divider(height: 1),
-          ...exercise.sets.asMap().entries.map(
-            (entry) => SessionSetRow(
-              key: ValueKey('${exercise.id}_set_${entry.key}'),
+          ...exercise.sets.asMap().entries.map((entry) {
+            final index = entry.key;
+            final previous = index < previousSets.length
+                ? previousSets[index]
+                : null;
+            return SessionSetRow(
+              key: ObjectKey(entry.value),
               set: entry.value,
-              index: entry.key,
-              onToggle: () => onToggleDone(entry.key),
+              index: index,
+              previous: previous,
+              onToggle: () => onToggleDone(index),
               onRemove: exercise.sets.length > 1
-                  ? () => onRemoveSet(entry.key)
+                  ? () => onRemoveSet(index)
                   : null,
               onChanged: onSetChanged,
-            ),
-          ),
+              onEdited: (previousReps, previousWeight) =>
+                  exercise.propagateEdit(
+                    index,
+                    previousReps: previousReps,
+                    previousWeight: previousWeight,
+                  ),
+              onUsePrevious: previous == null
+                  ? null
+                  : () {
+                      exercise.fillSet(
+                        index,
+                        reps: previous.reps,
+                        weight: previous.weight,
+                      );
+                      onSetChanged();
+                    },
+            );
+          }),
           InkWell(
             onTap: onAddSet,
             borderRadius: const BorderRadius.vertical(

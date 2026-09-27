@@ -569,7 +569,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
               _resetWorkoutState();
             },
             child: Text(
-              l10n.common_cancel,
+              l10n.train_discardWorkout,
               style: const TextStyle(color: AppColors.error),
             ),
           ),
@@ -1810,6 +1810,10 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                         _ExerciseCard(
                           exercise: exercise,
                           lastWeight: recommendation?.previousWeight,
+                          previousSets: ProgressionService.previousSets(
+                            exerciseName: exercise.name,
+                            workouts: WorkoutStore.instance.workouts,
+                          ),
                           recommendation: recommendation,
                           onApplyRecommendation: recommendation == null
                               ? null

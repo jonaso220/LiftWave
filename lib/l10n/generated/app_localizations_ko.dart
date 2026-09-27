@@ -685,13 +685,13 @@ class SKo extends S {
   String get train_resumeDiscard => '취소';
 
   @override
-  String get train_cancelWorkout => '운동 취소';
+  String get train_cancelWorkout => '운동을 삭제할까요?';
 
   @override
-  String get train_cancelConfirm => '정말 취소하시겠습니까? 진행 상황이 사라집니다.';
+  String get train_cancelConfirm => '이번 세션에 기록한 세트가 사라집니다.';
 
   @override
-  String get train_continue => '계속하기';
+  String get train_continue => '계속 운동하기';
 
   @override
   String get train_addExerciseFirst => '종료하기 전에 운동을 하나 이상 추가하세요.';
@@ -837,6 +837,15 @@ class SKo extends S {
 
   @override
   String get train_removeSet => '세트 삭제';
+
+  @override
+  String get train_discardWorkout => '삭제';
+
+  @override
+  String get train_previousHeader => '이전';
+
+  @override
+  String get train_usePrevious => '이전 값 복사';
 
   @override
   String get train_removeCompletedSetTitle => '완료한 세트를 삭제할까요?';

@@ -74,6 +74,44 @@ class SessionExercise {
 
   int get completedSets => sets.where((s) => s.completed).length;
 
+  /// Replaces the values of the set at [index] (e.g. copying the previous
+  /// session) and carries the change onto the pending sets after it.
+  void fillSet(int index, {required int reps, required double weight}) {
+    final previous = sets[index];
+    sets[index] = previous.copyWith(reps: reps, weight: weight);
+    propagateEdit(
+      index,
+      previousReps: previous.reps,
+      previousWeight: previous.weight,
+    );
+  }
+
+  /// Carries an edit made to the set at [index] onto the pending sets after
+  /// it that still held the value it replaced, so changing the first set's
+  /// load updates the rest without overwriting a deliberate pyramid.
+  ///
+  /// Updated sets are replaced with new instances so their rows re-read the
+  /// values; the edited set itself is left untouched.
+  void propagateEdit(int index, {int? previousReps, double? previousWeight}) {
+    final source = sets[index];
+    final repsChanged = previousReps != null && previousReps != source.reps;
+    final weightChanged =
+        previousWeight != null && previousWeight != source.weight;
+    if (!repsChanged && !weightChanged) return;
+
+    for (var i = index + 1; i < sets.length; i++) {
+      final set = sets[i];
+      if (set.completed) continue;
+      final followReps = repsChanged && set.reps == previousReps;
+      final followWeight = weightChanged && set.weight == previousWeight;
+      if (!followReps && !followWeight) continue;
+      sets[i] = set.copyWith(
+        reps: followReps ? source.reps : null,
+        weight: followWeight ? source.weight : null,
+      );
+    }
+  }
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,

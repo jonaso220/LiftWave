@@ -719,14 +719,14 @@ class SFr extends S {
   String get train_resumeDiscard => 'Abandonner';
 
   @override
-  String get train_cancelWorkout => 'Annuler l\'entraînement';
+  String get train_cancelWorkout => 'Abandonner l\'entraînement ?';
 
   @override
   String get train_cancelConfirm =>
-      'Êtes-vous sûr de vouloir annuler ? La progression sera perdue.';
+      'Les séries enregistrées pendant cette séance seront perdues.';
 
   @override
-  String get train_continue => 'Continuer';
+  String get train_continue => 'Continuer la séance';
 
   @override
   String get train_addExerciseFirst =>
@@ -882,6 +882,15 @@ class SFr extends S {
 
   @override
   String get train_removeSet => 'Supprimer la série';
+
+  @override
+  String get train_discardWorkout => 'Abandonner';
+
+  @override
+  String get train_previousHeader => 'PRÉCÉDENT';
+
+  @override
+  String get train_usePrevious => 'Copier les valeurs précédentes';
 
   @override
   String get train_removeCompletedSetTitle => 'Supprimer la série terminée ?';

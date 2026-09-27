@@ -716,14 +716,14 @@ class SEs extends S {
   String get train_resumeDiscard => 'Descartar';
 
   @override
-  String get train_cancelWorkout => 'Cancelar entrenamiento';
+  String get train_cancelWorkout => '¿Descartar entrenamiento?';
 
   @override
   String get train_cancelConfirm =>
-      '¿Seguro que quieres cancelar? Se perderá el progreso.';
+      'Se perderán las series registradas en esta sesión.';
 
   @override
-  String get train_continue => 'Seguir';
+  String get train_continue => 'Seguir entrenando';
 
   @override
   String get train_addExerciseFirst =>
@@ -879,6 +879,15 @@ class SEs extends S {
 
   @override
   String get train_removeSet => 'Eliminar serie';
+
+  @override
+  String get train_discardWorkout => 'Descartar';
+
+  @override
+  String get train_previousHeader => 'ANTERIOR';
+
+  @override
+  String get train_usePrevious => 'Copiar valores anteriores';
 
   @override
   String get train_removeCompletedSetTitle => '¿Eliminar la serie completada?';

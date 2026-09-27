@@ -685,13 +685,13 @@ class SJa extends S {
   String get train_resumeDiscard => '破棄';
 
   @override
-  String get train_cancelWorkout => 'トレーニングをキャンセル';
+  String get train_cancelWorkout => 'トレーニングを破棄しますか？';
 
   @override
-  String get train_cancelConfirm => '本当にキャンセルしますか？進捗が失われます。';
+  String get train_cancelConfirm => 'このセッションで記録したセットは失われます。';
 
   @override
-  String get train_continue => '続ける';
+  String get train_continue => 'トレーニングを続ける';
 
   @override
   String get train_addExerciseFirst => '終了する前に少なくとも1つのエクササイズを追加してください。';
@@ -837,6 +837,15 @@ class SJa extends S {
 
   @override
   String get train_removeSet => 'セットを削除';
+
+  @override
+  String get train_discardWorkout => '破棄する';
+
+  @override
+  String get train_previousHeader => '前回';
+
+  @override
+  String get train_usePrevious => '前回の値をコピー';
 
   @override
   String get train_removeCompletedSetTitle => '完了したセットを削除しますか？';

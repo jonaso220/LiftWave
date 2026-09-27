@@ -1400,19 +1400,19 @@ abstract class S {
   /// No description provided for @train_cancelWorkout.
   ///
   /// In es, this message translates to:
-  /// **'Cancelar entrenamiento'**
+  /// **'¿Descartar entrenamiento?'**
   String get train_cancelWorkout;
 
   /// No description provided for @train_cancelConfirm.
   ///
   /// In es, this message translates to:
-  /// **'¿Seguro que quieres cancelar? Se perderá el progreso.'**
+  /// **'Se perderán las series registradas en esta sesión.'**
   String get train_cancelConfirm;
 
   /// No description provided for @train_continue.
   ///
   /// In es, this message translates to:
-  /// **'Seguir'**
+  /// **'Seguir entrenando'**
   String get train_continue;
 
   /// No description provided for @train_addExerciseFirst.
@@ -1672,6 +1672,24 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Eliminar serie'**
   String get train_removeSet;
+
+  /// No description provided for @train_discardWorkout.
+  ///
+  /// In es, this message translates to:
+  /// **'Descartar'**
+  String get train_discardWorkout;
+
+  /// No description provided for @train_previousHeader.
+  ///
+  /// In es, this message translates to:
+  /// **'ANTERIOR'**
+  String get train_previousHeader;
+
+  /// No description provided for @train_usePrevious.
+  ///
+  /// In es, this message translates to:
+  /// **'Copiar valores anteriores'**
+  String get train_usePrevious;
 
   /// No description provided for @train_removeCompletedSetTitle.
   ///

@@ -708,14 +708,14 @@ class SEn extends S {
   String get train_resumeDiscard => 'Discard';
 
   @override
-  String get train_cancelWorkout => 'Cancel workout';
+  String get train_cancelWorkout => 'Discard workout?';
 
   @override
   String get train_cancelConfirm =>
-      'Are you sure you want to cancel? Progress will be lost.';
+      'The sets logged in this session will be lost.';
 
   @override
-  String get train_continue => 'Continue';
+  String get train_continue => 'Keep training';
 
   @override
   String get train_addExerciseFirst =>
@@ -871,6 +871,15 @@ class SEn extends S {
 
   @override
   String get train_removeSet => 'Remove set';
+
+  @override
+  String get train_discardWorkout => 'Discard';
+
+  @override
+  String get train_previousHeader => 'PREVIOUS';
+
+  @override
+  String get train_usePrevious => 'Copy previous values';
 
   @override
   String get train_removeCompletedSetTitle => 'Remove completed set?';

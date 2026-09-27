@@ -713,14 +713,14 @@ class SPt extends S {
   String get train_resumeDiscard => 'Descartar';
 
   @override
-  String get train_cancelWorkout => 'Cancelar treino';
+  String get train_cancelWorkout => 'Descartar treino?';
 
   @override
   String get train_cancelConfirm =>
-      'Tem certeza que quer cancelar? O progresso será perdido.';
+      'As séries registradas nesta sessão serão perdidas.';
 
   @override
-  String get train_continue => 'Continuar';
+  String get train_continue => 'Continuar treinando';
 
   @override
   String get train_addExerciseFirst =>
@@ -876,6 +876,15 @@ class SPt extends S {
 
   @override
   String get train_removeSet => 'Remover série';
+
+  @override
+  String get train_discardWorkout => 'Descartar';
+
+  @override
+  String get train_previousHeader => 'ANTERIOR';
+
+  @override
+  String get train_usePrevious => 'Copiar valores anteriores';
 
   @override
   String get train_removeCompletedSetTitle => 'Remover série concluída?';
