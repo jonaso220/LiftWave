@@ -165,6 +165,24 @@ class SDe extends S {
   String get nav_exercises => 'Übungen';
 
   @override
+  String get nav_progress => 'Fortschritt';
+
+  @override
+  String get nav_profile => 'Profil';
+
+  @override
+  String get home_todayTitle => 'HEUTE DRAN';
+
+  @override
+  String get home_inProgressTitle => 'TRAINING LÄUFT';
+
+  @override
+  String get home_continueWorkout => 'Training fortsetzen';
+
+  @override
+  String get home_chooseAnother => 'Anderes Training wählen';
+
+  @override
   String get login_tagline => 'Deine persönliche Fitness-App';
 
   @override

@@ -9,11 +9,17 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../data/progress_store.dart';
+import '../../data/workout_store.dart';
 import '../../models/progress_models.dart';
 import '../../services/subscription_service.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/csv_exporter.dart';
 import '../../utils/pro_gate.dart';
+import '../history/history_screen.dart';
+import 'achievements_view.dart';
 
+/// The Progress tab: workout history, body measurements, progress photos and
+/// achievements in one place.
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
 
@@ -23,24 +29,37 @@ class ProgressScreen extends StatefulWidget {
 
 class _ProgressScreenState extends State<ProgressScreen>
     with SingleTickerProviderStateMixin {
+  static const _historyTab = 0;
+  static const _measurementsTab = 1;
+  static const _photosTab = 2;
+
   late final TabController _tabController;
   _Metric _metric = _Metric.weight;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 4, vsync: this)
+      ..addListener(_onTabChanged);
     ProgressStore.instance.addListener(_onChanged);
+    WorkoutStore.instance.addListener(_onChanged);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     ProgressStore.instance.removeListener(_onChanged);
+    WorkoutStore.instance.removeListener(_onChanged);
     super.dispose();
   }
 
-  void _onChanged() => setState(() {});
+  void _onChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) _onChanged();
+  }
 
   void _showAddSheet() {
     showModalBottomSheet(
@@ -53,53 +72,70 @@ class _ProgressScreenState extends State<ProgressScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    final tab = _tabController.index;
     return Scaffold(
       backgroundColor: AppColors.bgDark,
       appBar: AppBar(
         backgroundColor: AppColors.bgDark,
-        title: Text(S.of(context).progressScreen_title),
+        title: Text(l10n.nav_progress),
         actions: [
-          IconButton(
-            tooltip: S.of(context).progressScreen_addMeasurement,
-            icon: Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha(25),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.add_rounded,
-                color: AppColors.primary,
-                size: 20,
-              ),
+          if (tab == _historyTab && WorkoutStore.instance.workouts.isNotEmpty)
+            IconButton(
+              onPressed: () => CsvExporter.exportAndShare(l10n),
+              icon: const Icon(Icons.ios_share_rounded, size: 20),
+              tooltip: l10n.history_exportCsv,
             ),
-            onPressed: _showAddSheet,
-            constraints: const BoxConstraints.tightFor(width: 48, height: 48),
-          ),
+          if (tab == _measurementsTab || tab == _photosTab)
+            IconButton(
+              tooltip: S.of(context).progressScreen_addMeasurement,
+              icon: Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withAlpha(25),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.add_rounded,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+              ),
+              onPressed: _showAddSheet,
+              constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+            ),
           const SizedBox(width: 8),
         ],
         bottom: TabBar(
           controller: _tabController,
+          // Scrollable so longer translations (e.g. "Mensurations") never
+          // get truncated on narrow phones.
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.textMuted,
           indicatorColor: AppColors.primary,
           indicatorSize: TabBarIndicatorSize.label,
           tabs: [
-            Tab(text: S.of(context).progressScreen_measurements),
-            Tab(text: S.of(context).progressScreen_photos),
+            Tab(text: l10n.history_title),
+            Tab(text: l10n.progressScreen_measurements),
+            Tab(text: l10n.progressScreen_photos),
+            Tab(text: l10n.home_achievements),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
+          const HistoryScreen(),
           _MedidasTab(
             metric: _metric,
             onMetricChanged: (m) => setState(() => _metric = m),
             onAdd: _showAddSheet,
           ),
           _FotosTab(onAdd: _showAddSheet),
+          const AchievementsView(),
         ],
       ),
     );

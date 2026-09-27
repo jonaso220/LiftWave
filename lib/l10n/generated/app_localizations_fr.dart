@@ -165,6 +165,24 @@ class SFr extends S {
   String get nav_exercises => 'Exercices';
 
   @override
+  String get nav_progress => 'Progrès';
+
+  @override
+  String get nav_profile => 'Profil';
+
+  @override
+  String get home_todayTitle => 'AU PROGRAMME AUJOURD\'HUI';
+
+  @override
+  String get home_inProgressTitle => 'ENTRAÎNEMENT EN COURS';
+
+  @override
+  String get home_continueWorkout => 'Reprendre l\'entraînement';
+
+  @override
+  String get home_chooseAnother => 'Choisir une autre séance';
+
+  @override
   String get login_tagline => 'Votre appli fitness personnelle';
 
   @override

@@ -165,6 +165,24 @@ class SEn extends S {
   String get nav_exercises => 'Exercises';
 
   @override
+  String get nav_progress => 'Progress';
+
+  @override
+  String get nav_profile => 'Profile';
+
+  @override
+  String get home_todayTitle => 'TODAY\'S WORKOUT';
+
+  @override
+  String get home_inProgressTitle => 'WORKOUT IN PROGRESS';
+
+  @override
+  String get home_continueWorkout => 'Resume workout';
+
+  @override
+  String get home_chooseAnother => 'Choose another workout';
+
+  @override
   String get login_tagline => 'Your personal fitness app';
 
   @override

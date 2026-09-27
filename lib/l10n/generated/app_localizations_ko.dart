@@ -164,6 +164,24 @@ class SKo extends S {
   String get nav_exercises => '운동 목록';
 
   @override
+  String get nav_progress => '진행';
+
+  @override
+  String get nav_profile => '프로필';
+
+  @override
+  String get home_todayTitle => '오늘의 운동';
+
+  @override
+  String get home_inProgressTitle => '운동 진행 중';
+
+  @override
+  String get home_continueWorkout => '운동 계속하기';
+
+  @override
+  String get home_chooseAnother => '다른 운동 선택';
+
+  @override
   String get login_tagline => '나만의 피트니스 앱';
 
   @override

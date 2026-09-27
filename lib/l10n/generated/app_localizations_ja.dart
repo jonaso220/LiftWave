@@ -164,6 +164,24 @@ class SJa extends S {
   String get nav_exercises => 'エクササイズ';
 
   @override
+  String get nav_progress => '進捗';
+
+  @override
+  String get nav_profile => 'プロフィール';
+
+  @override
+  String get home_todayTitle => '今日のトレーニング';
+
+  @override
+  String get home_inProgressTitle => 'トレーニング中';
+
+  @override
+  String get home_continueWorkout => 'トレーニングを再開';
+
+  @override
+  String get home_chooseAnother => '別のメニューを選ぶ';
+
+  @override
   String get login_tagline => 'あなたのフィットネスアプリ';
 
   @override

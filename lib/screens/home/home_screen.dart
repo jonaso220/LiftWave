@@ -3,24 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
-import '../../utils/muscle_colors.dart';
 import '../../utils/exercise_localization.dart';
-import '../../data/achievement_store.dart';
+import '../../utils/routine_days.dart';
+import '../../data/custom_template_store.dart';
 import '../../data/mock_data.dart';
 import '../../data/workout_store.dart';
-import '../../data/progress_store.dart';
 import '../../data/training_preferences_store.dart';
-import '../../data/workout_templates.dart';
 import '../../models/models.dart';
-import '../../services/auth_service.dart';
-import '../../services/subscription_service.dart';
+import '../../services/today_suggestion.dart';
 import '../../services/weekly_plan_service.dart';
 import '../../services/workout_launcher.dart';
-import '../paywall/paywall_screen.dart';
-import '../progress/progress_screen.dart';
-import '../onboarding/training_preferences_screen.dart';
-import 'weekly_plan_card.dart';
+import '../profile/profile_screen.dart';
 
+/// Tab indexes in [MainNavigation].
+abstract final class AppTab {
+  static const int home = 0;
+  static const int train = 1;
+  static const int progress = 2;
+  static const int profile = 3;
+}
+
+/// Home answers one question: what do I train today? It offers a single
+/// start button, a one-glance summary of the week and the last workout.
 class HomeScreen extends StatefulWidget {
   final void Function(int) onNavigate;
 
@@ -35,36 +39,32 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WorkoutStore.instance.addListener(_onStoreChanged);
-    ProgressStore.instance.addListener(_onStoreChanged);
-    AchievementStore.instance.addListener(_onStoreChanged);
     TrainingPreferencesStore.instance.addListener(_onStoreChanged);
+    CustomTemplateStore.instance.addListener(_onStoreChanged);
+    WorkoutLauncher.instance.sessionActive.addListener(_onStoreChanged);
   }
 
   @override
   void dispose() {
     WorkoutStore.instance.removeListener(_onStoreChanged);
-    ProgressStore.instance.removeListener(_onStoreChanged);
-    AchievementStore.instance.removeListener(_onStoreChanged);
     TrainingPreferencesStore.instance.removeListener(_onStoreChanged);
+    CustomTemplateStore.instance.removeListener(_onStoreChanged);
+    WorkoutLauncher.instance.sessionActive.removeListener(_onStoreChanged);
     super.dispose();
   }
 
-  void _onStoreChanged() => setState(() {});
+  void _onStoreChanged() {
+    if (mounted) setState(() {});
+  }
 
   // ── Computed properties ──────────────────────────────────────────────────
 
-  List<Workout> get _weekWorkouts {
+  List<Workout> _weekWorkouts(List<Workout> workouts) {
     final now = DateTime.now();
     final weekStart = now.subtract(Duration(days: now.weekday - 1));
     final start = DateTime(weekStart.year, weekStart.month, weekStart.day);
-    return WorkoutStore.instance.workouts
-        .where((w) => !w.date.isBefore(start))
-        .toList();
+    return workouts.where((w) => !w.date.isBefore(start)).toList();
   }
-
-  Workout? get _lastWorkout => WorkoutStore.instance.workouts.isEmpty
-      ? null
-      : WorkoutStore.instance.workouts.first;
 
   String _greeting(S l10n) {
     final h = DateTime.now().hour;
@@ -83,386 +83,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return name.isNotEmpty
         ? l10n.home_greetingEvening(name)
         : l10n.home_greetingEveningNoName;
-  }
-
-  Widget _buildProfileAvatar({double size = 36}) {
-    final user = FirebaseAuth.instance.currentUser;
-    final photoUrl = user?.photoURL;
-    final initial = (user?.displayName?.isNotEmpty == true)
-        ? user!.displayName![0].toUpperCase()
-        : (user?.email?.isNotEmpty == true
-              ? user!.email![0].toUpperCase()
-              : '?');
-
-    final radius = size / 3.6; // 36 → 10, 64 → ~18
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: photoUrl != null && photoUrl.isNotEmpty
-            ? Image.network(
-                photoUrl,
-                width: size,
-                height: size,
-                fit: BoxFit.cover,
-                cacheWidth: (size * 2).round(),
-                gaplessPlayback: true,
-                loadingBuilder: (ctx, child, progress) =>
-                    progress == null ? child : _fallbackAvatar(initial, size),
-                errorBuilder: (context, error, stack) =>
-                    _fallbackAvatar(initial, size),
-              )
-            : _fallbackAvatar(initial, size),
-      ),
-    );
-  }
-
-  Widget _fallbackAvatar(String initial, double size) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.accentOrange, AppColors.accentYellow],
-        ),
-      ),
-      child: Center(
-        child: Text(
-          initial,
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w700,
-            fontSize: size * 0.44,
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showProfileMenu(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final l10n = S.of(context);
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.bgCard,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      isScrollControlled: true,
-      builder: (ctx) => SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.textMuted.withAlpha(80),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 20),
-              // User info
-              if (user != null) ...[
-                _buildProfileAvatar(size: 64),
-                const SizedBox(height: 12),
-                Text(
-                  user.displayName ?? '',
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  user.email ?? '',
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 24),
-              ],
-              // Subscription status
-              ListTile(
-                leading: Icon(
-                  SubscriptionService.instance.isPro
-                      ? Icons.workspace_premium_rounded
-                      : Icons.star_outline_rounded,
-                  color: AppColors.accentYellow,
-                ),
-                title: Text(
-                  SubscriptionService.instance.isPro
-                      ? 'LiftWave PRO'
-                      : l10n.profile_freePlan,
-                  style: const TextStyle(color: AppColors.textPrimary),
-                ),
-                subtitle: Text(
-                  SubscriptionService.instance.isPro
-                      ? l10n.profile_proActive
-                      : l10n.profile_upgradePro,
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 12,
-                  ),
-                ),
-                onTap: SubscriptionService.instance.isPro
-                    ? null
-                    : () {
-                        Navigator.pop(ctx);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const PaywallScreen(),
-                          ),
-                        );
-                      },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.tune_rounded,
-                  color: AppColors.primaryLight,
-                ),
-                title: Text(
-                  l10n.profile_trainingPreferences,
-                  style: const TextStyle(color: AppColors.textPrimary),
-                ),
-                subtitle: Text(
-                  l10n.profile_trainingPreferencesSubtitle,
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 12,
-                  ),
-                ),
-                onTap: () async {
-                  Navigator.pop(ctx);
-                  await _openTrainingPreferences(context);
-                },
-              ),
-              // Restore purchases
-              ListTile(
-                leading: const Icon(
-                  Icons.restore_rounded,
-                  color: AppColors.textSecondary,
-                ),
-                title: Text(
-                  l10n.profile_restorePurchases,
-                  style: const TextStyle(color: AppColors.textPrimary),
-                ),
-                onTap: () async {
-                  Navigator.pop(ctx);
-                  final outcome = await SubscriptionService.instance
-                      .restorePurchases();
-                  if (!context.mounted) return;
-                  final String message;
-                  final Color bg;
-                  switch (outcome) {
-                    case RestoreOutcome.restored:
-                      message = l10n.profile_purchasesRestored;
-                      bg = AppColors.accent;
-                      break;
-                    case RestoreOutcome.nothingToRestore:
-                      message = l10n.profile_noPurchasesFound;
-                      bg = AppColors.textMuted;
-                      break;
-                    case RestoreOutcome.networkError:
-                      message = l10n.restore_connectionError;
-                      bg = AppColors.error;
-                      break;
-                    case RestoreOutcome.storeError:
-                    case RestoreOutcome.unknownError:
-                      message = l10n.restore_unknownError;
-                      bg = AppColors.error;
-                      break;
-                  }
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(message),
-                      backgroundColor: bg,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const Divider(indent: 16, endIndent: 16),
-              // Sign out
-              ListTile(
-                leading: const Icon(
-                  Icons.logout_rounded,
-                  color: AppColors.textSecondary,
-                ),
-                title: Text(
-                  l10n.profile_signOut,
-                  style: const TextStyle(color: AppColors.textPrimary),
-                ),
-                onTap: () async {
-                  Navigator.pop(ctx);
-                  await AuthService.instance.signOut();
-                },
-              ),
-              // Delete account
-              ListTile(
-                leading: const Icon(
-                  Icons.delete_forever_rounded,
-                  color: AppColors.error,
-                ),
-                title: Text(
-                  l10n.profile_deleteAccount,
-                  style: const TextStyle(color: AppColors.error),
-                ),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _confirmDeleteAccount(context);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _openTrainingPreferences(BuildContext context) async {
-    final saved = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const TrainingPreferencesScreen(isEditing: true),
-      ),
-    );
-    if (saved != true || !context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(S.of(context).onboarding_saved),
-        backgroundColor: AppColors.accent,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  void _confirmDeleteAccount(BuildContext context) {
-    final l10n = S.of(context);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.bgCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          l10n.profile_deleteTitle,
-          style: const TextStyle(color: AppColors.textPrimary),
-        ),
-        content: Text(
-          l10n.profile_deleteConfirm,
-          style: const TextStyle(color: AppColors.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.common_cancel),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              String? password;
-              if (AuthService.instance.currentUserUsesPassword) {
-                password = await _requestDeletePassword(context);
-                if (password == null || !context.mounted) return;
-              }
-              try {
-                await AuthService.instance.deleteAccount(password: password);
-              } on AuthCancelledException {
-                // Closing the Google / Apple reauthentication sheet is not an
-                // error and must leave the account untouched.
-              } on FirebaseAuthException catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        AuthService.errorMessage(e.code, S.of(context)),
-                      ),
-                      backgroundColor: AppColors.error,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  );
-                }
-              } catch (_) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(l10n.profile_deleteReauthError),
-                      backgroundColor: AppColors.error,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  );
-                }
-              }
-            },
-            child: Text(
-              l10n.common_delete,
-              style: const TextStyle(color: AppColors.error),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<String?> _requestDeletePassword(BuildContext context) async {
-    final controller = TextEditingController();
-    final result = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.bgCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          S.of(context).profile_deleteTitle,
-          style: const TextStyle(color: AppColors.textPrimary),
-        ),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          obscureText: true,
-          textInputAction: TextInputAction.done,
-          onSubmitted: (value) {
-            if (value.isNotEmpty) Navigator.pop(dialogContext, value);
-          },
-          decoration: InputDecoration(
-            labelText: S.of(context).emailAuth_passwordLabel,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(S.of(context).common_cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              final value = controller.text;
-              if (value.isNotEmpty) Navigator.pop(dialogContext, value);
-            },
-            child: Text(
-              S.of(context).common_delete,
-              style: const TextStyle(color: AppColors.error),
-            ),
-          ),
-        ],
-      ),
-    );
-    controller.dispose();
-    return result;
   }
 
   String _formatDuration(Duration d) {
@@ -488,26 +108,45 @@ class _HomeScreenState extends State<HomeScreen> {
     return '${date.day}/${date.month}/${date.year}';
   }
 
+  void _startSuggestion(TodaySuggestion suggestion) {
+    switch (suggestion.kind) {
+      case TodaySuggestionKind.routineDay:
+        WorkoutLauncher.instance.queueRoutineDay(suggestion.day!);
+      case TodaySuggestionKind.planSession:
+        WorkoutLauncher.instance.queue(suggestion.template!);
+      case TodaySuggestionKind.resume:
+      case TodaySuggestionKind.planCompleted:
+      case TodaySuggestionKind.choose:
+        break;
+    }
+    widget.onNavigate(AppTab.train);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
-    final weekWorkouts = _weekWorkouts;
-    final lastWorkout = _lastWorkout;
-    final totalWeekVolume = weekWorkouts.fold(0, (s, w) => s + w.totalVolume);
-    final totalWeekDuration = weekWorkouts.fold(
-      Duration.zero,
-      (s, w) => s + w.duration,
-    );
+    final workouts = WorkoutStore.instance.workouts;
+    final weekWorkouts = _weekWorkouts(workouts);
+    final lastWorkout = workouts.isEmpty ? null : workouts.first;
+    final sessionActive = WorkoutLauncher.instance.sessionActive.value;
     final preferences = TrainingPreferencesStore.instance.preferences;
-    final weeklyPlan = preferences == null
+    final now = DateTime.now();
+    final plan = preferences == null
         ? null
         : WeeklyPlanService.build(
             preferences: preferences,
-            workouts: WorkoutStore.instance.workouts,
+            workouts: workouts,
             exerciseLibrary: mockExercises,
-            now: DateTime.now(),
+            now: now,
             planName: l10n.weeklyPlan_adaptiveName,
           );
+    final suggestion = TodaySuggestion.resolve(
+      sessionActive: sessionActive,
+      now: now,
+      routines: CustomTemplateStore.instance.templates,
+      workouts: workouts,
+      plan: plan,
+    );
 
     return Scaffold(
       body: CustomScrollView(
@@ -515,59 +154,48 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildAppBar(context),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 8),
-                  _buildGreetingCard(context, weekWorkouts.length)
-                      .animate()
-                      .fadeIn(duration: 400.ms)
-                      .slideY(begin: 0.1, end: 0),
+                  Text(
+                    _greeting(l10n),
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _TodayCard(
+                    suggestion: suggestion,
+                    onStart: () => _startSuggestion(suggestion),
+                    onChooseAnother: () => widget.onNavigate(AppTab.train),
+                  ),
                   const SizedBox(height: 20),
-                  _buildStatsRow(
-                        context,
-                        weekCount: weekWorkouts.length,
-                        lastDuration: lastWorkout?.duration,
-                        weekVolume: totalWeekVolume,
-                        weekDuration: totalWeekDuration,
-                      )
-                      .animate()
-                      .fadeIn(delay: 100.ms, duration: 400.ms)
-                      .slideY(begin: 0.1, end: 0),
-                  const SizedBox(height: 24),
-                  WeeklyPlanCard(
-                    plan: weeklyPlan,
-                    onConfigure: () => _openTrainingPreferences(context),
-                    onStart: (template) {
-                      WorkoutLauncher.instance.queue(template);
-                      widget.onNavigate(1);
-                    },
-                  ).animate().fadeIn(delay: 180.ms, duration: 400.ms),
-                  const SizedBox(height: 24),
-                  _buildQuickStart(
-                    context,
-                  ).animate().fadeIn(delay: 260.ms, duration: 400.ms),
-                  const SizedBox(height: 24),
-                  _buildLastWorkoutCard(
-                    context,
-                    lastWorkout,
-                  ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
-                  const SizedBox(height: 24),
-                  _buildProgressCard(
-                    context,
-                  ).animate().fadeIn(delay: 380.ms, duration: 400.ms),
-                  const SizedBox(height: 24),
-                  _buildAchievements(
-                    context,
-                  ).animate().fadeIn(delay: 420.ms, duration: 400.ms),
-                  const SizedBox(height: 24),
-                  _buildRecentExercises(
-                    context,
-                  ).animate().fadeIn(delay: 460.ms, duration: 400.ms),
-                  const SizedBox(height: 32),
+                  _WeekCard(
+                    plan: plan,
+                    workoutCount: weekWorkouts.length,
+                    duration: _formatDuration(
+                      weekWorkouts.fold(
+                        Duration.zero,
+                        (s, w) => s + w.duration,
+                      ),
+                    ),
+                    volume: _formatVolume(
+                      weekWorkouts.fold(0, (s, w) => s + w.totalVolume),
+                    ),
+                    onTap: () => widget.onNavigate(AppTab.progress),
+                    onConfigure: () => openTrainingPreferences(context),
+                  ),
+                  if (lastWorkout != null) ...[
+                    const SizedBox(height: 24),
+                    _buildLastWorkout(
+                      context,
+                      lastWorkout,
+                      canRepeat: !sessionActive,
+                    ),
+                  ],
                 ],
-              ),
+              ).animate().fadeIn(duration: 250.ms),
             ),
           ),
         ],
@@ -606,17 +234,171 @@ class _HomeScreenState extends State<HomeScreen> {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16),
-          child: GestureDetector(
-            onTap: () => _showProfileMenu(context),
-            child: _buildProfileAvatar(),
+          child: Semantics(
+            button: true,
+            label: S.of(context).nav_profile,
+            child: GestureDetector(
+              onTap: () => widget.onNavigate(AppTab.profile),
+              child: const ProfileAvatar(),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildGreetingCard(BuildContext context, int weekCount) {
+  Widget _buildLastWorkout(
+    BuildContext context,
+    Workout workout, {
+    required bool canRepeat,
+  }) {
     final l10n = S.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              l10n.home_lastWorkout,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            TextButton(
+              onPressed: () => widget.onNavigate(AppTab.progress),
+              child: Text(l10n.home_viewAll),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.bgCard,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.bgCardLight, width: 1),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                ExerciseLocalization.workoutName(l10n, workout.name),
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '${_formatDate(workout.date, l10n)} · ${_formatDuration(workout.duration)}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  _WorkoutStat(
+                    label: l10n.common_exercises,
+                    value: '${workout.completedExerciseCount}',
+                  ),
+                  _WorkoutStat(
+                    label: l10n.common_sets,
+                    value: '${workout.totalSets}',
+                  ),
+                  _WorkoutStat(
+                    label: l10n.common_volume,
+                    value: '${_formatVolume(workout.totalVolume)} kg',
+                  ),
+                ],
+              ),
+              if (canRepeat) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      WorkoutLauncher.instance.queueWorkout(workout);
+                      widget.onNavigate(AppTab.train);
+                    },
+                    icon: const Icon(Icons.replay_rounded, size: 18),
+                    label: Text(l10n.home_repeatWorkout),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.primary,
+                      side: BorderSide(color: AppColors.primary.withAlpha(76)),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ── Supporting widgets ────────────────────────────────────────────────────────
+
+class _TodayCard extends StatelessWidget {
+  final TodaySuggestion suggestion;
+  final VoidCallback onStart;
+  final VoidCallback onChooseAnother;
+
+  const _TodayCard({
+    required this.suggestion,
+    required this.onStart,
+    required this.onChooseAnother,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    final (
+      String? label,
+      String title,
+      String? subtitle,
+      IconData icon,
+      String button,
+      bool offerAnother,
+    ) = switch (suggestion.kind) {
+      TodaySuggestionKind.resume => (
+        l10n.home_inProgressTitle,
+        l10n.train_inProgress,
+        null,
+        Icons.play_arrow_rounded,
+        l10n.home_continueWorkout,
+        false,
+      ),
+      TodaySuggestionKind.routineDay => (
+        l10n.home_todayTitle,
+        l10n.train_routineForDay(routineDayLabel(context, suggestion.day!)),
+        l10n.weeklyPlan_exerciseCount(suggestion.exerciseCount),
+        Icons.play_arrow_rounded,
+        l10n.weeklyPlan_start,
+        true,
+      ),
+      TodaySuggestionKind.planSession => (
+        l10n.weeklyPlan_nextSession,
+        ExerciseLocalization.workoutName(l10n, suggestion.template!.name),
+        l10n.weeklyPlan_exerciseCount(suggestion.exerciseCount),
+        Icons.play_arrow_rounded,
+        l10n.weeklyPlan_start,
+        true,
+      ),
+      TodaySuggestionKind.planCompleted => (
+        null,
+        l10n.weeklyPlan_completed,
+        null,
+        Icons.fitness_center_rounded,
+        l10n.home_goToTrain,
+        false,
+      ),
+      TodaySuggestionKind.choose => (
+        null,
+        l10n.train_readyTitle,
+        l10n.train_readySubtitle,
+        Icons.fitness_center_rounded,
+        l10n.home_goToTrain,
+        false,
+      ),
+    };
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -629,728 +411,175 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (label != null) ...[
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.8,
+              ),
+            ),
+            const SizedBox(height: 6),
+          ],
           Text(
-            _greeting(l10n),
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            title,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               color: Colors.white,
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            weekCount == 0
-                ? l10n.home_weekMotivationZero
-                : weekCount == 1
-                ? l10n.home_weekMotivationOne
-                : l10n.home_weekMotivationMany(weekCount),
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
-          ),
-          const SizedBox(height: 16),
-          GestureDetector(
-            onTap: () => widget.onNavigate(1),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.play_arrow_rounded,
-                    color: AppColors.primary,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    l10n.home_startWorkout,
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: const TextStyle(color: Colors.white70, fontSize: 13),
+            ),
+          ],
+          const SizedBox(height: 18),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: onStart,
+              icon: Icon(icon),
+              label: Text(button),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           ),
+          if (offerAnother)
+            Center(
+              child: TextButton(
+                onPressed: onChooseAnother,
+                style: TextButton.styleFrom(foregroundColor: Colors.white),
+                child: Text(l10n.home_chooseAnother),
+              ),
+            ),
         ],
       ),
     );
   }
-
-  Widget _buildStatsRow(
-    BuildContext context, {
-    required int weekCount,
-    required Duration? lastDuration,
-    required int weekVolume,
-    required Duration weekDuration,
-  }) {
-    final l10n = S.of(context);
-    return Row(
-      children: [
-        Expanded(
-          child: _StatCard(
-            icon: Icons.fitness_center_rounded,
-            value: '$weekCount',
-            label: l10n.home_thisWeek,
-            color: AppColors.primary,
-            onTap: () => widget.onNavigate(2),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.timer_rounded,
-            value: weekCount == 0 ? '—' : _formatDuration(weekDuration),
-            label: l10n.home_weekTime,
-            color: AppColors.accent,
-            onTap: () => widget.onNavigate(2),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.bar_chart_rounded,
-            value: weekCount == 0 ? '—' : '${_formatVolume(weekVolume)} kg',
-            label: l10n.home_weekVolume,
-            color: AppColors.accentOrange,
-            onTap: () => widget.onNavigate(2),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQuickStart(BuildContext context) {
-    final l10n = S.of(context);
-    // 4 most-used templates: Full Body, Push, Pull, Legs.
-    final picks = [
-      workoutTemplates[0],
-      workoutTemplates[1],
-      workoutTemplates[2],
-      workoutTemplates[4],
-    ];
-
-    void launch(WorkoutTemplate t) {
-      WorkoutLauncher.instance.queue(t);
-      widget.onNavigate(1);
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.home_quickStart,
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: picks
-              .map(
-                (t) => Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Semantics(
-                      label: ExerciseLocalization.templateName(
-                        l10n,
-                        t.id,
-                        t.name,
-                      ),
-                      button: true,
-                      child: ExcludeSemantics(
-                        child: GestureDetector(
-                          onTap: () => launch(t),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 14,
-                              horizontal: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: t.color.withAlpha(30),
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(
-                                color: t.color.withAlpha(64),
-                                width: 1,
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                Icon(t.icon, color: t.color, size: 24),
-                                const SizedBox(height: 6),
-                                Text(
-                                  ExerciseLocalization.templateName(
-                                    l10n,
-                                    t.id,
-                                    t.name,
-                                  ),
-                                  style: TextStyle(
-                                    color: t.color,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  l10n.train_exerciseCount(t.exercises.length),
-                                  style: const TextStyle(
-                                    color: AppColors.textMuted,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              )
-              .toList(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLastWorkoutCard(BuildContext context, Workout? workout) {
-    final l10n = S.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              l10n.home_lastWorkout,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            GestureDetector(
-              onTap: () => widget.onNavigate(2),
-              child: Text(
-                l10n.home_viewAll,
-                style: const TextStyle(
-                  color: AppColors.primary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        if (workout == null)
-          GestureDetector(
-            onTap: () => widget.onNavigate(1),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.bgCard,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.bgCardLight, width: 1),
-              ),
-              child: Column(
-                children: [
-                  const Icon(
-                    Icons.fitness_center_rounded,
-                    color: AppColors.textMuted,
-                    size: 32,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    l10n.home_noWorkoutsYet,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.home_noWorkoutsSubtitle,
-                    style: const TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 12,
-                      height: 1.4,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 14),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withAlpha(25),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      l10n.home_goToTrain,
-                      style: const TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-        else
-          GestureDetector(
-            onTap: () => widget.onNavigate(2),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.bgCard,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.bgCardLight, width: 1),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withAlpha(38),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Icons.fitness_center_rounded,
-                          color: AppColors.primary,
-                          size: 18,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ExerciseLocalization.workoutName(
-                                l10n,
-                                workout.name,
-                              ),
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${_formatDate(workout.date, l10n)} · ${_formatDuration(workout.duration)}',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(
-                        Icons.chevron_right_rounded,
-                        color: AppColors.textMuted,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  const Divider(height: 1),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      _WorkoutStat(
-                        label: l10n.common_exercises,
-                        value: '${workout.exercises.length}',
-                      ),
-                      _WorkoutStat(
-                        label: l10n.common_sets,
-                        value: '${workout.totalSets}',
-                      ),
-                      _WorkoutStat(
-                        label: l10n.common_volume,
-                        value: '${_formatVolume(workout.totalVolume)} kg',
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        WorkoutLauncher.instance.queueWorkout(workout);
-                        widget.onNavigate(1);
-                      },
-                      icon: const Icon(Icons.replay_rounded, size: 18),
-                      label: Text(l10n.home_repeatWorkout),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: BorderSide(
-                          color: AppColors.primary.withAlpha(76),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildProgressCard(BuildContext context) {
-    final l10n = S.of(context);
-    final latest = ProgressStore.instance.latest;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              l10n.home_progress,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ProgressScreen()),
-              ),
-              child: Text(
-                l10n.home_viewAll,
-                style: const TextStyle(
-                  color: AppColors.primary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        GestureDetector(
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ProgressScreen()),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.bgCard,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.bgCardLight, width: 1),
-            ),
-            child: latest == null
-                ? Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.accent.withAlpha(25),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.monitor_weight_outlined,
-                          color: AppColors.accent,
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.home_noRecordsYet,
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              l10n.home_recordWeightMeasures,
-                              style: const TextStyle(
-                                color: AppColors.textMuted,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(
-                        Icons.chevron_right_rounded,
-                        color: AppColors.textMuted,
-                      ),
-                    ],
-                  )
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: AppColors.accent.withAlpha(25),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Icon(
-                              Icons.monitor_weight_outlined,
-                              color: AppColors.accent,
-                              size: 18,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l10n.home_latestRecord,
-                                  style: const TextStyle(
-                                    color: AppColors.textPrimary,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${latest.date.day}/${latest.date.month}/${latest.date.year}',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(
-                            Icons.chevron_right_rounded,
-                            color: AppColors.textMuted,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      const Divider(height: 1),
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          if (latest.weight != null)
-                            _ProgressStat(
-                              label: l10n.common_weight,
-                              value: '${latest.weight!.toStringAsFixed(1)} kg',
-                              color: AppColors.accent,
-                            ),
-                          if (latest.waist != null)
-                            _ProgressStat(
-                              label: l10n.home_waist,
-                              value: '${latest.waist!.toStringAsFixed(1)} cm',
-                              color: AppColors.primary,
-                            ),
-                          if (latest.chest != null)
-                            _ProgressStat(
-                              label: l10n.muscle_chest,
-                              value: '${latest.chest!.toStringAsFixed(1)} cm',
-                              color: AppColors.accentOrange,
-                            ),
-                          if (latest.hips != null)
-                            _ProgressStat(
-                              label: l10n.home_hips,
-                              value: '${latest.hips!.toStringAsFixed(1)} cm',
-                              color: AppColors.accentYellow,
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAchievements(BuildContext context) {
-    final l10n = S.of(context);
-    final achievements = AchievementStore.instance.getAll(l10n);
-    final unlockedCount = AchievementStore.instance.unlockedCount;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              l10n.home_achievements,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: AppColors.accentYellow.withAlpha(25),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                '$unlockedCount/${achievements.length}',
-                style: const TextStyle(
-                  color: AppColors.accentYellow,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 100,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: achievements.length,
-            separatorBuilder: (_, _) => const SizedBox(width: 10),
-            itemBuilder: (_, i) {
-              final a = achievements[i];
-              return Container(
-                width: 85,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: a.isUnlocked
-                      ? a.color.withAlpha(20)
-                      : AppColors.bgCard,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: a.isUnlocked
-                        ? a.color.withAlpha(60)
-                        : AppColors.bgCardLight,
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      a.icon,
-                      color: a.isUnlocked
-                          ? a.color
-                          : AppColors.textMuted.withAlpha(80),
-                      size: 26,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      a.title,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: a.isUnlocked
-                            ? AppColors.textPrimary
-                            : AppColors.textMuted,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRecentExercises(BuildContext context) {
-    final l10n = S.of(context);
-    final recent = mockExercises.take(3).toList();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              l10n.home_exerciseLibrary,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            GestureDetector(
-              onTap: () => widget.onNavigate(3),
-              child: Text(
-                l10n.home_viewAllExercises,
-                style: const TextStyle(
-                  color: AppColors.primary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          l10n.home_exercisesAvailable(mockExercises.length),
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
-        ),
-        const SizedBox(height: 12),
-        ...recent.map(
-          (ex) => _RecentExerciseItem(
-            exercise: ex,
-            onTap: () => widget.onNavigate(3),
-          ),
-        ),
-      ],
-    );
-  }
 }
 
-// ── Supporting widgets ────────────────────────────────────────────────────────
-
-class _StatCard extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final String label;
-  final Color color;
+class _WeekCard extends StatelessWidget {
+  final WeeklyTrainingPlan? plan;
+  final int workoutCount;
+  final String duration;
+  final String volume;
   final VoidCallback onTap;
+  final VoidCallback onConfigure;
 
-  const _StatCard({
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.color,
+  const _WeekCard({
+    required this.plan,
+    required this.workoutCount,
+    required this.duration,
+    required this.volume,
     required this.onTap,
+    required this.onConfigure,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.bgCardLight, width: 1),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: color, size: 20),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
+    final l10n = S.of(context);
+    final value = plan;
+    final sessions = value == null
+        ? (workoutCount == 0
+              ? l10n.home_weekMotivationZero
+              : workoutCount == 1
+              ? l10n.home_weekMotivationOne
+              : l10n.home_weekMotivationMany(workoutCount))
+        : l10n.weeklyPlan_sessions(
+            value.completedWorkouts,
+            value.targetWorkouts,
+          );
+
+    return Material(
+      color: AppColors.bgCard,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.bgCardLight, width: 1),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    l10n.home_thisWeek,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const Spacer(),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppColors.textMuted,
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
-            ),
-          ],
+              const SizedBox(height: 6),
+              Text(
+                sessions,
+                style: TextStyle(
+                  color: value == null
+                      ? AppColors.textSecondary
+                      : AppColors.primaryLight,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (value != null) ...[
+                const SizedBox(height: 10),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    minHeight: 6,
+                    value: value.adherence,
+                    backgroundColor: AppColors.bgCardLight,
+                    valueColor: const AlwaysStoppedAnimation(AppColors.accent),
+                  ),
+                ),
+              ],
+              if (workoutCount > 0) ...[
+                const SizedBox(height: 10),
+                Text(
+                  '${l10n.home_weekTime}: $duration  ·  ${l10n.home_weekVolume}: $volume kg',
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+              if (value == null) ...[
+                const SizedBox(height: 4),
+                TextButton.icon(
+                  onPressed: onConfigure,
+                  icon: const Icon(Icons.auto_awesome_rounded, size: 16),
+                  label: Text(l10n.weeklyPlan_setupTitle),
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -1382,102 +611,6 @@ class _WorkoutStat extends StatelessWidget {
             style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ProgressStat extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-
-  const _ProgressStat({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              color: color,
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RecentExerciseItem extends StatelessWidget {
-  final Exercise exercise;
-  final VoidCallback onTap;
-
-  const _RecentExerciseItem({required this.exercise, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = colorForMuscle(exercise.muscleGroup);
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: AppColors.bgCard,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.bgCardLight, width: 1),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: color.withAlpha(38),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(Icons.fitness_center_rounded, color: color, size: 16),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    ExerciseLocalization.name(S.of(context), exercise.name),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${ExerciseLocalization.muscle(S.of(context), exercise.muscleGroup)} · ${ExerciseLocalization.equipment(S.of(context), exercise.equipment)} · ${ExerciseLocalization.difficulty(S.of(context), exercise.difficulty)}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: AppColors.textMuted,
-              size: 18,
-            ),
-          ],
-        ),
       ),
     );
   }

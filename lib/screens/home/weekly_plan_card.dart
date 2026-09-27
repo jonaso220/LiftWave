@@ -9,13 +9,16 @@ import '../../utils/muscle_colors.dart';
 class WeeklyPlanCard extends StatelessWidget {
   final WeeklyTrainingPlan? plan;
   final VoidCallback onConfigure;
-  final void Function(WorkoutTemplate template) onStart;
+
+  /// Starts the suggested session. When null the card only reports progress
+  /// (Home already offers the session through its single start button).
+  final void Function(WorkoutTemplate template)? onStart;
 
   const WeeklyPlanCard({
     super.key,
     required this.plan,
     required this.onConfigure,
-    required this.onStart,
+    this.onStart,
   });
 
   @override
@@ -110,20 +113,25 @@ class WeeklyPlanCard extends StatelessWidget {
                   ),
                 ),
               ],
-              const SizedBox(height: 18),
-              if (value.targetReached)
-                _CompletedPlan(message: l10n.weeklyPlan_completed)
-              else if (value.nextWorkout != null)
-                _NextWorkout(
-                  plan: value,
-                  onStart: () => onStart(value.nextWorkout!),
-                )
-              else
+              if (value.targetReached) ...[
+                const SizedBox(height: 18),
+                _CompletedPlan(message: l10n.weeklyPlan_completed),
+              ] else if (value.nextWorkout != null) ...[
+                if (onStart != null) ...[
+                  const SizedBox(height: 18),
+                  _NextWorkout(
+                    plan: value,
+                    onStart: () => onStart!(value.nextWorkout!),
+                  ),
+                ],
+              ] else ...[
+                const SizedBox(height: 18),
                 _UnavailablePlan(
                   message: l10n.weeklyPlan_noCompatible,
                   button: l10n.weeklyPlan_adjustEquipment,
                   onConfigure: onConfigure,
                 ),
+              ],
             ],
           ),
         ),

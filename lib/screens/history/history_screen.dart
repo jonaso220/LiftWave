@@ -4,12 +4,16 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/muscle_colors.dart';
 import '../../utils/exercise_localization.dart';
+import '../../data/mock_data.dart';
+import '../../data/training_preferences_store.dart';
 import '../../data/workout_store.dart';
 import '../../models/models.dart';
 import '../../services/subscription_service.dart';
-import '../../utils/csv_exporter.dart';
+import '../../services/weekly_plan_service.dart';
 import '../../utils/pro_gate.dart';
 import '../../utils/routine_days.dart';
+import '../home/weekly_plan_card.dart';
+import '../profile/profile_screen.dart';
 import 'workout_detail_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -28,12 +32,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
     super.initState();
     WorkoutStore.instance.addListener(_onStoreChanged);
     SubscriptionService.instance.addListener(_onStoreChanged);
+    TrainingPreferencesStore.instance.addListener(_onStoreChanged);
   }
 
   @override
   void dispose() {
     WorkoutStore.instance.removeListener(_onStoreChanged);
     SubscriptionService.instance.removeListener(_onStoreChanged);
+    TrainingPreferencesStore.instance.removeListener(_onStoreChanged);
     super.dispose();
   }
 
@@ -90,23 +96,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
               displayWorkouts.any((workout) => _dayForWorkout(workout) == day),
         )
         .toList();
+    final preferences = TrainingPreferencesStore.instance.preferences;
+    final weeklyPlan = preferences == null
+        ? null
+        : WeeklyPlanService.build(
+            preferences: preferences,
+            workouts: allWorkouts,
+            exerciseLibrary: mockExercises,
+            now: DateTime.now(),
+            planName: S.of(context).weeklyPlan_adaptiveName,
+          );
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            title: Text(S.of(context).history_title),
-            floating: true,
-            actions: [
-              if (WorkoutStore.instance.workouts.isNotEmpty)
-                IconButton(
-                  onPressed: () => CsvExporter.exportAndShare(S.of(context)),
-                  icon: const Icon(Icons.ios_share_rounded, size: 20),
-                  tooltip: S.of(context).history_exportCsv,
-                ),
-            ],
-          ),
-
           // ── Week summary card ──────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
@@ -119,6 +122,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
                 trainedDays: _trainedDaysThisWeek,
                 todayIndex: DateTime.now().weekday - 1,
+              ),
+            ),
+          ),
+
+          // ── Weekly plan (moved here from Home) ─────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+              child: WeeklyPlanCard(
+                plan: weeklyPlan,
+                onConfigure: () => openTrainingPreferences(context),
               ),
             ),
           ),

@@ -14,6 +14,7 @@ import '../../models/models.dart';
 import '../../models/training_preferences.dart';
 import '../../data/workout_store.dart';
 import '../exercises/exercise_progress_sheet.dart';
+import '../exercises/exercises_screen.dart';
 import '../../services/rest_timer_controller.dart';
 import '../../services/progression_service.dart';
 import '../../services/watch_service.dart';
@@ -175,6 +176,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       _elapsedSeconds = snap.elapsedAt(DateTime.now());
       _timerRunning = snap.timerRunning;
     });
+    WorkoutLauncher.instance.sessionActive.value = true;
     _syncWatch();
     if (_timerRunning) _scheduleWorkoutTimer();
     _persistActiveWorkout();
@@ -304,6 +306,12 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       unawaited(_startQueuedTemplate(template));
       return;
     }
+    final day = WorkoutLauncher.instance.consumeRoutineDay();
+    if (day != null) {
+      final blocks = _templatesForDay(day);
+      if (blocks.isNotEmpty) _startRoutineDay(day, blocks);
+      return;
+    }
     final workout = WorkoutLauncher.instance.consumeWorkout();
     if (workout != null) {
       _startFromWorkout(workout);
@@ -416,6 +424,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       _timerRunning = true;
       _startedAt = now;
     });
+    WorkoutLauncher.instance.sessionActive.value = true;
     _scheduleWorkoutTimer();
     HapticFeedback.lightImpact();
     _syncWatch();
@@ -592,6 +601,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       _elapsedSeconds = 0;
       _startedAt = null;
     });
+    WorkoutLauncher.instance.sessionActive.value = false;
     _syncWatch();
     ActiveWorkoutStore.instance.clear();
   }
@@ -760,6 +770,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                       _elapsedSeconds = 0;
                       _startedAt = null;
                     });
+                    WorkoutLauncher.instance.sessionActive.value = false;
                     _syncWatch();
                     ActiveWorkoutStore.instance.clear();
                     if (newAchievements.isNotEmpty) {
@@ -1111,6 +1122,20 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     });
     _persistActiveWorkout();
     _syncWatch();
+  }
+
+  void _openExerciseLibrary() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ExercisesScreen(
+          // "Añadir al entrenamiento" queues the exercise on the launcher;
+          // returning here lets this screen pick it up and start the session.
+          onStartWorkout: () =>
+              Navigator.popUntil(context, (route) => route.isFirst),
+        ),
+      ),
+    );
   }
 
   Future<void> _addExercise() async {
@@ -1571,7 +1596,18 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
         .toList();
     return CustomScrollView(
       slivers: [
-        SliverAppBar(title: Text(l10n.train_title), floating: true),
+        SliverAppBar(
+          title: Text(l10n.train_title),
+          floating: true,
+          actions: [
+            IconButton(
+              onPressed: _openExerciseLibrary,
+              icon: const Icon(Icons.menu_book_rounded),
+              tooltip: l10n.home_exerciseLibrary,
+            ),
+            const SizedBox(width: 4),
+          ],
+        ),
 
         // Hero + free workout button
         SliverToBoxAdapter(

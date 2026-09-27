@@ -62,6 +62,12 @@
   "nav_history": "Historial",
   "nav_rest": "Descanso",
   "nav_exercises": "Ejercicios",
+  "nav_progress": "Progreso",
+  "nav_profile": "Perfil",
+  "home_todayTitle": "HOY TOCA",
+  "home_inProgressTitle": "ENTRENAMIENTO EN CURSO",
+  "home_continueWorkout": "Continuar entrenamiento",
+  "home_chooseAnother": "Elegir otra rutina",
 
   "@@info5": "── Login Screen ────────────────────────────────────────────────────",
   "login_tagline": "Tu app de fitness personal",

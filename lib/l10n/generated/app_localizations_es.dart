@@ -165,6 +165,24 @@ class SEs extends S {
   String get nav_exercises => 'Ejercicios';
 
   @override
+  String get nav_progress => 'Progreso';
+
+  @override
+  String get nav_profile => 'Perfil';
+
+  @override
+  String get home_todayTitle => 'HOY TOCA';
+
+  @override
+  String get home_inProgressTitle => 'ENTRENAMIENTO EN CURSO';
+
+  @override
+  String get home_continueWorkout => 'Continuar entrenamiento';
+
+  @override
+  String get home_chooseAnother => 'Elegir otra rutina';
+
+  @override
   String get login_tagline => 'Tu app de fitness personal';
 
   @override

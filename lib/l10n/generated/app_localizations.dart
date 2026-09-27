@@ -413,6 +413,42 @@ abstract class S {
   /// **'Ejercicios'**
   String get nav_exercises;
 
+  /// No description provided for @nav_progress.
+  ///
+  /// In es, this message translates to:
+  /// **'Progreso'**
+  String get nav_progress;
+
+  /// No description provided for @nav_profile.
+  ///
+  /// In es, this message translates to:
+  /// **'Perfil'**
+  String get nav_profile;
+
+  /// No description provided for @home_todayTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'HOY TOCA'**
+  String get home_todayTitle;
+
+  /// No description provided for @home_inProgressTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'ENTRENAMIENTO EN CURSO'**
+  String get home_inProgressTitle;
+
+  /// No description provided for @home_continueWorkout.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar entrenamiento'**
+  String get home_continueWorkout;
+
+  /// No description provided for @home_chooseAnother.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegir otra rutina'**
+  String get home_chooseAnother;
+
   /// No description provided for @login_tagline.
   ///
   /// In es, this message translates to:

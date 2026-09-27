@@ -165,6 +165,24 @@ class SPt extends S {
   String get nav_exercises => 'Exercícios';
 
   @override
+  String get nav_progress => 'Progresso';
+
+  @override
+  String get nav_profile => 'Perfil';
+
+  @override
+  String get home_todayTitle => 'TREINO DE HOJE';
+
+  @override
+  String get home_inProgressTitle => 'TREINO EM ANDAMENTO';
+
+  @override
+  String get home_continueWorkout => 'Continuar treino';
+
+  @override
+  String get home_chooseAnother => 'Escolher outro treino';
+
+  @override
   String get login_tagline => 'Seu app de fitness pessoal';
 
   @override
