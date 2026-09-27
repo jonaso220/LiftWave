@@ -1,5 +1,5 @@
 # Uncomment this line to define a global platform for your project
-# platform :ios, '13.0'
+platform :ios, '15.0'
 
 # Keep CocoaPods' current index while the CI bootstrap redirects its GitHub
 # podspec downloads to CocoaPods' jsDelivr mirror.
@@ -43,6 +43,25 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    # Xcode 27 rejects pod targets below iOS 15.0.
+    target.build_configurations.each do |config|
+      if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'].to_f < 15.0
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      end
+    end
+  end
+
+  # RevenueCat 5.67.1 fails on Xcode 27's Swift: the optional `var` gets a
+  # synthesized `init(stringRepresentation:)` that clashes with the public one.
+  # It is only assigned in an initializer, so `let` behaves identically.
+  paywall_color = File.join(installer.sandbox.root, 'RevenueCat/Sources/Paywalls/PaywallColor.swift')
+  if File.exist?(paywall_color)
+    source = File.read(paywall_color)
+    patched = source.sub('fileprivate var _underlyingColor: (any Sendable)?', 'fileprivate let _underlyingColor: (any Sendable)?')
+    if patched != source
+      File.chmod(0644, paywall_color)
+      File.write(paywall_color, patched)
+    end
   end
 end
 

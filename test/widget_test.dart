@@ -1074,6 +1074,47 @@ void main() {
       expect(find.text('¿Qué equipamiento tienes?'), findsOneWidget);
       expect(find.text('Guardar y empezar'), findsOneWidget);
     });
+
+    testWidgets('equipment step keeps several selections', (tester) async {
+      const initial = TrainingPreferences(
+        goal: TrainingGoal.generalFitness,
+        experience: ExperienceLevel.beginner,
+        daysPerWeek: 3,
+        equipment: {TrainingEquipment.noEquipment},
+      );
+      TrainingPreferences? saved;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.current,
+          locale: const Locale('es'),
+          localizationsDelegates: S.localizationsDelegates,
+          supportedLocales: S.supportedLocales,
+          home: TrainingPreferencesScreen(
+            initialPreferences: initial,
+            onSave: (preferences) async => saved = preferences,
+          ),
+        ),
+      );
+
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(find.text('Continuar'));
+        await tester.pumpAndSettle();
+      }
+      for (final label in ['Mancuernas', 'Polea', 'Barra fija']) {
+        await tester.tap(find.text(label));
+        await tester.pumpAndSettle();
+      }
+      expect(find.byIcon(Icons.check_circle_rounded), findsNWidgets(3));
+
+      await tester.tap(find.text('Guardar y empezar'));
+      await tester.pump();
+      expect(saved?.equipment, {
+        TrainingEquipment.dumbbells,
+        TrainingEquipment.cable,
+        TrainingEquipment.pullUpBar,
+      });
+    });
   });
 
   group('adaptive weekly plan', () {
