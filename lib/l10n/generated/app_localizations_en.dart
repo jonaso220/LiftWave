@@ -966,6 +966,16 @@ class SEn extends S {
   String get train_removeSet => 'Remove set';
 
   @override
+  String get profile_keepScreenOn => 'Keep screen on while training';
+
+  @override
+  String get profile_keepScreenOnSubtitle =>
+      'Stops the phone from locking between sets';
+
+  @override
+  String get train_repShort => 'rep';
+
+  @override
   String get rest_label => 'Rest';
 
   @override

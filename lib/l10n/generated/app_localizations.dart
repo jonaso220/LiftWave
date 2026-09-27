@@ -1835,6 +1835,24 @@ abstract class S {
   /// **'Eliminar serie'**
   String get train_removeSet;
 
+  /// No description provided for @profile_keepScreenOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Pantalla encendida al entrenar'**
+  String get profile_keepScreenOn;
+
+  /// No description provided for @profile_keepScreenOnSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Evita que el teléfono se bloquee entre series'**
+  String get profile_keepScreenOnSubtitle;
+
+  /// No description provided for @train_repShort.
+  ///
+  /// In es, this message translates to:
+  /// **'rep'**
+  String get train_repShort;
+
   /// No description provided for @rest_label.
   ///
   /// In es, this message translates to:

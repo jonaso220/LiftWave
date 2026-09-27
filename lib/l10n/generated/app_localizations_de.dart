@@ -973,6 +973,16 @@ class SDe extends S {
   String get train_removeSet => 'Satz entfernen';
 
   @override
+  String get profile_keepScreenOn => 'Bildschirm beim Training anlassen';
+
+  @override
+  String get profile_keepScreenOnSubtitle =>
+      'Verhindert, dass sich das Telefon zwischen Sätzen sperrt';
+
+  @override
+  String get train_repShort => 'Wdh.';
+
+  @override
   String get rest_label => 'Pause';
 
   @override

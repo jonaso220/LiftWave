@@ -13,6 +13,7 @@ import 'screens/auth/login_screen.dart';
 import 'screens/onboarding/training_onboarding_gate.dart';
 import 'services/firebase_service.dart';
 import 'services/subscription_service.dart';
+import 'services/screen_awake_service.dart';
 import 'services/theme_controller.dart';
 import 'services/watch_service.dart';
 import 'theme/app_theme.dart';
@@ -61,6 +62,7 @@ void _applySystemBars() {
 Future<void> _initializeBackgroundServices() async {
   try {
     await Future.wait([
+      ScreenAwakeService.instance.init(),
       SubscriptionService.instance.init(),
       CustomExerciseStore.instance.load(),
       CustomTemplateStore.instance.load(),

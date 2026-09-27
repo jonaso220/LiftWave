@@ -975,6 +975,16 @@ class SEs extends S {
   String get train_removeSet => 'Eliminar serie';
 
   @override
+  String get profile_keepScreenOn => 'Pantalla encendida al entrenar';
+
+  @override
+  String get profile_keepScreenOnSubtitle =>
+      'Evita que el teléfono se bloquee entre series';
+
+  @override
+  String get train_repShort => 'rep';
+
+  @override
   String get rest_label => 'Descanso';
 
   @override

@@ -116,6 +116,8 @@ class _ExerciseCard extends StatelessWidget {
     final color = colorForMuscle(exercise.muscleGroup);
     final done = exercise.completedSets;
     final total = exercise.sets.length;
+    // Steppers only under the next set to log, to keep the card compact.
+    final nextPendingSet = exercise.sets.indexWhere((set) => !set.completed);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -281,6 +283,7 @@ class _ExerciseCard extends StatelessWidget {
           const Divider(height: 1),
           ...exercise.sets.asMap().entries.map((entry) {
             final index = entry.key;
+            final isNextSet = index == nextPendingSet;
             final previous = index < previousSets.length
                 ? previousSets[index]
                 : null;
@@ -294,6 +297,12 @@ class _ExerciseCard extends StatelessWidget {
                   ? () => onRemoveSet(index)
                   : null,
               onChanged: onSetChanged,
+              showSteppers: isNextSet,
+              weightStep:
+                  ProgressionService.isBodyweight(exercise.equipment) &&
+                      entry.value.weight == 0
+                  ? 0
+                  : ProgressionService.loadIncrementFor(exercise.equipment),
               onEdited: (previousReps, previousWeight) =>
                   exercise.propagateEdit(
                     index,

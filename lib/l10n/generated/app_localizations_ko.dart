@@ -930,6 +930,15 @@ class SKo extends S {
   String get train_removeSet => '세트 삭제';
 
   @override
+  String get profile_keepScreenOn => '운동 중 화면 켜두기';
+
+  @override
+  String get profile_keepScreenOnSubtitle => '세트 사이에 휴대폰이 잠기지 않게 합니다';
+
+  @override
+  String get train_repShort => '회';
+
+  @override
   String get rest_label => '휴식';
 
   @override

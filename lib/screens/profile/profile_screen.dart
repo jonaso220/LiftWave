@@ -6,6 +6,7 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 
 import '../../services/auth_service.dart';
 import '../../services/subscription_service.dart';
+import '../../services/screen_awake_service.dart';
 import '../../services/theme_controller.dart';
 import '../../theme/app_theme.dart';
 import '../auth/guest_prompts.dart';
@@ -30,12 +31,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     SubscriptionService.instance.addListener(_onChanged);
+    ScreenAwakeService.instance.addListener(_onChanged);
     _userSub = FirebaseAuth.instance.userChanges().listen((_) => _onChanged());
   }
 
   @override
   void dispose() {
     SubscriptionService.instance.removeListener(_onChanged);
+    ScreenAwakeService.instance.removeListener(_onChanged);
     _userSub?.cancel();
     super.dispose();
   }
@@ -185,6 +188,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: AppColors.textMuted,
                         ),
                         onTap: _chooseAppearance,
+                      ),
+                      SwitchListTile(
+                        secondary: Icon(
+                          Icons.stay_current_portrait_rounded,
+                          color: AppColors.primaryLight,
+                        ),
+                        title: Text(
+                          l10n.profile_keepScreenOn,
+                          style: TextStyle(color: AppColors.textPrimary),
+                        ),
+                        subtitle: Text(
+                          l10n.profile_keepScreenOnSubtitle,
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 12,
+                          ),
+                        ),
+                        value: ScreenAwakeService.instance.enabled,
+                        activeThumbColor: AppColors.primary,
+                        onChanged: ScreenAwakeService.instance.setEnabled,
                       ),
                     ],
                   ),

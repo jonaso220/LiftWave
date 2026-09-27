@@ -972,6 +972,16 @@ class SPt extends S {
   String get train_removeSet => 'Remover série';
 
   @override
+  String get profile_keepScreenOn => 'Tela ligada durante o treino';
+
+  @override
+  String get profile_keepScreenOnSubtitle =>
+      'Evita que o celular bloqueie entre as séries';
+
+  @override
+  String get train_repShort => 'rep';
+
+  @override
   String get rest_label => 'Descanso';
 
   @override

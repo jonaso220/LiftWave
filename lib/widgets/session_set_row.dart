@@ -36,6 +36,13 @@ class SessionSetRow extends StatefulWidget {
   /// Copies [previous] into this set. Only offered while it is pending.
   final VoidCallback? onUsePrevious;
 
+  /// Shows large −/+ buttons under the row (the next set to log), so common
+  /// adjustments do not need the keyboard.
+  final bool showSteppers;
+
+  /// Load change per tap. Zero hides the weight buttons (bodyweight work).
+  final double weightStep;
+
   const SessionSetRow({
     super.key,
     required this.set,
@@ -46,6 +53,8 @@ class SessionSetRow extends StatefulWidget {
     required this.onChanged,
     this.onEdited,
     this.onUsePrevious,
+    this.showSteppers = false,
+    this.weightStep = 2.5,
   });
 
   @override
@@ -93,9 +102,55 @@ class _SessionSetRowState extends State<SessionSetRow> {
     widget.onChanged();
   }
 
+  /// Applies a stepper tap, clamped at zero, and refreshes this row's fields.
+  void _bump({double weight = 0, int reps = 0}) {
+    HapticFeedback.selectionClick();
+    _edit(() {
+      if (weight != 0) {
+        final next = ((widget.set.weight + weight) * 100).round() / 100;
+        widget.set.weight = next < 0 ? 0 : next;
+      }
+      if (reps != 0) {
+        final next = widget.set.reps + reps;
+        widget.set.reps = next < 0 ? 0 : next;
+      }
+    });
+    _weightCtrl.text = widget.set.weight > 0 ? _fmt(widget.set.weight) : '';
+    _repsCtrl.text = widget.set.reps > 0 ? '${widget.set.reps}' : '';
+  }
+
   void _toggle() {
     HapticFeedback.lightImpact();
     widget.onToggle();
+  }
+
+  Widget _buildSteppers(BuildContext context, S l10n) {
+    final step = widget.weightStep;
+    final stepLabel = formatWeight(
+      step,
+      Localizations.localeOf(context).toString(),
+    );
+    final rep = l10n.train_repShort;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 2, 0, 8),
+      child: Row(
+        children: [
+          if (step > 0) ...[
+            _StepButton(
+              label: '−$stepLabel kg',
+              onTap: () => _bump(weight: -step),
+            ),
+            _StepButton(
+              label: '+$stepLabel kg',
+              onTap: () => _bump(weight: step),
+            ),
+            const SizedBox(width: 8),
+          ],
+          _StepButton(label: '−1 $rep', onTap: () => _bump(reps: -1)),
+          _StepButton(label: '+1 $rep', onTap: () => _bump(reps: 1)),
+        ],
+      ),
+    );
   }
 
   @override
@@ -109,98 +164,105 @@ class _SessionSetRowState extends State<SessionSetRow> {
           ? Color.alphaBlend(AppColors.accent.withAlpha(13), AppColors.bgCard)
           : AppColors.bgCard,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-      child: Row(
+      child: Column(
         children: [
-          Expanded(
-            flex: SessionSetColumns.set,
-            child: Center(
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: done
-                      ? AppColors.accent.withAlpha(51)
-                      : AppColors.bgCardLight,
-                  borderRadius: BorderRadius.circular(8),
-                ),
+          Row(
+            children: [
+              Expanded(
+                flex: SessionSetColumns.set,
                 child: Center(
-                  child: Text(
-                    '${widget.index + 1}',
-                    style: TextStyle(
-                      color: done ? AppColors.accent : AppColors.textSecondary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                  child: Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: done
+                          ? AppColors.accent.withAlpha(51)
+                          : AppColors.bgCardLight,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: SessionSetColumns.previous,
-            child: _PreviousCell(
-              previous: widget.previous,
-              onTap: done ? null : widget.onUsePrevious,
-            ),
-          ),
-          Expanded(
-            flex: SessionSetColumns.weight,
-            child: _NumField(
-              controller: _weightCtrl,
-              hint: '0',
-              isInteger: false,
-              done: done,
-              onChanged: (v) => _edit(
-                () => widget.set.weight =
-                    double.tryParse(v.replaceAll(',', '.')) ?? 0,
-              ),
-            ),
-          ),
-          Expanded(
-            flex: SessionSetColumns.reps,
-            child: _NumField(
-              controller: _repsCtrl,
-              hint: '0',
-              isInteger: true,
-              done: done,
-              onChanged: (v) =>
-                  _edit(() => widget.set.reps = int.tryParse(v) ?? 0),
-            ),
-          ),
-          Expanded(
-            flex: SessionSetColumns.done,
-            // The whole cell toggles the set, not just the checkbox, so it
-            // is easy to hit between sets.
-            child: GestureDetector(
-              onTap: _toggle,
-              behavior: HitTestBehavior.opaque,
-              excludeFromSemantics: true,
-              child: SizedBox(
-                height: 52,
-                child: Center(
-                  child: Transform.scale(
-                    scale: 1.3,
-                    child: Checkbox(
-                      value: done,
-                      onChanged: (_) => _toggle(),
-                      semanticLabel: setLabel,
-                      activeColor: AppColors.accent,
-                      checkColor: Colors.white,
-                      fillColor: WidgetStateProperty.resolveWith(
-                        (states) => states.contains(WidgetState.selected)
-                            ? AppColors.accent
-                            : AppColors.bgCardLight,
-                      ),
-                      side: BorderSide.none,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
+                    child: Center(
+                      child: Text(
+                        '${widget.index + 1}',
+                        style: TextStyle(
+                          color: done
+                              ? AppColors.accent
+                              : AppColors.textSecondary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
+              Expanded(
+                flex: SessionSetColumns.previous,
+                child: _PreviousCell(
+                  previous: widget.previous,
+                  onTap: done ? null : widget.onUsePrevious,
+                ),
+              ),
+              Expanded(
+                flex: SessionSetColumns.weight,
+                child: _NumField(
+                  controller: _weightCtrl,
+                  hint: '0',
+                  isInteger: false,
+                  done: done,
+                  onChanged: (v) => _edit(
+                    () => widget.set.weight =
+                        double.tryParse(v.replaceAll(',', '.')) ?? 0,
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: SessionSetColumns.reps,
+                child: _NumField(
+                  controller: _repsCtrl,
+                  hint: '0',
+                  isInteger: true,
+                  done: done,
+                  onChanged: (v) =>
+                      _edit(() => widget.set.reps = int.tryParse(v) ?? 0),
+                ),
+              ),
+              Expanded(
+                flex: SessionSetColumns.done,
+                // The whole cell toggles the set, not just the checkbox, so it
+                // is easy to hit between sets.
+                child: GestureDetector(
+                  onTap: _toggle,
+                  behavior: HitTestBehavior.opaque,
+                  excludeFromSemantics: true,
+                  child: SizedBox(
+                    height: 52,
+                    child: Center(
+                      child: Transform.scale(
+                        scale: 1.3,
+                        child: Checkbox(
+                          value: done,
+                          onChanged: (_) => _toggle(),
+                          semanticLabel: setLabel,
+                          activeColor: AppColors.accent,
+                          checkColor: Colors.white,
+                          fillColor: WidgetStateProperty.resolveWith(
+                            (states) => states.contains(WidgetState.selected)
+                                ? AppColors.accent
+                                : AppColors.bgCardLight,
+                          ),
+                          side: BorderSide.none,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
+          if (widget.showSteppers && !done) _buildSteppers(context, l10n),
         ],
       ),
     );
@@ -234,6 +296,39 @@ class _SessionSetRowState extends State<SessionSetRow> {
           ),
         ),
         child: row,
+      ),
+    );
+  }
+}
+
+class _StepButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _StepButton({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 3),
+        child: OutlinedButton(
+          onPressed: onTap,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.primaryLight,
+            side: BorderSide(color: AppColors.bgCardLight),
+            minimumSize: const Size(0, 40),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          child: FittedBox(fit: BoxFit.scaleDown, child: Text(label)),
+        ),
       ),
     );
   }

@@ -930,6 +930,15 @@ class SJa extends S {
   String get train_removeSet => 'セットを削除';
 
   @override
+  String get profile_keepScreenOn => 'トレーニング中は画面をオンのまま';
+
+  @override
+  String get profile_keepScreenOnSubtitle => 'セット間に端末がロックされるのを防ぎます';
+
+  @override
+  String get train_repShort => '回';
+
+  @override
   String get rest_label => '休憩';
 
   @override

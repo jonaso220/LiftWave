@@ -978,6 +978,16 @@ class SFr extends S {
   String get train_removeSet => 'Supprimer la série';
 
   @override
+  String get profile_keepScreenOn => 'Écran allumé pendant l\'entraînement';
+
+  @override
+  String get profile_keepScreenOnSubtitle =>
+      'Empêche le téléphone de se verrouiller entre les séries';
+
+  @override
+  String get train_repShort => 'rép.';
+
+  @override
   String get rest_label => 'Repos';
 
   @override

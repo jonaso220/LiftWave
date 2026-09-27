@@ -154,7 +154,7 @@ class ProgressionService {
       return ProgressionRecommendation(
         previousWeight: workingWeight,
         previousReps: previousReps,
-        suggestedWeight: workingWeight + _incrementFor(equipment),
+        suggestedWeight: workingWeight + loadIncrementFor(equipment),
         suggestedReps: range.min,
         action: ProgressionAction.increaseLoad,
         range: range,
@@ -182,7 +182,9 @@ class ProgressionService {
     );
   }
 
-  static double _incrementFor(String equipment) {
+  /// Smallest practical load jump: 2 kg for dumbbells and kettlebells
+  /// (sold in 2 kg steps), 2.5 kg otherwise.
+  static double loadIncrementFor(String equipment) {
     final normalized = _normalize(equipment);
     if (normalized.contains('mancuerna') ||
         normalized.contains('dumbbell') ||
@@ -190,6 +192,14 @@ class ProgressionService {
       return 2;
     }
     return 2.5;
+  }
+
+  /// Exercises done without external load, where only reps change.
+  static bool isBodyweight(String equipment) {
+    final normalized = _normalize(equipment);
+    return normalized == 'peso corporal' ||
+        normalized == 'sin material' ||
+        normalized == 'bodyweight';
   }
 
   static String _normalize(String value) =>
