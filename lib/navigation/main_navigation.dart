@@ -53,7 +53,7 @@ class _MainNavigationState extends State<MainNavigation> {
     final scale = uiScaleForWidth(MediaQuery.of(context).size.width);
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.bgCard,
         border: Border(top: BorderSide(color: AppColors.bgCardLight, width: 1)),
       ),

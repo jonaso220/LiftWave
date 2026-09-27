@@ -604,6 +604,18 @@ class SEn extends S {
       'Goal, experience, days, and equipment';
 
   @override
+  String get profile_appearance => 'Appearance';
+
+  @override
+  String get appearance_system => 'Automatic (match phone)';
+
+  @override
+  String get appearance_light => 'Light';
+
+  @override
+  String get appearance_dark => 'Dark';
+
+  @override
   String get onboarding_title => 'Personalize your training';
 
   @override
@@ -952,6 +964,27 @@ class SEn extends S {
 
   @override
   String get train_removeSet => 'Remove set';
+
+  @override
+  String get train_newRecords => 'New records';
+
+  @override
+  String train_recordLine(String weight, String previous) {
+    return '$weight kg (was $previous kg)';
+  }
+
+  @override
+  String train_volumeUp(String kg) {
+    return '+$kg kg volume vs. last time';
+  }
+
+  @override
+  String train_volumeDown(String kg) {
+    return '$kg kg less volume than last time';
+  }
+
+  @override
+  String get train_volumeSame => 'Same volume as last time';
 
   @override
   String get train_discardWorkout => 'Discard';

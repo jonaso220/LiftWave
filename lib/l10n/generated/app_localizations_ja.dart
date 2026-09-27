@@ -591,6 +591,18 @@ class SJa extends S {
   String get profile_trainingPreferencesSubtitle => '目標、経験、日数、器具';
 
   @override
+  String get profile_appearance => '外観';
+
+  @override
+  String get appearance_system => '自動（端末の設定）';
+
+  @override
+  String get appearance_light => 'ライト';
+
+  @override
+  String get appearance_dark => 'ダーク';
+
+  @override
   String get onboarding_title => 'トレーニングをカスタマイズ';
 
   @override
@@ -916,6 +928,27 @@ class SJa extends S {
 
   @override
   String get train_removeSet => 'セットを削除';
+
+  @override
+  String get train_newRecords => '新記録';
+
+  @override
+  String train_recordLine(String weight, String previous) {
+    return '$weight kg（以前の最高 $previous kg）';
+  }
+
+  @override
+  String train_volumeUp(String kg) {
+    return '前回より総重量 +$kg kg';
+  }
+
+  @override
+  String train_volumeDown(String kg) {
+    return '前回より総重量 −$kg kg';
+  }
+
+  @override
+  String get train_volumeSame => '前回と同じ総重量';
 
   @override
   String get train_discardWorkout => '破棄する';

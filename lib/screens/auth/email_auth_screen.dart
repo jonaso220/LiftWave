@@ -135,7 +135,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
         backgroundColor: AppColors.bgDark,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             color: AppColors.textPrimary,
             size: 20,
@@ -146,7 +146,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
           _isRegister
               ? S.of(context).emailAuth_titleRegister
               : S.of(context).emailAuth_titleLogin,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -168,7 +168,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                   _isRegister
                       ? S.of(context).emailAuth_greetingRegister
                       : S.of(context).emailAuth_greetingLogin,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
@@ -182,7 +182,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                   _isRegister
                       ? S.of(context).emailAuth_subtitleRegister
                       : S.of(context).emailAuth_subtitleLogin,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 14,
                   ),
@@ -331,9 +331,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                             text: _isRegister
                                 ? S.of(context).emailAuth_hasAccount
                                 : S.of(context).emailAuth_noAccount,
-                            style: const TextStyle(
-                              color: AppColors.textSecondary,
-                            ),
+                            style: TextStyle(color: AppColors.textSecondary),
                           ),
                           TextSpan(
                             text: _isRegister
@@ -363,7 +361,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
 
   Widget _buildLabel(String text) => Text(
     text,
-    style: const TextStyle(
+    style: TextStyle(
       color: AppColors.textSecondary,
       fontSize: 13,
       fontWeight: FontWeight.w500,
@@ -384,7 +382,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
       validator: validator,
       keyboardType: keyboardType,
       obscureText: obscureText,
-      style: const TextStyle(color: AppColors.textPrimary, fontSize: 15),
+      style: TextStyle(color: AppColors.textPrimary, fontSize: 15),
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: Icon(icon, color: AppColors.textMuted, size: 20),
@@ -397,7 +395,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.bgCardLight, width: 1),
+          borderSide: BorderSide(color: AppColors.bgCardLight, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),

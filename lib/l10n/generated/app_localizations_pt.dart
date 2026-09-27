@@ -609,6 +609,18 @@ class SPt extends S {
       'Objetivo, experiência, dias e equipamentos';
 
   @override
+  String get profile_appearance => 'Aparência';
+
+  @override
+  String get appearance_system => 'Automático (conforme o celular)';
+
+  @override
+  String get appearance_light => 'Claro';
+
+  @override
+  String get appearance_dark => 'Escuro';
+
+  @override
   String get onboarding_title => 'Personalize seu treino';
 
   @override
@@ -958,6 +970,27 @@ class SPt extends S {
 
   @override
   String get train_removeSet => 'Remover série';
+
+  @override
+  String get train_newRecords => 'Novos recordes';
+
+  @override
+  String train_recordLine(String weight, String previous) {
+    return '$weight kg (antes $previous kg)';
+  }
+
+  @override
+  String train_volumeUp(String kg) {
+    return '+$kg kg de volume em relação à última vez';
+  }
+
+  @override
+  String train_volumeDown(String kg) {
+    return '$kg kg a menos de volume que na última vez';
+  }
+
+  @override
+  String get train_volumeSame => 'Mesmo volume da última vez';
 
   @override
   String get train_discardWorkout => 'Descartar';

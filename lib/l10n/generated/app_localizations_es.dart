@@ -611,6 +611,18 @@ class SEs extends S {
       'Objetivo, experiencia, días y equipamiento';
 
   @override
+  String get profile_appearance => 'Apariencia';
+
+  @override
+  String get appearance_system => 'Automático (según el teléfono)';
+
+  @override
+  String get appearance_light => 'Claro';
+
+  @override
+  String get appearance_dark => 'Oscuro';
+
+  @override
   String get onboarding_title => 'Personaliza tu entrenamiento';
 
   @override
@@ -961,6 +973,27 @@ class SEs extends S {
 
   @override
   String get train_removeSet => 'Eliminar serie';
+
+  @override
+  String get train_newRecords => 'Nuevos récords';
+
+  @override
+  String train_recordLine(String weight, String previous) {
+    return '$weight kg (antes $previous kg)';
+  }
+
+  @override
+  String train_volumeUp(String kg) {
+    return '+$kg kg de volumen respecto a la última vez';
+  }
+
+  @override
+  String train_volumeDown(String kg) {
+    return '$kg kg menos de volumen que la última vez';
+  }
+
+  @override
+  String get train_volumeSame => 'Mismo volumen que la última vez';
 
   @override
   String get train_discardWorkout => 'Descartar';

@@ -29,7 +29,7 @@ class ProBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: AppColors.accentYellow.withAlpha(80)),
       ),
-      child: const Text(
+      child: Text(
         'PRO',
         style: TextStyle(
           color: AppColors.accentYellow,

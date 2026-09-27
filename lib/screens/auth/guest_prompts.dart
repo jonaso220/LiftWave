@@ -24,25 +24,25 @@ Future<void> maybeShowSaveProgressPrompt(BuildContext context) async {
     context: context,
     builder: (ctx) => AlertDialog(
       backgroundColor: AppColors.bgCard,
-      icon: const Icon(
+      icon: Icon(
         Icons.cloud_upload_outlined,
         color: AppColors.primaryLight,
         size: 32,
       ),
       title: Text(
         l10n.guest_saveProgressTitle,
-        style: const TextStyle(color: AppColors.textPrimary),
+        style: TextStyle(color: AppColors.textPrimary),
       ),
       content: Text(
         l10n.guest_saveProgressBody,
-        style: const TextStyle(color: AppColors.textSecondary),
+        style: TextStyle(color: AppColors.textSecondary),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(ctx, false),
           child: Text(
             l10n.guest_notNow,
-            style: const TextStyle(color: AppColors.textMuted),
+            style: TextStyle(color: AppColors.textMuted),
           ),
         ),
         TextButton(
@@ -70,11 +70,11 @@ Future<bool> confirmSwitchFromGuest(BuildContext context) async {
       backgroundColor: AppColors.bgCard,
       title: Text(
         l10n.guest_existingAccountTitle,
-        style: const TextStyle(color: AppColors.textPrimary),
+        style: TextStyle(color: AppColors.textPrimary),
       ),
       content: Text(
         l10n.guest_existingAccountBody,
-        style: const TextStyle(color: AppColors.textSecondary),
+        style: TextStyle(color: AppColors.textSecondary),
       ),
       actions: [
         TextButton(

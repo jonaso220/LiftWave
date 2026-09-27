@@ -46,10 +46,7 @@ class _AchievementsViewState extends State<AchievementsView> {
                     ? l10n.home_noAchievements
                     : l10n.home_achievements,
                 style: unlocked == 0
-                    ? const TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 13,
-                      )
+                    ? TextStyle(color: AppColors.textSecondary, fontSize: 13)
                     : Theme.of(context).textTheme.headlineSmall,
               ),
             ),
@@ -62,7 +59,7 @@ class _AchievementsViewState extends State<AchievementsView> {
               ),
               child: Text(
                 '$unlocked/${achievements.length}',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.accentYellow,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -112,7 +109,7 @@ class _AchievementsViewState extends State<AchievementsView> {
                       const SizedBox(height: 2),
                       Text(
                         a.description,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textMuted,
                           fontSize: 12,
                         ),
@@ -124,10 +121,7 @@ class _AchievementsViewState extends State<AchievementsView> {
                   const SizedBox(width: 8),
                   Text(
                     '${a.unlockedAt!.day}/${a.unlockedAt!.month}/${a.unlockedAt!.year}',
-                    style: const TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 11,
-                    ),
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 11),
                   ),
                 ],
               ],

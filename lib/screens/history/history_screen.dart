@@ -192,7 +192,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.history_rounded,
                         color: AppColors.textMuted,
                         size: 56,
@@ -200,7 +200,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       const SizedBox(height: 16),
                       Text(
                         S.of(context).history_noWorkoutsYet,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
@@ -209,7 +209,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       const SizedBox(height: 8),
                       Text(
                         S.of(context).history_noWorkoutsSubtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textMuted,
                           fontSize: 13,
                           height: 1.5,
@@ -351,7 +351,7 @@ class _SummaryItem extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -360,7 +360,7 @@ class _SummaryItem extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 11),
           ),
         ],
       ),
@@ -534,7 +534,7 @@ class _WorkoutHistoryCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.chevron_right_rounded,
                       color: AppColors.textMuted,
                     ),
@@ -629,7 +629,7 @@ class _RoutineDayHistoryCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  const Icon(
+                  Icon(
                     Icons.chevron_right_rounded,
                     color: AppColors.textMuted,
                     size: 20,
@@ -641,7 +641,7 @@ class _RoutineDayHistoryCard extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -650,10 +650,7 @@ class _RoutineDayHistoryCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 l10n.history_sessionCount(workouts.length),
-                style: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 11,
-                ),
+                style: TextStyle(color: AppColors.textMuted, fontSize: 11),
               ),
             ],
           ),
@@ -726,7 +723,7 @@ class _RoutineDayHistoryScreenState extends State<_RoutineDayHistoryScreen> {
           const SizedBox(height: 4),
           Text(
             S.of(context).history_dayRoutineHint,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textMuted,
               fontSize: 12,
               height: 1.4,
@@ -774,7 +771,7 @@ class _HistStat extends StatelessWidget {
         children: [
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -783,7 +780,7 @@ class _HistStat extends StatelessWidget {
           const SizedBox(height: 1),
           Text(
             label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 10),
           ),
         ],
       ),

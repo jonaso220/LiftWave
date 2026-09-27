@@ -66,17 +66,17 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
             child: TextField(
               autofocus: true,
               onChanged: (v) => setState(() => _query = v),
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: AppColors.textPrimary),
               decoration: InputDecoration(
                 hintText: S.of(context).picker_searchHint,
-                prefixIcon: const Icon(
+                prefixIcon: Icon(
                   Icons.search_rounded,
                   color: AppColors.textMuted,
                   size: 20,
                 ),
                 suffixIcon: _query.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.close_rounded,
                           color: AppColors.textMuted,
                           size: 18,
@@ -151,10 +151,7 @@ class _ExercisePickerScreenState extends State<ExercisePickerScreen> {
                   const SizedBox(height: 3),
                   Text(
                     S.of(context).picker_createManualSubtitle,
-                    style: const TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 11,
-                    ),
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 11),
                   ),
                 ],
               ),
@@ -298,7 +295,7 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
               const SizedBox(height: 16),
               Text(
                 S.of(context).picker_createTitle,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -309,7 +306,7 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
               // Name
               Text(
                 S.of(context).picker_nameLabel,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -319,7 +316,7 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
               TextField(
                 controller: _nameCtrl,
                 autofocus: true,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: AppColors.textPrimary),
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
                   hintText: S.of(context).picker_nameHint,
@@ -341,7 +338,7 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
               // Muscle group
               Text(
                 S.of(context).picker_muscleGroupLabel,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -381,7 +378,7 @@ class _CreateExerciseSheetState extends State<_CreateExerciseSheet> {
               // Equipment
               Text(
                 S.of(context).picker_equipmentLabel,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -512,7 +509,7 @@ class _ExerciseRow extends StatelessWidget {
                             l10n,
                             exercise.equipment,
                           ),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 11,
                           ),

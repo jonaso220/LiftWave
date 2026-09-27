@@ -1205,6 +1205,30 @@ abstract class S {
   /// **'Objetivo, experiencia, días y equipamiento'**
   String get profile_trainingPreferencesSubtitle;
 
+  /// No description provided for @profile_appearance.
+  ///
+  /// In es, this message translates to:
+  /// **'Apariencia'**
+  String get profile_appearance;
+
+  /// No description provided for @appearance_system.
+  ///
+  /// In es, this message translates to:
+  /// **'Automático (según el teléfono)'**
+  String get appearance_system;
+
+  /// No description provided for @appearance_light.
+  ///
+  /// In es, this message translates to:
+  /// **'Claro'**
+  String get appearance_light;
+
+  /// No description provided for @appearance_dark.
+  ///
+  /// In es, this message translates to:
+  /// **'Oscuro'**
+  String get appearance_dark;
+
   /// No description provided for @onboarding_title.
   ///
   /// In es, this message translates to:
@@ -1810,6 +1834,36 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Eliminar serie'**
   String get train_removeSet;
+
+  /// No description provided for @train_newRecords.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevos récords'**
+  String get train_newRecords;
+
+  /// No description provided for @train_recordLine.
+  ///
+  /// In es, this message translates to:
+  /// **'{weight} kg (antes {previous} kg)'**
+  String train_recordLine(String weight, String previous);
+
+  /// No description provided for @train_volumeUp.
+  ///
+  /// In es, this message translates to:
+  /// **'+{kg} kg de volumen respecto a la última vez'**
+  String train_volumeUp(String kg);
+
+  /// No description provided for @train_volumeDown.
+  ///
+  /// In es, this message translates to:
+  /// **'{kg} kg menos de volumen que la última vez'**
+  String train_volumeDown(String kg);
+
+  /// No description provided for @train_volumeSame.
+  ///
+  /// In es, this message translates to:
+  /// **'Mismo volumen que la última vez'**
+  String get train_volumeSame;
 
   /// No description provided for @train_discardWorkout.
   ///

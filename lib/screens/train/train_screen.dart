@@ -20,6 +20,7 @@ import '../../services/rest_timer_controller.dart';
 import '../../services/progression_service.dart';
 import '../../services/watch_service.dart';
 import '../../services/weekly_plan_service.dart';
+import '../../services/workout_summary_service.dart';
 import '../../services/workout_launcher.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/exercise_localization.dart';
@@ -127,11 +128,11 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
         backgroundColor: AppColors.bgCard,
         title: Text(
           l10n.train_resumeTitle,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
           l10n.train_resumeBody(snapshot.workoutName ?? l10n.train_freeWorkout),
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
@@ -560,11 +561,11 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
         backgroundColor: AppColors.bgCard,
         title: Text(
           l10n.train_cancelWorkout,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
           l10n.train_cancelConfirm,
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
@@ -648,16 +649,31 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     final completedExercises = _exercises
         .where((exercise) => exercise.completedSets > 0)
         .length;
+    // The session is not saved yet, so the store only holds earlier ones.
+    final history = WorkoutStore.instance.workouts;
+    final records = WorkoutSummaryService.personalRecords(
+      exercises: _exercises,
+      history: history,
+    );
+    final comparison = WorkoutSummaryService.compareWithPrevious(
+      workoutName: _workoutName,
+      routineDay: _routineDay,
+      routineOrder: _routineOrder,
+      volume: totalVolume,
+      history: history,
+    );
+    final locale = Localizations.localeOf(context).toString();
 
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
+        scrollable: true,
         backgroundColor: AppColors.bgCard,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.emoji_events_rounded,
               color: AppColors.accentYellow,
               size: 24,
@@ -665,7 +681,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
             const SizedBox(width: 8),
             Text(
               l10n.train_workoutCompleted,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -727,6 +743,20 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
               value: '$totalVolume kg',
               color: AppColors.accentYellow,
             ),
+            if (comparison != null) ...[
+              const SizedBox(height: 12),
+              _VolumeComparisonLine(
+                comparison: comparison,
+                formatKg: (kg) => formatWeight(kg.toDouble(), locale),
+              ),
+            ],
+            if (records.isNotEmpty) ...[
+              const SizedBox(height: 14),
+              _PersonalRecordsCard(
+                records: records,
+                formatKg: (kg) => formatWeight(kg, locale),
+              ),
+            ],
           ],
         ),
         actions: [
@@ -852,7 +882,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(
+            Icon(
               Icons.celebration_rounded,
               color: AppColors.accentYellow,
               size: 24,
@@ -860,7 +890,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
             const SizedBox(width: 8),
             Text(
               l10n.train_newAchievement,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -892,7 +922,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                           children: [
                             Text(
                               a.title,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.textPrimary,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
@@ -900,7 +930,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                             ),
                             Text(
                               a.description,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.textMuted,
                                 fontSize: 11,
                               ),
@@ -953,7 +983,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
           backgroundColor: AppColors.bgCard,
           title: Text(
             l10n.train_saveAsRoutine,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -966,7 +996,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
               TextField(
                 controller: nameCtrl,
                 autofocus: true,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: AppColors.textPrimary),
                 textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
                   hintText: l10n.train_routineNameHint,
@@ -985,7 +1015,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
               const SizedBox(height: 14),
               Text(
                 l10n.train_trainingDay,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -995,7 +1025,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
               DropdownButtonFormField<String>(
                 initialValue: selectedDay?.storageKey ?? '',
                 dropdownColor: AppColors.bgCardLight,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: AppColors.textPrimary),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: AppColors.bgCardLight,
@@ -1027,7 +1057,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
               const SizedBox(height: 8),
               Text(
                 l10n.train_trainingDayHint,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textMuted,
                   fontSize: 11,
                   height: 1.35,
@@ -1040,7 +1070,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
               onPressed: () => Navigator.pop(ctx),
               child: Text(
                 l10n.common_cancel,
-                style: const TextStyle(color: AppColors.textMuted),
+                style: TextStyle(color: AppColors.textMuted),
               ),
             ),
             ElevatedButton(
@@ -1189,18 +1219,18 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
         backgroundColor: AppColors.bgCard,
         title: Text(
           l10n.train_deleteExercise,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
           l10n.train_deleteExerciseConfirm(ex.name),
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
               l10n.common_cancel,
-              style: const TextStyle(color: AppColors.textMuted),
+              style: TextStyle(color: AppColors.textMuted),
             ),
           ),
           TextButton(
@@ -1253,7 +1283,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
           title: Text(S.of(context).train_removeCompletedSetTitle),
           content: Text(
             S.of(context).train_removeCompletedSetBody(setIndex + 1),
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
           actions: [
             TextButton(
@@ -1467,7 +1497,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
           backgroundColor: AppColors.bgCard,
           title: Text(
             l10n.train_organizeRoutine,
-            style: const TextStyle(color: AppColors.textPrimary),
+            style: TextStyle(color: AppColors.textPrimary),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1475,7 +1505,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
             children: [
               Text(
                 template.name,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1484,10 +1514,10 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
               DropdownButtonFormField<String>(
                 initialValue: selectedDay?.storageKey ?? '',
                 dropdownColor: AppColors.bgCardLight,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: AppColors.textPrimary),
                 decoration: InputDecoration(
                   labelText: l10n.train_trainingDay,
-                  labelStyle: const TextStyle(color: AppColors.textMuted),
+                  labelStyle: TextStyle(color: AppColors.textMuted),
                   filled: true,
                   fillColor: AppColors.bgCardLight,
                   border: OutlineInputBorder(
@@ -1556,18 +1586,18 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
         backgroundColor: AppColors.bgCard,
         title: Text(
           l10n.train_deleteRoutine,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
           l10n.train_deleteRoutineConfirm(ct.name),
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
               l10n.common_cancel,
-              style: const TextStyle(color: AppColors.textMuted),
+              style: TextStyle(color: AppColors.textMuted),
             ),
           ),
           TextButton(
@@ -1657,7 +1687,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                 const SizedBox(height: 8),
                 Text(
                   l10n.train_readySubtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 14,
                     height: 1.5,
@@ -1761,7 +1791,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
               sliver: SliverToBoxAdapter(
                 child: Text(
                   l10n.train_noAssignedDay,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -1892,7 +1922,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       bottom: false,
       child: Container(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.bgCard,
           border: Border(
             bottom: BorderSide(color: AppColors.bgCardLight, width: 1),
@@ -1949,7 +1979,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                         ),
                         child: Text(
                           _formatTime(_elapsedSeconds),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w700,
                             fontSize: 13,
@@ -1981,7 +2011,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                   ),
                   child: Text(
                     _formatTime(_elapsedSeconds),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
@@ -2051,15 +2081,11 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.add_box_outlined,
-              color: AppColors.textMuted,
-              size: 48,
-            ),
+            Icon(Icons.add_box_outlined, color: AppColors.textMuted, size: 48),
             const SizedBox(height: 12),
             Text(
               l10n.train_noExercisesYet,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -2068,7 +2094,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
             const SizedBox(height: 6),
             Text(
               l10n.train_addExerciseHint,
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -2096,7 +2122,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       top: false,
       child: Container(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.bgCard,
           border: Border(
             top: BorderSide(color: AppColors.bgCardLight, width: 1),

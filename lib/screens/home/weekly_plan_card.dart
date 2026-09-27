@@ -43,7 +43,7 @@ class WeeklyPlanCard extends StatelessWidget {
                 value.completedWorkouts,
                 value.targetWorkouts,
               ),
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.primaryLight,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -90,14 +90,14 @@ class WeeklyPlanCard extends StatelessWidget {
                   minHeight: 7,
                   value: value.adherence,
                   backgroundColor: AppColors.bgCardLight,
-                  valueColor: const AlwaysStoppedAnimation(AppColors.accent),
+                  valueColor: AlwaysStoppedAnimation(AppColors.accent),
                 ),
               ),
               if (value.completedSetsByMuscle.isNotEmpty) ...[
                 const SizedBox(height: 18),
                 Text(
                   l10n.weeklyPlan_muscleBalance,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -159,7 +159,7 @@ class WeeklyPlanCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.auto_awesome_rounded,
                 color: AppColors.primaryLight,
                 size: 28,
@@ -171,7 +171,7 @@ class WeeklyPlanCard extends StatelessWidget {
                   children: [
                     Text(
                       l10n.weeklyPlan_setupTitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w700,
                       ),
@@ -179,7 +179,7 @@ class WeeklyPlanCard extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       l10n.weeklyPlan_setupSubtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 11,
                       ),
@@ -247,7 +247,7 @@ class _Metric extends StatelessWidget {
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 9),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 9),
           ),
         ],
       ),
@@ -279,10 +279,7 @@ class _MuscleProgress extends StatelessWidget {
             child: Text(
               label,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 10,
-              ),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 10),
             ),
           ),
           Expanded(
@@ -341,7 +338,7 @@ class _NextWorkout extends StatelessWidget {
               color: AppColors.primary.withAlpha(38),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.auto_awesome_rounded,
               color: AppColors.primaryLight,
               size: 21,
@@ -354,7 +351,7 @@ class _NextWorkout extends StatelessWidget {
               children: [
                 Text(
                   l10n.weeklyPlan_nextSession,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
@@ -362,7 +359,7 @@ class _NextWorkout extends StatelessWidget {
                 ),
                 Text(
                   workout.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -370,7 +367,7 @@ class _NextWorkout extends StatelessWidget {
                 ),
                 Text(
                   l10n.weeklyPlan_exerciseCount(workout.exercises.length),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 10,
                   ),
@@ -402,12 +399,12 @@ class _CompletedPlan extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(Icons.check_circle_rounded, color: AppColors.accent),
+        Icon(Icons.check_circle_rounded, color: AppColors.accent),
         const SizedBox(width: 9),
         Expanded(
           child: Text(
             message,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontWeight: FontWeight.w700,
             ),
@@ -433,15 +430,12 @@ class _UnavailablePlan extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(Icons.info_outline_rounded, color: AppColors.warning),
+        Icon(Icons.info_outline_rounded, color: AppColors.warning),
         const SizedBox(width: 9),
         Expanded(
           child: Text(
             message,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 11,
-            ),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 11),
           ),
         ),
         TextButton(onPressed: onConfigure, child: Text(button)),

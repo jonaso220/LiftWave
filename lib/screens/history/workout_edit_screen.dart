@@ -65,7 +65,7 @@ class _WorkoutEditScreenState extends State<WorkoutEditScreen> {
         title: Text(S.of(context).common_discardChangesTitle),
         content: Text(
           S.of(context).common_discardChangesBody,
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
@@ -203,7 +203,7 @@ class _ExerciseCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     ExerciseLocalization.name(l10n, editable.name),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -219,16 +219,10 @@ class _ExerciseCard extends StatelessWidget {
               controller: editable.notesCtrl,
               maxLines: 2,
               minLines: 1,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 13,
-              ),
+              style: TextStyle(color: AppColors.textPrimary, fontSize: 13),
               decoration: InputDecoration(
                 hintText: l10n.train_notesHint,
-                hintStyle: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 13,
-                ),
+                hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 13),
                 filled: true,
                 fillColor: AppColors.bgCardLight,
                 border: OutlineInputBorder(
@@ -252,7 +246,7 @@ class _ExerciseCard extends StatelessWidget {
                   child: Text(
                     l10n.train_setHeader,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -264,7 +258,7 @@ class _ExerciseCard extends StatelessWidget {
                   child: Text(
                     l10n.common_reps,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -276,7 +270,7 @@ class _ExerciseCard extends StatelessWidget {
                   child: Text(
                     l10n.train_weightHeader,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -306,7 +300,7 @@ class _ExerciseCard extends StatelessWidget {
                       child: Center(
                         child: Text(
                           '${i + 1}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -376,7 +370,7 @@ class _NumberField extends StatelessWidget {
           allowDecimal ? RegExp(r'^\d*[\.,]?\d*') : RegExp(r'^\d*'),
         ),
       ],
-      style: const TextStyle(
+      style: TextStyle(
         color: AppColors.textPrimary,
         fontSize: 15,
         fontWeight: FontWeight.w700,

@@ -49,11 +49,11 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
         backgroundColor: AppColors.bgCard,
         title: Text(
           S.of(context).exercises_deleteTitle,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
           S.of(context).exercises_deleteConfirm(ex.name),
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
@@ -201,10 +201,10 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
     return TextField(
       controller: _searchCtrl,
       onChanged: (v) => setState(() => _searchQuery = v),
-      style: const TextStyle(color: AppColors.textPrimary),
+      style: TextStyle(color: AppColors.textPrimary),
       decoration: InputDecoration(
         hintText: S.of(context).exercises_searchHint,
-        prefixIcon: const Icon(
+        prefixIcon: Icon(
           Icons.search_rounded,
           color: AppColors.textMuted,
           size: 20,
@@ -215,7 +215,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                   _searchCtrl.clear();
                   setState(() => _searchQuery = '');
                 },
-                child: const Icon(
+                child: Icon(
                   Icons.close_rounded,
                   color: AppColors.textMuted,
                   size: 18,
@@ -232,7 +232,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
       children: [
         Text(
           S.of(context).exercises_muscleFilter,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textMuted,
             fontSize: 11,
             fontWeight: FontWeight.w600,
@@ -292,7 +292,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
       children: [
         Text(
           S.of(context).exercises_equipmentFilter,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textMuted,
             fontSize: 11,
             fontWeight: FontWeight.w600,
@@ -353,15 +353,11 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
       padding: const EdgeInsets.symmetric(vertical: 60),
       child: Column(
         children: [
-          const Icon(
-            Icons.search_off_rounded,
-            color: AppColors.textMuted,
-            size: 48,
-          ),
+          Icon(Icons.search_off_rounded, color: AppColors.textMuted, size: 48),
           const SizedBox(height: 12),
           Text(
             S.of(context).exercises_noResults,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -513,7 +509,7 @@ class _ExerciseCard extends StatelessWidget {
                           ),
                           child: Text(
                             displayEquipment,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textMuted,
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
@@ -534,7 +530,7 @@ class _ExerciseCard extends StatelessWidget {
                       button: true,
                       child: GestureDetector(
                         onTap: onDelete,
-                        child: const Icon(
+                        child: Icon(
                           Icons.delete_outline_rounded,
                           color: AppColors.textMuted,
                           size: 20,
@@ -774,7 +770,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                           ),
                           child: Text(
                             ExerciseLocalization.secondaryMuscle(l10n, m),
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textSecondary,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -844,7 +840,7 @@ class _ExerciseDetailSheet extends StatelessWidget {
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.accent,
-                    side: const BorderSide(color: AppColors.accent),
+                    side: BorderSide(color: AppColors.accent),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -930,7 +926,7 @@ class _InfoTile extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -939,7 +935,7 @@ class _InfoTile extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 11),
           ),
         ],
       ),

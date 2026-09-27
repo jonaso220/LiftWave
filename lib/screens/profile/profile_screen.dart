@@ -6,6 +6,7 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 
 import '../../services/auth_service.dart';
 import '../../services/subscription_service.dart';
+import '../../services/theme_controller.dart';
 import '../../theme/app_theme.dart';
 import '../auth/guest_prompts.dart';
 import '../onboarding/training_preferences_screen.dart';
@@ -69,7 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Text(
                         user.displayName!,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
@@ -79,7 +80,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Text(
                       user.email ?? '',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 13,
                       ),
@@ -97,20 +98,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         title: Text(
                           isPro ? 'LiftWave PRO' : l10n.profile_freePlan,
-                          style: const TextStyle(color: AppColors.textPrimary),
+                          style: TextStyle(color: AppColors.textPrimary),
                         ),
                         subtitle: Text(
                           isPro
                               ? l10n.profile_proActive
                               : l10n.profile_upgradePro,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 12,
                           ),
                         ),
                         trailing: isPro
                             ? null
-                            : const Icon(
+                            : Icon(
                                 Icons.chevron_right_rounded,
                                 color: AppColors.textMuted,
                               ),
@@ -124,13 +125,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                       ),
                       ListTile(
-                        leading: const Icon(
+                        leading: Icon(
                           Icons.restore_rounded,
                           color: AppColors.textSecondary,
                         ),
                         title: Text(
                           l10n.profile_restorePurchases,
-                          style: const TextStyle(color: AppColors.textPrimary),
+                          style: TextStyle(color: AppColors.textPrimary),
                         ),
                         onTap: _restorePurchases,
                       ),
@@ -140,26 +141,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _Section(
                     children: [
                       ListTile(
-                        leading: const Icon(
+                        leading: Icon(
                           Icons.tune_rounded,
                           color: AppColors.primaryLight,
                         ),
                         title: Text(
                           l10n.profile_trainingPreferences,
-                          style: const TextStyle(color: AppColors.textPrimary),
+                          style: TextStyle(color: AppColors.textPrimary),
                         ),
                         subtitle: Text(
                           l10n.profile_trainingPreferencesSubtitle,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 12,
                           ),
                         ),
-                        trailing: const Icon(
+                        trailing: Icon(
                           Icons.chevron_right_rounded,
                           color: AppColors.textMuted,
                         ),
                         onTap: () => openTrainingPreferences(context),
+                      ),
+                      ListTile(
+                        leading: Icon(
+                          AppColors.brightness == Brightness.dark
+                              ? Icons.dark_mode_rounded
+                              : Icons.light_mode_rounded,
+                          color: AppColors.primaryLight,
+                        ),
+                        title: Text(
+                          l10n.profile_appearance,
+                          style: TextStyle(color: AppColors.textPrimary),
+                        ),
+                        subtitle: Text(
+                          _appearanceLabel(l10n, ThemeController.instance.mode),
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 12,
+                          ),
+                        ),
+                        trailing: Icon(
+                          Icons.chevron_right_rounded,
+                          color: AppColors.textMuted,
+                        ),
+                        onTap: _chooseAppearance,
                       ),
                     ],
                   ),
@@ -184,15 +209,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _Section(
                       children: [
                         ListTile(
-                          leading: const Icon(
+                          leading: Icon(
                             Icons.logout_rounded,
                             color: AppColors.textSecondary,
                           ),
                           title: Text(
                             l10n.profile_signOut,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
-                            ),
+                            style: TextStyle(color: AppColors.textPrimary),
                           ),
                           onTap: () => AuthService.instance.signOut(),
                         ),
@@ -216,6 +239,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
+
+  static String _appearanceLabel(S l10n, ThemeMode mode) => switch (mode) {
+    ThemeMode.system => l10n.appearance_system,
+    ThemeMode.light => l10n.appearance_light,
+    ThemeMode.dark => l10n.appearance_dark,
+  };
+
+  Future<void> _chooseAppearance() async {
+    final l10n = S.of(context);
+    final current = ThemeController.instance.mode;
+    final choice = await showModalBottomSheet<ThemeMode>(
+      context: context,
+      backgroundColor: AppColors.bgCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: RadioGroup<ThemeMode>(
+            groupValue: current,
+            onChanged: (mode) => Navigator.pop(ctx, mode),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+                  child: Text(
+                    l10n.profile_appearance,
+                    style: Theme.of(ctx).textTheme.headlineSmall,
+                  ),
+                ),
+                for (final mode in const [
+                  ThemeMode.system,
+                  ThemeMode.light,
+                  ThemeMode.dark,
+                ])
+                  RadioListTile<ThemeMode>(
+                    value: mode,
+                    activeColor: AppColors.primary,
+                    title: Text(
+                      _appearanceLabel(l10n, mode),
+                      style: TextStyle(color: AppColors.textPrimary),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    if (choice != null) await ThemeController.instance.setMode(choice);
   }
 
   Future<void> _restorePurchases() async {
@@ -267,11 +344,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: AppColors.bgCard,
         title: Text(
           l10n.guest_leave,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
           l10n.guest_leaveBody,
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
@@ -315,11 +392,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           l10n.profile_deleteTitle,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
           l10n.profile_deleteConfirm,
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
@@ -371,7 +448,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           S.of(context).profile_deleteTitle,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         content: TextField(
           controller: controller,
@@ -469,7 +546,7 @@ class ProfileAvatar extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.accentOrange, AppColors.accentYellow],
         ),
@@ -512,7 +589,7 @@ class _GuestCard extends StatelessWidget {
               const SizedBox(width: 12),
               Text(
                 l10n.guest_name,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -523,7 +600,7 @@ class _GuestCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             l10n.guest_saveProgressBody,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 13,
               height: 1.4,

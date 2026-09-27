@@ -206,9 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Row(
                   children: [
-                    const Expanded(
-                      child: Divider(color: AppColors.bgCardLight),
-                    ),
+                    Expanded(child: Divider(color: AppColors.bgCardLight)),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
@@ -219,9 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    const Expanded(
-                      child: Divider(color: AppColors.bgCardLight),
-                    ),
+                    Expanded(child: Divider(color: AppColors.bgCardLight)),
                   ],
                 ),
               ).animate().fadeIn(delay: 350.ms, duration: 400.ms),
@@ -304,7 +300,7 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         Text(
           l10n.login_legalPrefix,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textMuted,
             fontSize: 11,
             height: 1.5,
@@ -328,7 +324,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         Text(
           ' ${l10n.login_legalAnd} ',
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textMuted,
             fontSize: 11,
             height: 1.5,
@@ -350,7 +346,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-        const Text(
+        Text(
           '.',
           style: TextStyle(
             color: AppColors.textMuted,
@@ -392,7 +388,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'LiftWave',
           style: TextStyle(
             color: AppColors.textPrimary,

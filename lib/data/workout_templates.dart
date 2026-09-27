@@ -189,7 +189,7 @@ const List<WorkoutTemplate> workoutTemplates = [
     name: 'Tracción',
     subtitle: 'Espalda · Bíceps',
     icon: Icons.arrow_circle_down_rounded,
-    color: AppColors.accent,
+    color: AppColors.legs, // brand teal, same in both themes
     exercises: [
       TemplateExercise(
         name: 'Peso muerto',
@@ -247,7 +247,7 @@ const List<WorkoutTemplate> workoutTemplates = [
     name: 'Torso',
     subtitle: 'Pecho · Espalda · Hombros',
     icon: Icons.sports_gymnastics_rounded,
-    color: AppColors.accentYellow,
+    color: AppColors.shoulders, // brand yellow, same in both themes
     exercises: [
       TemplateExercise(
         name: 'Press de banca',

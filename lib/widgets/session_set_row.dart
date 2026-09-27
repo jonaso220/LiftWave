@@ -249,7 +249,7 @@ class _PreviousCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final prev = previous;
     if (prev == null) {
-      return const Text(
+      return Text(
         '—',
         textAlign: TextAlign.center,
         style: TextStyle(color: AppColors.textMuted, fontSize: 13),
@@ -264,7 +264,7 @@ class _PreviousCell extends StatelessWidget {
       textAlign: TextAlign.center,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
+      style: TextStyle(
         color: AppColors.textMuted,
         fontSize: 12,
         fontWeight: FontWeight.w600,
@@ -322,7 +322,7 @@ class _NumField extends StatelessWidget {
         ),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14),
+          hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 14),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 6,
             vertical: 10,

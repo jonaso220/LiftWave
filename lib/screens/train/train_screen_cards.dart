@@ -28,7 +28,7 @@ class _RoutineBlockHeader extends StatelessWidget {
           Expanded(
             child: Text(
               name,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
@@ -72,12 +72,12 @@ class _ExerciseNotesFieldState extends State<_ExerciseNotesField> {
     return TextField(
       decoration: InputDecoration(
         hintText: l10n.train_notesHint,
-        hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+        hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 12),
         isDense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         border: InputBorder.none,
       ),
-      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+      style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
       maxLines: 1,
       controller: _controller,
       onChanged: (v) {
@@ -134,7 +134,7 @@ class _ExerciseCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 12, 8, 10),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.drag_handle_rounded,
                   color: AppColors.textMuted,
                   size: 20,
@@ -171,7 +171,7 @@ class _ExerciseCard extends StatelessWidget {
                           if (done > 0)
                             Text(
                               l10n.train_setsProgress(done, total),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.accent,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -185,7 +185,7 @@ class _ExerciseCard extends StatelessWidget {
                                     ? lastW.toStringAsFixed(0)
                                     : lastW.toStringAsFixed(1),
                               ),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.textMuted,
                                 fontSize: 10,
                               ),
@@ -209,7 +209,7 @@ class _ExerciseCard extends StatelessWidget {
                       value: 'progress',
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.show_chart_rounded,
                             color: AppColors.accent,
                             size: 18,
@@ -217,9 +217,7 @@ class _ExerciseCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             l10n.train_viewProgress,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
-                            ),
+                            style: TextStyle(color: AppColors.textPrimary),
                           ),
                           const SizedBox(width: 8),
                           const ProBadge(),
@@ -244,7 +242,7 @@ class _ExerciseCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.more_horiz_rounded,
                     color: AppColors.textMuted,
                   ),
@@ -414,7 +412,7 @@ class _ProgressionSuggestion extends StatelessWidget {
                 color: AppColors.primary.withAlpha(38),
                 borderRadius: BorderRadius.circular(9),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.trending_up_rounded,
                 color: AppColors.primaryLight,
                 size: 19,
@@ -427,7 +425,7 @@ class _ProgressionSuggestion extends StatelessWidget {
                 children: [
                   Text(
                     l10n.train_nextSuggestion,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
@@ -436,7 +434,7 @@ class _ProgressionSuggestion extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     target,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -445,7 +443,7 @@ class _ProgressionSuggestion extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     reason,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
                       height: 1.3,
@@ -491,12 +489,134 @@ class _ColHeader extends StatelessWidget {
       child: Text(
         label,
         textAlign: TextAlign.center,
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.textMuted,
           fontSize: 10,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.5,
         ),
+      ),
+    );
+  }
+}
+
+/// "+150 kg de volumen respecto a la última vez" under the summary stats.
+class _VolumeComparisonLine extends StatelessWidget {
+  final VolumeComparison comparison;
+  final String Function(int kg) formatKg;
+
+  const _VolumeComparisonLine({
+    required this.comparison,
+    required this.formatKg,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    final delta = comparison.delta;
+    final (text, icon, color) = delta > 0
+        ? (
+            l10n.train_volumeUp(formatKg(delta)),
+            Icons.trending_up_rounded,
+            AppColors.accent,
+          )
+        : delta < 0
+        ? (
+            l10n.train_volumeDown(formatKg(-delta)),
+            Icons.trending_down_rounded,
+            AppColors.textMuted,
+          )
+        : (
+            l10n.train_volumeSame,
+            Icons.trending_flat_rounded,
+            AppColors.textMuted,
+          );
+    return Row(
+      children: [
+        Icon(icon, color: color, size: 18),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Lists the exercises where the user lifted more than ever before.
+class _PersonalRecordsCard extends StatelessWidget {
+  final List<PersonalRecord> records;
+  final String Function(double kg) formatKg;
+
+  const _PersonalRecordsCard({required this.records, required this.formatKg});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.accentYellow.withAlpha(25),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.accentYellow.withAlpha(90)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.workspace_premium_rounded,
+                color: AppColors.accentYellow,
+                size: 18,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                l10n.train_newRecords,
+                style: TextStyle(
+                  color: AppColors.accentYellow,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          for (final record in records)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text:
+                          '${ExerciseLocalization.name(l10n, record.exerciseName)}  ',
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    TextSpan(
+                      text: l10n.train_recordLine(
+                        formatKg(record.weight),
+                        formatKg(record.previousBest),
+                      ),
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+                style: const TextStyle(fontSize: 13),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -531,12 +651,12 @@ class _SummaryStat extends StatelessWidget {
         const SizedBox(width: 12),
         Text(
           label,
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
         const Spacer(),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w700,

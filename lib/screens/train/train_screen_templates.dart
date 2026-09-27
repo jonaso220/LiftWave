@@ -52,7 +52,7 @@ class _TemplateCard extends StatelessWidget {
                         children: [
                           Text(
                             displayName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textPrimary,
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -67,7 +67,7 @@ class _TemplateCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         displaySubtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textMuted,
                           fontSize: 12,
                         ),
@@ -97,13 +97,13 @@ class _TemplateCard extends StatelessWidget {
                     ),
                     Text(
                       l10n.train_abbreviationExercises,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 10,
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Icon(
+                    Icon(
                       Icons.chevron_right_rounded,
                       color: AppColors.textMuted,
                       size: 18,
@@ -175,7 +175,7 @@ class _CustomTemplateCard extends StatelessWidget {
                   children: [
                     Text(
                       t.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -184,7 +184,7 @@ class _CustomTemplateCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       l10n.train_exerciseCount(t.exercises.length),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 12,
                       ),
@@ -208,7 +208,7 @@ class _CustomTemplateCard extends StatelessWidget {
                     button: true,
                     child: GestureDetector(
                       onTap: onEdit,
-                      child: const Icon(
+                      child: Icon(
                         Icons.edit_rounded,
                         color: AppColors.primaryLight,
                         size: 19,
@@ -234,7 +234,7 @@ class _CustomTemplateCard extends StatelessWidget {
                     button: true,
                     child: GestureDetector(
                       onTap: onDelete,
-                      child: const Icon(
+                      child: Icon(
                         Icons.delete_outline_rounded,
                         color: AppColors.textMuted,
                         size: 18,
@@ -305,7 +305,7 @@ class _RoutineDayCard extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
@@ -315,7 +315,7 @@ class _RoutineDayCard extends StatelessWidget {
                     Text(
                       '${l10n.train_blockCount(blockCount)} · '
                       '${l10n.train_exerciseCount(exerciseCount)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 12,
                       ),
@@ -323,10 +323,7 @@ class _RoutineDayCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.textMuted,
-              ),
+              Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
             ],
           ),
         ),
@@ -411,7 +408,7 @@ class _RoutineDayScreenState extends State<_RoutineDayScreen> {
           ? Center(
               child: Text(
                 l10n.train_noRoutinesForDay,
-                style: const TextStyle(color: AppColors.textMuted),
+                style: TextStyle(color: AppColors.textMuted),
               ),
             )
           : Column(
@@ -434,7 +431,7 @@ class _RoutineDayScreenState extends State<_RoutineDayScreen> {
                       children: [
                         Text(
                           l10n.train_routineForDay(label),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
@@ -444,7 +441,7 @@ class _RoutineDayScreenState extends State<_RoutineDayScreen> {
                         Text(
                           '${l10n.train_blockCount(blocks.length)} · '
                           '${l10n.train_exerciseCount(exerciseCount)}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 12,
                           ),
@@ -452,7 +449,7 @@ class _RoutineDayScreenState extends State<_RoutineDayScreen> {
                         const SizedBox(height: 8),
                         Text(
                           l10n.train_reorderBlocksHint,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 12,
                           ),
@@ -596,7 +593,7 @@ class _RoutineBlockTile extends StatelessWidget {
             children: [
               ReorderableDragStartListener(
                 index: index,
-                child: const Padding(
+                child: Padding(
                   padding: EdgeInsets.only(right: 10),
                   child: Icon(
                     Icons.drag_handle_rounded,
@@ -631,7 +628,7 @@ class _RoutineBlockTile extends StatelessWidget {
                   children: [
                     Text(
                       template.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -640,7 +637,7 @@ class _RoutineBlockTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       l10n.train_exerciseCount(template.exercises.length),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 11,
                       ),
@@ -672,14 +669,14 @@ class _RoutineBlockTile extends StatelessWidget {
                     value: 'edit',
                     child: Text(
                       l10n.train_editRoutine,
-                      style: const TextStyle(color: AppColors.textPrimary),
+                      style: TextStyle(color: AppColors.textPrimary),
                     ),
                   ),
                   PopupMenuItem(
                     value: 'organize',
                     child: Text(
                       l10n.train_organizeRoutine,
-                      style: const TextStyle(color: AppColors.textPrimary),
+                      style: TextStyle(color: AppColors.textPrimary),
                     ),
                   ),
                   PopupMenuItem(
@@ -690,7 +687,7 @@ class _RoutineBlockTile extends StatelessWidget {
                     ),
                   ),
                 ],
-                icon: const Icon(
+                icon: Icon(
                   Icons.more_horiz_rounded,
                   color: AppColors.textMuted,
                 ),
@@ -747,7 +744,7 @@ class _TemplatePreviewSheet extends StatelessWidget {
       minChildSize: 0.5,
       maxChildSize: 0.95,
       builder: (_, scrollCtrl) => Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.bgCard,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -789,7 +786,7 @@ class _TemplatePreviewSheet extends StatelessWidget {
                       children: [
                         Text(
                           displayName,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
@@ -797,7 +794,7 @@ class _TemplatePreviewSheet extends StatelessWidget {
                         ),
                         Text(
                           displaySubtitle,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 13,
                           ),
@@ -901,7 +898,7 @@ class _CustomTemplatePreviewSheet extends StatelessWidget {
       minChildSize: 0.4,
       maxChildSize: 0.9,
       builder: (_, scrollCtrl) => Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.bgCard,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -944,7 +941,7 @@ class _CustomTemplatePreviewSheet extends StatelessWidget {
                       children: [
                         Text(
                           t.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
@@ -952,7 +949,7 @@ class _CustomTemplatePreviewSheet extends StatelessWidget {
                         ),
                         Text(
                           l10n.train_exerciseCount(t.exercises.length),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 13,
                           ),
@@ -963,7 +960,7 @@ class _CustomTemplatePreviewSheet extends StatelessWidget {
                   IconButton(
                     tooltip: l10n.train_editRoutine,
                     onPressed: onEdit,
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.edit_rounded,
                       color: AppColors.primaryLight,
                       size: 22,
@@ -1083,7 +1080,7 @@ class _PreviewExRow extends StatelessWidget {
               children: [
                 Text(
                   ExerciseLocalization.name(S.of(context), ex.name),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -1092,10 +1089,7 @@ class _PreviewExRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   '${ExerciseLocalization.muscle(S.of(context), ex.muscleGroup)} · ${ExerciseLocalization.equipment(S.of(context), ex.equipment)}',
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 11,
-                  ),
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 11),
                 ),
               ],
             ),
@@ -1105,7 +1099,7 @@ class _PreviewExRow extends StatelessWidget {
             children: [
               Text(
                 '${ex.sets} × ${ex.reps}',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -1113,10 +1107,7 @@ class _PreviewExRow extends StatelessWidget {
               ),
               Text(
                 weightStr,
-                style: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 11,
-                ),
+                style: TextStyle(color: AppColors.textMuted, fontSize: 11),
               ),
             ],
           ),

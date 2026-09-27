@@ -609,6 +609,18 @@ class SDe extends S {
       'Ziel, Erfahrung, Tage und Ausrüstung';
 
   @override
+  String get profile_appearance => 'Darstellung';
+
+  @override
+  String get appearance_system => 'Automatisch (wie Telefon)';
+
+  @override
+  String get appearance_light => 'Hell';
+
+  @override
+  String get appearance_dark => 'Dunkel';
+
+  @override
   String get onboarding_title => 'Personalisiere dein Training';
 
   @override
@@ -959,6 +971,27 @@ class SDe extends S {
 
   @override
   String get train_removeSet => 'Satz entfernen';
+
+  @override
+  String get train_newRecords => 'Neue Rekorde';
+
+  @override
+  String train_recordLine(String weight, String previous) {
+    return '$weight kg (vorher $previous kg)';
+  }
+
+  @override
+  String train_volumeUp(String kg) {
+    return '+$kg kg Volumen im Vergleich zum letzten Mal';
+  }
+
+  @override
+  String train_volumeDown(String kg) {
+    return '$kg kg weniger Volumen als beim letzten Mal';
+  }
+
+  @override
+  String get train_volumeSame => 'Gleiches Volumen wie beim letzten Mal';
 
   @override
   String get train_discardWorkout => 'Verwerfen';

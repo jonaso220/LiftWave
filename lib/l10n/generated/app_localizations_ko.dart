@@ -591,6 +591,18 @@ class SKo extends S {
   String get profile_trainingPreferencesSubtitle => '목표, 경험, 운동 일수 및 기구';
 
   @override
+  String get profile_appearance => '화면 모드';
+
+  @override
+  String get appearance_system => '자동(휴대폰 설정)';
+
+  @override
+  String get appearance_light => '라이트';
+
+  @override
+  String get appearance_dark => '다크';
+
+  @override
   String get onboarding_title => '운동 맞춤 설정';
 
   @override
@@ -916,6 +928,27 @@ class SKo extends S {
 
   @override
   String get train_removeSet => '세트 삭제';
+
+  @override
+  String get train_newRecords => '새 기록';
+
+  @override
+  String train_recordLine(String weight, String previous) {
+    return '$weight kg (이전 $previous kg)';
+  }
+
+  @override
+  String train_volumeUp(String kg) {
+    return '지난번보다 볼륨 +$kg kg';
+  }
+
+  @override
+  String train_volumeDown(String kg) {
+    return '지난번보다 볼륨 −$kg kg';
+  }
+
+  @override
+  String get train_volumeSame => '지난번과 같은 볼륨';
 
   @override
   String get train_discardWorkout => '삭제';

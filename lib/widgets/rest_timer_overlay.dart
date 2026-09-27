@@ -217,7 +217,7 @@ class _MiniButton extends StatelessWidget {
               child: Center(
                 child: Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -337,7 +337,7 @@ class _RestTimerSheetState extends State<_RestTimerSheet> {
           const SizedBox(height: 20),
           Text(
             l10n.restTimer_title,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -346,7 +346,7 @@ class _RestTimerSheetState extends State<_RestTimerSheet> {
           const SizedBox(height: 24),
           Text(
             _format(_c.remaining),
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 64,
               fontWeight: FontWeight.w800,
@@ -356,7 +356,7 @@ class _RestTimerSheetState extends State<_RestTimerSheet> {
           ),
           Text(
             l10n.rest_of(_format(_c.total)),
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 13),
           ),
           const SizedBox(height: 20),
           Row(
@@ -505,7 +505,7 @@ class _AdjustChip extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 13,
               fontWeight: FontWeight.w700,

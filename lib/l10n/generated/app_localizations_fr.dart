@@ -613,6 +613,18 @@ class SFr extends S {
       'Objectif, expérience, jours et équipement';
 
   @override
+  String get profile_appearance => 'Apparence';
+
+  @override
+  String get appearance_system => 'Automatique (selon le téléphone)';
+
+  @override
+  String get appearance_light => 'Clair';
+
+  @override
+  String get appearance_dark => 'Sombre';
+
+  @override
   String get onboarding_title => 'Personnalisez votre entraînement';
 
   @override
@@ -964,6 +976,27 @@ class SFr extends S {
 
   @override
   String get train_removeSet => 'Supprimer la série';
+
+  @override
+  String get train_newRecords => 'Nouveaux records';
+
+  @override
+  String train_recordLine(String weight, String previous) {
+    return '$weight kg (avant $previous kg)';
+  }
+
+  @override
+  String train_volumeUp(String kg) {
+    return '+$kg kg de volume par rapport à la dernière fois';
+  }
+
+  @override
+  String train_volumeDown(String kg) {
+    return '$kg kg de volume en moins que la dernière fois';
+  }
+
+  @override
+  String get train_volumeSame => 'Même volume que la dernière fois';
 
   @override
   String get train_discardWorkout => 'Abandonner';

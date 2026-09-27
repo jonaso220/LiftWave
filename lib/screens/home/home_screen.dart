@@ -530,10 +530,7 @@ class _WeekCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  const Icon(
-                    Icons.chevron_right_rounded,
-                    color: AppColors.textMuted,
-                  ),
+                  Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
                 ],
               ),
               const SizedBox(height: 6),
@@ -555,7 +552,7 @@ class _WeekCard extends StatelessWidget {
                     minHeight: 6,
                     value: value.adherence,
                     backgroundColor: AppColors.bgCardLight,
-                    valueColor: const AlwaysStoppedAnimation(AppColors.accent),
+                    valueColor: AlwaysStoppedAnimation(AppColors.accent),
                   ),
                 ),
               ],
@@ -563,10 +560,7 @@ class _WeekCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   '${l10n.home_weekTime}: $duration  ·  ${l10n.home_weekVolume}: $volume kg',
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                 ),
               ],
               if (value == null) ...[
@@ -599,7 +593,7 @@ class _WorkoutStat extends StatelessWidget {
         children: [
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 15,
               fontWeight: FontWeight.w700,
@@ -608,7 +602,7 @@ class _WorkoutStat extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 11),
           ),
         ],
       ),
