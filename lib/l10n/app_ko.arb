@@ -4,7 +4,6 @@
   "common_cancel": "취소",
   "common_delete": "삭제",
   "common_save": "저장",
-  "common_ok": "확인",
   "common_or": "또는",
   "common_today": "오늘",
   "common_yesterday": "어제",
@@ -24,7 +23,6 @@
   "common_duration": "시간",
   "common_bodyweight": "맨몸",
   "common_custom": "CUSTOM",
-  "common_pro": "PRO",
   "common_discardChangesTitle": "변경 사항을 취소할까요?",
   "common_discardChangesBody": "변경한 내용이 저장되지 않습니다.",
   "common_keepEditing": "계속 편집",
@@ -60,9 +58,6 @@
   "@@info4": "── Navigation ──────────────────────────────────────────────────────",
   "nav_home": "홈",
   "nav_train": "운동",
-  "nav_history": "기록",
-  "nav_rest": "휴식",
-  "nav_exercises": "운동 목록",
   "nav_progress": "진행",
   "nav_profile": "프로필",
   "home_todayTitle": "오늘의 운동",
@@ -91,7 +86,6 @@
   "train_reasonAddRep": "{weight}로 {reps}회 했어요. 무게를 올리기 전에 1회 더 해보세요.",
   "train_reasonConsolidate": "{reps}회로 목표 범위({min}–{max}회)보다 적었어요. {min}회에 도달할 때까지 {weight}를 유지하세요.",
   "train_reasonBodyweight": "{reps}회 했어요. 1회 더 도전해보세요.",
-  "login_legal": "계속하면 이용약관 및\n개인정보 처리방침에 동의하게 됩니다.",
   "login_legalPrefix": "계속하면 ",
   "login_termsLink": "이용약관",
   "login_legalAnd": "및",
@@ -180,12 +174,9 @@
       }
     }
   },
-  "home_startWorkout": "운동 시작",
   "home_thisWeek": "이번 주",
   "home_weekTime": "주간 시간",
   "home_weekVolume": "주간 볼륨",
-  "home_quickAccess": "빠른 접근",
-  "home_quickStart": "빠른 시작",
   "restTimer_title": "휴식",
   "restTimer_openControls": "휴식 타이머 제어 열기",
   "restTimer_addSeconds": "{seconds}초 추가",
@@ -202,24 +193,9 @@
   "editWorkout_title": "운동 편집",
   "editWorkout_saved": "운동이 업데이트되었습니다",
   "home_viewAll": "전체 보기",
-  "home_noWorkoutsYet": "아직 운동 기록이 없습니다",
-  "home_noWorkoutsSubtitle": "첫 번째 운동을 완료하면 여기에 표시됩니다.",
   "home_goToTrain": "운동하러 가기 →",
-  "home_progress": "진행 상황",
-  "home_noRecordsYet": "아직 기록이 없습니다",
-  "home_recordWeightMeasures": "체중과 신체 치수를 기록하세요",
   "home_achievements": "업적",
   "home_noAchievements": "운동을 완료하면 업적이 잠금 해제됩니다",
-  "home_recentExercises": "최근 운동 종목",
-  "home_noRecentExercises": "자주 하는 운동이 여기에 표시됩니다",
-  "home_frequentExercise": "{count}회 수행",
-  "@home_frequentExercise": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "@@info9": "── Profile Menu ────────────────────────────────────────────────────",
   "profile_proActive": "구독 활성화됨",
   "profile_freePlan": "무료 플랜",
@@ -367,19 +343,8 @@
   "train_repsHeader": "횟수",
   "train_weightHeader": "무게",
   "train_addSet": "세트 추가",
-  "train_lastWeight": "이전: {weight} kg",
-  "@train_lastWeight": {
-    "placeholders": {
-      "weight": {
-        "type": "String"
-      }
-    }
-  },
   "train_nextSuggestion": "다음 추천 중량",
   "train_applySuggestion": "적용",
-  "train_increaseLoad": "중량 올리기",
-  "train_addRepetition": "1회 추가",
-  "train_consolidateLoad": "현재 중량 적응",
   "train_abbreviationExercises": "종목",
   "@@info11": "── Exercise Picker ─────────────────────────────────────────────────",
   "picker_title": "운동 선택",
@@ -397,19 +362,8 @@
   "exercises_searchHint": "운동 검색...",
   "exercises_muscleFilter": "근육",
   "exercises_equipmentFilter": "기구",
-  "exercises_exerciseCount": "{count}개 운동{suffix}",
   "exercises_countLabel": "{count}개 운동",
   "exercises_descriptionUnavailable": "이 언어의 자세한 설명은 아직 제공되지 않습니다.",
-  "@exercises_exerciseCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "suffix": {
-        "type": "String"
-      }
-    }
-  },
   "exercises_clearFilters": "필터 초기화",
   "exercises_noResults": "결과 없음",
   "exercises_noResultsHint": "다른 필터나 검색어로 시도해 보세요",
@@ -445,15 +399,6 @@
   "history_allWorkouts": "모든 운동",
   "history_noWorkoutsYet": "아직 운동 기록이 없습니다",
   "history_noWorkoutsSubtitle": "운동 탭에서 첫 번째 운동을 완료하면 여기에 표시됩니다.",
-  "history_limitedHistory": "제한된 기록",
-  "history_unlockWorkouts": "PRO로 {count}개의 운동 기록을 잠금 해제하세요",
-  "@history_unlockWorkouts": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "history_weeklySummary": "주간 요약",
   "history_workouts": "운동",
   "history_total": "합계",
@@ -509,12 +454,8 @@
   "@@info16": "── Paywall Screen ──────────────────────────────────────────────────",
   "paywall_subtitle": "잠재력을 최대한 발휘하세요",
   "paywall_featureTemplates": "모든 기본 루틴",
-  "paywall_featureHistory": "무제한 기록",
-  "paywall_featureTimer": "맞춤 타이머",
-  "paywall_featureDetails": "운동 상세 정보",
   "paywall_featureMeasures": "허리·가슴·엉덩이 둘레와 진행 사진",
   "paywall_featureExerciseProgress": "운동별 진행 그래프",
-  "paywall_featureStats": "주간 통계",
   "paywall_allIncluded": "모두 포함",
   "paywall_weekly": "주간",
   "paywall_monthly": "월간",
@@ -523,7 +464,6 @@
   "paywall_perWeek": "/주",
   "paywall_perMonth": "/월",
   "paywall_perYear": "/년",
-  "paywall_freeTrial": "7일 무료 체험",
   "paywall_startTrial": "무료 체험 시작",
   "paywall_subscribe": "구독하기",
   "paywall_restorePurchases": "구매 복원",
@@ -535,8 +475,6 @@
   "paywall_noPurchasesFound": "이전 구매 내역이 없습니다.",
   "paywall_trialDays": "{count}일 무료",
   "@paywall_trialDays": { "placeholders": { "count": { "type": "int" } } },
-  "paywall_trialWeeks": "{count}주 무료",
-  "@paywall_trialWeeks": { "placeholders": { "count": { "type": "int" } } },
   "paywall_trialMonths": "{count}개월 무료",
   "@paywall_trialMonths": { "placeholders": { "count": { "type": "int" } } },
   "paywall_trialThenPrice": "이후 {price}",
@@ -544,19 +482,6 @@
   "paywall_offersUnavailable": "제안을 불러올 수 없습니다",
   "paywall_retry": "다시 시도",
   "@@info17": "── Rest Screen ─────────────────────────────────────────────────────",
-  "rest_title": "휴식",
-  "rest_ready": "준비 완료! 다음 세트를 시작하세요",
-  "rest_almostReady": "거의 다 됐어요!",
-  "rest_resting": "휴식 중...",
-  "rest_customTime": "맞춤 시간 · {time}",
-  "@rest_customTime": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
-  "rest_choosePreset": "프리셋을 선택하거나 직접 설정하세요",
   "rest_of": "{time} 중",
   "@rest_of": {
     "placeholders": {
@@ -565,39 +490,15 @@
       }
     }
   },
-  "rest_presets": "프리셋",
-  "rest_customize": "직접 설정",
-  "rest_customTimeTitle": "맞춤 시간",
-  "rest_customTimeSubtitle": "휴식 시간의 분과 초를 입력하세요.",
-  "rest_minutes": "분",
-  "rest_seconds": "초",
-  "rest_setTime": "시간 설정",
   "@@info18": "── Progress Screen ─────────────────────────────────────────────────",
-  "progressScreen_title": "신체 변화",
   "progressScreen_measurements": "측정",
   "progressScreen_photos": "사진",
   "progressScreen_addMeasurement": "측정 추가",
   "progressScreen_weight": "체중",
-  "progressScreen_bodyFat": "체지방",
-  "progressScreen_muscle": "근육",
   "progressScreen_noEntries": "아직 기록이 없습니다",
-  "progressScreen_noEntriesHint": "+ 버튼을 눌러 첫 번째 측정을 추가하세요",
   "progressScreen_noPhotos": "아직 사진이 없습니다",
-  "progressScreen_noPhotosHint": "+ 버튼을 눌러 첫 번째 진행 사진을 추가하세요",
-  "progressScreen_current": "현재",
-  "progressScreen_change": "변화",
-  "progressScreen_trend": "추세",
-  "progressScreen_addMeasurementTitle": "새 측정",
-  "progressScreen_weightKg": "체중 (kg)",
-  "progressScreen_bodyFatPercent": "체지방률 (%)",
-  "progressScreen_muscleMassKg": "근육량 (kg)",
-  "progressScreen_optional": "선택사항",
-  "progressScreen_saveEntry": "기록 저장",
-  "progressScreen_deleteMeasurement": "이 기록을 삭제하시겠습니까?",
-  "progressScreen_deletePhoto": "이 사진을 삭제하시겠습니까?",
   "progressScreen_camera": "카메라",
   "progressScreen_gallery": "갤러리",
-  "progressScreen_selectSource": "소스 선택",
   "@@info19": "── Achievements ────────────────────────────────────────────────────",
   "achievement_firstWorkout_title": "첫 운동",
   "achievement_firstWorkout_description": "첫 번째 운동을 완료하세요",
@@ -840,18 +741,6 @@
   "ex_core_4_b2": "전통적인 복근 운동과 달리 신전 상태에서 코어를 훈련합니다",
   "ex_core_4_b3": "전면 사슬 전체에 기능적 근력을 발달시킵니다",
   "home_exerciseLibrary": "운동 라이브러리",
-  "home_exercisesAvailable": "{count}개 운동 가능",
-  "@home_exercisesAvailable": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "home_hips": "엉덩이",
-  "home_latestRecord": "최근 기록",
-  "home_viewAllExercises": "모두 보기",
-  "home_waist": "허리",
   "train_bodyweightLabel": "체중",
   "train_chooseWeight": "중량 선택",
   "train_defaultRoutineName": "내 루틴",
@@ -861,6 +750,10 @@
   "train_addFirstExercise": "첫 운동 추가",
   "train_addFirstExerciseHint": "여기 또는 ‘운동 추가’를 눌러 첫 운동을 추가하세요.",
   "train_removeSet": "세트 삭제",
+  "train_routinesHint": "하루에 하나 이상의 루틴을 둘 수 있어요. 그날을 시작하면 모든 루틴을 순서대로 진행해요.",
+  "train_firstRoutineTitle": "첫 루틴 만들기",
+  "train_firstRoutineBody": "운동을 고르고 요일을 지정하면 그날 홈에 바로 시작할 수 있게 표시돼요.",
+  "train_freeSessionHint": "계획이 없나요? 자유 세션을 시작하고 운동을 추가하며 진행하세요.",
   "profile_keepScreenOn": "운동 중 화면 켜두기",
   "profile_keepScreenOnSubtitle": "세트 사이에 휴대폰이 잠기지 않게 합니다",
   "profile_weightUnit": "무게 단위",
@@ -884,7 +777,6 @@
   "train_createRoutineHint": "운동을 선택하고 다음 훈련을 위해 미리 준비하세요.",
   "train_routineNameRequired": "루틴 이름을 입력하세요.",
   "train_addRoutineForDay": "{day}에 다른 루틴 추가",
-  "train_orChooseRoutine": "또는 루틴을 선택하세요",
   "train_trainingDay": "운동 요일",
   "train_noAssignedDay": "요일 미지정",
   "train_trainingDayHint": "요일별로 묶어 전체 루틴을 한곳에서 확인하세요.",

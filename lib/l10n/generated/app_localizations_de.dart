@@ -18,9 +18,6 @@ class SDe extends S {
   String get common_save => 'Speichern';
 
   @override
-  String get common_ok => 'OK';
-
-  @override
   String get common_or => 'oder';
 
   @override
@@ -57,9 +54,6 @@ class SDe extends S {
 
   @override
   String get common_custom => 'CUSTOM';
-
-  @override
-  String get common_pro => 'PRO';
 
   @override
   String get common_discardChangesTitle => 'Änderungen verwerfen?';
@@ -156,15 +150,6 @@ class SDe extends S {
   String get nav_train => 'Training';
 
   @override
-  String get nav_history => 'Verlauf';
-
-  @override
-  String get nav_rest => 'Pause';
-
-  @override
-  String get nav_exercises => 'Übungen';
-
-  @override
   String get nav_progress => 'Fortschritt';
 
   @override
@@ -257,10 +242,6 @@ class SDe extends S {
   String train_reasonBodyweight(int reps) {
     return 'Du hast $reps Wdh. geschafft. Versuche eine mehr.';
   }
-
-  @override
-  String get login_legal =>
-      'Mit der Nutzung akzeptierst du unsere Nutzungsbedingungen\nund Datenschutzrichtlinie.';
 
   @override
   String get login_legalPrefix => 'Mit der Nutzung akzeptierst du unsere ';
@@ -430,9 +411,6 @@ class SDe extends S {
   }
 
   @override
-  String get home_startWorkout => 'Training starten';
-
-  @override
   String get home_thisWeek => 'Diese Woche';
 
   @override
@@ -440,12 +418,6 @@ class SDe extends S {
 
   @override
   String get home_weekVolume => 'Wochenvolumen';
-
-  @override
-  String get home_quickAccess => 'Schnellzugriff';
-
-  @override
-  String get home_quickStart => 'Schnellstart';
 
   @override
   String get restTimer_title => 'Pause';
@@ -502,23 +474,7 @@ class SDe extends S {
   String get home_viewAll => 'Alle anzeigen';
 
   @override
-  String get home_noWorkoutsYet => 'Noch keine Trainings';
-
-  @override
-  String get home_noWorkoutsSubtitle =>
-      'Schließe dein erstes Training ab und es wird hier angezeigt.';
-
-  @override
   String get home_goToTrain => 'Zum Training →';
-
-  @override
-  String get home_progress => 'Fortschritt';
-
-  @override
-  String get home_noRecordsYet => 'Noch keine Einträge';
-
-  @override
-  String get home_recordWeightMeasures => 'Erfasse dein Gewicht und deine Maße';
 
   @override
   String get home_achievements => 'Erfolge';
@@ -528,35 +484,7 @@ class SDe extends S {
       'Schließe Trainings ab, um Erfolge freizuschalten';
 
   @override
-  String get home_recentExercises => 'Letzte Übungen';
-
-  @override
-  String get home_noRecentExercises => 'Deine häufigen Übungen erscheinen hier';
-
-  @override
-  String home_frequentExercise(int count) {
-    return '$count Einheiten';
-  }
-
-  @override
-  String get home_latestRecord => 'Letzter Eintrag';
-
-  @override
-  String get home_waist => 'Taille';
-
-  @override
-  String get home_hips => 'Hüfte';
-
-  @override
   String get home_exerciseLibrary => 'Übungsbibliothek';
-
-  @override
-  String get home_viewAllExercises => 'Alle anzeigen';
-
-  @override
-  String home_exercisesAvailable(int count) {
-    return '$count Übungen verfügbar';
-  }
 
   @override
   String get profile_proActive => 'Abo aktiv';
@@ -923,30 +851,13 @@ class SDe extends S {
   String get train_addSet => 'Satz hinzufügen';
 
   @override
-  String train_lastWeight(String weight) {
-    return 'Zuletzt: $weight kg';
-  }
-
-  @override
   String get train_nextSuggestion => 'Nächste Lastempfehlung';
 
   @override
   String get train_applySuggestion => 'Übernehmen';
 
   @override
-  String get train_increaseLoad => 'Gewicht erhöhen';
-
-  @override
-  String get train_addRepetition => 'Eine Wiederholung mehr';
-
-  @override
-  String get train_consolidateLoad => 'Gewicht festigen';
-
-  @override
   String get train_abbreviationExercises => 'Üb.';
-
-  @override
-  String get train_orChooseRoutine => 'Oder wähle eine Routine';
 
   @override
   String get train_defaultRoutineName => 'Meine Routine';
@@ -971,6 +882,21 @@ class SDe extends S {
 
   @override
   String get train_removeSet => 'Satz entfernen';
+
+  @override
+  String get train_routinesHint =>
+      'Ein Tag kann eine oder mehrere Routinen haben. Beim Start des Tages werden alle nacheinander trainiert.';
+
+  @override
+  String get train_firstRoutineTitle => 'Erstelle deine erste Routine';
+
+  @override
+  String get train_firstRoutineBody =>
+      'Wähle die Übungen und einen Wochentag: An diesem Tag erscheint sie auf der Startseite, bereit zum Loslegen.';
+
+  @override
+  String get train_freeSessionHint =>
+      'Kein Plan? Starte eine freie Einheit und füge Übungen unterwegs hinzu.';
 
   @override
   String get profile_keepScreenOn => 'Bildschirm beim Training anlassen';
@@ -1143,11 +1069,6 @@ class SDe extends S {
   String get exercises_equipmentFilter => 'Gerät';
 
   @override
-  String exercises_exerciseCount(int count, String suffix) {
-    return '$count Übung$suffix';
-  }
-
-  @override
   String exercises_countLabel(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -1244,14 +1165,6 @@ class SDe extends S {
   @override
   String get history_noWorkoutsSubtitle =>
       'Schließe dein erstes Training im Tab Training ab und es erscheint hier.';
-
-  @override
-  String get history_limitedHistory => 'Eingeschränkter Verlauf';
-
-  @override
-  String history_unlockWorkouts(int count) {
-    return 'Schalte deine $count Trainings mit PRO frei';
-  }
 
   @override
   String get history_weeklySummary => 'Wochenzusammenfassung';
@@ -1374,24 +1287,12 @@ class SDe extends S {
   String get paywall_featureTemplates => 'Alle vordefinierten Trainings';
 
   @override
-  String get paywall_featureHistory => 'Unbegrenzter Verlauf';
-
-  @override
-  String get paywall_featureTimer => 'Individueller Timer';
-
-  @override
-  String get paywall_featureDetails => 'Übungsdetails';
-
-  @override
   String get paywall_featureMeasures =>
       'Taille, Brust, Hüfte und Fortschrittsfotos';
 
   @override
   String get paywall_featureExerciseProgress =>
       'Fortschrittsdiagramme pro Übung';
-
-  @override
-  String get paywall_featureStats => 'Wöchentliche Statistiken';
 
   @override
   String get paywall_allIncluded => 'Alles inklusive';
@@ -1416,9 +1317,6 @@ class SDe extends S {
 
   @override
   String get paywall_perYear => '/Jahr';
-
-  @override
-  String get paywall_freeTrial => '7 Tage kostenlos testen';
 
   @override
   String get paywall_startTrial => 'Kostenlose Testphase starten';
@@ -1456,11 +1354,6 @@ class SDe extends S {
   }
 
   @override
-  String paywall_trialWeeks(int count) {
-    return '$count Wochen kostenlos';
-  }
-
-  @override
   String paywall_trialMonths(int count) {
     return '$count Monate kostenlos';
   }
@@ -1478,54 +1371,9 @@ class SDe extends S {
   String get paywall_retry => 'Erneut versuchen';
 
   @override
-  String get rest_title => 'Pause';
-
-  @override
-  String get rest_ready => 'Bereit! Zeit für den nächsten Satz';
-
-  @override
-  String get rest_almostReady => 'Fast bereit!';
-
-  @override
-  String get rest_resting => 'Pause läuft...';
-
-  @override
-  String rest_customTime(String time) {
-    return 'Eigene Zeit · $time';
-  }
-
-  @override
-  String get rest_choosePreset => 'Wähle eine Vorlage oder passe an';
-
-  @override
   String rest_of(String time) {
     return 'von $time';
   }
-
-  @override
-  String get rest_presets => 'Vorlagen';
-
-  @override
-  String get rest_customize => 'Anpassen';
-
-  @override
-  String get rest_customTimeTitle => 'Eigene Zeit';
-
-  @override
-  String get rest_customTimeSubtitle =>
-      'Gib die Minuten und Sekunden der Pause ein.';
-
-  @override
-  String get rest_minutes => 'Minuten';
-
-  @override
-  String get rest_seconds => 'Sekunden';
-
-  @override
-  String get rest_setTime => 'Zeit einstellen';
-
-  @override
-  String get progressScreen_title => 'Körperfortschritt';
 
   @override
   String get progressScreen_measurements => 'Maße';
@@ -1540,66 +1388,16 @@ class SDe extends S {
   String get progressScreen_weight => 'Gewicht';
 
   @override
-  String get progressScreen_bodyFat => 'Körperfett';
-
-  @override
-  String get progressScreen_muscle => 'Muskel';
-
-  @override
   String get progressScreen_noEntries => 'Noch keine Einträge';
 
   @override
-  String get progressScreen_noEntriesHint =>
-      'Tippe auf +, um deine erste Messung hinzuzufügen';
-
-  @override
   String get progressScreen_noPhotos => 'Noch keine Fotos';
-
-  @override
-  String get progressScreen_noPhotosHint =>
-      'Tippe auf +, um dein erstes Fortschrittsfoto hinzuzufügen';
-
-  @override
-  String get progressScreen_current => 'Aktuell';
-
-  @override
-  String get progressScreen_change => 'Änderung';
-
-  @override
-  String get progressScreen_trend => 'Trend';
-
-  @override
-  String get progressScreen_addMeasurementTitle => 'Neue Messung';
-
-  @override
-  String get progressScreen_weightKg => 'Gewicht (kg)';
-
-  @override
-  String get progressScreen_bodyFatPercent => 'Körperfett (%)';
-
-  @override
-  String get progressScreen_muscleMassKg => 'Muskelmasse (kg)';
-
-  @override
-  String get progressScreen_optional => 'Optional';
-
-  @override
-  String get progressScreen_saveEntry => 'Eintrag speichern';
-
-  @override
-  String get progressScreen_deleteMeasurement => 'Diesen Eintrag löschen?';
-
-  @override
-  String get progressScreen_deletePhoto => 'Dieses Foto löschen?';
 
   @override
   String get progressScreen_camera => 'Kamera';
 
   @override
   String get progressScreen_gallery => 'Galerie';
-
-  @override
-  String get progressScreen_selectSource => 'Quelle auswählen';
 
   @override
   String get progressScreen_waist => 'Taille';

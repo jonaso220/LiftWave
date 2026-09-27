@@ -4,7 +4,6 @@
   "common_cancel": "Abbrechen",
   "common_delete": "Löschen",
   "common_save": "Speichern",
-  "common_ok": "OK",
   "common_or": "oder",
   "common_today": "Heute",
   "common_yesterday": "Gestern",
@@ -24,7 +23,6 @@
   "common_duration": "Dauer",
   "common_bodyweight": "Körpergewicht",
   "common_custom": "CUSTOM",
-  "common_pro": "PRO",
   "common_discardChangesTitle": "Änderungen verwerfen?",
   "common_discardChangesBody": "Deine Änderungen werden nicht gespeichert.",
   "common_keepEditing": "Weiter bearbeiten",
@@ -60,9 +58,6 @@
   "@@info4": "── Navigation ──────────────────────────────────────────────────────",
   "nav_home": "Start",
   "nav_train": "Training",
-  "nav_history": "Verlauf",
-  "nav_rest": "Pause",
-  "nav_exercises": "Übungen",
   "nav_progress": "Fortschritt",
   "nav_profile": "Profil",
   "home_todayTitle": "HEUTE DRAN",
@@ -91,7 +86,6 @@
   "train_reasonAddRep": "Du hast {reps} Wdh. mit {weight} geschafft. Schaffe eine Wdh. mehr, bevor du das Gewicht erhöhst.",
   "train_reasonConsolidate": "Du hast {reps} Wdh. geschafft, unter deinem Bereich ({min}–{max}). Bleib bei {weight}, bis du {min} erreichst.",
   "train_reasonBodyweight": "Du hast {reps} Wdh. geschafft. Versuche eine mehr.",
-  "login_legal": "Mit der Nutzung akzeptierst du unsere Nutzungsbedingungen\nund Datenschutzrichtlinie.",
   "login_legalPrefix": "Mit der Nutzung akzeptierst du unsere ",
   "login_termsLink": "Nutzungsbedingungen",
   "login_legalAnd": "und",
@@ -180,12 +174,9 @@
       }
     }
   },
-  "home_startWorkout": "Training starten",
   "home_thisWeek": "Diese Woche",
   "home_weekTime": "Wochenzeit",
   "home_weekVolume": "Wochenvolumen",
-  "home_quickAccess": "Schnellzugriff",
-  "home_quickStart": "Schnellstart",
   "restTimer_title": "Pause",
   "restTimer_openControls": "Steuerung des Pausentimers öffnen",
   "restTimer_addSeconds": "{seconds} Sekunden hinzufügen",
@@ -202,24 +193,9 @@
   "editWorkout_title": "Training bearbeiten",
   "editWorkout_saved": "Training aktualisiert",
   "home_viewAll": "Alle anzeigen",
-  "home_noWorkoutsYet": "Noch keine Trainings",
-  "home_noWorkoutsSubtitle": "Schließe dein erstes Training ab und es wird hier angezeigt.",
   "home_goToTrain": "Zum Training →",
-  "home_progress": "Fortschritt",
-  "home_noRecordsYet": "Noch keine Einträge",
-  "home_recordWeightMeasures": "Erfasse dein Gewicht und deine Maße",
   "home_achievements": "Erfolge",
   "home_noAchievements": "Schließe Trainings ab, um Erfolge freizuschalten",
-  "home_recentExercises": "Letzte Übungen",
-  "home_noRecentExercises": "Deine häufigen Übungen erscheinen hier",
-  "home_frequentExercise": "{count} Einheiten",
-  "@home_frequentExercise": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "@@info9": "── Profile Menu ────────────────────────────────────────────────────",
   "profile_proActive": "Abo aktiv",
   "profile_freePlan": "Kostenloser Plan",
@@ -367,19 +343,8 @@
   "train_repsHeader": "WDH.",
   "train_weightHeader": "GEWICHT",
   "train_addSet": "Satz hinzufügen",
-  "train_lastWeight": "Zuletzt: {weight} kg",
-  "@train_lastWeight": {
-    "placeholders": {
-      "weight": {
-        "type": "String"
-      }
-    }
-  },
   "train_nextSuggestion": "Nächste Lastempfehlung",
   "train_applySuggestion": "Übernehmen",
-  "train_increaseLoad": "Gewicht erhöhen",
-  "train_addRepetition": "Eine Wiederholung mehr",
-  "train_consolidateLoad": "Gewicht festigen",
   "train_abbreviationExercises": "Üb.",
   "@@info11": "── Exercise Picker ─────────────────────────────────────────────────",
   "picker_title": "Übung auswählen",
@@ -397,19 +362,8 @@
   "exercises_searchHint": "Übungen suchen...",
   "exercises_muscleFilter": "Muskel",
   "exercises_equipmentFilter": "Gerät",
-  "exercises_exerciseCount": "{count} Übung{suffix}",
   "exercises_countLabel": "{count, plural, =1{{count} Übung} other{{count} Übungen}}",
   "exercises_descriptionUnavailable": "Detaillierte Anweisungen sind in dieser Sprache noch nicht verfügbar.",
-  "@exercises_exerciseCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "suffix": {
-        "type": "String"
-      }
-    }
-  },
   "exercises_clearFilters": "Filter zurücksetzen",
   "exercises_noResults": "Keine Ergebnisse",
   "exercises_noResultsHint": "Versuche es mit anderen Filtern oder Suchbegriffen",
@@ -445,15 +399,6 @@
   "history_allWorkouts": "Alle Trainings",
   "history_noWorkoutsYet": "Noch keine Trainings",
   "history_noWorkoutsSubtitle": "Schließe dein erstes Training im Tab Training ab und es erscheint hier.",
-  "history_limitedHistory": "Eingeschränkter Verlauf",
-  "history_unlockWorkouts": "Schalte deine {count} Trainings mit PRO frei",
-  "@history_unlockWorkouts": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "history_weeklySummary": "Wochenzusammenfassung",
   "history_workouts": "Trainings",
   "history_total": "Gesamt",
@@ -509,12 +454,8 @@
   "@@info16": "── Paywall Screen ──────────────────────────────────────────────────",
   "paywall_subtitle": "Entfalte dein volles Potenzial",
   "paywall_featureTemplates": "Alle vordefinierten Trainings",
-  "paywall_featureHistory": "Unbegrenzter Verlauf",
-  "paywall_featureTimer": "Individueller Timer",
-  "paywall_featureDetails": "Übungsdetails",
   "paywall_featureMeasures": "Taille, Brust, Hüfte und Fortschrittsfotos",
   "paywall_featureExerciseProgress": "Fortschrittsdiagramme pro Übung",
-  "paywall_featureStats": "Wöchentliche Statistiken",
   "paywall_allIncluded": "Alles inklusive",
   "paywall_weekly": "Wöchentlich",
   "paywall_monthly": "Monatlich",
@@ -523,7 +464,6 @@
   "paywall_perWeek": "/Woche",
   "paywall_perMonth": "/Monat",
   "paywall_perYear": "/Jahr",
-  "paywall_freeTrial": "7 Tage kostenlos testen",
   "paywall_startTrial": "Kostenlose Testphase starten",
   "paywall_subscribe": "Abonnieren",
   "paywall_restorePurchases": "Käufe wiederherstellen",
@@ -535,8 +475,6 @@
   "paywall_noPurchasesFound": "Keine früheren Käufe gefunden.",
   "paywall_trialDays": "{count} Tage kostenlos",
   "@paywall_trialDays": { "placeholders": { "count": { "type": "int" } } },
-  "paywall_trialWeeks": "{count} Wochen kostenlos",
-  "@paywall_trialWeeks": { "placeholders": { "count": { "type": "int" } } },
   "paywall_trialMonths": "{count} Monate kostenlos",
   "@paywall_trialMonths": { "placeholders": { "count": { "type": "int" } } },
   "paywall_trialThenPrice": "danach {price}",
@@ -544,19 +482,6 @@
   "paywall_offersUnavailable": "Angebote konnten nicht geladen werden",
   "paywall_retry": "Erneut versuchen",
   "@@info17": "── Rest Screen ─────────────────────────────────────────────────────",
-  "rest_title": "Pause",
-  "rest_ready": "Bereit! Zeit für den nächsten Satz",
-  "rest_almostReady": "Fast bereit!",
-  "rest_resting": "Pause läuft...",
-  "rest_customTime": "Eigene Zeit · {time}",
-  "@rest_customTime": {
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
-  "rest_choosePreset": "Wähle eine Vorlage oder passe an",
   "rest_of": "von {time}",
   "@rest_of": {
     "placeholders": {
@@ -565,39 +490,15 @@
       }
     }
   },
-  "rest_presets": "Vorlagen",
-  "rest_customize": "Anpassen",
-  "rest_customTimeTitle": "Eigene Zeit",
-  "rest_customTimeSubtitle": "Gib die Minuten und Sekunden der Pause ein.",
-  "rest_minutes": "Minuten",
-  "rest_seconds": "Sekunden",
-  "rest_setTime": "Zeit einstellen",
   "@@info18": "── Progress Screen ─────────────────────────────────────────────────",
-  "progressScreen_title": "Körperfortschritt",
   "progressScreen_measurements": "Maße",
   "progressScreen_photos": "Fotos",
   "progressScreen_addMeasurement": "Messung hinzufügen",
   "progressScreen_weight": "Gewicht",
-  "progressScreen_bodyFat": "Körperfett",
-  "progressScreen_muscle": "Muskel",
   "progressScreen_noEntries": "Noch keine Einträge",
-  "progressScreen_noEntriesHint": "Tippe auf +, um deine erste Messung hinzuzufügen",
   "progressScreen_noPhotos": "Noch keine Fotos",
-  "progressScreen_noPhotosHint": "Tippe auf +, um dein erstes Fortschrittsfoto hinzuzufügen",
-  "progressScreen_current": "Aktuell",
-  "progressScreen_change": "Änderung",
-  "progressScreen_trend": "Trend",
-  "progressScreen_addMeasurementTitle": "Neue Messung",
-  "progressScreen_weightKg": "Gewicht (kg)",
-  "progressScreen_bodyFatPercent": "Körperfett (%)",
-  "progressScreen_muscleMassKg": "Muskelmasse (kg)",
-  "progressScreen_optional": "Optional",
-  "progressScreen_saveEntry": "Eintrag speichern",
-  "progressScreen_deleteMeasurement": "Diesen Eintrag löschen?",
-  "progressScreen_deletePhoto": "Dieses Foto löschen?",
   "progressScreen_camera": "Kamera",
   "progressScreen_gallery": "Galerie",
-  "progressScreen_selectSource": "Quelle auswählen",
   "@@info19": "── Achievements ────────────────────────────────────────────────────",
   "achievement_firstWorkout_title": "Erste Einheit",
   "achievement_firstWorkout_description": "Schließe dein erstes Training ab",
@@ -840,18 +741,6 @@
   "ex_core_4_b2": "Trainiert den Core in Extension, anders als klassische Bauchübungen",
   "ex_core_4_b3": "Entwickelt funktionelle Kraft in der gesamten vorderen Kette",
   "home_exerciseLibrary": "Übungsbibliothek",
-  "home_exercisesAvailable": "{count} Übungen verfügbar",
-  "@home_exercisesAvailable": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "home_hips": "Hüfte",
-  "home_latestRecord": "Letzter Eintrag",
-  "home_viewAllExercises": "Alle anzeigen",
-  "home_waist": "Taille",
   "train_bodyweightLabel": "Körpergewicht",
   "train_chooseWeight": "Gewicht wählen",
   "train_defaultRoutineName": "Meine Routine",
@@ -861,6 +750,10 @@
   "train_addFirstExercise": "Erste Übung hinzufügen",
   "train_addFirstExerciseHint": "Tippe hier oder auf „Übung hinzufügen“, um die erste Übung hinzuzufügen.",
   "train_removeSet": "Satz entfernen",
+  "train_routinesHint": "Ein Tag kann eine oder mehrere Routinen haben. Beim Start des Tages werden alle nacheinander trainiert.",
+  "train_firstRoutineTitle": "Erstelle deine erste Routine",
+  "train_firstRoutineBody": "Wähle die Übungen und einen Wochentag: An diesem Tag erscheint sie auf der Startseite, bereit zum Loslegen.",
+  "train_freeSessionHint": "Kein Plan? Starte eine freie Einheit und füge Übungen unterwegs hinzu.",
   "profile_keepScreenOn": "Bildschirm beim Training anlassen",
   "profile_keepScreenOnSubtitle": "Verhindert, dass sich das Telefon zwischen Sätzen sperrt",
   "profile_weightUnit": "Gewichtseinheit",
@@ -884,7 +777,6 @@
   "train_createRoutineHint": "Wähle die Übungen aus und bereite die Routine für dein nächstes Training vor.",
   "train_routineNameRequired": "Gib einen Namen für die Routine ein.",
   "train_addRoutineForDay": "Weitere Routine für {day} hinzufügen",
-  "train_orChooseRoutine": "Oder wähle eine Routine",
   "train_trainingDay": "Trainingstag",
   "train_noAssignedDay": "Kein Tag zugewiesen",
   "train_trainingDayHint": "Nach Tag gruppieren, damit die ganze Routine zusammenbleibt.",

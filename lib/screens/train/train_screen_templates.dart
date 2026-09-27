@@ -268,10 +268,13 @@ class _RoutineDayCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = S.of(context);
     final label = routineDayLabel(context, day);
+    // "1 bloque" says nothing; only mention blocks when a day has several.
+    final summary = blockCount > 1
+        ? '${l10n.train_blockCount(blockCount)} · '
+              '${l10n.train_exerciseCount(exerciseCount)}'
+        : l10n.train_exerciseCount(exerciseCount);
     return Semantics(
-      label:
-          '$label. ${l10n.train_blockCount(blockCount)}. '
-          '${l10n.train_exerciseCount(exerciseCount)}',
+      label: '$label. $summary',
       button: true,
       child: GestureDetector(
         onTap: onTap,
@@ -313,8 +316,7 @@ class _RoutineDayCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '${l10n.train_blockCount(blockCount)} · '
-                      '${l10n.train_exerciseCount(exerciseCount)}',
+                      summary,
                       style: TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 12,

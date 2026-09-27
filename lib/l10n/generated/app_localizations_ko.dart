@@ -18,9 +18,6 @@ class SKo extends S {
   String get common_save => '저장';
 
   @override
-  String get common_ok => '확인';
-
-  @override
   String get common_or => '또는';
 
   @override
@@ -57,9 +54,6 @@ class SKo extends S {
 
   @override
   String get common_custom => 'CUSTOM';
-
-  @override
-  String get common_pro => 'PRO';
 
   @override
   String get common_discardChangesTitle => '변경 사항을 취소할까요?';
@@ -155,15 +149,6 @@ class SKo extends S {
   String get nav_train => '운동';
 
   @override
-  String get nav_history => '기록';
-
-  @override
-  String get nav_rest => '휴식';
-
-  @override
-  String get nav_exercises => '운동 목록';
-
-  @override
   String get nav_progress => '진행';
 
   @override
@@ -253,9 +238,6 @@ class SKo extends S {
   String train_reasonBodyweight(int reps) {
     return '$reps회 했어요. 1회 더 도전해보세요.';
   }
-
-  @override
-  String get login_legal => '계속하면 이용약관 및\n개인정보 처리방침에 동의하게 됩니다.';
 
   @override
   String get login_legalPrefix => '계속하면 ';
@@ -418,9 +400,6 @@ class SKo extends S {
   }
 
   @override
-  String get home_startWorkout => '운동 시작';
-
-  @override
   String get home_thisWeek => '이번 주';
 
   @override
@@ -428,12 +407,6 @@ class SKo extends S {
 
   @override
   String get home_weekVolume => '주간 볼륨';
-
-  @override
-  String get home_quickAccess => '빠른 접근';
-
-  @override
-  String get home_quickStart => '빠른 시작';
 
   @override
   String get restTimer_title => '휴식';
@@ -490,22 +463,7 @@ class SKo extends S {
   String get home_viewAll => '전체 보기';
 
   @override
-  String get home_noWorkoutsYet => '아직 운동 기록이 없습니다';
-
-  @override
-  String get home_noWorkoutsSubtitle => '첫 번째 운동을 완료하면 여기에 표시됩니다.';
-
-  @override
   String get home_goToTrain => '운동하러 가기 →';
-
-  @override
-  String get home_progress => '진행 상황';
-
-  @override
-  String get home_noRecordsYet => '아직 기록이 없습니다';
-
-  @override
-  String get home_recordWeightMeasures => '체중과 신체 치수를 기록하세요';
 
   @override
   String get home_achievements => '업적';
@@ -514,35 +472,7 @@ class SKo extends S {
   String get home_noAchievements => '운동을 완료하면 업적이 잠금 해제됩니다';
 
   @override
-  String get home_recentExercises => '최근 운동 종목';
-
-  @override
-  String get home_noRecentExercises => '자주 하는 운동이 여기에 표시됩니다';
-
-  @override
-  String home_frequentExercise(int count) {
-    return '$count회 수행';
-  }
-
-  @override
-  String get home_latestRecord => '최근 기록';
-
-  @override
-  String get home_waist => '허리';
-
-  @override
-  String get home_hips => '엉덩이';
-
-  @override
   String get home_exerciseLibrary => '운동 라이브러리';
-
-  @override
-  String get home_viewAllExercises => '모두 보기';
-
-  @override
-  String home_exercisesAvailable(int count) {
-    return '$count개 운동 가능';
-  }
 
   @override
   String get profile_proActive => '구독 활성화됨';
@@ -881,30 +811,13 @@ class SKo extends S {
   String get train_addSet => '세트 추가';
 
   @override
-  String train_lastWeight(String weight) {
-    return '이전: $weight kg';
-  }
-
-  @override
   String get train_nextSuggestion => '다음 추천 중량';
 
   @override
   String get train_applySuggestion => '적용';
 
   @override
-  String get train_increaseLoad => '중량 올리기';
-
-  @override
-  String get train_addRepetition => '1회 추가';
-
-  @override
-  String get train_consolidateLoad => '현재 중량 적응';
-
-  @override
   String get train_abbreviationExercises => '종목';
-
-  @override
-  String get train_orChooseRoutine => '또는 루틴을 선택하세요';
 
   @override
   String get train_defaultRoutineName => '내 루틴';
@@ -928,6 +841,20 @@ class SKo extends S {
 
   @override
   String get train_removeSet => '세트 삭제';
+
+  @override
+  String get train_routinesHint =>
+      '하루에 하나 이상의 루틴을 둘 수 있어요. 그날을 시작하면 모든 루틴을 순서대로 진행해요.';
+
+  @override
+  String get train_firstRoutineTitle => '첫 루틴 만들기';
+
+  @override
+  String get train_firstRoutineBody =>
+      '운동을 고르고 요일을 지정하면 그날 홈에 바로 시작할 수 있게 표시돼요.';
+
+  @override
+  String get train_freeSessionHint => '계획이 없나요? 자유 세션을 시작하고 운동을 추가하며 진행하세요.';
 
   @override
   String get profile_keepScreenOn => '운동 중 화면 켜두기';
@@ -1093,11 +1020,6 @@ class SKo extends S {
   String get exercises_equipmentFilter => '기구';
 
   @override
-  String exercises_exerciseCount(int count, String suffix) {
-    return '$count개 운동$suffix';
-  }
-
-  @override
   String exercises_countLabel(num count) {
     return '$count개 운동';
   }
@@ -1184,14 +1106,6 @@ class SKo extends S {
 
   @override
   String get history_noWorkoutsSubtitle => '운동 탭에서 첫 번째 운동을 완료하면 여기에 표시됩니다.';
-
-  @override
-  String get history_limitedHistory => '제한된 기록';
-
-  @override
-  String history_unlockWorkouts(int count) {
-    return 'PRO로 $count개의 운동 기록을 잠금 해제하세요';
-  }
 
   @override
   String get history_weeklySummary => '주간 요약';
@@ -1306,22 +1220,10 @@ class SKo extends S {
   String get paywall_featureTemplates => '모든 기본 루틴';
 
   @override
-  String get paywall_featureHistory => '무제한 기록';
-
-  @override
-  String get paywall_featureTimer => '맞춤 타이머';
-
-  @override
-  String get paywall_featureDetails => '운동 상세 정보';
-
-  @override
   String get paywall_featureMeasures => '허리·가슴·엉덩이 둘레와 진행 사진';
 
   @override
   String get paywall_featureExerciseProgress => '운동별 진행 그래프';
-
-  @override
-  String get paywall_featureStats => '주간 통계';
 
   @override
   String get paywall_allIncluded => '모두 포함';
@@ -1346,9 +1248,6 @@ class SKo extends S {
 
   @override
   String get paywall_perYear => '/년';
-
-  @override
-  String get paywall_freeTrial => '7일 무료 체험';
 
   @override
   String get paywall_startTrial => '무료 체험 시작';
@@ -1385,11 +1284,6 @@ class SKo extends S {
   }
 
   @override
-  String paywall_trialWeeks(int count) {
-    return '$count주 무료';
-  }
-
-  @override
   String paywall_trialMonths(int count) {
     return '$count개월 무료';
   }
@@ -1406,53 +1300,9 @@ class SKo extends S {
   String get paywall_retry => '다시 시도';
 
   @override
-  String get rest_title => '휴식';
-
-  @override
-  String get rest_ready => '준비 완료! 다음 세트를 시작하세요';
-
-  @override
-  String get rest_almostReady => '거의 다 됐어요!';
-
-  @override
-  String get rest_resting => '휴식 중...';
-
-  @override
-  String rest_customTime(String time) {
-    return '맞춤 시간 · $time';
-  }
-
-  @override
-  String get rest_choosePreset => '프리셋을 선택하거나 직접 설정하세요';
-
-  @override
   String rest_of(String time) {
     return '$time 중';
   }
-
-  @override
-  String get rest_presets => '프리셋';
-
-  @override
-  String get rest_customize => '직접 설정';
-
-  @override
-  String get rest_customTimeTitle => '맞춤 시간';
-
-  @override
-  String get rest_customTimeSubtitle => '휴식 시간의 분과 초를 입력하세요.';
-
-  @override
-  String get rest_minutes => '분';
-
-  @override
-  String get rest_seconds => '초';
-
-  @override
-  String get rest_setTime => '시간 설정';
-
-  @override
-  String get progressScreen_title => '신체 변화';
 
   @override
   String get progressScreen_measurements => '측정';
@@ -1467,64 +1317,16 @@ class SKo extends S {
   String get progressScreen_weight => '체중';
 
   @override
-  String get progressScreen_bodyFat => '체지방';
-
-  @override
-  String get progressScreen_muscle => '근육';
-
-  @override
   String get progressScreen_noEntries => '아직 기록이 없습니다';
 
   @override
-  String get progressScreen_noEntriesHint => '+ 버튼을 눌러 첫 번째 측정을 추가하세요';
-
-  @override
   String get progressScreen_noPhotos => '아직 사진이 없습니다';
-
-  @override
-  String get progressScreen_noPhotosHint => '+ 버튼을 눌러 첫 번째 진행 사진을 추가하세요';
-
-  @override
-  String get progressScreen_current => '현재';
-
-  @override
-  String get progressScreen_change => '변화';
-
-  @override
-  String get progressScreen_trend => '추세';
-
-  @override
-  String get progressScreen_addMeasurementTitle => '새 측정';
-
-  @override
-  String get progressScreen_weightKg => '체중 (kg)';
-
-  @override
-  String get progressScreen_bodyFatPercent => '체지방률 (%)';
-
-  @override
-  String get progressScreen_muscleMassKg => '근육량 (kg)';
-
-  @override
-  String get progressScreen_optional => '선택사항';
-
-  @override
-  String get progressScreen_saveEntry => '기록 저장';
-
-  @override
-  String get progressScreen_deleteMeasurement => '이 기록을 삭제하시겠습니까?';
-
-  @override
-  String get progressScreen_deletePhoto => '이 사진을 삭제하시겠습니까?';
 
   @override
   String get progressScreen_camera => '카메라';
 
   @override
   String get progressScreen_gallery => '갤러리';
-
-  @override
-  String get progressScreen_selectSource => '소스 선택';
 
   @override
   String get progressScreen_waist => '허리';
