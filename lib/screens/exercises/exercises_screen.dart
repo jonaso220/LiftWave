@@ -8,6 +8,7 @@ import '../../data/custom_exercise_store.dart';
 import '../../data/mock_data.dart';
 import '../../models/models.dart';
 import '../../services/workout_launcher.dart';
+import '../../utils/pro_gate.dart';
 import '../../widgets/common/muscle_chip.dart';
 import 'exercise_progress_sheet.dart';
 
@@ -826,17 +827,21 @@ class _ExerciseDetailSheet extends StatelessWidget {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
+                    // This sheet closes first, so continue from the
+                    // navigator's context (it may show the paywall).
+                    final navigatorContext = Navigator.of(context).context;
                     Navigator.pop(context);
-                    showModalBottomSheet(
-                      context: context,
-                      backgroundColor: Colors.transparent,
-                      isScrollControlled: true,
-                      builder: (_) =>
-                          ExerciseProgressSheet(exerciseName: exercise.name),
-                    );
+                    showExerciseProgress(navigatorContext, exercise.name);
                   },
                   icon: const Icon(Icons.show_chart_rounded, size: 18),
-                  label: Text(S.of(context).exercises_viewProgress),
+                  label: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(S.of(context).exercises_viewProgress),
+                      const SizedBox(width: 8),
+                      const ProBadge(),
+                    ],
+                  ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.accent,
                     side: const BorderSide(color: AppColors.accent),

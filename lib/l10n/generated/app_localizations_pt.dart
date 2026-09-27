@@ -1241,7 +1241,7 @@ class SPt extends S {
   String get paywall_subtitle => 'Desbloqueie todo o seu potencial';
 
   @override
-  String get paywall_featureTemplates => 'Modelos de treino';
+  String get paywall_featureTemplates => 'Todos os treinos predefinidos';
 
   @override
   String get paywall_featureHistory => 'Histórico ilimitado';
@@ -1253,7 +1253,12 @@ class SPt extends S {
   String get paywall_featureDetails => 'Detalhes dos exercícios';
 
   @override
-  String get paywall_featureMeasures => 'Medidas corporais + fotos';
+  String get paywall_featureMeasures =>
+      'Cintura, peito, quadril e fotos de progresso';
+
+  @override
+  String get paywall_featureExerciseProgress =>
+      'Gráficos de progresso por exercício';
 
   @override
   String get paywall_featureStats => 'Estatísticas semanais';

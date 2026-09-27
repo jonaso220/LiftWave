@@ -1233,7 +1233,7 @@ class SEn extends S {
   String get paywall_subtitle => 'Unlock your full potential';
 
   @override
-  String get paywall_featureTemplates => 'Workout templates';
+  String get paywall_featureTemplates => 'All predefined workouts';
 
   @override
   String get paywall_featureHistory => 'Unlimited history';
@@ -1245,7 +1245,12 @@ class SEn extends S {
   String get paywall_featureDetails => 'Exercise details';
 
   @override
-  String get paywall_featureMeasures => 'Body measurements + photos';
+  String get paywall_featureMeasures =>
+      'Waist, chest, hips and progress photos';
+
+  @override
+  String get paywall_featureExerciseProgress =>
+      'Progress charts for every exercise';
 
   @override
   String get paywall_featureStats => 'Weekly stats';

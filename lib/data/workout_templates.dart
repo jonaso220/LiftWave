@@ -69,9 +69,9 @@ class WorkoutTemplate {
   bool get isFree => freeTemplateIds.contains(id);
 }
 
-/// Predefined templates usable on the free tier (a hook to show value before
-/// asking the user to upgrade).
-const Set<String> freeTemplateIds = {'tpl_fullbody'};
+/// Predefined templates usable on the free tier: enough to follow a real
+/// full-body or push/pull program before asking the user to upgrade.
+const Set<String> freeTemplateIds = {'tpl_fullbody', 'tpl_push', 'tpl_pull'};
 
 // ── Template data ─────────────────────────────────────────────────────────────
 

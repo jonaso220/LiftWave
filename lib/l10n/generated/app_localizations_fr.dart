@@ -1248,7 +1248,7 @@ class SFr extends S {
   String get paywall_subtitle => 'Libérez tout votre potentiel';
 
   @override
-  String get paywall_featureTemplates => 'Modèles d\'entraînement';
+  String get paywall_featureTemplates => 'Toutes les séances prédéfinies';
 
   @override
   String get paywall_featureHistory => 'Historique illimité';
@@ -1260,7 +1260,12 @@ class SFr extends S {
   String get paywall_featureDetails => 'Détails des exercices';
 
   @override
-  String get paywall_featureMeasures => 'Mensurations + photos';
+  String get paywall_featureMeasures =>
+      'Tour de taille, poitrine, hanches et photos';
+
+  @override
+  String get paywall_featureExerciseProgress =>
+      'Graphiques de progression par exercice';
 
   @override
   String get paywall_featureStats => 'Statistiques hebdomadaires';

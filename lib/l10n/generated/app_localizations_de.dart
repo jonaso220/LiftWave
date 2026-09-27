@@ -1243,7 +1243,7 @@ class SDe extends S {
   String get paywall_subtitle => 'Entfalte dein volles Potenzial';
 
   @override
-  String get paywall_featureTemplates => 'Trainingsvorlagen';
+  String get paywall_featureTemplates => 'Alle vordefinierten Trainings';
 
   @override
   String get paywall_featureHistory => 'Unbegrenzter Verlauf';
@@ -1255,7 +1255,12 @@ class SDe extends S {
   String get paywall_featureDetails => 'Übungsdetails';
 
   @override
-  String get paywall_featureMeasures => 'Körpermaße + Fotos';
+  String get paywall_featureMeasures =>
+      'Taille, Brust, Hüfte und Fortschrittsfotos';
+
+  @override
+  String get paywall_featureExerciseProgress =>
+      'Fortschrittsdiagramme pro Übung';
 
   @override
   String get paywall_featureStats => 'Wöchentliche Statistiken';

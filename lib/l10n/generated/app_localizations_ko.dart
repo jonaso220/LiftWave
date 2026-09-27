@@ -1179,7 +1179,7 @@ class SKo extends S {
   String get paywall_subtitle => '잠재력을 최대한 발휘하세요';
 
   @override
-  String get paywall_featureTemplates => '운동 템플릿';
+  String get paywall_featureTemplates => '모든 기본 루틴';
 
   @override
   String get paywall_featureHistory => '무제한 기록';
@@ -1191,7 +1191,10 @@ class SKo extends S {
   String get paywall_featureDetails => '운동 상세 정보';
 
   @override
-  String get paywall_featureMeasures => '신체 측정 + 사진';
+  String get paywall_featureMeasures => '허리·가슴·엉덩이 둘레와 진행 사진';
+
+  @override
+  String get paywall_featureExerciseProgress => '운동별 진행 그래프';
 
   @override
   String get paywall_featureStats => '주간 통계';

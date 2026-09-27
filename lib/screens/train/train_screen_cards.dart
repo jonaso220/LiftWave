@@ -201,13 +201,7 @@ class _ExerciseCard extends StatelessWidget {
                   onSelected: (v) {
                     if (v == 'delete') onDelete();
                     if (v == 'progress') {
-                      showModalBottomSheet(
-                        context: context,
-                        backgroundColor: Colors.transparent,
-                        isScrollControlled: true,
-                        builder: (_) =>
-                            ExerciseProgressSheet(exerciseName: exercise.name),
-                      );
+                      showExerciseProgress(context, exercise.name);
                     }
                   },
                   itemBuilder: (_) => [
@@ -227,6 +221,8 @@ class _ExerciseCard extends StatelessWidget {
                               color: AppColors.textPrimary,
                             ),
                           ),
+                          const SizedBox(width: 8),
+                          const ProBadge(),
                         ],
                       ),
                     ),

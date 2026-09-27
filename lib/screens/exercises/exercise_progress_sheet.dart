@@ -4,6 +4,23 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/workout_store.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/exercise_localization.dart';
+import '../../utils/pro_gate.dart';
+
+/// Opens the progress charts for [exerciseName], a PRO feature. Free users
+/// see the paywall first; the sheet opens if they subscribe there.
+Future<void> showExerciseProgress(
+  BuildContext context,
+  String exerciseName,
+) async {
+  if (!await requirePro(context)) return;
+  if (!context.mounted) return;
+  await showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (_) => ExerciseProgressSheet(exerciseName: exerciseName),
+  );
+}
 
 class ExerciseProgressSheet extends StatefulWidget {
   final String exerciseName;

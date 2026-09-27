@@ -303,13 +303,12 @@ class _PaywallScreenState extends State<PaywallScreen> {
   // ── Features ────────────────────────────────────────────────────────────────
 
   Widget _buildFeatures() {
+    // Only what PRO actually unlocks; keep in sync with the requirePro()
+    // gates (predefined templates, exercise progress, body measurements).
     final features = [
       (S.of(context).paywall_featureTemplates, Icons.fitness_center_rounded),
-      (S.of(context).paywall_featureHistory, Icons.history_rounded),
-      (S.of(context).paywall_featureTimer, Icons.timer_rounded),
-      (S.of(context).paywall_featureDetails, Icons.menu_book_rounded),
+      (S.of(context).paywall_featureExerciseProgress, Icons.show_chart_rounded),
       (S.of(context).paywall_featureMeasures, Icons.straighten_rounded),
-      (S.of(context).paywall_featureStats, Icons.bar_chart_rounded),
     ];
 
     return Container(
@@ -346,15 +345,17 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     child: Icon(f.$2, color: AppColors.accent, size: 18),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    f.$1,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                  Expanded(
+                    child: Text(
+                      f.$1,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   const Icon(
                     Icons.check_circle_rounded,
                     color: AppColors.accent,

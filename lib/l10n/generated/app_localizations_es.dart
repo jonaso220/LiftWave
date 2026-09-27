@@ -1243,7 +1243,7 @@ class SEs extends S {
   String get paywall_subtitle => 'Desbloquea todo tu potencial';
 
   @override
-  String get paywall_featureTemplates => 'Plantillas de entrenamiento';
+  String get paywall_featureTemplates => 'Todas las rutinas predefinidas';
 
   @override
   String get paywall_featureHistory => 'Historial ilimitado';
@@ -1255,7 +1255,12 @@ class SEs extends S {
   String get paywall_featureDetails => 'Detalles de ejercicios';
 
   @override
-  String get paywall_featureMeasures => 'Medidas corporales + fotos';
+  String get paywall_featureMeasures =>
+      'Cintura, pecho, cadera y fotos de progreso';
+
+  @override
+  String get paywall_featureExerciseProgress =>
+      'Gráficos de progreso por ejercicio';
 
   @override
   String get paywall_featureStats => 'Estadísticas semanales';

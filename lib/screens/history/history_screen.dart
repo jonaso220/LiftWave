@@ -8,9 +8,7 @@ import '../../data/mock_data.dart';
 import '../../data/training_preferences_store.dart';
 import '../../data/workout_store.dart';
 import '../../models/models.dart';
-import '../../services/subscription_service.dart';
 import '../../services/weekly_plan_service.dart';
-import '../../utils/pro_gate.dart';
 import '../../utils/routine_days.dart';
 import '../home/weekly_plan_card.dart';
 import '../profile/profile_screen.dart';
@@ -24,21 +22,16 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  /// Number of past workouts a free (non-PRO) user can browse.
-  static const _freeHistoryLimit = 15;
-
   @override
   void initState() {
     super.initState();
     WorkoutStore.instance.addListener(_onStoreChanged);
-    SubscriptionService.instance.addListener(_onStoreChanged);
     TrainingPreferencesStore.instance.addListener(_onStoreChanged);
   }
 
   @override
   void dispose() {
     WorkoutStore.instance.removeListener(_onStoreChanged);
-    SubscriptionService.instance.removeListener(_onStoreChanged);
     TrainingPreferencesStore.instance.removeListener(_onStoreChanged);
     super.dispose();
   }
@@ -86,14 +79,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     final allWorkouts = WorkoutStore.instance.workouts;
     final weekWorkouts = _weekWorkouts;
-    final isPro = SubscriptionService.instance.isPro;
-    final displayWorkouts = isPro
-        ? allWorkouts
-        : allWorkouts.take(_freeHistoryLimit).toList();
     final populatedDays = RoutineDay.values
         .where(
-          (day) =>
-              displayWorkouts.any((workout) => _dayForWorkout(workout) == day),
+          (day) => allWorkouts.any((workout) => _dayForWorkout(workout) == day),
         )
         .toList();
     final preferences = TrainingPreferencesStore.instance.preferences;
@@ -161,7 +149,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final day = populatedDays[index];
-                  final workouts = displayWorkouts
+                  final workouts = allWorkouts
                       .where((workout) => _dayForWorkout(workout) == day)
                       .toList();
                   return _RoutineDayHistoryCard(
@@ -239,87 +227,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    if (index >= displayWorkouts.length) return null;
-                    final workout = displayWorkouts[index];
-                    return _WorkoutHistoryCard(workout: workout)
-                        .animate()
-                        .fadeIn(
-                          delay: Duration(milliseconds: 60 * index),
-                          duration: 300.ms,
-                        )
-                        .slideX(begin: 0.05, end: 0);
-                  },
-                  childCount: SubscriptionService.instance.isPro
-                      ? allWorkouts.length
-                      : allWorkouts.length.clamp(0, _freeHistoryLimit),
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  if (index >= allWorkouts.length) return null;
+                  final workout = allWorkouts[index];
+                  return _WorkoutHistoryCard(workout: workout)
+                      .animate()
+                      .fadeIn(
+                        delay: Duration(milliseconds: 60 * index),
+                        duration: 300.ms,
+                      )
+                      .slideX(begin: 0.05, end: 0);
+                }, childCount: allWorkouts.length),
               ),
             ),
-
-            // ── Upgrade banner ──────────────────────────────────────────────
-            if (!SubscriptionService.instance.isPro &&
-                allWorkouts.length > _freeHistoryLimit)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 8,
-                  ),
-                  child: GestureDetector(
-                    onTap: () => requirePro(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(20),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: AppColors.primary.withAlpha(60),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.lock_rounded,
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  S.of(context).history_limitedHistory,
-                                  style: const TextStyle(
-                                    color: AppColors.textPrimary,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  S
-                                      .of(context)
-                                      .history_unlockWorkouts(
-                                        allWorkouts.length,
-                                      ),
-                                  style: const TextStyle(
-                                    color: AppColors.textMuted,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const ProBadge(),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
           ],
 
           const SliverToBoxAdapter(child: SizedBox(height: 32)),

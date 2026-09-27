@@ -1179,7 +1179,7 @@ class SJa extends S {
   String get paywall_subtitle => 'あなたの潜在能力を最大限に引き出そう';
 
   @override
-  String get paywall_featureTemplates => 'トレーニングテンプレート';
+  String get paywall_featureTemplates => 'すべてのプリセットメニュー';
 
   @override
   String get paywall_featureHistory => '無制限の履歴';
@@ -1191,7 +1191,10 @@ class SJa extends S {
   String get paywall_featureDetails => 'エクササイズの詳細';
 
   @override
-  String get paywall_featureMeasures => '体の測定値＋写真';
+  String get paywall_featureMeasures => 'ウエスト・胸囲・ヒップと進捗写真';
+
+  @override
+  String get paywall_featureExerciseProgress => '種目ごとの進捗グラフ';
 
   @override
   String get paywall_featureStats => '週間統計';

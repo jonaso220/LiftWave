@@ -2288,7 +2288,7 @@ abstract class S {
   /// No description provided for @paywall_featureTemplates.
   ///
   /// In es, this message translates to:
-  /// **'Plantillas de entrenamiento'**
+  /// **'Todas las rutinas predefinidas'**
   String get paywall_featureTemplates;
 
   /// No description provided for @paywall_featureHistory.
@@ -2312,8 +2312,14 @@ abstract class S {
   /// No description provided for @paywall_featureMeasures.
   ///
   /// In es, this message translates to:
-  /// **'Medidas corporales + fotos'**
+  /// **'Cintura, pecho, cadera y fotos de progreso'**
   String get paywall_featureMeasures;
+
+  /// No description provided for @paywall_featureExerciseProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Gráficos de progreso por ejercicio'**
+  String get paywall_featureExerciseProgress;
 
   /// No description provided for @paywall_featureStats.
   ///
