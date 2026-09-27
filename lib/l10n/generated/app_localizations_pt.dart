@@ -972,6 +972,19 @@ class SPt extends S {
   String get train_removeSet => 'Remover série';
 
   @override
+  String get rest_label => 'Descanso';
+
+  @override
+  String get rest_forExercise => 'Descanso para este exercício';
+
+  @override
+  String get rest_default => 'Padrão';
+
+  @override
+  String get rest_defaultHint =>
+      'Usa o tempo escolhido no cronômetro de descanso';
+
+  @override
   String get train_newRecords => 'Novos recordes';
 
   @override

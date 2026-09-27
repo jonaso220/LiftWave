@@ -29,6 +29,7 @@ import '../../utils/pro_gate.dart';
 import '../../utils/routine_days.dart';
 import '../../utils/weight_format.dart';
 import '../../widgets/common/muscle_chip.dart';
+import '../../widgets/rest_picker.dart';
 import '../../widgets/rest_timer_overlay.dart';
 import '../../widgets/session_set_row.dart';
 import 'exercise_picker_screen.dart';
@@ -474,6 +475,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
             name: ex.name,
             muscleGroup: ex.muscleGroup,
             equipment: ex.equipment,
+            restSeconds: ex.restSeconds,
             sets: List.generate(
               ex.sets,
               (_) => SessionSet(reps: ex.reps, weight: lastWeight ?? 0),
@@ -497,6 +499,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
             muscleGroup: ex.muscleGroup,
             equipment: ex.equipment,
             routineBlockName: t.name,
+            restSeconds: ex.restSeconds,
             sets: List.generate(
               ex.sets,
               (_) => SessionSet(reps: ex.reps, weight: lastWeight ?? ex.weight),
@@ -527,6 +530,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
               muscleGroup: ex.muscleGroup,
               equipment: ex.equipment,
               routineBlockName: block.name,
+              restSeconds: ex.restSeconds,
               sets: List.generate(
                 ex.sets,
                 (_) =>
@@ -1092,6 +1096,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                           sets: e.sets.length,
                           reps: e.sets.isNotEmpty ? e.sets.first.reps : 10,
                           weight: e.sets.isNotEmpty ? e.sets.first.weight : 0,
+                          restSeconds: e.restSeconds,
                         ),
                       )
                       .toList(),
@@ -1320,9 +1325,12 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     });
     _persistActiveWorkout();
     _syncWatch();
-    // Auto-start the rest timer when a set transitions to completed.
+    // Auto-start the rest timer when a set transitions to completed, with
+    // the exercise's own rest when the routine defines one.
     if (!wasCompleted) {
-      RestTimerController.instance.startWithDefault();
+      RestTimerController.instance.startWithDefault(
+        seconds: _exercises[exIndex].restSeconds,
+      );
     }
   }
 
@@ -1426,6 +1434,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
           // Built-in routines never guess a safe load. A known historical
           // load is applied only when the workout actually starts.
           weight: 0,
+          restSeconds: exercise.restSeconds,
         ),
       );
     }
@@ -1884,7 +1893,6 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                           _RoutineBlockHeader(name: exercise.routineBlockName!),
                         _ExerciseCard(
                           exercise: exercise,
-                          lastWeight: recommendation?.previousWeight,
                           previousSets: ProgressionService.previousSets(
                             exerciseName: exercise.name,
                             workouts: WorkoutStore.instance.workouts,

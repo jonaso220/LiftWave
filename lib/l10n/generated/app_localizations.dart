@@ -1835,6 +1835,30 @@ abstract class S {
   /// **'Eliminar serie'**
   String get train_removeSet;
 
+  /// No description provided for @rest_label.
+  ///
+  /// In es, this message translates to:
+  /// **'Descanso'**
+  String get rest_label;
+
+  /// No description provided for @rest_forExercise.
+  ///
+  /// In es, this message translates to:
+  /// **'Descanso para este ejercicio'**
+  String get rest_forExercise;
+
+  /// No description provided for @rest_default.
+  ///
+  /// In es, this message translates to:
+  /// **'Predeterminado'**
+  String get rest_default;
+
+  /// No description provided for @rest_defaultHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Usa el tiempo elegido en el temporizador de descanso'**
+  String get rest_defaultHint;
+
   /// No description provided for @train_newRecords.
   ///
   /// In es, this message translates to:

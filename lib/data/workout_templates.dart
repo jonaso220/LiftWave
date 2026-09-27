@@ -12,6 +12,10 @@ class TemplateExercise {
   final int reps;
   final double weight;
 
+  /// Rest after each set of this exercise. Null uses the rest timer's
+  /// current duration.
+  final int? restSeconds;
+
   const TemplateExercise({
     required this.name,
     required this.muscleGroup,
@@ -19,6 +23,7 @@ class TemplateExercise {
     required this.sets,
     required this.reps,
     required this.weight,
+    this.restSeconds,
   });
 
   /// Builds the mutable SessionSets for an active workout.
@@ -32,6 +37,7 @@ class TemplateExercise {
     'sets': sets,
     'reps': reps,
     'weight': weight,
+    if (restSeconds != null) 'restSeconds': restSeconds,
   };
 
   factory TemplateExercise.fromJson(Map<String, dynamic> json) =>
@@ -42,6 +48,7 @@ class TemplateExercise {
         sets: json['sets'] as int,
         reps: json['reps'] as int,
         weight: (json['weight'] as num).toDouble(),
+        restSeconds: (json['restSeconds'] as num?)?.toInt(),
       );
 }
 

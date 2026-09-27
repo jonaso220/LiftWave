@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/exercise_localization.dart';
@@ -117,17 +116,11 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSearchBar().animate().fadeIn(duration: 300.ms),
+                  _buildSearchBar(),
                   const SizedBox(height: 14),
-                  _buildMuscleFilter().animate().fadeIn(
-                    delay: 80.ms,
-                    duration: 300.ms,
-                  ),
+                  _buildMuscleFilter(),
                   const SizedBox(height: 10),
-                  _buildEquipmentFilter().animate().fadeIn(
-                    delay: 130.ms,
-                    duration: 300.ms,
-                  ),
+                  _buildEquipmentFilter(),
                   const SizedBox(height: 16),
                   Row(
                     children: [
@@ -175,19 +168,14 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final ex = filtered[index];
                       final isCustom = ex.id.startsWith('custom_');
+                      // No per-item entrance animation: items are built
+                      // lazily while scrolling, so a staggered delay made
+                      // far items (and every filter change) appear late.
                       return _ExerciseCard(
-                            exercise: ex,
-                            onStartWorkout: widget.onStartWorkout,
-                            onDelete: isCustom
-                                ? () => _confirmDelete(ex)
-                                : null,
-                          )
-                          .animate()
-                          .fadeIn(
-                            delay: Duration(milliseconds: 40 * index),
-                            duration: 250.ms,
-                          )
-                          .slideY(begin: 0.03, end: 0);
+                        exercise: ex,
+                        onStartWorkout: widget.onStartWorkout,
+                        onDelete: isCustom ? () => _confirmDelete(ex) : null,
+                      );
                     }, childCount: filtered.length),
                   ),
           ),

@@ -206,15 +206,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
       if (block != null && block != previousBlock) {
         widgets.add(_RoutineBlockTitle(name: block));
       }
-      widgets.add(
-        _ExerciseDetailCard(exercise: exercise)
-            .animate()
-            .fadeIn(
-              delay: Duration(milliseconds: 80 * index),
-              duration: 300.ms,
-            )
-            .slideY(begin: 0.05, end: 0),
-      );
+      widgets.add(_ExerciseDetailCard(exercise: exercise));
       previousBlock = block;
     }
     return widgets;

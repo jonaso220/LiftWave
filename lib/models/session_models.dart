@@ -54,6 +54,10 @@ class SessionExercise {
   String? notes;
   final String? routineBlockName;
 
+  /// Rest after each completed set. Null uses the rest timer's current
+  /// duration.
+  int? restSeconds;
+
   SessionExercise({
     required this.id,
     required this.name,
@@ -62,6 +66,7 @@ class SessionExercise {
     required this.sets,
     this.notes,
     this.routineBlockName,
+    this.restSeconds,
   });
 
   /// Training volume for sets the user actually completed.
@@ -120,6 +125,7 @@ class SessionExercise {
     'sets': sets.map((s) => s.toJson()).toList(),
     'notes': notes,
     'routineBlockName': routineBlockName,
+    if (restSeconds != null) 'restSeconds': restSeconds,
   };
 
   factory SessionExercise.fromJson(Map<String, dynamic> j) => SessionExercise(
@@ -132,5 +138,6 @@ class SessionExercise {
         .toList(),
     notes: j['notes'] as String?,
     routineBlockName: j['routineBlockName'] as String?,
+    restSeconds: (j['restSeconds'] as num?)?.toInt(),
   );
 }

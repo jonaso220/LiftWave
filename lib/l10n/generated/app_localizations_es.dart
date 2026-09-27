@@ -975,6 +975,19 @@ class SEs extends S {
   String get train_removeSet => 'Eliminar serie';
 
   @override
+  String get rest_label => 'Descanso';
+
+  @override
+  String get rest_forExercise => 'Descanso para este ejercicio';
+
+  @override
+  String get rest_default => 'Predeterminado';
+
+  @override
+  String get rest_defaultHint =>
+      'Usa el tiempo elegido en el temporizador de descanso';
+
+  @override
   String get train_newRecords => 'Nuevos récords';
 
   @override

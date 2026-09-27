@@ -973,6 +973,18 @@ class SDe extends S {
   String get train_removeSet => 'Satz entfernen';
 
   @override
+  String get rest_label => 'Pause';
+
+  @override
+  String get rest_forExercise => 'Pause für diese Übung';
+
+  @override
+  String get rest_default => 'Standard';
+
+  @override
+  String get rest_defaultHint => 'Nutzt die im Pausentimer gewählte Zeit';
+
+  @override
   String get train_newRecords => 'Neue Rekorde';
 
   @override

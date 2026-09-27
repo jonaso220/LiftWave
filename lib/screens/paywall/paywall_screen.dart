@@ -205,45 +205,24 @@ class _PaywallScreenState extends State<PaywallScreen> {
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
+                // One short fade for the whole page: the subscribe button
+                // used to appear only after ~0.9 s of staggered animations.
                 child: Column(
                   children: [
-                    _buildHeader()
-                        .animate()
-                        .fadeIn(duration: 500.ms)
-                        .slideY(begin: -0.15, end: 0, duration: 500.ms),
+                    _buildHeader(),
                     const SizedBox(height: 32),
-                    _buildFeatures().animate().fadeIn(
-                      delay: 200.ms,
-                      duration: 400.ms,
-                    ),
+                    _buildFeatures(),
                     const SizedBox(height: 32),
-                    _buildPricingArea().animate().fadeIn(
-                      delay: 350.ms,
-                      duration: 400.ms,
-                    ),
+                    _buildPricingArea(),
                     const SizedBox(height: 24),
-                    _buildTrialBanner().animate().fadeIn(
-                      delay: 450.ms,
-                      duration: 400.ms,
-                    ),
+                    _buildTrialBanner(),
                     const SizedBox(height: 16),
-                    _buildCTA()
-                        .animate()
-                        .fadeIn(delay: 500.ms, duration: 400.ms)
-                        .slideY(
-                          begin: 0.2,
-                          end: 0,
-                          delay: 500.ms,
-                          duration: 400.ms,
-                        ),
+                    _buildCTA(),
                     const SizedBox(height: 16),
-                    _buildFooter().animate().fadeIn(
-                      delay: 550.ms,
-                      duration: 400.ms,
-                    ),
+                    _buildFooter(),
                     const SizedBox(height: 32),
                   ],
-                ),
+                ).animate().fadeIn(duration: 200.ms),
               ),
             ),
           ],

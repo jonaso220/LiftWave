@@ -978,6 +978,19 @@ class SFr extends S {
   String get train_removeSet => 'Supprimer la série';
 
   @override
+  String get rest_label => 'Repos';
+
+  @override
+  String get rest_forExercise => 'Repos pour cet exercice';
+
+  @override
+  String get rest_default => 'Par défaut';
+
+  @override
+  String get rest_defaultHint =>
+      'Utilise la durée choisie dans le minuteur de repos';
+
+  @override
   String get train_newRecords => 'Nouveaux records';
 
   @override

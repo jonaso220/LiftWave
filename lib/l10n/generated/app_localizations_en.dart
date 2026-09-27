@@ -966,6 +966,18 @@ class SEn extends S {
   String get train_removeSet => 'Remove set';
 
   @override
+  String get rest_label => 'Rest';
+
+  @override
+  String get rest_forExercise => 'Rest for this exercise';
+
+  @override
+  String get rest_default => 'Default';
+
+  @override
+  String get rest_defaultHint => 'Uses the time chosen on the rest timer';
+
+  @override
   String get train_newRecords => 'New records';
 
   @override

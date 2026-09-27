@@ -930,6 +930,18 @@ class SKo extends S {
   String get train_removeSet => '세트 삭제';
 
   @override
+  String get rest_label => '휴식';
+
+  @override
+  String get rest_forExercise => '이 운동의 휴식';
+
+  @override
+  String get rest_default => '기본값';
+
+  @override
+  String get rest_defaultHint => '휴식 타이머에서 선택한 시간 사용';
+
+  @override
   String get train_newRecords => '새 기록';
 
   @override

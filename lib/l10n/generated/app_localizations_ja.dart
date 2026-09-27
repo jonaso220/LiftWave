@@ -930,6 +930,18 @@ class SJa extends S {
   String get train_removeSet => 'セットを削除';
 
   @override
+  String get rest_label => '休憩';
+
+  @override
+  String get rest_forExercise => 'この種目の休憩';
+
+  @override
+  String get rest_default => 'デフォルト';
+
+  @override
+  String get rest_defaultHint => '休憩タイマーで選んだ時間を使用';
+
+  @override
   String get train_newRecords => '新記録';
 
   @override

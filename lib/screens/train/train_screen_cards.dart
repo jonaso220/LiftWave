@@ -94,7 +94,6 @@ class _ExerciseCard extends StatelessWidget {
   final void Function(int) onToggleDone;
   final VoidCallback onDelete;
   final VoidCallback onSetChanged;
-  final double? _lastWeight;
   final List<WorkoutSet> previousSets;
   final ProgressionRecommendation? recommendation;
   final VoidCallback? onApplyRecommendation;
@@ -109,8 +108,7 @@ class _ExerciseCard extends StatelessWidget {
     this.previousSets = const [],
     this.recommendation,
     this.onApplyRecommendation,
-    double? lastWeight,
-  }) : _lastWeight = lastWeight;
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +116,6 @@ class _ExerciseCard extends StatelessWidget {
     final color = colorForMuscle(exercise.muscleGroup);
     final done = exercise.completedSets;
     final total = exercise.sets.length;
-    final lastW = _lastWeight;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -177,20 +174,21 @@ class _ExerciseCard extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                          if (done == 0 && lastW != null) ...[
-                            const Spacer(),
-                            Text(
-                              l10n.train_lastWeight(
-                                lastW == lastW.roundToDouble()
-                                    ? lastW.toStringAsFixed(0)
-                                    : lastW.toStringAsFixed(1),
-                              ),
-                              style: TextStyle(
-                                color: AppColors.textMuted,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ],
+                          // Last session's load now lives in the PREVIOUS
+                          // column, so this spot shows the exercise's rest.
+                          const Spacer(),
+                          RestBadge(
+                            seconds: exercise.restSeconds,
+                            onTap: () async {
+                              final choice = await showRestPicker(
+                                context,
+                                current: exercise.restSeconds,
+                              );
+                              if (choice == null) return;
+                              exercise.restSeconds = choice.seconds;
+                              onSetChanged();
+                            },
+                          ),
                         ],
                       ),
                     ],

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/muscle_colors.dart';
@@ -230,13 +229,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 delegate: SliverChildBuilderDelegate((context, index) {
                   if (index >= allWorkouts.length) return null;
                   final workout = allWorkouts[index];
-                  return _WorkoutHistoryCard(workout: workout)
-                      .animate()
-                      .fadeIn(
-                        delay: Duration(milliseconds: 60 * index),
-                        duration: 300.ms,
-                      )
-                      .slideX(begin: 0.05, end: 0);
+                  // Built lazily while scrolling: a per-index delay made
+                  // older workouts show up seconds late.
+                  return _WorkoutHistoryCard(workout: workout);
                 }, childCount: allWorkouts.length),
               ),
             ),

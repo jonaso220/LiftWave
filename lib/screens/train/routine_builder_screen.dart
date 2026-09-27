@@ -7,6 +7,7 @@ import '../../data/custom_template_store.dart';
 import '../../data/workout_templates.dart';
 import '../../models/models.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/rest_picker.dart';
 import '../../utils/exercise_localization.dart';
 import '../../utils/routine_days.dart';
 import '../../widgets/common/muscle_chip.dart';
@@ -81,6 +82,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
             'equipment': draft.exercise.equipment,
             'sets': draft.sets,
             'reps': draft.reps,
+            'restSeconds': draft.restSeconds,
           },
         )
         .toList(),
@@ -194,6 +196,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
                 sets: draft.sets,
                 reps: draft.reps,
                 weight: 0,
+                restSeconds: draft.restSeconds,
               ),
             )
             .toList(),
@@ -405,6 +408,7 @@ class _PlannedExercise {
   final Exercise exercise;
   int sets;
   int reps;
+  int? restSeconds;
 
   _PlannedExercise({required this.exercise}) : sets = 3, reps = 10;
 
@@ -418,7 +422,8 @@ class _PlannedExercise {
         description: '',
       ),
       sets = template.sets,
-      reps = template.reps;
+      reps = template.reps,
+      restSeconds = template.restSeconds;
 }
 
 class _PlannedExerciseCard extends StatelessWidget {
@@ -524,6 +529,32 @@ class _PlannedExerciseCard extends StatelessWidget {
                     onChanged();
                   },
                 ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Text(
+                l10n.rest_label,
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              RestBadge(
+                seconds: draft.restSeconds,
+                onTap: () async {
+                  final choice = await showRestPicker(
+                    context,
+                    current: draft.restSeconds,
+                  );
+                  if (choice == null) return;
+                  draft.restSeconds = choice.seconds;
+                  onChanged();
+                },
               ),
             ],
           ),
