@@ -194,6 +194,67 @@ class SKo extends S {
   String get login_continueEmail => '이메일로 계속하기';
 
   @override
+  String get login_continueGuest => '계정 없이 계속하기';
+
+  @override
+  String get guest_name => '게스트';
+
+  @override
+  String get guest_saveProgressTitle => '진행 상황을 저장하세요';
+
+  @override
+  String get guest_saveProgressBody =>
+      '게스트로 LiftWave를 사용 중입니다. 휴대폰을 바꾸거나 앱을 다시 설치해도 운동 기록을 잃지 않도록 무료 계정을 만드세요.';
+
+  @override
+  String get guest_createAccount => '계정 만들기';
+
+  @override
+  String get guest_notNow => '나중에';
+
+  @override
+  String get guest_createAccountSubtitle => '진행 상황을 잃지 않도록 계정을 만드세요';
+
+  @override
+  String get guest_accountCreated => '계정이 생성되었습니다. 운동 기록이 안전하게 보관됩니다.';
+
+  @override
+  String get guest_existingAccountTitle => '이미 존재하는 계정입니다';
+
+  @override
+  String get guest_existingAccountBody =>
+      '이 계정으로 로그인하면 게스트로 기록한 운동은 옮겨지지 않습니다.';
+
+  @override
+  String get guest_signInAnyway => '그래도 로그인';
+
+  @override
+  String get guest_leave => '게스트 모드 종료';
+
+  @override
+  String get guest_leaveBody => '계정이 없으므로 운동 기록과 데이터가 삭제됩니다. 이 작업은 되돌릴 수 없습니다.';
+
+  @override
+  String train_reasonIncreaseLoad(int reps, String weight, int min, int max) {
+    return '$weight kg로 $reps회, 목표 범위($min–$max회)의 상한에 도달했어요. 무게를 올릴 때예요.';
+  }
+
+  @override
+  String train_reasonAddRep(int reps, String weight) {
+    return '$weight kg로 $reps회 했어요. 무게를 올리기 전에 1회 더 해보세요.';
+  }
+
+  @override
+  String train_reasonConsolidate(int reps, String weight, int min, int max) {
+    return '$reps회로 목표 범위($min–$max회)보다 적었어요. $min회에 도달할 때까지 $weight kg를 유지하세요.';
+  }
+
+  @override
+  String train_reasonBodyweight(int reps) {
+    return '$reps회 했어요. 1회 더 도전해보세요.';
+  }
+
+  @override
   String get login_legal => '계속하면 이용약관 및\n개인정보 처리방침에 동의하게 됩니다.';
 
   @override

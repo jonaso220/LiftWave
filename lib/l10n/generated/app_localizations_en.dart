@@ -195,6 +195,69 @@ class SEn extends S {
   String get login_continueEmail => 'Continue with email';
 
   @override
+  String get login_continueGuest => 'Continue without an account';
+
+  @override
+  String get guest_name => 'Guest';
+
+  @override
+  String get guest_saveProgressTitle => 'Save your progress';
+
+  @override
+  String get guest_saveProgressBody =>
+      'You\'re using LiftWave as a guest. Create a free account so you don\'t lose your workouts if you change phones or reinstall the app.';
+
+  @override
+  String get guest_createAccount => 'Create account';
+
+  @override
+  String get guest_notNow => 'Not now';
+
+  @override
+  String get guest_createAccountSubtitle =>
+      'Create an account so you don\'t lose your progress';
+
+  @override
+  String get guest_accountCreated => 'Account created. Your workouts are safe.';
+
+  @override
+  String get guest_existingAccountTitle => 'This account already exists';
+
+  @override
+  String get guest_existingAccountBody =>
+      'If you sign in with it, the workouts you logged as a guest won\'t be moved to that account.';
+
+  @override
+  String get guest_signInAnyway => 'Sign in anyway';
+
+  @override
+  String get guest_leave => 'Leave guest mode';
+
+  @override
+  String get guest_leaveBody =>
+      'Since you don\'t have an account, your workouts and data will be deleted. This can\'t be undone.';
+
+  @override
+  String train_reasonIncreaseLoad(int reps, String weight, int min, int max) {
+    return 'You did $reps reps at $weight kg, the top of your range ($min–$max). Time to add weight.';
+  }
+
+  @override
+  String train_reasonAddRep(int reps, String weight) {
+    return 'You did $reps reps at $weight kg. Add one rep before adding weight.';
+  }
+
+  @override
+  String train_reasonConsolidate(int reps, String weight, int min, int max) {
+    return 'You did $reps reps, below your range ($min–$max). Stay at $weight kg until you reach $min.';
+  }
+
+  @override
+  String train_reasonBodyweight(int reps) {
+    return 'You did $reps reps. Try one more.';
+  }
+
+  @override
   String get login_legal =>
       'By continuing, you agree to our terms of service\nand privacy policy.';
 

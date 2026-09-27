@@ -366,11 +366,30 @@ class _ProgressionSuggestion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
-    final reason = switch (recommendation.action) {
-      ProgressionAction.increaseLoad => l10n.train_increaseLoad,
-      ProgressionAction.addRepetition ||
-      ProgressionAction.bodyweightRepetition => l10n.train_addRepetition,
-      ProgressionAction.consolidateLoad => l10n.train_consolidateLoad,
+    final r = recommendation;
+    final locale = Localizations.localeOf(context).toString();
+    final previousWeight = formatWeight(r.previousWeight, locale);
+    // One sentence that explains the suggestion from last session's numbers.
+    final reason = switch (r.action) {
+      ProgressionAction.increaseLoad => l10n.train_reasonIncreaseLoad(
+        r.previousReps,
+        previousWeight,
+        r.range.min,
+        r.range.max,
+      ),
+      ProgressionAction.addRepetition => l10n.train_reasonAddRep(
+        r.previousReps,
+        previousWeight,
+      ),
+      ProgressionAction.consolidateLoad => l10n.train_reasonConsolidate(
+        r.previousReps,
+        previousWeight,
+        r.range.min,
+        r.range.max,
+      ),
+      ProgressionAction.bodyweightRepetition => l10n.train_reasonBodyweight(
+        r.previousReps,
+      ),
     };
     final target = recommendation.suggestedWeight > 0
         ? '${_formatWeight(recommendation.suggestedWeight)} kg × '
@@ -423,11 +442,13 @@ class _ProgressionSuggestion extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
                     reason,
                     style: const TextStyle(
                       color: AppColors.textMuted,
-                      fontSize: 10,
+                      fontSize: 11,
+                      height: 1.3,
                     ),
                   ),
                 ],

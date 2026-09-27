@@ -15,6 +15,7 @@ import '../../models/training_preferences.dart';
 import '../../data/workout_store.dart';
 import '../exercises/exercise_progress_sheet.dart';
 import '../exercises/exercises_screen.dart';
+import '../auth/guest_prompts.dart';
 import '../../services/rest_timer_controller.dart';
 import '../../services/progression_service.dart';
 import '../../services/watch_service.dart';
@@ -25,6 +26,7 @@ import '../../utils/exercise_localization.dart';
 import '../../utils/muscle_colors.dart';
 import '../../utils/pro_gate.dart';
 import '../../utils/routine_days.dart';
+import '../../utils/weight_format.dart';
 import '../../widgets/common/muscle_chip.dart';
 import '../../widgets/rest_timer_overlay.dart';
 import '../../widgets/session_set_row.dart';
@@ -773,9 +775,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                     WorkoutLauncher.instance.sessionActive.value = false;
                     _syncWatch();
                     ActiveWorkoutStore.instance.clear();
-                    if (newAchievements.isNotEmpty) {
-                      _showAchievementPopup(newAchievements);
-                    }
+                    unawaited(_afterWorkoutSaved(newAchievements));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -835,9 +835,17 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     WorkoutStore.instance.add(workout);
   }
 
-  void _showAchievementPopup(List<Achievement> achievements) {
+  /// Celebrates new achievements, then asks a guest to save their progress.
+  Future<void> _afterWorkoutSaved(List<Achievement> newAchievements) async {
+    if (newAchievements.isNotEmpty) {
+      await _showAchievementPopup(newAchievements);
+    }
+    if (mounted) await maybeShowSaveProgressPrompt(context);
+  }
+
+  Future<void> _showAchievementPopup(List<Achievement> achievements) {
     final l10n = S.of(context);
-    showDialog(
+    return showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.bgCard,
@@ -1093,6 +1101,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       exerciseName: exerciseName,
       equipment: equipment,
       workouts: WorkoutStore.instance.workouts,
+      goal: TrainingPreferencesStore.instance.preferences?.goal,
     );
   }
 

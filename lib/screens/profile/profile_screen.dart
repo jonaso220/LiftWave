@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
@@ -5,6 +7,7 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../services/auth_service.dart';
 import '../../services/subscription_service.dart';
 import '../../theme/app_theme.dart';
+import '../auth/guest_prompts.dart';
 import '../onboarding/training_preferences_screen.dart';
 import '../paywall/paywall_screen.dart';
 
@@ -18,15 +21,21 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  // Linking a guest account keeps the same user, so authStateChanges() stays
+  // silent; userChanges() reports the new name, email and providers.
+  StreamSubscription<User?>? _userSub;
+
   @override
   void initState() {
     super.initState();
     SubscriptionService.instance.addListener(_onChanged);
+    _userSub = FirebaseAuth.instance.userChanges().listen((_) => _onChanged());
   }
 
   @override
   void dispose() {
     SubscriptionService.instance.removeListener(_onChanged);
+    _userSub?.cancel();
     super.dispose();
   }
 
@@ -39,6 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final l10n = S.of(context);
     final user = FirebaseAuth.instance.currentUser;
     final isPro = SubscriptionService.instance.isPro;
+    final isGuest = user?.isAnonymous ?? false;
 
     return Scaffold(
       body: CustomScrollView(
@@ -49,7 +59,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
               child: Column(
                 children: [
-                  if (user != null) ...[
+                  if (isGuest) ...[
+                    const _GuestCard(),
+                    const SizedBox(height: 24),
+                  ] else if (user != null) ...[
                     ProfileAvatar(size: 72),
                     const SizedBox(height: 12),
                     if (user.displayName?.isNotEmpty == true)
@@ -151,32 +164,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  _Section(
-                    children: [
-                      ListTile(
-                        leading: const Icon(
-                          Icons.logout_rounded,
-                          color: AppColors.textSecondary,
+                  if (isGuest)
+                    _Section(
+                      children: [
+                        ListTile(
+                          leading: const Icon(
+                            Icons.logout_rounded,
+                            color: AppColors.error,
+                          ),
+                          title: Text(
+                            l10n.guest_leave,
+                            style: const TextStyle(color: AppColors.error),
+                          ),
+                          onTap: _confirmLeaveGuest,
                         ),
-                        title: Text(
-                          l10n.profile_signOut,
-                          style: const TextStyle(color: AppColors.textPrimary),
+                      ],
+                    )
+                  else
+                    _Section(
+                      children: [
+                        ListTile(
+                          leading: const Icon(
+                            Icons.logout_rounded,
+                            color: AppColors.textSecondary,
+                          ),
+                          title: Text(
+                            l10n.profile_signOut,
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          onTap: () => AuthService.instance.signOut(),
                         ),
-                        onTap: () => AuthService.instance.signOut(),
-                      ),
-                      ListTile(
-                        leading: const Icon(
-                          Icons.delete_forever_rounded,
-                          color: AppColors.error,
+                        ListTile(
+                          leading: const Icon(
+                            Icons.delete_forever_rounded,
+                            color: AppColors.error,
+                          ),
+                          title: Text(
+                            l10n.profile_deleteAccount,
+                            style: const TextStyle(color: AppColors.error),
+                          ),
+                          onTap: _confirmDeleteAccount,
                         ),
-                        title: Text(
-                          l10n.profile_deleteAccount,
-                          style: const TextStyle(color: AppColors.error),
-                        ),
-                        onTap: _confirmDeleteAccount,
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -221,6 +253,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: background,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  /// A guest cannot sign back in, so leaving deletes their data instead of
+  /// orphaning it.
+  void _confirmLeaveGuest() {
+    final l10n = S.of(context);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        title: Text(
+          l10n.guest_leave,
+          style: const TextStyle(color: AppColors.textPrimary),
+        ),
+        content: Text(
+          l10n.guest_leaveBody,
+          style: const TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.common_cancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              try {
+                await AuthService.instance.deleteAccount();
+              } on FirebaseAuthException catch (e) {
+                if (mounted) {
+                  _showSnack(
+                    AuthService.errorMessage(e.code, S.of(context)),
+                    AppColors.error,
+                  );
+                }
+              } catch (_) {
+                if (mounted) {
+                  _showSnack(l10n.authError_default, AppColors.error);
+                }
+              }
+            },
+            child: Text(
+              l10n.guest_leave,
+              style: const TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -402,6 +483,74 @@ class ProfileAvatar extends StatelessWidget {
             fontSize: size * 0.44,
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Invites a guest to create an account so their workouts are kept.
+class _GuestCard extends StatelessWidget {
+  const _GuestCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withAlpha(20),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.primary.withAlpha(70)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const ProfileAvatar(size: 44),
+              const SizedBox(width: 12),
+              Text(
+                l10n.guest_name,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            l10n.guest_saveProgressBody,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 13,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => openCreateAccount(context),
+              icon: const Icon(Icons.person_add_alt_1_rounded),
+              label: Text(l10n.guest_createAccount),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                textStyle: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

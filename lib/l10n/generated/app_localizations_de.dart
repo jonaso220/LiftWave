@@ -195,6 +195,70 @@ class SDe extends S {
   String get login_continueEmail => 'Weiter mit E-Mail';
 
   @override
+  String get login_continueGuest => 'Ohne Konto fortfahren';
+
+  @override
+  String get guest_name => 'Gast';
+
+  @override
+  String get guest_saveProgressTitle => 'Sichere deinen Fortschritt';
+
+  @override
+  String get guest_saveProgressBody =>
+      'Du nutzt LiftWave als Gast. Erstelle ein kostenloses Konto, damit deine Trainings beim Handywechsel oder bei einer Neuinstallation nicht verloren gehen.';
+
+  @override
+  String get guest_createAccount => 'Konto erstellen';
+
+  @override
+  String get guest_notNow => 'Nicht jetzt';
+
+  @override
+  String get guest_createAccountSubtitle =>
+      'Erstelle ein Konto, damit dein Fortschritt nicht verloren geht';
+
+  @override
+  String get guest_accountCreated =>
+      'Konto erstellt. Deine Trainings sind gesichert.';
+
+  @override
+  String get guest_existingAccountTitle => 'Dieses Konto existiert bereits';
+
+  @override
+  String get guest_existingAccountBody =>
+      'Wenn du dich damit anmeldest, werden deine Gast-Trainings nicht in dieses Konto übernommen.';
+
+  @override
+  String get guest_signInAnyway => 'Trotzdem anmelden';
+
+  @override
+  String get guest_leave => 'Gastmodus verlassen';
+
+  @override
+  String get guest_leaveBody =>
+      'Da du kein Konto hast, werden deine Trainings und Daten gelöscht. Das kann nicht rückgängig gemacht werden.';
+
+  @override
+  String train_reasonIncreaseLoad(int reps, String weight, int min, int max) {
+    return 'Du hast $reps Wdh. mit $weight kg geschafft, das Maximum deines Bereichs ($min–$max). Zeit, das Gewicht zu erhöhen.';
+  }
+
+  @override
+  String train_reasonAddRep(int reps, String weight) {
+    return 'Du hast $reps Wdh. mit $weight kg geschafft. Schaffe eine Wdh. mehr, bevor du das Gewicht erhöhst.';
+  }
+
+  @override
+  String train_reasonConsolidate(int reps, String weight, int min, int max) {
+    return 'Du hast $reps Wdh. geschafft, unter deinem Bereich ($min–$max). Bleib bei $weight kg, bis du $min erreichst.';
+  }
+
+  @override
+  String train_reasonBodyweight(int reps) {
+    return 'Du hast $reps Wdh. geschafft. Versuche eine mehr.';
+  }
+
+  @override
   String get login_legal =>
       'Mit der Nutzung akzeptierst du unsere Nutzungsbedingungen\nund Datenschutzrichtlinie.';
 

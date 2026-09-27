@@ -473,6 +473,108 @@ abstract class S {
   /// **'Continuar con correo'**
   String get login_continueEmail;
 
+  /// No description provided for @login_continueGuest.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar sin cuenta'**
+  String get login_continueGuest;
+
+  /// No description provided for @guest_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitado'**
+  String get guest_name;
+
+  /// No description provided for @guest_saveProgressTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Guarda tu progreso'**
+  String get guest_saveProgressTitle;
+
+  /// No description provided for @guest_saveProgressBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Estás usando LiftWave como invitado. Crea una cuenta gratis para no perder tus entrenamientos si cambias de teléfono o reinstalas la app.'**
+  String get guest_saveProgressBody;
+
+  /// No description provided for @guest_createAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear cuenta'**
+  String get guest_createAccount;
+
+  /// No description provided for @guest_notNow.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahora no'**
+  String get guest_notNow;
+
+  /// No description provided for @guest_createAccountSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea una cuenta para no perder tu progreso'**
+  String get guest_createAccountSubtitle;
+
+  /// No description provided for @guest_accountCreated.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuenta creada. Tus entrenamientos están a salvo.'**
+  String get guest_accountCreated;
+
+  /// No description provided for @guest_existingAccountTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta cuenta ya existe'**
+  String get guest_existingAccountTitle;
+
+  /// No description provided for @guest_existingAccountBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Si inicias sesión con ella, los entrenamientos que hiciste como invitado no se pasan a esa cuenta.'**
+  String get guest_existingAccountBody;
+
+  /// No description provided for @guest_signInAnyway.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión igual'**
+  String get guest_signInAnyway;
+
+  /// No description provided for @guest_leave.
+  ///
+  /// In es, this message translates to:
+  /// **'Salir del modo invitado'**
+  String get guest_leave;
+
+  /// No description provided for @guest_leaveBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Como no tienes una cuenta, se borrarán tus entrenamientos y datos. Esta acción no se puede deshacer.'**
+  String get guest_leaveBody;
+
+  /// No description provided for @train_reasonIncreaseLoad.
+  ///
+  /// In es, this message translates to:
+  /// **'Hiciste {reps} reps con {weight} kg, el tope de tu rango ({min}–{max}). Toca subir el peso.'**
+  String train_reasonIncreaseLoad(int reps, String weight, int min, int max);
+
+  /// No description provided for @train_reasonAddRep.
+  ///
+  /// In es, this message translates to:
+  /// **'Hiciste {reps} reps con {weight} kg. Suma una repetición antes de subir el peso.'**
+  String train_reasonAddRep(int reps, String weight);
+
+  /// No description provided for @train_reasonConsolidate.
+  ///
+  /// In es, this message translates to:
+  /// **'Hiciste {reps} reps, por debajo de tu rango ({min}–{max}). Mantén {weight} kg hasta llegar a {min}.'**
+  String train_reasonConsolidate(int reps, String weight, int min, int max);
+
+  /// No description provided for @train_reasonBodyweight.
+  ///
+  /// In es, this message translates to:
+  /// **'Hiciste {reps} reps. Intenta sumar una más.'**
+  String train_reasonBodyweight(int reps);
+
   /// No description provided for @login_legal.
   ///
   /// In es, this message translates to:

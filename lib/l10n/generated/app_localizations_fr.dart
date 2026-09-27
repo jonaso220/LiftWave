@@ -195,6 +195,70 @@ class SFr extends S {
   String get login_continueEmail => 'Continuer par e-mail';
 
   @override
+  String get login_continueGuest => 'Continuer sans compte';
+
+  @override
+  String get guest_name => 'Invité';
+
+  @override
+  String get guest_saveProgressTitle => 'Sauvegardez votre progression';
+
+  @override
+  String get guest_saveProgressBody =>
+      'Vous utilisez LiftWave en tant qu\'invité. Créez un compte gratuit pour ne pas perdre vos entraînements si vous changez de téléphone ou réinstallez l\'app.';
+
+  @override
+  String get guest_createAccount => 'Créer un compte';
+
+  @override
+  String get guest_notNow => 'Pas maintenant';
+
+  @override
+  String get guest_createAccountSubtitle =>
+      'Créez un compte pour ne pas perdre votre progression';
+
+  @override
+  String get guest_accountCreated =>
+      'Compte créé. Vos entraînements sont en sécurité.';
+
+  @override
+  String get guest_existingAccountTitle => 'Ce compte existe déjà';
+
+  @override
+  String get guest_existingAccountBody =>
+      'Si vous vous connectez avec ce compte, les entraînements faits en tant qu\'invité n\'y seront pas transférés.';
+
+  @override
+  String get guest_signInAnyway => 'Se connecter quand même';
+
+  @override
+  String get guest_leave => 'Quitter le mode invité';
+
+  @override
+  String get guest_leaveBody =>
+      'Comme vous n\'avez pas de compte, vos entraînements et données seront supprimés. Cette action est irréversible.';
+
+  @override
+  String train_reasonIncreaseLoad(int reps, String weight, int min, int max) {
+    return 'Vous avez fait $reps répétitions à $weight kg, le haut de votre plage ($min–$max). Augmentez la charge.';
+  }
+
+  @override
+  String train_reasonAddRep(int reps, String weight) {
+    return 'Vous avez fait $reps répétitions à $weight kg. Ajoutez une répétition avant d\'augmenter la charge.';
+  }
+
+  @override
+  String train_reasonConsolidate(int reps, String weight, int min, int max) {
+    return 'Vous avez fait $reps répétitions, sous votre plage ($min–$max). Restez à $weight kg jusqu\'à atteindre $min.';
+  }
+
+  @override
+  String train_reasonBodyweight(int reps) {
+    return 'Vous avez fait $reps répétitions. Essayez d\'en faire une de plus.';
+  }
+
+  @override
   String get login_legal =>
       'En continuant, vous acceptez nos conditions d\'utilisation\net notre politique de confidentialité.';
 

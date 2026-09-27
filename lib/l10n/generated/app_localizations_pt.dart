@@ -195,6 +195,70 @@ class SPt extends S {
   String get login_continueEmail => 'Continuar com e-mail';
 
   @override
+  String get login_continueGuest => 'Continuar sem conta';
+
+  @override
+  String get guest_name => 'Convidado';
+
+  @override
+  String get guest_saveProgressTitle => 'Salve seu progresso';
+
+  @override
+  String get guest_saveProgressBody =>
+      'Você está usando o LiftWave como convidado. Crie uma conta grátis para não perder seus treinos se trocar de celular ou reinstalar o app.';
+
+  @override
+  String get guest_createAccount => 'Criar conta';
+
+  @override
+  String get guest_notNow => 'Agora não';
+
+  @override
+  String get guest_createAccountSubtitle =>
+      'Crie uma conta para não perder seu progresso';
+
+  @override
+  String get guest_accountCreated =>
+      'Conta criada. Seus treinos estão seguros.';
+
+  @override
+  String get guest_existingAccountTitle => 'Esta conta já existe';
+
+  @override
+  String get guest_existingAccountBody =>
+      'Se entrar com ela, os treinos que você fez como convidado não serão transferidos para essa conta.';
+
+  @override
+  String get guest_signInAnyway => 'Entrar mesmo assim';
+
+  @override
+  String get guest_leave => 'Sair do modo convidado';
+
+  @override
+  String get guest_leaveBody =>
+      'Como você não tem uma conta, seus treinos e dados serão apagados. Essa ação não pode ser desfeita.';
+
+  @override
+  String train_reasonIncreaseLoad(int reps, String weight, int min, int max) {
+    return 'Você fez $reps reps com $weight kg, o topo da sua faixa ($min–$max). Hora de aumentar o peso.';
+  }
+
+  @override
+  String train_reasonAddRep(int reps, String weight) {
+    return 'Você fez $reps reps com $weight kg. Some uma repetição antes de aumentar o peso.';
+  }
+
+  @override
+  String train_reasonConsolidate(int reps, String weight, int min, int max) {
+    return 'Você fez $reps reps, abaixo da sua faixa ($min–$max). Mantenha $weight kg até chegar a $min.';
+  }
+
+  @override
+  String train_reasonBodyweight(int reps) {
+    return 'Você fez $reps reps. Tente fazer mais uma.';
+  }
+
+  @override
   String get login_legal =>
       'Ao continuar, você aceita nossos termos de serviço\ne política de privacidade.';
 

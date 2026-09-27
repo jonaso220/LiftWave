@@ -5,11 +5,15 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 
 import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
+import 'guest_prompts.dart';
 
 /// Screen with two modes: login and register.
 /// Tapping "¿No tienes cuenta?" toggles between them.
 class EmailAuthScreen extends StatefulWidget {
-  const EmailAuthScreen({super.key});
+  /// Opens in register mode (used when a guest creates their account).
+  final bool startInRegister;
+
+  const EmailAuthScreen({super.key, this.startInRegister = false});
 
   @override
   State<EmailAuthScreen> createState() => _EmailAuthScreenState();
@@ -21,7 +25,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
 
-  bool _isRegister = false;
+  late bool _isRegister = widget.startInRegister;
   bool _obscurePass = true;
   bool _loading = false;
 
@@ -38,6 +42,12 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
+    final wasGuest = AuthService.instance.isGuest;
+    // Signing in to an existing account leaves the guest's workouts behind.
+    if (wasGuest && !_isRegister && !await confirmSwitchFromGuest(context)) {
+      return;
+    }
+    if (!mounted) return;
     setState(() => _loading = true);
 
     try {
@@ -53,8 +63,19 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
           _passCtrl.text,
         );
       }
-      // Auth stream in main.dart auto-navigates after success
-      if (mounted) Navigator.of(context).popUntil((r) => r.isFirst);
+      // Auth stream in main.dart auto-navigates after a sign-in; a guest who
+      // registers keeps the same user, so return to the app explicitly.
+      if (!mounted) return;
+      if (wasGuest && _isRegister) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(S.of(context).guest_accountCreated),
+            backgroundColor: AppColors.accent,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      Navigator.of(context).popUntil((r) => r.isFirst);
     } on FirebaseAuthException catch (e) {
       if (mounted) _showError(AuthService.errorMessage(e.code, S.of(context)));
     } catch (_) {

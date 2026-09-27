@@ -194,6 +194,67 @@ class SJa extends S {
   String get login_continueEmail => 'メールで続ける';
 
   @override
+  String get login_continueGuest => 'アカウントなしで続ける';
+
+  @override
+  String get guest_name => 'ゲスト';
+
+  @override
+  String get guest_saveProgressTitle => '進捗を保存しましょう';
+
+  @override
+  String get guest_saveProgressBody =>
+      'ゲストとしてLiftWaveを利用中です。機種変更や再インストールでトレーニング記録を失わないよう、無料アカウントを作成しましょう。';
+
+  @override
+  String get guest_createAccount => 'アカウントを作成';
+
+  @override
+  String get guest_notNow => '後で';
+
+  @override
+  String get guest_createAccountSubtitle => '進捗を失わないようにアカウントを作成しましょう';
+
+  @override
+  String get guest_accountCreated => 'アカウントを作成しました。トレーニング記録は保護されています。';
+
+  @override
+  String get guest_existingAccountTitle => 'このアカウントは既に存在します';
+
+  @override
+  String get guest_existingAccountBody =>
+      'このアカウントでログインすると、ゲストとして記録したトレーニングは引き継がれません。';
+
+  @override
+  String get guest_signInAnyway => 'それでもログイン';
+
+  @override
+  String get guest_leave => 'ゲストモードを終了';
+
+  @override
+  String get guest_leaveBody => 'アカウントがないため、トレーニング記録とデータは削除されます。この操作は元に戻せません。';
+
+  @override
+  String train_reasonIncreaseLoad(int reps, String weight, int min, int max) {
+    return '$weight kgで$reps回、目標範囲（$min〜$max回）の上限に達しました。重量を上げましょう。';
+  }
+
+  @override
+  String train_reasonAddRep(int reps, String weight) {
+    return '$weight kgで$reps回できました。重量を上げる前にもう1回増やしましょう。';
+  }
+
+  @override
+  String train_reasonConsolidate(int reps, String weight, int min, int max) {
+    return '$reps回で、目標範囲（$min〜$max回）を下回りました。$min回に届くまで$weight kgを続けましょう。';
+  }
+
+  @override
+  String train_reasonBodyweight(int reps) {
+    return '$reps回できました。あと1回増やしてみましょう。';
+  }
+
+  @override
   String get login_legal => '続けることで、利用規約と\nプライバシーポリシーに同意したことになります。';
 
   @override

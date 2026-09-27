@@ -195,6 +195,70 @@ class SEs extends S {
   String get login_continueEmail => 'Continuar con correo';
 
   @override
+  String get login_continueGuest => 'Continuar sin cuenta';
+
+  @override
+  String get guest_name => 'Invitado';
+
+  @override
+  String get guest_saveProgressTitle => 'Guarda tu progreso';
+
+  @override
+  String get guest_saveProgressBody =>
+      'Estás usando LiftWave como invitado. Crea una cuenta gratis para no perder tus entrenamientos si cambias de teléfono o reinstalas la app.';
+
+  @override
+  String get guest_createAccount => 'Crear cuenta';
+
+  @override
+  String get guest_notNow => 'Ahora no';
+
+  @override
+  String get guest_createAccountSubtitle =>
+      'Crea una cuenta para no perder tu progreso';
+
+  @override
+  String get guest_accountCreated =>
+      'Cuenta creada. Tus entrenamientos están a salvo.';
+
+  @override
+  String get guest_existingAccountTitle => 'Esta cuenta ya existe';
+
+  @override
+  String get guest_existingAccountBody =>
+      'Si inicias sesión con ella, los entrenamientos que hiciste como invitado no se pasan a esa cuenta.';
+
+  @override
+  String get guest_signInAnyway => 'Iniciar sesión igual';
+
+  @override
+  String get guest_leave => 'Salir del modo invitado';
+
+  @override
+  String get guest_leaveBody =>
+      'Como no tienes una cuenta, se borrarán tus entrenamientos y datos. Esta acción no se puede deshacer.';
+
+  @override
+  String train_reasonIncreaseLoad(int reps, String weight, int min, int max) {
+    return 'Hiciste $reps reps con $weight kg, el tope de tu rango ($min–$max). Toca subir el peso.';
+  }
+
+  @override
+  String train_reasonAddRep(int reps, String weight) {
+    return 'Hiciste $reps reps con $weight kg. Suma una repetición antes de subir el peso.';
+  }
+
+  @override
+  String train_reasonConsolidate(int reps, String weight, int min, int max) {
+    return 'Hiciste $reps reps, por debajo de tu rango ($min–$max). Mantén $weight kg hasta llegar a $min.';
+  }
+
+  @override
+  String train_reasonBodyweight(int reps) {
+    return 'Hiciste $reps reps. Intenta sumar una más.';
+  }
+
+  @override
   String get login_legal =>
       'Al continuar, aceptas nuestros términos de servicio\ny política de privacidad.';
 
