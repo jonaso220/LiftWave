@@ -91,7 +91,14 @@ class Play:
             self.request('POST', edit_url + ':validate')
             # Draft uploads must not submit pending changes or restart a review.
             query = '?changesNotSentForReview=true&changesInReviewBehavior=ERROR_IF_IN_REVIEW' if mode == 'upload' else ''
-            self.request('POST', edit_url + ':commit' + query)
+            try:
+                self.request('POST', edit_url + ':commit' + query)
+            except RuntimeError as error:
+                # Without managed publishing Play sends changes automatically and
+                # rejects the flag; the release itself stays an unreviewed draft.
+                if mode != 'upload' or 'changesNotSentForReview must not be set' not in str(error):
+                    raise
+                self.request('POST', edit_url + ':commit?changesInReviewBehavior=ERROR_IF_IN_REVIEW')
             committed = True
             summary(f'Version {code} ({name}): ' + ('uploaded as a draft. Use the manual review button when ready.' if mode == 'upload' else 'submitted to Google Play. Review/approval may still be pending.'), config)
         finally:
