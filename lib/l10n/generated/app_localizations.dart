@@ -125,12 +125,6 @@ abstract class S {
   /// **'Guardar'**
   String get common_save;
 
-  /// No description provided for @common_ok.
-  ///
-  /// In es, this message translates to:
-  /// **'OK'**
-  String get common_ok;
-
   /// No description provided for @common_or.
   ///
   /// In es, this message translates to:
@@ -202,12 +196,6 @@ abstract class S {
   /// In es, this message translates to:
   /// **'CUSTOM'**
   String get common_custom;
-
-  /// No description provided for @common_pro.
-  ///
-  /// In es, this message translates to:
-  /// **'PRO'**
-  String get common_pro;
 
   /// No description provided for @common_discardChangesTitle.
   ///
@@ -395,23 +383,41 @@ abstract class S {
   /// **'Entrenar'**
   String get nav_train;
 
-  /// No description provided for @nav_history.
+  /// No description provided for @nav_progress.
   ///
   /// In es, this message translates to:
-  /// **'Historial'**
-  String get nav_history;
+  /// **'Progreso'**
+  String get nav_progress;
 
-  /// No description provided for @nav_rest.
+  /// No description provided for @nav_profile.
   ///
   /// In es, this message translates to:
-  /// **'Descanso'**
-  String get nav_rest;
+  /// **'Perfil'**
+  String get nav_profile;
 
-  /// No description provided for @nav_exercises.
+  /// No description provided for @home_todayTitle.
   ///
   /// In es, this message translates to:
-  /// **'Ejercicios'**
-  String get nav_exercises;
+  /// **'HOY TOCA'**
+  String get home_todayTitle;
+
+  /// No description provided for @home_inProgressTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'ENTRENAMIENTO EN CURSO'**
+  String get home_inProgressTitle;
+
+  /// No description provided for @home_continueWorkout.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar entrenamiento'**
+  String get home_continueWorkout;
+
+  /// No description provided for @home_chooseAnother.
+  ///
+  /// In es, this message translates to:
+  /// **'Elegir otra rutina'**
+  String get home_chooseAnother;
 
   /// No description provided for @login_tagline.
   ///
@@ -437,11 +443,107 @@ abstract class S {
   /// **'Continuar con correo'**
   String get login_continueEmail;
 
-  /// No description provided for @login_legal.
+  /// No description provided for @login_continueGuest.
   ///
   /// In es, this message translates to:
-  /// **'Al continuar, aceptas nuestros términos de servicio\ny política de privacidad.'**
-  String get login_legal;
+  /// **'Continuar sin cuenta'**
+  String get login_continueGuest;
+
+  /// No description provided for @guest_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Invitado'**
+  String get guest_name;
+
+  /// No description provided for @guest_saveProgressTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Guarda tu progreso'**
+  String get guest_saveProgressTitle;
+
+  /// No description provided for @guest_saveProgressBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Estás usando LiftWave como invitado. Crea una cuenta gratis para no perder tus entrenamientos si cambias de teléfono o reinstalas la app.'**
+  String get guest_saveProgressBody;
+
+  /// No description provided for @guest_createAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Crear cuenta'**
+  String get guest_createAccount;
+
+  /// No description provided for @guest_notNow.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahora no'**
+  String get guest_notNow;
+
+  /// No description provided for @guest_createAccountSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea una cuenta para no perder tu progreso'**
+  String get guest_createAccountSubtitle;
+
+  /// No description provided for @guest_accountCreated.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuenta creada. Tus entrenamientos están a salvo.'**
+  String get guest_accountCreated;
+
+  /// No description provided for @guest_existingAccountTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Esta cuenta ya existe'**
+  String get guest_existingAccountTitle;
+
+  /// No description provided for @guest_existingAccountBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Si inicias sesión con ella, los entrenamientos que hiciste como invitado no se pasan a esa cuenta.'**
+  String get guest_existingAccountBody;
+
+  /// No description provided for @guest_signInAnyway.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión igual'**
+  String get guest_signInAnyway;
+
+  /// No description provided for @guest_leave.
+  ///
+  /// In es, this message translates to:
+  /// **'Salir del modo invitado'**
+  String get guest_leave;
+
+  /// No description provided for @guest_leaveBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Como no tienes una cuenta, se borrarán tus entrenamientos y datos. Esta acción no se puede deshacer.'**
+  String get guest_leaveBody;
+
+  /// No description provided for @train_reasonIncreaseLoad.
+  ///
+  /// In es, this message translates to:
+  /// **'Hiciste {reps} reps con {weight}, el tope de tu rango ({min}–{max}). Toca subir el peso.'**
+  String train_reasonIncreaseLoad(int reps, String weight, int min, int max);
+
+  /// No description provided for @train_reasonAddRep.
+  ///
+  /// In es, this message translates to:
+  /// **'Hiciste {reps} reps con {weight}. Suma una repetición antes de subir el peso.'**
+  String train_reasonAddRep(int reps, String weight);
+
+  /// No description provided for @train_reasonConsolidate.
+  ///
+  /// In es, this message translates to:
+  /// **'Hiciste {reps} reps, por debajo de tu rango ({min}–{max}). Mantén {weight} hasta llegar a {min}.'**
+  String train_reasonConsolidate(int reps, String weight, int min, int max);
+
+  /// No description provided for @train_reasonBodyweight.
+  ///
+  /// In es, this message translates to:
+  /// **'Hiciste {reps} reps. Intenta sumar una más.'**
+  String train_reasonBodyweight(int reps);
 
   /// No description provided for @login_legalPrefix.
   ///
@@ -743,12 +845,6 @@ abstract class S {
   /// **'Llevas {count} entrenamientos esta semana. ¡Sigue así!'**
   String home_weekMotivationMany(int count);
 
-  /// No description provided for @home_startWorkout.
-  ///
-  /// In es, this message translates to:
-  /// **'Iniciar entrenamiento'**
-  String get home_startWorkout;
-
   /// No description provided for @home_thisWeek.
   ///
   /// In es, this message translates to:
@@ -766,18 +862,6 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Volumen semana'**
   String get home_weekVolume;
-
-  /// No description provided for @home_quickAccess.
-  ///
-  /// In es, this message translates to:
-  /// **'Acceso rápido'**
-  String get home_quickAccess;
-
-  /// No description provided for @home_quickStart.
-  ///
-  /// In es, this message translates to:
-  /// **'Empezar rápido'**
-  String get home_quickStart;
 
   /// No description provided for @restTimer_title.
   ///
@@ -875,41 +959,11 @@ abstract class S {
   /// **'Ver todo'**
   String get home_viewAll;
 
-  /// No description provided for @home_noWorkoutsYet.
-  ///
-  /// In es, this message translates to:
-  /// **'Aún sin entrenamientos'**
-  String get home_noWorkoutsYet;
-
-  /// No description provided for @home_noWorkoutsSubtitle.
-  ///
-  /// In es, this message translates to:
-  /// **'Completa tu primer entrenamiento y aparecerá aquí.'**
-  String get home_noWorkoutsSubtitle;
-
   /// No description provided for @home_goToTrain.
   ///
   /// In es, this message translates to:
   /// **'Ir a Entrenar →'**
   String get home_goToTrain;
-
-  /// No description provided for @home_progress.
-  ///
-  /// In es, this message translates to:
-  /// **'Progreso'**
-  String get home_progress;
-
-  /// No description provided for @home_noRecordsYet.
-  ///
-  /// In es, this message translates to:
-  /// **'Sin registros aún'**
-  String get home_noRecordsYet;
-
-  /// No description provided for @home_recordWeightMeasures.
-  ///
-  /// In es, this message translates to:
-  /// **'Registra tu peso y medidas'**
-  String get home_recordWeightMeasures;
 
   /// No description provided for @home_achievements.
   ///
@@ -923,59 +977,11 @@ abstract class S {
   /// **'Completa entrenamientos para desbloquear logros'**
   String get home_noAchievements;
 
-  /// No description provided for @home_recentExercises.
-  ///
-  /// In es, this message translates to:
-  /// **'Ejercicios recientes'**
-  String get home_recentExercises;
-
-  /// No description provided for @home_noRecentExercises.
-  ///
-  /// In es, this message translates to:
-  /// **'Tus ejercicios frecuentes aparecerán aquí'**
-  String get home_noRecentExercises;
-
-  /// No description provided for @home_frequentExercise.
-  ///
-  /// In es, this message translates to:
-  /// **'{count} sesiones'**
-  String home_frequentExercise(int count);
-
-  /// No description provided for @home_latestRecord.
-  ///
-  /// In es, this message translates to:
-  /// **'Último registro'**
-  String get home_latestRecord;
-
-  /// No description provided for @home_waist.
-  ///
-  /// In es, this message translates to:
-  /// **'Cintura'**
-  String get home_waist;
-
-  /// No description provided for @home_hips.
-  ///
-  /// In es, this message translates to:
-  /// **'Cadera'**
-  String get home_hips;
-
   /// No description provided for @home_exerciseLibrary.
   ///
   /// In es, this message translates to:
   /// **'Biblioteca de ejercicios'**
   String get home_exerciseLibrary;
-
-  /// No description provided for @home_viewAllExercises.
-  ///
-  /// In es, this message translates to:
-  /// **'Ver todos'**
-  String get home_viewAllExercises;
-
-  /// No description provided for @home_exercisesAvailable.
-  ///
-  /// In es, this message translates to:
-  /// **'{count} ejercicios disponibles'**
-  String home_exercisesAvailable(int count);
 
   /// No description provided for @profile_proActive.
   ///
@@ -1066,6 +1072,30 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Objetivo, experiencia, días y equipamiento'**
   String get profile_trainingPreferencesSubtitle;
+
+  /// No description provided for @profile_appearance.
+  ///
+  /// In es, this message translates to:
+  /// **'Apariencia'**
+  String get profile_appearance;
+
+  /// No description provided for @appearance_system.
+  ///
+  /// In es, this message translates to:
+  /// **'Automático (según el teléfono)'**
+  String get appearance_system;
+
+  /// No description provided for @appearance_light.
+  ///
+  /// In es, this message translates to:
+  /// **'Claro'**
+  String get appearance_light;
+
+  /// No description provided for @appearance_dark.
+  ///
+  /// In es, this message translates to:
+  /// **'Oscuro'**
+  String get appearance_dark;
 
   /// No description provided for @onboarding_title.
   ///
@@ -1400,19 +1430,19 @@ abstract class S {
   /// No description provided for @train_cancelWorkout.
   ///
   /// In es, this message translates to:
-  /// **'Cancelar entrenamiento'**
+  /// **'¿Descartar entrenamiento?'**
   String get train_cancelWorkout;
 
   /// No description provided for @train_cancelConfirm.
   ///
   /// In es, this message translates to:
-  /// **'¿Seguro que quieres cancelar? Se perderá el progreso.'**
+  /// **'Se perderán las series registradas en esta sesión.'**
   String get train_cancelConfirm;
 
   /// No description provided for @train_continue.
   ///
   /// In es, this message translates to:
-  /// **'Seguir'**
+  /// **'Seguir entrenando'**
   String get train_continue;
 
   /// No description provided for @train_addExerciseFirst.
@@ -1574,7 +1604,7 @@ abstract class S {
   /// No description provided for @train_weightHeader.
   ///
   /// In es, this message translates to:
-  /// **'PESO (kg)'**
+  /// **'PESO'**
   String get train_weightHeader;
 
   /// No description provided for @train_addSet.
@@ -1582,12 +1612,6 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Añadir serie'**
   String get train_addSet;
-
-  /// No description provided for @train_lastWeight.
-  ///
-  /// In es, this message translates to:
-  /// **'Último: {weight} kg'**
-  String train_lastWeight(String weight);
 
   /// No description provided for @train_nextSuggestion.
   ///
@@ -1601,35 +1625,11 @@ abstract class S {
   /// **'Aplicar'**
   String get train_applySuggestion;
 
-  /// No description provided for @train_increaseLoad.
-  ///
-  /// In es, this message translates to:
-  /// **'Sube la carga'**
-  String get train_increaseLoad;
-
-  /// No description provided for @train_addRepetition.
-  ///
-  /// In es, this message translates to:
-  /// **'Suma una repetición'**
-  String get train_addRepetition;
-
-  /// No description provided for @train_consolidateLoad.
-  ///
-  /// In es, this message translates to:
-  /// **'Consolida la carga'**
-  String get train_consolidateLoad;
-
   /// No description provided for @train_abbreviationExercises.
   ///
   /// In es, this message translates to:
   /// **'ej.'**
   String get train_abbreviationExercises;
-
-  /// No description provided for @train_orChooseRoutine.
-  ///
-  /// In es, this message translates to:
-  /// **'O elige una rutina'**
-  String get train_orChooseRoutine;
 
   /// No description provided for @train_defaultRoutineName.
   ///
@@ -1672,6 +1672,138 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Eliminar serie'**
   String get train_removeSet;
+
+  /// No description provided for @train_routinesHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Cada día puede tener una o varias rutinas. Al empezar el día se hacen todas, en orden.'**
+  String get train_routinesHint;
+
+  /// No description provided for @train_firstRoutineTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Crea tu primera rutina'**
+  String get train_firstRoutineTitle;
+
+  /// No description provided for @train_firstRoutineBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Elige los ejercicios y asígnale un día de la semana: ese día aparecerá en Inicio, lista para empezar.'**
+  String get train_firstRoutineBody;
+
+  /// No description provided for @train_freeSessionHint.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Sin plan? Empieza una sesión libre y agrega ejercicios sobre la marcha.'**
+  String get train_freeSessionHint;
+
+  /// No description provided for @profile_keepScreenOn.
+  ///
+  /// In es, this message translates to:
+  /// **'Pantalla encendida al entrenar'**
+  String get profile_keepScreenOn;
+
+  /// No description provided for @profile_keepScreenOnSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Evita que el teléfono se bloquee entre series'**
+  String get profile_keepScreenOnSubtitle;
+
+  /// No description provided for @profile_weightUnit.
+  ///
+  /// In es, this message translates to:
+  /// **'Unidad de peso'**
+  String get profile_weightUnit;
+
+  /// No description provided for @weightUnit_kg.
+  ///
+  /// In es, this message translates to:
+  /// **'Kilogramos (kg)'**
+  String get weightUnit_kg;
+
+  /// No description provided for @weightUnit_lb.
+  ///
+  /// In es, this message translates to:
+  /// **'Libras (lb)'**
+  String get weightUnit_lb;
+
+  /// No description provided for @train_repShort.
+  ///
+  /// In es, this message translates to:
+  /// **'rep'**
+  String get train_repShort;
+
+  /// No description provided for @rest_label.
+  ///
+  /// In es, this message translates to:
+  /// **'Descanso'**
+  String get rest_label;
+
+  /// No description provided for @rest_forExercise.
+  ///
+  /// In es, this message translates to:
+  /// **'Descanso para este ejercicio'**
+  String get rest_forExercise;
+
+  /// No description provided for @rest_default.
+  ///
+  /// In es, this message translates to:
+  /// **'Predeterminado'**
+  String get rest_default;
+
+  /// No description provided for @rest_defaultHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Usa el tiempo elegido en el temporizador de descanso'**
+  String get rest_defaultHint;
+
+  /// No description provided for @train_newRecords.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevos récords'**
+  String get train_newRecords;
+
+  /// No description provided for @train_recordLine.
+  ///
+  /// In es, this message translates to:
+  /// **'{weight} (antes {previous})'**
+  String train_recordLine(String weight, String previous);
+
+  /// No description provided for @train_volumeUp.
+  ///
+  /// In es, this message translates to:
+  /// **'+{kg} de volumen respecto a la última vez'**
+  String train_volumeUp(String kg);
+
+  /// No description provided for @train_volumeDown.
+  ///
+  /// In es, this message translates to:
+  /// **'{kg} menos de volumen que la última vez'**
+  String train_volumeDown(String kg);
+
+  /// No description provided for @train_volumeSame.
+  ///
+  /// In es, this message translates to:
+  /// **'Mismo volumen que la última vez'**
+  String get train_volumeSame;
+
+  /// No description provided for @train_discardWorkout.
+  ///
+  /// In es, this message translates to:
+  /// **'Descartar'**
+  String get train_discardWorkout;
+
+  /// No description provided for @train_previousHeader.
+  ///
+  /// In es, this message translates to:
+  /// **'ANTERIOR'**
+  String get train_previousHeader;
+
+  /// No description provided for @train_usePrevious.
+  ///
+  /// In es, this message translates to:
+  /// **'Copiar valores anteriores'**
+  String get train_usePrevious;
 
   /// No description provided for @train_removeCompletedSetTitle.
   ///
@@ -1853,12 +1985,6 @@ abstract class S {
   /// **'Material'**
   String get exercises_equipmentFilter;
 
-  /// No description provided for @exercises_exerciseCount.
-  ///
-  /// In es, this message translates to:
-  /// **'{count} ejercicio{suffix}'**
-  String exercises_exerciseCount(int count, String suffix);
-
   /// No description provided for @exercises_countLabel.
   ///
   /// In es, this message translates to:
@@ -2027,18 +2153,6 @@ abstract class S {
   /// **'Completa tu primer entrenamiento en la pestaña Entrenar y aparecerá aquí.'**
   String get history_noWorkoutsSubtitle;
 
-  /// No description provided for @history_limitedHistory.
-  ///
-  /// In es, this message translates to:
-  /// **'Historial limitado'**
-  String get history_limitedHistory;
-
-  /// No description provided for @history_unlockWorkouts.
-  ///
-  /// In es, this message translates to:
-  /// **'Desbloquea tus {count} entrenamientos con PRO'**
-  String history_unlockWorkouts(int count);
-
   /// No description provided for @history_weeklySummary.
   ///
   /// In es, this message translates to:
@@ -2060,7 +2174,7 @@ abstract class S {
   /// No description provided for @history_volumeKg.
   ///
   /// In es, this message translates to:
-  /// **'Volumen kg'**
+  /// **'Volumen'**
   String get history_volumeKg;
 
   /// No description provided for @history_routinesByDay.
@@ -2234,38 +2348,20 @@ abstract class S {
   /// No description provided for @paywall_featureTemplates.
   ///
   /// In es, this message translates to:
-  /// **'Plantillas de entrenamiento'**
+  /// **'Todas las rutinas predefinidas'**
   String get paywall_featureTemplates;
-
-  /// No description provided for @paywall_featureHistory.
-  ///
-  /// In es, this message translates to:
-  /// **'Historial ilimitado'**
-  String get paywall_featureHistory;
-
-  /// No description provided for @paywall_featureTimer.
-  ///
-  /// In es, this message translates to:
-  /// **'Timer personalizado'**
-  String get paywall_featureTimer;
-
-  /// No description provided for @paywall_featureDetails.
-  ///
-  /// In es, this message translates to:
-  /// **'Detalles de ejercicios'**
-  String get paywall_featureDetails;
 
   /// No description provided for @paywall_featureMeasures.
   ///
   /// In es, this message translates to:
-  /// **'Medidas corporales + fotos'**
+  /// **'Cintura, pecho, cadera y fotos de progreso'**
   String get paywall_featureMeasures;
 
-  /// No description provided for @paywall_featureStats.
+  /// No description provided for @paywall_featureExerciseProgress.
   ///
   /// In es, this message translates to:
-  /// **'Estadísticas semanales'**
-  String get paywall_featureStats;
+  /// **'Gráficos de progreso por ejercicio'**
+  String get paywall_featureExerciseProgress;
 
   /// No description provided for @paywall_allIncluded.
   ///
@@ -2314,12 +2410,6 @@ abstract class S {
   /// In es, this message translates to:
   /// **'/año'**
   String get paywall_perYear;
-
-  /// No description provided for @paywall_freeTrial.
-  ///
-  /// In es, this message translates to:
-  /// **'7 días de prueba gratis'**
-  String get paywall_freeTrial;
 
   /// No description provided for @paywall_startTrial.
   ///
@@ -2381,12 +2471,6 @@ abstract class S {
   /// **'{count} días gratis'**
   String paywall_trialDays(int count);
 
-  /// No description provided for @paywall_trialWeeks.
-  ///
-  /// In es, this message translates to:
-  /// **'{count} semanas gratis'**
-  String paywall_trialWeeks(int count);
-
   /// No description provided for @paywall_trialMonths.
   ///
   /// In es, this message translates to:
@@ -2411,95 +2495,11 @@ abstract class S {
   /// **'Reintentar'**
   String get paywall_retry;
 
-  /// No description provided for @rest_title.
-  ///
-  /// In es, this message translates to:
-  /// **'Descanso'**
-  String get rest_title;
-
-  /// No description provided for @rest_ready.
-  ///
-  /// In es, this message translates to:
-  /// **'¡Listo! Hora de la siguiente serie'**
-  String get rest_ready;
-
-  /// No description provided for @rest_almostReady.
-  ///
-  /// In es, this message translates to:
-  /// **'¡Casi listo!'**
-  String get rest_almostReady;
-
-  /// No description provided for @rest_resting.
-  ///
-  /// In es, this message translates to:
-  /// **'Descansando...'**
-  String get rest_resting;
-
-  /// No description provided for @rest_customTime.
-  ///
-  /// In es, this message translates to:
-  /// **'Tiempo personalizado · {time}'**
-  String rest_customTime(String time);
-
-  /// No description provided for @rest_choosePreset.
-  ///
-  /// In es, this message translates to:
-  /// **'Elige un preajuste o personaliza'**
-  String get rest_choosePreset;
-
   /// No description provided for @rest_of.
   ///
   /// In es, this message translates to:
   /// **'de {time}'**
   String rest_of(String time);
-
-  /// No description provided for @rest_presets.
-  ///
-  /// In es, this message translates to:
-  /// **'Preajustes'**
-  String get rest_presets;
-
-  /// No description provided for @rest_customize.
-  ///
-  /// In es, this message translates to:
-  /// **'Personalizar'**
-  String get rest_customize;
-
-  /// No description provided for @rest_customTimeTitle.
-  ///
-  /// In es, this message translates to:
-  /// **'Tiempo personalizado'**
-  String get rest_customTimeTitle;
-
-  /// No description provided for @rest_customTimeSubtitle.
-  ///
-  /// In es, this message translates to:
-  /// **'Introduce los minutos y segundos de descanso.'**
-  String get rest_customTimeSubtitle;
-
-  /// No description provided for @rest_minutes.
-  ///
-  /// In es, this message translates to:
-  /// **'Minutos'**
-  String get rest_minutes;
-
-  /// No description provided for @rest_seconds.
-  ///
-  /// In es, this message translates to:
-  /// **'Segundos'**
-  String get rest_seconds;
-
-  /// No description provided for @rest_setTime.
-  ///
-  /// In es, this message translates to:
-  /// **'Establecer tiempo'**
-  String get rest_setTime;
-
-  /// No description provided for @progressScreen_title.
-  ///
-  /// In es, this message translates to:
-  /// **'Progreso corporal'**
-  String get progressScreen_title;
 
   /// No description provided for @progressScreen_measurements.
   ///
@@ -2525,107 +2525,17 @@ abstract class S {
   /// **'Peso'**
   String get progressScreen_weight;
 
-  /// No description provided for @progressScreen_bodyFat.
-  ///
-  /// In es, this message translates to:
-  /// **'Grasa corp.'**
-  String get progressScreen_bodyFat;
-
-  /// No description provided for @progressScreen_muscle.
-  ///
-  /// In es, this message translates to:
-  /// **'Músculo'**
-  String get progressScreen_muscle;
-
   /// No description provided for @progressScreen_noEntries.
   ///
   /// In es, this message translates to:
   /// **'Sin registros aún'**
   String get progressScreen_noEntries;
 
-  /// No description provided for @progressScreen_noEntriesHint.
-  ///
-  /// In es, this message translates to:
-  /// **'Toca el botón + para añadir tu primera medida'**
-  String get progressScreen_noEntriesHint;
-
   /// No description provided for @progressScreen_noPhotos.
   ///
   /// In es, this message translates to:
   /// **'Sin fotos aún'**
   String get progressScreen_noPhotos;
-
-  /// No description provided for @progressScreen_noPhotosHint.
-  ///
-  /// In es, this message translates to:
-  /// **'Toca el botón + para añadir tu primera foto de progreso'**
-  String get progressScreen_noPhotosHint;
-
-  /// No description provided for @progressScreen_current.
-  ///
-  /// In es, this message translates to:
-  /// **'Actual'**
-  String get progressScreen_current;
-
-  /// No description provided for @progressScreen_change.
-  ///
-  /// In es, this message translates to:
-  /// **'Cambio'**
-  String get progressScreen_change;
-
-  /// No description provided for @progressScreen_trend.
-  ///
-  /// In es, this message translates to:
-  /// **'Tendencia'**
-  String get progressScreen_trend;
-
-  /// No description provided for @progressScreen_addMeasurementTitle.
-  ///
-  /// In es, this message translates to:
-  /// **'Nueva medida'**
-  String get progressScreen_addMeasurementTitle;
-
-  /// No description provided for @progressScreen_weightKg.
-  ///
-  /// In es, this message translates to:
-  /// **'Peso (kg)'**
-  String get progressScreen_weightKg;
-
-  /// No description provided for @progressScreen_bodyFatPercent.
-  ///
-  /// In es, this message translates to:
-  /// **'Grasa corporal (%)'**
-  String get progressScreen_bodyFatPercent;
-
-  /// No description provided for @progressScreen_muscleMassKg.
-  ///
-  /// In es, this message translates to:
-  /// **'Masa muscular (kg)'**
-  String get progressScreen_muscleMassKg;
-
-  /// No description provided for @progressScreen_optional.
-  ///
-  /// In es, this message translates to:
-  /// **'Opcional'**
-  String get progressScreen_optional;
-
-  /// No description provided for @progressScreen_saveEntry.
-  ///
-  /// In es, this message translates to:
-  /// **'Guardar registro'**
-  String get progressScreen_saveEntry;
-
-  /// No description provided for @progressScreen_deleteMeasurement.
-  ///
-  /// In es, this message translates to:
-  /// **'¿Eliminar este registro?'**
-  String get progressScreen_deleteMeasurement;
-
-  /// No description provided for @progressScreen_deletePhoto.
-  ///
-  /// In es, this message translates to:
-  /// **'¿Eliminar esta foto?'**
-  String get progressScreen_deletePhoto;
 
   /// No description provided for @progressScreen_camera.
   ///
@@ -2638,12 +2548,6 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Galería'**
   String get progressScreen_gallery;
-
-  /// No description provided for @progressScreen_selectSource.
-  ///
-  /// In es, this message translates to:
-  /// **'Seleccionar fuente'**
-  String get progressScreen_selectSource;
 
   /// No description provided for @progressScreen_waist.
   ///

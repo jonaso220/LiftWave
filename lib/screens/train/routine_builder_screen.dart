@@ -7,6 +7,7 @@ import '../../data/custom_template_store.dart';
 import '../../data/workout_templates.dart';
 import '../../models/models.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/rest_picker.dart';
 import '../../utils/exercise_localization.dart';
 import '../../utils/routine_days.dart';
 import '../../widgets/common/muscle_chip.dart';
@@ -81,6 +82,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
             'equipment': draft.exercise.equipment,
             'sets': draft.sets,
             'reps': draft.reps,
+            'restSeconds': draft.restSeconds,
           },
         )
         .toList(),
@@ -135,7 +137,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
         title: Text(S.of(context).common_discardChangesTitle),
         content: Text(
           S.of(context).common_discardChangesBody,
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
@@ -194,6 +196,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
                 sets: draft.sets,
                 reps: draft.reps,
                 weight: 0,
+                restSeconds: draft.restSeconds,
               ),
             )
             .toList(),
@@ -223,7 +226,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
           children: [
             Text(
               l10n.train_createRoutineHint,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 13,
                 height: 1.45,
@@ -232,7 +235,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
             const SizedBox(height: 18),
             Text(
               l10n.train_routineNameHint,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -243,7 +246,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
               controller: _nameController,
               autofocus: widget.initialDay == null,
               textCapitalization: TextCapitalization.sentences,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: AppColors.textPrimary),
               onChanged: (_) => setState(() => _showNameError = false),
               decoration: InputDecoration(
                 hintText: l10n.train_routineNameHint,
@@ -255,7 +258,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
             const SizedBox(height: 18),
             Text(
               l10n.train_trainingDay,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -265,7 +268,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
             DropdownButtonFormField<String>(
               initialValue: _selectedDay?.storageKey ?? '',
               dropdownColor: AppColors.bgCardLight,
-              style: const TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: AppColors.textPrimary),
               decoration: const InputDecoration(),
               items: [
                 DropdownMenuItem<String>(
@@ -286,7 +289,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
             const SizedBox(height: 10),
             Text(
               l10n.train_trainingDayHint,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textMuted,
                 fontSize: 11,
                 height: 1.35,
@@ -341,7 +344,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
                         Text(
                           l10n.train_addFirstExercise,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -351,7 +354,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
                         Text(
                           l10n.train_addFirstExerciseHint,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textMuted,
                             fontSize: 12,
                             height: 1.4,
@@ -405,6 +408,7 @@ class _PlannedExercise {
   final Exercise exercise;
   int sets;
   int reps;
+  int? restSeconds;
 
   _PlannedExercise({required this.exercise}) : sets = 3, reps = 10;
 
@@ -418,7 +422,8 @@ class _PlannedExercise {
         description: '',
       ),
       sets = template.sets,
-      reps = template.reps;
+      reps = template.reps,
+      restSeconds = template.restSeconds;
 }
 
 class _PlannedExerciseCard extends StatelessWidget {
@@ -458,7 +463,7 @@ class _PlannedExerciseCard extends StatelessWidget {
                         draft.exercise.name,
                         id: draft.exercise.id,
                       ),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -476,7 +481,7 @@ class _PlannedExerciseCard extends StatelessWidget {
                               l10n,
                               draft.exercise.equipment,
                             ),
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: AppColors.textMuted,
                               fontSize: 11,
                             ),
@@ -489,7 +494,7 @@ class _PlannedExerciseCard extends StatelessWidget {
               IconButton(
                 tooltip: l10n.train_deleteExercise,
                 onPressed: onRemove,
-                icon: const Icon(
+                icon: Icon(
                   Icons.close_rounded,
                   color: AppColors.textMuted,
                   size: 20,
@@ -527,6 +532,32 @@ class _PlannedExerciseCard extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Text(
+                l10n.rest_label,
+                style: TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const Spacer(),
+              RestBadge(
+                seconds: draft.restSeconds,
+                onTap: () async {
+                  final choice = await showRestPicker(
+                    context,
+                    current: draft.restSeconds,
+                  );
+                  if (choice == null) return;
+                  draft.restSeconds = choice.seconds;
+                  onChanged();
+                },
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -560,7 +591,7 @@ class _NumberStepper extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textMuted,
               fontSize: 10,
               fontWeight: FontWeight.w600,
@@ -577,7 +608,7 @@ class _NumberStepper extends StatelessWidget {
               ),
               Text(
                 '$value',
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.w800,

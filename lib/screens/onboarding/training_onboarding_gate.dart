@@ -34,7 +34,7 @@ class _TrainingOnboardingGateState extends State<TrainingOnboardingGate> {
   @override
   Widget build(BuildContext context) {
     if (!_store.isLoaded) {
-      return const Scaffold(
+      return Scaffold(
         backgroundColor: AppColors.bgDark,
         body: Center(
           child: CircularProgressIndicator(

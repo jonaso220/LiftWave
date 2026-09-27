@@ -4,7 +4,7 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/workout_store.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/muscle_colors.dart';
-import '../../utils/weight_format.dart';
+import '../../utils/weight_units.dart';
 import '../../utils/exercise_localization.dart';
 import '../../models/models.dart';
 import 'workout_edit_screen.dart';
@@ -100,7 +100,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                 tooltip: MaterialLocalizations.of(context).backButtonTooltip,
                 onPressed: () => Navigator.pop(context),
                 padding: EdgeInsets.zero,
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   color: AppColors.textPrimary,
                   size: 18,
@@ -117,7 +117,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                 child: IconButton(
                   tooltip: S.of(context).editWorkout_title,
                   onPressed: _openEditor,
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.edit_rounded,
                     color: AppColors.textPrimary,
                     size: 18,
@@ -206,15 +206,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
       if (block != null && block != previousBlock) {
         widgets.add(_RoutineBlockTitle(name: block));
       }
-      widgets.add(
-        _ExerciseDetailCard(exercise: exercise)
-            .animate()
-            .fadeIn(
-              delay: Duration(milliseconds: 80 * index),
-              duration: 300.ms,
-            )
-            .slideY(begin: 0.05, end: 0),
-      );
+      widgets.add(_ExerciseDetailCard(exercise: exercise));
       previousBlock = block;
     }
     return widgets;
@@ -244,7 +236,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         Expanded(
           child: _DetailStatCard(
             icon: Icons.bar_chart_rounded,
-            value: '${workout.totalVolume} kg',
+            value: formatVolume(workout.totalVolume),
             label: S.of(context).common_volume,
             color: AppColors.accentOrange,
           ),
@@ -274,7 +266,7 @@ class _RoutineBlockTitle extends StatelessWidget {
           Expanded(
             child: Text(
               name,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 15,
                 fontWeight: FontWeight.w800,
@@ -324,7 +316,7 @@ class _DetailStatCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 10),
           ),
         ],
       ),
@@ -402,10 +394,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                 ),
                 Text(
                   S.of(context).history_setsCount(exercise.completedSetCount),
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                 ),
               ],
             ),
@@ -415,7 +404,7 @@ class _ExerciseDetailCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.notes_rounded,
                     color: AppColors.textMuted,
                     size: 14,
@@ -424,7 +413,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       exercise.notes!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
@@ -444,7 +433,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                   child: Text(
                     S.of(context).history_setHeader,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -456,7 +445,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                   child: Text(
                     S.of(context).common_reps,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -468,7 +457,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                   child: Text(
                     S.of(context).common_weight,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -480,7 +469,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                   child: Text(
                     S.of(context).common_volume,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textMuted,
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -510,7 +499,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                       child: Center(
                         child: Text(
                           '${set.setNumber}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -524,7 +513,7 @@ class _ExerciseDetailCard extends StatelessWidget {
                     child: Text(
                       '${set.reps}',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -535,10 +524,13 @@ class _ExerciseDetailCard extends StatelessWidget {
                     flex: 2,
                     child: Text(
                       set.weight > 0
-                          ? '${formatWeight(set.weight, S.of(context).localeName)} kg'
+                          ? formatLoadWithUnit(
+                              set.weight,
+                              S.of(context).localeName,
+                            )
                           : S.of(context).common_bodyweight,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -549,7 +541,10 @@ class _ExerciseDetailCard extends StatelessWidget {
                     flex: 2,
                     child: Text(
                       set.weight > 0
-                          ? '${formatWeight(set.reps * set.weight, S.of(context).localeName)} kg'
+                          ? formatLoadWithUnit(
+                              set.reps * set.weight,
+                              S.of(context).localeName,
+                            )
                           : '-',
                       textAlign: TextAlign.center,
                       style: TextStyle(

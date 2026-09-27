@@ -12,6 +12,10 @@ class TemplateExercise {
   final int reps;
   final double weight;
 
+  /// Rest after each set of this exercise. Null uses the rest timer's
+  /// current duration.
+  final int? restSeconds;
+
   const TemplateExercise({
     required this.name,
     required this.muscleGroup,
@@ -19,6 +23,7 @@ class TemplateExercise {
     required this.sets,
     required this.reps,
     required this.weight,
+    this.restSeconds,
   });
 
   /// Builds the mutable SessionSets for an active workout.
@@ -32,6 +37,7 @@ class TemplateExercise {
     'sets': sets,
     'reps': reps,
     'weight': weight,
+    if (restSeconds != null) 'restSeconds': restSeconds,
   };
 
   factory TemplateExercise.fromJson(Map<String, dynamic> json) =>
@@ -42,6 +48,7 @@ class TemplateExercise {
         sets: json['sets'] as int,
         reps: json['reps'] as int,
         weight: (json['weight'] as num).toDouble(),
+        restSeconds: (json['restSeconds'] as num?)?.toInt(),
       );
 }
 
@@ -69,9 +76,9 @@ class WorkoutTemplate {
   bool get isFree => freeTemplateIds.contains(id);
 }
 
-/// Predefined templates usable on the free tier (a hook to show value before
-/// asking the user to upgrade).
-const Set<String> freeTemplateIds = {'tpl_fullbody'};
+/// Predefined templates usable on the free tier: enough to follow a real
+/// full-body or push/pull program before asking the user to upgrade.
+const Set<String> freeTemplateIds = {'tpl_fullbody', 'tpl_push', 'tpl_pull'};
 
 // ── Template data ─────────────────────────────────────────────────────────────
 
@@ -189,7 +196,7 @@ const List<WorkoutTemplate> workoutTemplates = [
     name: 'Tracción',
     subtitle: 'Espalda · Bíceps',
     icon: Icons.arrow_circle_down_rounded,
-    color: AppColors.accent,
+    color: AppColors.legs, // brand teal, same in both themes
     exercises: [
       TemplateExercise(
         name: 'Peso muerto',
@@ -247,7 +254,7 @@ const List<WorkoutTemplate> workoutTemplates = [
     name: 'Torso',
     subtitle: 'Pecho · Espalda · Hombros',
     icon: Icons.sports_gymnastics_rounded,
-    color: AppColors.accentYellow,
+    color: AppColors.shoulders, // brand yellow, same in both themes
     exercises: [
       TemplateExercise(
         name: 'Press de banca',

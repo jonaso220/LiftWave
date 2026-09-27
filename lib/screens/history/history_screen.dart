@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/muscle_colors.dart';
 import '../../utils/exercise_localization.dart';
+import '../../data/mock_data.dart';
+import '../../data/training_preferences_store.dart';
 import '../../data/workout_store.dart';
 import '../../models/models.dart';
-import '../../services/subscription_service.dart';
-import '../../utils/csv_exporter.dart';
-import '../../utils/pro_gate.dart';
+import '../../services/weekly_plan_service.dart';
 import '../../utils/routine_days.dart';
+import '../../utils/weight_units.dart';
+import '../home/weekly_plan_card.dart';
+import '../profile/profile_screen.dart';
 import 'workout_detail_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -20,20 +22,17 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  /// Number of past workouts a free (non-PRO) user can browse.
-  static const _freeHistoryLimit = 15;
-
   @override
   void initState() {
     super.initState();
     WorkoutStore.instance.addListener(_onStoreChanged);
-    SubscriptionService.instance.addListener(_onStoreChanged);
+    TrainingPreferencesStore.instance.addListener(_onStoreChanged);
   }
 
   @override
   void dispose() {
     WorkoutStore.instance.removeListener(_onStoreChanged);
-    SubscriptionService.instance.removeListener(_onStoreChanged);
+    TrainingPreferencesStore.instance.removeListener(_onStoreChanged);
     super.dispose();
   }
 
@@ -60,11 +59,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return '${m}m';
   }
 
-  String _formatVolume(int kg) {
-    if (kg >= 1000) return '${(kg / 1000).toStringAsFixed(1)}k';
-    return '$kg';
-  }
-
   // Returns the weekday index (0=Mon … 6=Sun) for each workout this week.
   Set<int> get _trainedDaysThisWeek {
     final now = DateTime.now();
@@ -80,33 +74,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     final allWorkouts = WorkoutStore.instance.workouts;
     final weekWorkouts = _weekWorkouts;
-    final isPro = SubscriptionService.instance.isPro;
-    final displayWorkouts = isPro
-        ? allWorkouts
-        : allWorkouts.take(_freeHistoryLimit).toList();
     final populatedDays = RoutineDay.values
         .where(
-          (day) =>
-              displayWorkouts.any((workout) => _dayForWorkout(workout) == day),
+          (day) => allWorkouts.any((workout) => _dayForWorkout(workout) == day),
         )
         .toList();
+    final preferences = TrainingPreferencesStore.instance.preferences;
+    final weeklyPlan = preferences == null
+        ? null
+        : WeeklyPlanService.build(
+            preferences: preferences,
+            workouts: allWorkouts,
+            exerciseLibrary: mockExercises,
+            now: DateTime.now(),
+            planName: S.of(context).weeklyPlan_adaptiveName,
+          );
 
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            title: Text(S.of(context).history_title),
-            floating: true,
-            actions: [
-              if (WorkoutStore.instance.workouts.isNotEmpty)
-                IconButton(
-                  onPressed: () => CsvExporter.exportAndShare(S.of(context)),
-                  icon: const Icon(Icons.ios_share_rounded, size: 20),
-                  tooltip: S.of(context).history_exportCsv,
-                ),
-            ],
-          ),
-
           // ── Week summary card ──────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
@@ -114,11 +100,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
               child: _WeekSummaryCard(
                 workoutCount: weekWorkouts.length,
                 totalDuration: _formatWeekDuration(weekWorkouts),
-                totalVolume: _formatVolume(
+                totalVolume: formatVolume(
                   weekWorkouts.fold(0, (s, w) => s + w.totalVolume),
+                  compact: true,
                 ),
                 trainedDays: _trainedDaysThisWeek,
                 todayIndex: DateTime.now().weekday - 1,
+              ),
+            ),
+          ),
+
+          // ── Weekly plan (moved here from Home) ─────────────────────────────
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+              child: WeeklyPlanCard(
+                plan: weeklyPlan,
+                onConfigure: () => openTrainingPreferences(context),
               ),
             ),
           ),
@@ -147,7 +145,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final day = populatedDays[index];
-                  final workouts = displayWorkouts
+                  final workouts = allWorkouts
                       .where((workout) => _dayForWorkout(workout) == day)
                       .toList();
                   return _RoutineDayHistoryCard(
@@ -190,7 +188,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.history_rounded,
                         color: AppColors.textMuted,
                         size: 56,
@@ -198,7 +196,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       const SizedBox(height: 16),
                       Text(
                         S.of(context).history_noWorkoutsYet,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 17,
                           fontWeight: FontWeight.w600,
@@ -207,7 +205,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       const SizedBox(height: 8),
                       Text(
                         S.of(context).history_noWorkoutsSubtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textMuted,
                           fontSize: 13,
                           height: 1.5,
@@ -225,87 +223,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    if (index >= displayWorkouts.length) return null;
-                    final workout = displayWorkouts[index];
-                    return _WorkoutHistoryCard(workout: workout)
-                        .animate()
-                        .fadeIn(
-                          delay: Duration(milliseconds: 60 * index),
-                          duration: 300.ms,
-                        )
-                        .slideX(begin: 0.05, end: 0);
-                  },
-                  childCount: SubscriptionService.instance.isPro
-                      ? allWorkouts.length
-                      : allWorkouts.length.clamp(0, _freeHistoryLimit),
-                ),
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  if (index >= allWorkouts.length) return null;
+                  final workout = allWorkouts[index];
+                  // Built lazily while scrolling: a per-index delay made
+                  // older workouts show up seconds late.
+                  return _WorkoutHistoryCard(workout: workout);
+                }, childCount: allWorkouts.length),
               ),
             ),
-
-            // ── Upgrade banner ──────────────────────────────────────────────
-            if (!SubscriptionService.instance.isPro &&
-                allWorkouts.length > _freeHistoryLimit)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 8,
-                  ),
-                  child: GestureDetector(
-                    onTap: () => requirePro(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withAlpha(20),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: AppColors.primary.withAlpha(60),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.lock_rounded,
-                            color: AppColors.primary,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  S.of(context).history_limitedHistory,
-                                  style: const TextStyle(
-                                    color: AppColors.textPrimary,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  S
-                                      .of(context)
-                                      .history_unlockWorkouts(
-                                        allWorkouts.length,
-                                      ),
-                                  style: const TextStyle(
-                                    color: AppColors.textMuted,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const ProBadge(),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
           ],
 
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
@@ -417,7 +343,7 @@ class _SummaryItem extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 18,
               fontWeight: FontWeight.w700,
@@ -426,7 +352,7 @@ class _SummaryItem extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 11),
           ),
         ],
       ),
@@ -552,7 +478,7 @@ class _WorkoutHistoryCard extends StatelessWidget {
           '$displayName. $dateLabel. '
           '${l10n.train_exerciseCount(completedExercises)}. '
           '${l10n.common_sets}: ${workout.totalSets}. '
-          '${l10n.common_volume}: ${workout.totalVolume} kg',
+          '${l10n.common_volume}: ${formatVolume(workout.totalVolume)}',
       button: true,
       onTap: openWorkout,
       child: ExcludeSemantics(
@@ -600,7 +526,7 @@ class _WorkoutHistoryCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Icon(
+                    Icon(
                       Icons.chevron_right_rounded,
                       color: AppColors.textMuted,
                     ),
@@ -621,7 +547,7 @@ class _WorkoutHistoryCard extends StatelessWidget {
                     const SizedBox(width: 12),
                     _HistStat(
                       label: l10n.common_volume,
-                      value: '${workout.totalVolume} kg',
+                      value: formatVolume(workout.totalVolume),
                     ),
                   ],
                 ),
@@ -695,7 +621,7 @@ class _RoutineDayHistoryCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  const Icon(
+                  Icon(
                     Icons.chevron_right_rounded,
                     color: AppColors.textMuted,
                     size: 20,
@@ -707,7 +633,7 @@ class _RoutineDayHistoryCard extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -716,10 +642,7 @@ class _RoutineDayHistoryCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 l10n.history_sessionCount(workouts.length),
-                style: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 11,
-                ),
+                style: TextStyle(color: AppColors.textMuted, fontSize: 11),
               ),
             ],
           ),
@@ -792,7 +715,7 @@ class _RoutineDayHistoryScreenState extends State<_RoutineDayHistoryScreen> {
           const SizedBox(height: 4),
           Text(
             S.of(context).history_dayRoutineHint,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textMuted,
               fontSize: 12,
               height: 1.4,
@@ -840,7 +763,7 @@ class _HistStat extends StatelessWidget {
         children: [
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -849,7 +772,7 @@ class _HistStat extends StatelessWidget {
           const SizedBox(height: 1),
           Text(
             label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 10),
           ),
         ],
       ),

@@ -1,10 +1,30 @@
 import '../models/models.dart';
+import '../models/training_preferences.dart';
 
 enum ProgressionAction {
   increaseLoad,
   addRepetition,
   consolidateLoad,
   bodyweightRepetition,
+}
+
+/// Target repetitions for double progression: add reps inside the range,
+/// add load once the top is reached.
+class RepRange {
+  final int min;
+  final int max;
+
+  const RepRange(this.min, this.max);
+
+  @override
+  bool operator ==(Object other) =>
+      other is RepRange && other.min == min && other.max == max;
+
+  @override
+  int get hashCode => Object.hash(min, max);
+
+  @override
+  String toString() => 'RepRange($min-$max)';
 }
 
 class ProgressionRecommendation {
@@ -14,12 +34,16 @@ class ProgressionRecommendation {
   final int suggestedReps;
   final ProgressionAction action;
 
+  /// The range the suggestion was computed against, so the UI can explain it.
+  final RepRange range;
+
   const ProgressionRecommendation({
     required this.previousWeight,
     required this.previousReps,
     required this.suggestedWeight,
     required this.suggestedReps,
     required this.action,
+    this.range = ProgressionService.defaultRange,
   });
 }
 
@@ -30,12 +54,51 @@ class ProgressionService {
 
   static const int targetMinReps = 8;
   static const int targetMaxReps = 12;
+  static const RepRange defaultRange = RepRange(targetMinReps, targetMaxReps);
+
+  /// Rep range for the user's goal. Matches the reps the adaptive weekly
+  /// plan prescribes (5 for strength, 10 for hypertrophy, 12 for fat loss).
+  static RepRange repRangeFor(TrainingGoal? goal) => switch (goal) {
+    TrainingGoal.strength => const RepRange(3, 6),
+    TrainingGoal.fatLoss => const RepRange(12, 15),
+    TrainingGoal.muscleGain ||
+    TrainingGoal.generalFitness ||
+    null => defaultRange,
+  };
 
   static ProgressionRecommendation? recommend({
     required String exerciseName,
     required String equipment,
     required List<Workout> workouts,
+    TrainingGoal? goal,
+    double? loadIncrementKg,
   }) {
+    final latestExercise = _latestExercise(exerciseName, workouts);
+    if (latestExercise == null) return null;
+    return _recommendFrom(
+      latestExercise,
+      loadIncrementKg ?? loadIncrementFor(equipment),
+      repRangeFor(goal),
+    );
+  }
+
+  /// Sets the user completed the last time they logged [exerciseName], in
+  /// the order they were performed. Empty when there is no previous session.
+  static List<WorkoutSet> previousSets({
+    required String exerciseName,
+    required List<Workout> workouts,
+  }) {
+    final latestExercise = _latestExercise(exerciseName, workouts);
+    if (latestExercise == null) return const [];
+    return latestExercise.sets
+        .where((set) => set.completed && set.reps > 0)
+        .toList();
+  }
+
+  static WorkoutExercise? _latestExercise(
+    String exerciseName,
+    List<Workout> workouts,
+  ) {
     final normalizedName = _normalize(exerciseName);
     WorkoutExercise? latestExercise;
     DateTime? latestDate;
@@ -56,8 +119,14 @@ class ProgressionService {
       }
     }
 
-    if (latestExercise == null) return null;
+    return latestExercise;
+  }
 
+  static ProgressionRecommendation _recommendFrom(
+    WorkoutExercise latestExercise,
+    double loadIncrementKg,
+    RepRange range,
+  ) {
     final completed = latestExercise.sets
         .where((set) => set.completed && set.reps > 0)
         .toList();
@@ -72,6 +141,7 @@ class ProgressionService {
         suggestedWeight: 0,
         suggestedReps: previousReps + 1,
         action: ProgressionAction.bodyweightRepetition,
+        range: range,
       );
     }
 
@@ -85,23 +155,25 @@ class ProgressionService {
         .map((set) => set.reps)
         .reduce((a, b) => a < b ? a : b);
 
-    if (previousReps >= targetMaxReps) {
+    if (previousReps >= range.max) {
       return ProgressionRecommendation(
         previousWeight: workingWeight,
         previousReps: previousReps,
-        suggestedWeight: workingWeight + _incrementFor(equipment),
-        suggestedReps: targetMinReps,
+        suggestedWeight: workingWeight + loadIncrementKg,
+        suggestedReps: range.min,
         action: ProgressionAction.increaseLoad,
+        range: range,
       );
     }
 
-    if (previousReps >= targetMinReps) {
+    if (previousReps >= range.min) {
       return ProgressionRecommendation(
         previousWeight: workingWeight,
         previousReps: previousReps,
         suggestedWeight: workingWeight,
         suggestedReps: previousReps + 1,
         action: ProgressionAction.addRepetition,
+        range: range,
       );
     }
 
@@ -111,10 +183,13 @@ class ProgressionService {
       suggestedWeight: workingWeight,
       suggestedReps: previousReps,
       action: ProgressionAction.consolidateLoad,
+      range: range,
     );
   }
 
-  static double _incrementFor(String equipment) {
+  /// Smallest practical load jump: 2 kg for dumbbells and kettlebells
+  /// (sold in 2 kg steps), 2.5 kg otherwise.
+  static double loadIncrementFor(String equipment) {
     final normalized = _normalize(equipment);
     if (normalized.contains('mancuerna') ||
         normalized.contains('dumbbell') ||
@@ -122,6 +197,14 @@ class ProgressionService {
       return 2;
     }
     return 2.5;
+  }
+
+  /// Exercises done without external load, where only reps change.
+  static bool isBodyweight(String equipment) {
+    final normalized = _normalize(equipment);
+    return normalized == 'peso corporal' ||
+        normalized == 'sin material' ||
+        normalized == 'bodyweight';
   }
 
   static String _normalize(String value) =>

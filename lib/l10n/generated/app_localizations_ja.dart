@@ -18,9 +18,6 @@ class SJa extends S {
   String get common_save => '保存';
 
   @override
-  String get common_ok => 'OK';
-
-  @override
   String get common_or => 'または';
 
   @override
@@ -57,9 +54,6 @@ class SJa extends S {
 
   @override
   String get common_custom => 'CUSTOM';
-
-  @override
-  String get common_pro => 'PRO';
 
   @override
   String get common_discardChangesTitle => '変更を破棄しますか？';
@@ -155,13 +149,22 @@ class SJa extends S {
   String get nav_train => 'トレーニング';
 
   @override
-  String get nav_history => '履歴';
+  String get nav_progress => '進捗';
 
   @override
-  String get nav_rest => '休憩';
+  String get nav_profile => 'プロフィール';
 
   @override
-  String get nav_exercises => 'エクササイズ';
+  String get home_todayTitle => '今日のトレーニング';
+
+  @override
+  String get home_inProgressTitle => 'トレーニング中';
+
+  @override
+  String get home_continueWorkout => 'トレーニングを再開';
+
+  @override
+  String get home_chooseAnother => '別のメニューを選ぶ';
 
   @override
   String get login_tagline => 'あなたのフィットネスアプリ';
@@ -176,7 +179,65 @@ class SJa extends S {
   String get login_continueEmail => 'メールで続ける';
 
   @override
-  String get login_legal => '続けることで、利用規約と\nプライバシーポリシーに同意したことになります。';
+  String get login_continueGuest => 'アカウントなしで続ける';
+
+  @override
+  String get guest_name => 'ゲスト';
+
+  @override
+  String get guest_saveProgressTitle => '進捗を保存しましょう';
+
+  @override
+  String get guest_saveProgressBody =>
+      'ゲストとしてLiftWaveを利用中です。機種変更や再インストールでトレーニング記録を失わないよう、無料アカウントを作成しましょう。';
+
+  @override
+  String get guest_createAccount => 'アカウントを作成';
+
+  @override
+  String get guest_notNow => '後で';
+
+  @override
+  String get guest_createAccountSubtitle => '進捗を失わないようにアカウントを作成しましょう';
+
+  @override
+  String get guest_accountCreated => 'アカウントを作成しました。トレーニング記録は保護されています。';
+
+  @override
+  String get guest_existingAccountTitle => 'このアカウントは既に存在します';
+
+  @override
+  String get guest_existingAccountBody =>
+      'このアカウントでログインすると、ゲストとして記録したトレーニングは引き継がれません。';
+
+  @override
+  String get guest_signInAnyway => 'それでもログイン';
+
+  @override
+  String get guest_leave => 'ゲストモードを終了';
+
+  @override
+  String get guest_leaveBody => 'アカウントがないため、トレーニング記録とデータは削除されます。この操作は元に戻せません。';
+
+  @override
+  String train_reasonIncreaseLoad(int reps, String weight, int min, int max) {
+    return '$weightで$reps回、目標範囲（$min〜$max回）の上限に達しました。重量を上げましょう。';
+  }
+
+  @override
+  String train_reasonAddRep(int reps, String weight) {
+    return '$weightで$reps回できました。重量を上げる前にもう1回増やしましょう。';
+  }
+
+  @override
+  String train_reasonConsolidate(int reps, String weight, int min, int max) {
+    return '$reps回で、目標範囲（$min〜$max回）を下回りました。$min回に届くまで$weightを続けましょう。';
+  }
+
+  @override
+  String train_reasonBodyweight(int reps) {
+    return '$reps回できました。あと1回増やしてみましょう。';
+  }
 
   @override
   String get login_legalPrefix => '続けることで、';
@@ -339,9 +400,6 @@ class SJa extends S {
   }
 
   @override
-  String get home_startWorkout => 'トレーニングを開始';
-
-  @override
   String get home_thisWeek => '今週';
 
   @override
@@ -349,12 +407,6 @@ class SJa extends S {
 
   @override
   String get home_weekVolume => '週間ボリューム';
-
-  @override
-  String get home_quickAccess => 'クイックアクセス';
-
-  @override
-  String get home_quickStart => 'クイックスタート';
 
   @override
   String get restTimer_title => '休憩';
@@ -411,22 +463,7 @@ class SJa extends S {
   String get home_viewAll => 'すべて見る';
 
   @override
-  String get home_noWorkoutsYet => 'まだトレーニングがありません';
-
-  @override
-  String get home_noWorkoutsSubtitle => '最初のトレーニングを完了するとここに表示されます。';
-
-  @override
   String get home_goToTrain => 'トレーニングへ →';
-
-  @override
-  String get home_progress => '進捗';
-
-  @override
-  String get home_noRecordsYet => 'まだ記録がありません';
-
-  @override
-  String get home_recordWeightMeasures => '体重と測定値を記録しましょう';
 
   @override
   String get home_achievements => '実績';
@@ -435,35 +472,7 @@ class SJa extends S {
   String get home_noAchievements => 'トレーニングを完了して実績を解除しましょう';
 
   @override
-  String get home_recentExercises => '最近のエクササイズ';
-
-  @override
-  String get home_noRecentExercises => 'よく行うエクササイズがここに表示されます';
-
-  @override
-  String home_frequentExercise(int count) {
-    return '$countセッション';
-  }
-
-  @override
-  String get home_latestRecord => '最新の記録';
-
-  @override
-  String get home_waist => 'ウエスト';
-
-  @override
-  String get home_hips => 'ヒップ';
-
-  @override
   String get home_exerciseLibrary => 'エクササイズライブラリ';
-
-  @override
-  String get home_viewAllExercises => 'すべて見る';
-
-  @override
-  String home_exercisesAvailable(int count) {
-    return '$count種目のエクササイズ';
-  }
 
   @override
   String get profile_proActive => 'サブスクリプション有効';
@@ -510,6 +519,18 @@ class SJa extends S {
 
   @override
   String get profile_trainingPreferencesSubtitle => '目標、経験、日数、器具';
+
+  @override
+  String get profile_appearance => '外観';
+
+  @override
+  String get appearance_system => '自動（端末の設定）';
+
+  @override
+  String get appearance_light => 'ライト';
+
+  @override
+  String get appearance_dark => 'ダーク';
 
   @override
   String get onboarding_title => 'トレーニングをカスタマイズ';
@@ -685,13 +706,13 @@ class SJa extends S {
   String get train_resumeDiscard => '破棄';
 
   @override
-  String get train_cancelWorkout => 'トレーニングをキャンセル';
+  String get train_cancelWorkout => 'トレーニングを破棄しますか？';
 
   @override
-  String get train_cancelConfirm => '本当にキャンセルしますか？進捗が失われます。';
+  String get train_cancelConfirm => 'このセッションで記録したセットは失われます。';
 
   @override
-  String get train_continue => '続ける';
+  String get train_continue => 'トレーニングを続ける';
 
   @override
   String get train_addExerciseFirst => '終了する前に少なくとも1つのエクササイズを追加してください。';
@@ -784,15 +805,10 @@ class SJa extends S {
   String get train_repsHeader => 'レップ';
 
   @override
-  String get train_weightHeader => '重量 (kg)';
+  String get train_weightHeader => '重量';
 
   @override
   String get train_addSet => 'セットを追加';
-
-  @override
-  String train_lastWeight(String weight) {
-    return '前回: $weight kg';
-  }
 
   @override
   String get train_nextSuggestion => '次回の推奨負荷';
@@ -801,19 +817,7 @@ class SJa extends S {
   String get train_applySuggestion => '適用';
 
   @override
-  String get train_increaseLoad => '負荷を上げる';
-
-  @override
-  String get train_addRepetition => '1回追加';
-
-  @override
-  String get train_consolidateLoad => 'この負荷を定着';
-
-  @override
   String get train_abbreviationExercises => '種目';
-
-  @override
-  String get train_orChooseRoutine => 'またはルーティンを選択';
 
   @override
   String get train_defaultRoutineName => 'マイルーティン';
@@ -837,6 +841,79 @@ class SJa extends S {
 
   @override
   String get train_removeSet => 'セットを削除';
+
+  @override
+  String get train_routinesHint => '1日に1つ以上のルーティンを登録できます。その日を始めると、すべて順番に行います。';
+
+  @override
+  String get train_firstRoutineTitle => '最初のルーティンを作成';
+
+  @override
+  String get train_firstRoutineBody => '種目を選んで曜日を設定すると、その日にホームに表示され、すぐに始められます。';
+
+  @override
+  String get train_freeSessionHint =>
+      '予定がなくても大丈夫。フリーセッションを始めて、種目を追加しながら進めましょう。';
+
+  @override
+  String get profile_keepScreenOn => 'トレーニング中は画面をオンのまま';
+
+  @override
+  String get profile_keepScreenOnSubtitle => 'セット間に端末がロックされるのを防ぎます';
+
+  @override
+  String get profile_weightUnit => '重量の単位';
+
+  @override
+  String get weightUnit_kg => 'キログラム (kg)';
+
+  @override
+  String get weightUnit_lb => 'ポンド (lb)';
+
+  @override
+  String get train_repShort => '回';
+
+  @override
+  String get rest_label => '休憩';
+
+  @override
+  String get rest_forExercise => 'この種目の休憩';
+
+  @override
+  String get rest_default => 'デフォルト';
+
+  @override
+  String get rest_defaultHint => '休憩タイマーで選んだ時間を使用';
+
+  @override
+  String get train_newRecords => '新記録';
+
+  @override
+  String train_recordLine(String weight, String previous) {
+    return '$weight（以前の最高 $previous）';
+  }
+
+  @override
+  String train_volumeUp(String kg) {
+    return '前回より総重量 +$kg';
+  }
+
+  @override
+  String train_volumeDown(String kg) {
+    return '前回より総重量 −$kg';
+  }
+
+  @override
+  String get train_volumeSame => '前回と同じ総重量';
+
+  @override
+  String get train_discardWorkout => '破棄する';
+
+  @override
+  String get train_previousHeader => '前回';
+
+  @override
+  String get train_usePrevious => '前回の値をコピー';
 
   @override
   String get train_removeCompletedSetTitle => '完了したセットを削除しますか？';
@@ -942,11 +1019,6 @@ class SJa extends S {
   String get exercises_equipmentFilter => '器具';
 
   @override
-  String exercises_exerciseCount(int count, String suffix) {
-    return '$count種目$suffix';
-  }
-
-  @override
   String exercises_countLabel(num count) {
     return '$count種目';
   }
@@ -1035,14 +1107,6 @@ class SJa extends S {
   String get history_noWorkoutsSubtitle => 'トレーニングタブで最初のトレーニングを完了するとここに表示されます。';
 
   @override
-  String get history_limitedHistory => '履歴が制限されています';
-
-  @override
-  String history_unlockWorkouts(int count) {
-    return 'PROで$count件のトレーニングをアンロック';
-  }
-
-  @override
   String get history_weeklySummary => '週間サマリー';
 
   @override
@@ -1052,7 +1116,7 @@ class SJa extends S {
   String get history_total => '合計';
 
   @override
-  String get history_volumeKg => 'ボリューム kg';
+  String get history_volumeKg => 'ボリューム';
 
   @override
   String get history_routinesByDay => '曜日別ルーティン';
@@ -1152,22 +1216,13 @@ class SJa extends S {
   String get paywall_subtitle => 'あなたの潜在能力を最大限に引き出そう';
 
   @override
-  String get paywall_featureTemplates => 'トレーニングテンプレート';
+  String get paywall_featureTemplates => 'すべてのプリセットメニュー';
 
   @override
-  String get paywall_featureHistory => '無制限の履歴';
+  String get paywall_featureMeasures => 'ウエスト・胸囲・ヒップと進捗写真';
 
   @override
-  String get paywall_featureTimer => 'カスタムタイマー';
-
-  @override
-  String get paywall_featureDetails => 'エクササイズの詳細';
-
-  @override
-  String get paywall_featureMeasures => '体の測定値＋写真';
-
-  @override
-  String get paywall_featureStats => '週間統計';
+  String get paywall_featureExerciseProgress => '種目ごとの進捗グラフ';
 
   @override
   String get paywall_allIncluded => 'すべて含む';
@@ -1192,9 +1247,6 @@ class SJa extends S {
 
   @override
   String get paywall_perYear => '/年';
-
-  @override
-  String get paywall_freeTrial => '7日間無料トライアル';
 
   @override
   String get paywall_startTrial => '無料トライアルを開始';
@@ -1231,11 +1283,6 @@ class SJa extends S {
   }
 
   @override
-  String paywall_trialWeeks(int count) {
-    return '$count週間無料';
-  }
-
-  @override
   String paywall_trialMonths(int count) {
     return '$countヶ月無料';
   }
@@ -1252,53 +1299,9 @@ class SJa extends S {
   String get paywall_retry => '再試行';
 
   @override
-  String get rest_title => '休憩';
-
-  @override
-  String get rest_ready => '準備完了！次のセットへ';
-
-  @override
-  String get rest_almostReady => 'もうすぐ準備完了！';
-
-  @override
-  String get rest_resting => '休憩中...';
-
-  @override
-  String rest_customTime(String time) {
-    return 'カスタム時間 · $time';
-  }
-
-  @override
-  String get rest_choosePreset => 'プリセットを選択またはカスタマイズ';
-
-  @override
   String rest_of(String time) {
     return '$time中';
   }
-
-  @override
-  String get rest_presets => 'プリセット';
-
-  @override
-  String get rest_customize => 'カスタマイズ';
-
-  @override
-  String get rest_customTimeTitle => 'カスタム時間';
-
-  @override
-  String get rest_customTimeSubtitle => '休憩の分と秒を入力してください。';
-
-  @override
-  String get rest_minutes => '分';
-
-  @override
-  String get rest_seconds => '秒';
-
-  @override
-  String get rest_setTime => '時間を設定';
-
-  @override
-  String get progressScreen_title => 'ボディ記録';
 
   @override
   String get progressScreen_measurements => '測定値';
@@ -1313,64 +1316,16 @@ class SJa extends S {
   String get progressScreen_weight => '体重';
 
   @override
-  String get progressScreen_bodyFat => '体脂肪率';
-
-  @override
-  String get progressScreen_muscle => '筋肉量';
-
-  @override
   String get progressScreen_noEntries => 'まだ記録がありません';
 
   @override
-  String get progressScreen_noEntriesHint => '＋ボタンをタップして最初の測定値を追加してください';
-
-  @override
   String get progressScreen_noPhotos => 'まだ写真がありません';
-
-  @override
-  String get progressScreen_noPhotosHint => '＋ボタンをタップして最初の進捗写真を追加してください';
-
-  @override
-  String get progressScreen_current => '現在';
-
-  @override
-  String get progressScreen_change => '変化';
-
-  @override
-  String get progressScreen_trend => '傾向';
-
-  @override
-  String get progressScreen_addMeasurementTitle => '新しい測定値';
-
-  @override
-  String get progressScreen_weightKg => '体重 (kg)';
-
-  @override
-  String get progressScreen_bodyFatPercent => '体脂肪率 (%)';
-
-  @override
-  String get progressScreen_muscleMassKg => '筋肉量 (kg)';
-
-  @override
-  String get progressScreen_optional => '任意';
-
-  @override
-  String get progressScreen_saveEntry => '記録を保存';
-
-  @override
-  String get progressScreen_deleteMeasurement => 'この記録を削除しますか？';
-
-  @override
-  String get progressScreen_deletePhoto => 'この写真を削除しますか？';
 
   @override
   String get progressScreen_camera => 'カメラ';
 
   @override
   String get progressScreen_gallery => 'ギャラリー';
-
-  @override
-  String get progressScreen_selectSource => 'ソースを選択';
 
   @override
   String get progressScreen_waist => 'ウエスト';

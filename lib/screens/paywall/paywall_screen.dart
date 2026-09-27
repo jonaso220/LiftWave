@@ -193,7 +193,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 8, right: 8),
                 child: IconButton(
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.close_rounded,
                     color: AppColors.textMuted,
                     size: 28,
@@ -205,45 +205,24 @@ class _PaywallScreenState extends State<PaywallScreen> {
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
+                // One short fade for the whole page: the subscribe button
+                // used to appear only after ~0.9 s of staggered animations.
                 child: Column(
                   children: [
-                    _buildHeader()
-                        .animate()
-                        .fadeIn(duration: 500.ms)
-                        .slideY(begin: -0.15, end: 0, duration: 500.ms),
+                    _buildHeader(),
                     const SizedBox(height: 32),
-                    _buildFeatures().animate().fadeIn(
-                      delay: 200.ms,
-                      duration: 400.ms,
-                    ),
+                    _buildFeatures(),
                     const SizedBox(height: 32),
-                    _buildPricingArea().animate().fadeIn(
-                      delay: 350.ms,
-                      duration: 400.ms,
-                    ),
+                    _buildPricingArea(),
                     const SizedBox(height: 24),
-                    _buildTrialBanner().animate().fadeIn(
-                      delay: 450.ms,
-                      duration: 400.ms,
-                    ),
+                    _buildTrialBanner(),
                     const SizedBox(height: 16),
-                    _buildCTA()
-                        .animate()
-                        .fadeIn(delay: 500.ms, duration: 400.ms)
-                        .slideY(
-                          begin: 0.2,
-                          end: 0,
-                          delay: 500.ms,
-                          duration: 400.ms,
-                        ),
+                    _buildCTA(),
                     const SizedBox(height: 16),
-                    _buildFooter().animate().fadeIn(
-                      delay: 550.ms,
-                      duration: 400.ms,
-                    ),
+                    _buildFooter(),
                     const SizedBox(height: 32),
                   ],
-                ),
+                ).animate().fadeIn(duration: 200.ms),
               ),
             ),
           ],
@@ -282,7 +261,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
           ),
         ),
         const SizedBox(height: 20),
-        const Text(
+        Text(
           'LiftWave PRO',
           style: TextStyle(
             color: AppColors.textPrimary,
@@ -294,7 +273,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
         const SizedBox(height: 8),
         Text(
           S.of(context).paywall_subtitle,
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 15),
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
         ),
       ],
     );
@@ -303,13 +282,12 @@ class _PaywallScreenState extends State<PaywallScreen> {
   // ── Features ────────────────────────────────────────────────────────────────
 
   Widget _buildFeatures() {
+    // Only what PRO actually unlocks; keep in sync with the requirePro()
+    // gates (predefined templates, exercise progress, body measurements).
     final features = [
       (S.of(context).paywall_featureTemplates, Icons.fitness_center_rounded),
-      (S.of(context).paywall_featureHistory, Icons.history_rounded),
-      (S.of(context).paywall_featureTimer, Icons.timer_rounded),
-      (S.of(context).paywall_featureDetails, Icons.menu_book_rounded),
+      (S.of(context).paywall_featureExerciseProgress, Icons.show_chart_rounded),
       (S.of(context).paywall_featureMeasures, Icons.straighten_rounded),
-      (S.of(context).paywall_featureStats, Icons.bar_chart_rounded),
     ];
 
     return Container(
@@ -324,7 +302,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
         children: [
           Text(
             S.of(context).paywall_allIncluded,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -346,16 +324,18 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     child: Icon(f.$2, color: AppColors.accent, size: 18),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    f.$1,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                  Expanded(
+                    child: Text(
+                      f.$1,
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                  const Spacer(),
-                  const Icon(
+                  const SizedBox(width: 8),
+                  Icon(
                     Icons.check_circle_rounded,
                     color: AppColors.accent,
                     size: 20,
@@ -396,7 +376,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
       ),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline_rounded,
             color: AppColors.textMuted,
             size: 32,
@@ -405,10 +385,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
           Text(
             S.of(context).paywall_offersUnavailable,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
           ),
           const SizedBox(height: 16),
           TextButton(
@@ -476,7 +453,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         ),
                         child: Text(
                           S.of(context).paywall_bestValue,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.bgDark,
                             fontSize: 9,
                             fontWeight: FontWeight.w800,
@@ -510,7 +487,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     ),
                     Text(
                       suffix,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textMuted,
                         fontSize: 11,
                       ),
@@ -529,7 +506,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                         child: Text(
                           _trialBadgeText(pkg.storeProduct.introductoryPrice!),
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.accent,
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
@@ -584,17 +561,13 @@ class _PaywallScreenState extends State<PaywallScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.card_giftcard_rounded,
-            color: AppColors.accent,
-            size: 18,
-          ),
+          Icon(Icons.card_giftcard_rounded, color: AppColors.accent, size: 18),
           const SizedBox(width: 8),
           Flexible(
             child: Text(
               '$badge · $thenPrice',
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.accent,
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -694,7 +667,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
           onTap: _loading ? null : _restore,
           child: Text(
             l10n.paywall_restorePurchases,
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.textMuted,
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -709,7 +682,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
               ? l10n.paywall_legalTextTrial
               : l10n.paywall_legalText,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textMuted,
             fontSize: 10,
             height: 1.5,
@@ -734,7 +707,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 ),
               ),
             ),
-            const Text(
+            Text(
               '  ·  ',
               style: TextStyle(color: AppColors.textMuted, fontSize: 10),
             ),

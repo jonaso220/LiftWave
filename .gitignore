@@ -44,3 +44,7 @@ android/key.properties
 # Pub
 .pub-cache/
 .pub/
+
+# Local tool logs
+firebase-debug.log
+*-debug.log

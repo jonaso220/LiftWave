@@ -4,6 +4,24 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/workout_store.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/exercise_localization.dart';
+import '../../utils/pro_gate.dart';
+import '../../utils/weight_units.dart';
+
+/// Opens the progress charts for [exerciseName], a PRO feature. Free users
+/// see the paywall first; the sheet opens if they subscribe there.
+Future<void> showExerciseProgress(
+  BuildContext context,
+  String exerciseName,
+) async {
+  if (!await requirePro(context)) return;
+  if (!context.mounted) return;
+  await showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (_) => ExerciseProgressSheet(exerciseName: exerciseName),
+  );
+}
 
 class ExerciseProgressSheet extends StatefulWidget {
   final String exerciseName;
@@ -16,6 +34,11 @@ class ExerciseProgressSheet extends StatefulWidget {
 
 class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
   bool _showVolume = false; // false = peso máximo, true = volumen
+
+  /// A load or a volume (stored in kg) in the user's unit.
+  String _formatValue(double kg) => _showVolume
+      ? formatVolume(kg)
+      : formatLoadWithUnit(kg, Localizations.localeOf(context).toString());
 
   List<_DataPoint> _buildData() {
     final points = <_DataPoint>[];
@@ -53,7 +76,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
       minChildSize: 0.35,
       maxChildSize: 0.85,
       builder: (_, scrollCtrl) => Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.bgCard,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -76,7 +99,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.show_chart_rounded,
                     color: AppColors.accent,
                     size: 22,
@@ -88,7 +111,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
                         S.of(context),
                         widget.exerciseName,
                       ),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -127,7 +150,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.bar_chart_rounded,
                               color: AppColors.textMuted,
                               size: 40,
@@ -138,7 +161,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
                                   ? S.of(context).progress_noData
                                   : S.of(context).progress_needMoreSessions,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.textMuted,
                                 fontSize: 13,
                               ),
@@ -200,8 +223,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
             label: _showVolume
                 ? S.of(context).progress_lastVolume
                 : S.of(context).progress_lastWeight,
-            value:
-                '${current == current.roundToDouble() ? current.toStringAsFixed(0) : current.toStringAsFixed(1)} kg',
+            value: _formatValue(current),
             color: _showVolume ? AppColors.accentOrange : AppColors.accent,
           ),
         ),
@@ -209,8 +231,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
         Expanded(
           child: _StatBox(
             label: S.of(context).progress_best,
-            value:
-                '${best == best.roundToDouble() ? best.toStringAsFixed(0) : best.toStringAsFixed(1)} kg',
+            value: _formatValue(best),
             color: AppColors.accentYellow,
           ),
         ),
@@ -233,7 +254,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
       children: [
         Text(
           S.of(context).progress_historyTitle,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w700,
@@ -248,15 +269,12 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
               children: [
                 Text(
                   '${d.date.day}/${d.date.month}/${d.date.year}',
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                 ),
                 const Spacer(),
                 Text(
-                  '${val == val.roundToDouble() ? val.toStringAsFixed(0) : val.toStringAsFixed(1)} kg',
-                  style: const TextStyle(
+                  _formatValue(val),
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -352,7 +370,7 @@ class _StatBox extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 10),
           ),
         ],
       ),
@@ -364,7 +382,10 @@ class _ProgressPainter extends CustomPainter {
   final List<({double x, double y})> spots;
   final Color color;
 
-  const _ProgressPainter({required this.spots, required this.color});
+  /// Grid lines follow the theme, so a theme switch must repaint.
+  final Brightness brightness = AppColors.brightness;
+
+  _ProgressPainter({required this.spots, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -391,7 +412,7 @@ class _ProgressPainter extends CustomPainter {
 
     // Grid lines
     final gridPaint = Paint()
-      ..color = Colors.white.withAlpha(15)
+      ..color = AppColors.textPrimary.withAlpha(15)
       ..strokeWidth = 1;
     for (int i = 0; i <= 3; i++) {
       final y = padV + h * i / 3;
@@ -446,5 +467,5 @@ class _ProgressPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_ProgressPainter old) =>
-      old.spots != spots || old.color != color;
+      old.spots != spots || old.color != color || old.brightness != brightness;
 }

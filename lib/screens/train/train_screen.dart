@@ -14,17 +14,22 @@ import '../../models/models.dart';
 import '../../models/training_preferences.dart';
 import '../../data/workout_store.dart';
 import '../exercises/exercise_progress_sheet.dart';
+import '../exercises/exercises_screen.dart';
+import '../auth/guest_prompts.dart';
 import '../../services/rest_timer_controller.dart';
 import '../../services/progression_service.dart';
 import '../../services/watch_service.dart';
 import '../../services/weekly_plan_service.dart';
+import '../../services/workout_summary_service.dart';
 import '../../services/workout_launcher.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/exercise_localization.dart';
 import '../../utils/muscle_colors.dart';
 import '../../utils/pro_gate.dart';
 import '../../utils/routine_days.dart';
+import '../../utils/weight_units.dart';
 import '../../widgets/common/muscle_chip.dart';
+import '../../widgets/rest_picker.dart';
 import '../../widgets/rest_timer_overlay.dart';
 import '../../widgets/session_set_row.dart';
 import 'exercise_picker_screen.dart';
@@ -32,6 +37,8 @@ import 'routine_builder_screen.dart';
 
 part 'train_screen_templates.dart';
 part 'train_screen_cards.dart';
+part 'train_screen_chooser.dart';
+part 'train_screen_summary.dart';
 
 int _compareRoutineTemplates(CustomTemplate a, CustomTemplate b) {
   final aOrder = a.routineOrder ?? routineOrderFromName(a.name, fallback: 999);
@@ -124,11 +131,11 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
         backgroundColor: AppColors.bgCard,
         title: Text(
           l10n.train_resumeTitle,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
           l10n.train_resumeBody(snapshot.workoutName ?? l10n.train_freeWorkout),
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
@@ -175,6 +182,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       _elapsedSeconds = snap.elapsedAt(DateTime.now());
       _timerRunning = snap.timerRunning;
     });
+    WorkoutLauncher.instance.sessionActive.value = true;
     _syncWatch();
     if (_timerRunning) _scheduleWorkoutTimer();
     _persistActiveWorkout();
@@ -304,6 +312,12 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       unawaited(_startQueuedTemplate(template));
       return;
     }
+    final day = WorkoutLauncher.instance.consumeRoutineDay();
+    if (day != null) {
+      final blocks = _templatesForDay(day);
+      if (blocks.isNotEmpty) _startRoutineDay(day, blocks);
+      return;
+    }
     final workout = WorkoutLauncher.instance.consumeWorkout();
     if (workout != null) {
       _startFromWorkout(workout);
@@ -416,6 +430,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       _timerRunning = true;
       _startedAt = now;
     });
+    WorkoutLauncher.instance.sessionActive.value = true;
     _scheduleWorkoutTimer();
     HapticFeedback.lightImpact();
     _syncWatch();
@@ -462,6 +477,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
             name: ex.name,
             muscleGroup: ex.muscleGroup,
             equipment: ex.equipment,
+            restSeconds: ex.restSeconds,
             sets: List.generate(
               ex.sets,
               (_) => SessionSet(reps: ex.reps, weight: lastWeight ?? 0),
@@ -485,6 +501,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
             muscleGroup: ex.muscleGroup,
             equipment: ex.equipment,
             routineBlockName: t.name,
+            restSeconds: ex.restSeconds,
             sets: List.generate(
               ex.sets,
               (_) => SessionSet(reps: ex.reps, weight: lastWeight ?? ex.weight),
@@ -515,6 +532,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
               muscleGroup: ex.muscleGroup,
               equipment: ex.equipment,
               routineBlockName: block.name,
+              restSeconds: ex.restSeconds,
               sets: List.generate(
                 ex.sets,
                 (_) =>
@@ -549,11 +567,11 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
         backgroundColor: AppColors.bgCard,
         title: Text(
           l10n.train_cancelWorkout,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
           l10n.train_cancelConfirm,
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
@@ -569,7 +587,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
               _resetWorkoutState();
             },
             child: Text(
-              l10n.common_cancel,
+              l10n.train_discardWorkout,
               style: const TextStyle(color: AppColors.error),
             ),
           ),
@@ -592,6 +610,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       _elapsedSeconds = 0;
       _startedAt = null;
     });
+    WorkoutLauncher.instance.sessionActive.value = false;
     _syncWatch();
     ActiveWorkoutStore.instance.clear();
   }
@@ -628,452 +647,6 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     _showSummaryDialog();
   }
 
-  void _showSummaryDialog() {
-    final l10n = S.of(context);
-    final totalSets = _exercises.fold(0, (s, e) => s + e.sets.length);
-    final totalVolume = _exercises.fold(0, (s, e) => s + e.totalVolume);
-    final completedSets = _exercises.fold(0, (s, e) => s + e.completedSets);
-    final completedExercises = _exercises
-        .where((exercise) => exercise.completedSets > 0)
-        .length;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.bgCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            const Icon(
-              Icons.emoji_events_rounded,
-              color: AppColors.accentYellow,
-              size: 24,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              l10n.train_workoutCompleted,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (_workoutName != null) ...[
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(25),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  ExerciseLocalization.workoutName(l10n, _workoutName!),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-            ],
-            const SizedBox(height: 4),
-            _SummaryStat(
-              icon: Icons.timer_rounded,
-              label: l10n.common_duration,
-              value: _formatTime(_elapsedSeconds),
-              color: AppColors.accent,
-            ),
-            const SizedBox(height: 8),
-            _SummaryStat(
-              icon: Icons.fitness_center_rounded,
-              label: l10n.common_exercises,
-              value: '$completedExercises',
-              color: AppColors.primary,
-            ),
-            const SizedBox(height: 8),
-            _SummaryStat(
-              icon: Icons.repeat_rounded,
-              label: l10n.train_completedSets,
-              value: '$completedSets / $totalSets',
-              color: AppColors.accentOrange,
-            ),
-            const SizedBox(height: 8),
-            _SummaryStat(
-              icon: Icons.bar_chart_rounded,
-              label: l10n.train_totalVolume,
-              value: '$totalVolume kg',
-              color: AppColors.accentYellow,
-            ),
-          ],
-        ),
-        actions: [
-          Column(
-            children: [
-              if (_launchSource.canSaveAsRoutine) ...[
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => _saveAsTemplate(ctx),
-                    icon: const Icon(Icons.bookmark_add_rounded, size: 18),
-                    label: Text(l10n.train_saveAsRoutine),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.accentOrange,
-                      side: const BorderSide(color: AppColors.accentOrange),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 11),
-                      textStyle: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    _saveWorkout();
-                    final newAchievements = AchievementStore.instance
-                        .checkAfterWorkout(S.of(ctx));
-                    Navigator.pop(ctx);
-                    RestTimerController.instance.dismiss();
-                    setState(() {
-                      _workoutStarted = false;
-                      _timerRunning = false;
-                      _workoutName = null;
-                      _routineDay = null;
-                      _routineOrder = null;
-                      _launchSource = WorkoutLaunchSource.freeSession;
-                      _exercises.clear();
-                      _elapsedSeconds = 0;
-                      _startedAt = null;
-                    });
-                    _syncWatch();
-                    ActiveWorkoutStore.instance.clear();
-                    if (newAchievements.isNotEmpty) {
-                      _showAchievementPopup(newAchievements);
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  child: Text(
-                    l10n.train_finish,
-                    style: const TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _saveWorkout() {
-    final l10n = S.of(context);
-    final workout = Workout(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: _workoutName ?? l10n.train_freeWorkout,
-      date: DateTime.now(),
-      duration: Duration(seconds: _elapsedSeconds),
-      exercises: _exercises
-          .map(
-            (e) => WorkoutExercise(
-              id: e.id,
-              name: e.name,
-              muscleGroup: e.muscleGroup,
-              notes: e.notes,
-              routineBlockName: e.routineBlockName,
-              sets: e.sets
-                  .asMap()
-                  .entries
-                  .map(
-                    (entry) => WorkoutSet(
-                      setNumber: entry.key + 1,
-                      reps: entry.value.reps,
-                      weight: entry.value.weight,
-                      completed: entry.value.completed,
-                    ),
-                  )
-                  .toList(),
-            ),
-          )
-          .toList(),
-      totalVolume: _exercises.fold(0, (s, e) => s + e.totalVolume),
-      routineDay: _routineDay,
-      routineOrder: _routineOrder,
-    );
-    WorkoutStore.instance.add(workout);
-  }
-
-  void _showAchievementPopup(List<Achievement> achievements) {
-    final l10n = S.of(context);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.bgCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            const Icon(
-              Icons.celebration_rounded,
-              color: AppColors.accentYellow,
-              size: 24,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              l10n.train_newAchievement,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: achievements
-              .map(
-                (a) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: a.color.withAlpha(30),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Icon(a.icon, color: a.color, size: 22),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              a.title,
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            Text(
-                              a.description,
-                              style: const TextStyle(
-                                color: AppColors.textMuted,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-              .toList(),
-        ),
-        actions: [
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(ctx),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accentYellow,
-                foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-              ),
-              child: Text(
-                l10n.train_great,
-                style: const TextStyle(fontWeight: FontWeight.w700),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _saveAsTemplate(BuildContext dialogCtx) {
-    final l10n = S.of(context);
-    final nameCtrl = TextEditingController(
-      text: _workoutName ?? l10n.train_defaultRoutineName,
-    );
-    RoutineDay? selectedDay =
-        RoutineDay.fromStorage(_routineDay) ??
-        routineDayFromName(nameCtrl.text);
-    showDialog(
-      context: dialogCtx,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          backgroundColor: AppColors.bgCard,
-          title: Text(
-            l10n.train_saveAsRoutine,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: nameCtrl,
-                autofocus: true,
-                style: const TextStyle(color: AppColors.textPrimary),
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(
-                  hintText: l10n.train_routineNameHint,
-                  filled: true,
-                  fillColor: AppColors.bgCardLight,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 12,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 14),
-              Text(
-                l10n.train_trainingDay,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<String>(
-                initialValue: selectedDay?.storageKey ?? '',
-                dropdownColor: AppColors.bgCardLight,
-                style: const TextStyle(color: AppColors.textPrimary),
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: AppColors.bgCardLight,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
-                  ),
-                ),
-                items: [
-                  DropdownMenuItem<String>(
-                    value: '',
-                    child: Text(l10n.train_noAssignedDay),
-                  ),
-                  ...RoutineDay.values.map(
-                    (day) => DropdownMenuItem<String>(
-                      value: day.storageKey,
-                      child: Text(routineDayLabel(context, day)),
-                    ),
-                  ),
-                ],
-                onChanged: (value) => setDialogState(
-                  () => selectedDay = RoutineDay.fromStorage(value),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.train_trainingDayHint,
-                style: const TextStyle(
-                  color: AppColors.textMuted,
-                  fontSize: 11,
-                  height: 1.35,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(
-                l10n.common_cancel,
-                style: const TextStyle(color: AppColors.textMuted),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final name = nameCtrl.text.trim();
-                if (name.isEmpty) return;
-                final day = selectedDay;
-                final template = CustomTemplate(
-                  id: 'custom_tpl_${DateTime.now().millisecondsSinceEpoch}',
-                  name: name,
-                  routineDay: day?.storageKey,
-                  routineOrder: day == null ? null : _nextRoutineOrder(day),
-                  exercises: _exercises
-                      .map(
-                        (e) => TemplateExercise(
-                          name: e.name,
-                          muscleGroup: e.muscleGroup,
-                          equipment: e.equipment,
-                          sets: e.sets.length,
-                          reps: e.sets.isNotEmpty ? e.sets.first.reps : 10,
-                          weight: e.sets.isNotEmpty ? e.sets.first.weight : 0,
-                        ),
-                      )
-                      .toList(),
-                );
-                CustomTemplateStore.instance.add(template);
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(dialogCtx).showSnackBar(
-                  SnackBar(
-                    content: Text(l10n.train_routineSaved(name)),
-                    backgroundColor: AppColors.bgCardLight,
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accentOrange,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              child: Text(
-                l10n.common_save,
-                style: const TextStyle(fontWeight: FontWeight.w700),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   ProgressionRecommendation? _recommendationFor(
     String exerciseName, {
     String equipment = '',
@@ -1082,6 +655,9 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       exerciseName: exerciseName,
       equipment: equipment,
       workouts: WorkoutStore.instance.workouts,
+      goal: TrainingPreferencesStore.instance.preferences?.goal,
+      // 5 lb when training in pounds, so suggestions land on real plates.
+      loadIncrementKg: loadStepKg(equipment),
     );
   }
 
@@ -1111,6 +687,20 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     });
     _persistActiveWorkout();
     _syncWatch();
+  }
+
+  void _openExerciseLibrary() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ExercisesScreen(
+          // "Añadir al entrenamiento" queues the exercise on the launcher;
+          // returning here lets this screen pick it up and start the session.
+          onStartWorkout: () =>
+              Navigator.popUntil(context, (route) => route.isFirst),
+        ),
+      ),
+    );
   }
 
   Future<void> _addExercise() async {
@@ -1155,18 +745,18 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
         backgroundColor: AppColors.bgCard,
         title: Text(
           l10n.train_deleteExercise,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
           l10n.train_deleteExerciseConfirm(ex.name),
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
               l10n.common_cancel,
-              style: const TextStyle(color: AppColors.textMuted),
+              style: TextStyle(color: AppColors.textMuted),
             ),
           ),
           TextButton(
@@ -1219,7 +809,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
           title: Text(S.of(context).train_removeCompletedSetTitle),
           content: Text(
             S.of(context).train_removeCompletedSetBody(setIndex + 1),
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
           actions: [
             TextButton(
@@ -1256,9 +846,12 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     });
     _persistActiveWorkout();
     _syncWatch();
-    // Auto-start the rest timer when a set transitions to completed.
+    // Auto-start the rest timer when a set transitions to completed, with
+    // the exercise's own rest when the routine defines one.
     if (!wasCompleted) {
-      RestTimerController.instance.startWithDefault();
+      RestTimerController.instance.startWithDefault(
+        seconds: _exercises[exIndex].restSeconds,
+      );
     }
   }
 
@@ -1362,6 +955,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
           // Built-in routines never guess a safe load. A known historical
           // load is applied only when the workout actually starts.
           weight: 0,
+          restSeconds: exercise.restSeconds,
         ),
       );
     }
@@ -1433,7 +1027,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
           backgroundColor: AppColors.bgCard,
           title: Text(
             l10n.train_organizeRoutine,
-            style: const TextStyle(color: AppColors.textPrimary),
+            style: TextStyle(color: AppColors.textPrimary),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -1441,7 +1035,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
             children: [
               Text(
                 template.name,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontWeight: FontWeight.w700,
                 ),
@@ -1450,10 +1044,10 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
               DropdownButtonFormField<String>(
                 initialValue: selectedDay?.storageKey ?? '',
                 dropdownColor: AppColors.bgCardLight,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: AppColors.textPrimary),
                 decoration: InputDecoration(
                   labelText: l10n.train_trainingDay,
-                  labelStyle: const TextStyle(color: AppColors.textMuted),
+                  labelStyle: TextStyle(color: AppColors.textMuted),
                   filled: true,
                   fillColor: AppColors.bgCardLight,
                   border: OutlineInputBorder(
@@ -1522,18 +1116,18 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
         backgroundColor: AppColors.bgCard,
         title: Text(
           l10n.train_deleteRoutine,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
           l10n.train_deleteRoutineConfirm(ct.name),
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(
               l10n.common_cancel,
-              style: const TextStyle(color: AppColors.textMuted),
+              style: TextStyle(color: AppColors.textMuted),
             ),
           ),
           TextButton(
@@ -1555,218 +1149,6 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _workoutStarted ? _buildActiveWorkout() : _buildEmptyState(),
-    );
-  }
-
-  // ── Empty / pre-workout state ────────────────────────────────────────────
-
-  Widget _buildEmptyState() {
-    final l10n = S.of(context);
-    final customTemplates = CustomTemplateStore.instance.templates;
-    final populatedDays = RoutineDay.values
-        .where((day) => _templatesForDay(day).isNotEmpty)
-        .toList();
-    final unassignedTemplates = customTemplates
-        .where((template) => _dayForTemplate(template) == null)
-        .toList();
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(title: Text(l10n.train_title), floating: true),
-
-        // Hero + free workout button
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(28, 28, 28, 0),
-            child: Column(
-              children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [AppColors.primary, AppColors.primaryDark],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(22),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withAlpha(80),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.fitness_center_rounded,
-                    color: Colors.white,
-                    size: 36,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  l10n.train_readyTitle,
-                  style: Theme.of(context).textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.train_readySubtitle,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 14,
-                    height: 1.5,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () => _startWorkout(),
-                    icon: const Icon(Icons.play_arrow_rounded),
-                    label: Text(l10n.train_freeSession),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      textStyle: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        // Divider "O elige una rutina"
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(28, 28, 28, 0),
-            child: Row(
-              children: [
-                const Expanded(child: Divider()),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Text(
-                    l10n.train_orChooseRoutine,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textMuted,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-                const Expanded(child: Divider()),
-              ],
-            ),
-          ),
-        ),
-
-        // Custom templates
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-          sliver: SliverToBoxAdapter(
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    l10n.train_myRoutines,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: _createRoutine,
-                  icon: const Icon(Icons.add_rounded, size: 18),
-                  label: Text(l10n.train_createRoutine),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (customTemplates.isNotEmpty) ...[
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, i) {
-                final day = populatedDays[i];
-                final templates = _templatesForDay(day);
-                return _RoutineDayCard(
-                  day: day,
-                  blockCount: templates.length,
-                  exerciseCount: templates.fold(
-                    0,
-                    (sum, template) => sum + template.exercises.length,
-                  ),
-                  onTap: () => _openRoutineDay(day),
-                );
-              }, childCount: populatedDays.length),
-            ),
-          ),
-          if (unassignedTemplates.isNotEmpty) ...[
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-              sliver: SliverToBoxAdapter(
-                child: Text(
-                  l10n.train_noAssignedDay,
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, i) {
-                  final ct = unassignedTemplates[i];
-                  return _CustomTemplateCard(
-                    template: ct,
-                    onTap: () => _showCustomTemplatePreview(ct),
-                    onEdit: () => _editRoutine(ct),
-                    onOrganize: () => _organizeTemplate(ct),
-                    onDelete: () => _confirmDeleteTemplate(ct),
-                  );
-                }, childCount: unassignedTemplates.length),
-              ),
-            ),
-          ],
-        ],
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-            child: Text(
-              l10n.train_predefinedRoutines,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
-          ),
-        ),
-
-        // Template list
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, i) => _TemplateCard(
-                template: workoutTemplates[i],
-                onTap: () => _showTemplatePreview(workoutTemplates[i]),
-              ),
-              childCount: workoutTemplates.length,
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -1809,7 +1191,10 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                           _RoutineBlockHeader(name: exercise.routineBlockName!),
                         _ExerciseCard(
                           exercise: exercise,
-                          lastWeight: recommendation?.previousWeight,
+                          previousSets: ProgressionService.previousSets(
+                            exerciseName: exercise.name,
+                            workouts: WorkoutStore.instance.workouts,
+                          ),
                           recommendation: recommendation,
                           onApplyRecommendation: recommendation == null
                               ? null
@@ -1843,7 +1228,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       bottom: false,
       child: Container(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.bgCard,
           border: Border(
             bottom: BorderSide(color: AppColors.bgCardLight, width: 1),
@@ -1900,7 +1285,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                         ),
                         child: Text(
                           _formatTime(_elapsedSeconds),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w700,
                             fontSize: 13,
@@ -1932,7 +1317,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                   ),
                   child: Text(
                     _formatTime(_elapsedSeconds),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
@@ -2002,15 +1387,11 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.add_box_outlined,
-              color: AppColors.textMuted,
-              size: 48,
-            ),
+            Icon(Icons.add_box_outlined, color: AppColors.textMuted, size: 48),
             const SizedBox(height: 12),
             Text(
               l10n.train_noExercisesYet,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -2019,7 +1400,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
             const SizedBox(height: 6),
             Text(
               l10n.train_addExerciseHint,
-              style: const TextStyle(color: AppColors.textMuted, fontSize: 13),
+              style: TextStyle(color: AppColors.textMuted, fontSize: 13),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -2047,7 +1428,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       top: false,
       child: Container(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.bgCard,
           border: Border(
             top: BorderSide(color: AppColors.bgCardLight, width: 1),

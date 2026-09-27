@@ -322,7 +322,7 @@ void main() {
   testWidgets('empty routine call to action is fully tappable', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        theme: AppTheme.dark,
+        theme: AppTheme.current,
         localizationsDelegates: S.localizationsDelegates,
         supportedLocales: S.supportedLocales,
         home: const RoutineBuilderScreen(initialName: 'Rutina nueva'),
@@ -364,7 +364,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('es'),
-        theme: AppTheme.dark,
+        theme: AppTheme.current,
         localizationsDelegates: S.localizationsDelegates,
         supportedLocales: S.supportedLocales,
         home: Builder(
@@ -412,7 +412,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('es'),
-        theme: AppTheme.dark,
+        theme: AppTheme.current,
         localizationsDelegates: S.localizationsDelegates,
         supportedLocales: S.supportedLocales,
         home: Builder(
@@ -464,7 +464,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('es'),
-        theme: AppTheme.dark,
+        theme: AppTheme.current,
         localizationsDelegates: S.localizationsDelegates,
         supportedLocales: S.supportedLocales,
         home: Builder(
@@ -1052,7 +1052,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          theme: AppTheme.dark,
+          theme: AppTheme.current,
           locale: const Locale('es'),
           localizationsDelegates: S.localizationsDelegates,
           supportedLocales: S.supportedLocales,

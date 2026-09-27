@@ -164,7 +164,7 @@ class _TrainingPreferencesScreenState extends State<TrainingPreferencesScreen> {
                   if (widget.isEditing)
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.close_rounded,
                         color: AppColors.textSecondary,
                       ),
@@ -174,7 +174,7 @@ class _TrainingPreferencesScreenState extends State<TrainingPreferencesScreen> {
                       onPressed: _saving ? null : _skip,
                       child: Text(
                         l10n.onboarding_skip,
-                        style: const TextStyle(color: AppColors.textMuted),
+                        style: TextStyle(color: AppColors.textMuted),
                       ),
                     ),
                 ],
@@ -218,7 +218,7 @@ class _TrainingPreferencesScreenState extends State<TrainingPreferencesScreen> {
             ),
             Container(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColors.bgCard,
                 border: Border(top: BorderSide(color: AppColors.bgCardLight)),
               ),
@@ -229,7 +229,7 @@ class _TrainingPreferencesScreenState extends State<TrainingPreferencesScreen> {
                       onPressed: _saving ? null : _back,
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.textSecondary,
-                        side: const BorderSide(color: AppColors.bgCardLight),
+                        side: BorderSide(color: AppColors.bgCardLight),
                         minimumSize: const Size(92, 52),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -298,7 +298,7 @@ class _TrainingPreferencesScreenState extends State<TrainingPreferencesScreen> {
         const SizedBox(height: 8),
         Text(
           subtitle,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 14,
             height: 1.4,
@@ -426,7 +426,7 @@ class _TrainingPreferencesScreenState extends State<TrainingPreferencesScreen> {
           const SizedBox(height: 20),
           Text(
             l10n.onboarding_daysSelected(_daysPerWeek),
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColors.primaryLight,
               fontWeight: FontWeight.w700,
             ),
@@ -554,7 +554,7 @@ class _SelectionCard extends StatelessWidget {
                   children: [
                     Text(
                       label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
@@ -564,7 +564,7 @@ class _SelectionCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         subtitle!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textMuted,
                           fontSize: 11,
                         ),
@@ -642,7 +642,7 @@ class _EquipmentCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w700,
                 fontSize: 12,

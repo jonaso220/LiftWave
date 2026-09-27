@@ -9,11 +9,18 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../data/progress_store.dart';
+import '../../data/workout_store.dart';
 import '../../models/progress_models.dart';
 import '../../services/subscription_service.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/csv_exporter.dart';
 import '../../utils/pro_gate.dart';
+import '../../utils/weight_units.dart';
+import '../history/history_screen.dart';
+import 'achievements_view.dart';
 
+/// The Progress tab: workout history, body measurements, progress photos and
+/// achievements in one place.
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
 
@@ -23,24 +30,37 @@ class ProgressScreen extends StatefulWidget {
 
 class _ProgressScreenState extends State<ProgressScreen>
     with SingleTickerProviderStateMixin {
+  static const _historyTab = 0;
+  static const _measurementsTab = 1;
+  static const _photosTab = 2;
+
   late final TabController _tabController;
   _Metric _metric = _Metric.weight;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 4, vsync: this)
+      ..addListener(_onTabChanged);
     ProgressStore.instance.addListener(_onChanged);
+    WorkoutStore.instance.addListener(_onChanged);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     ProgressStore.instance.removeListener(_onChanged);
+    WorkoutStore.instance.removeListener(_onChanged);
     super.dispose();
   }
 
-  void _onChanged() => setState(() {});
+  void _onChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _onTabChanged() {
+    if (!_tabController.indexIsChanging) _onChanged();
+  }
 
   void _showAddSheet() {
     showModalBottomSheet(
@@ -53,53 +73,70 @@ class _ProgressScreenState extends State<ProgressScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    final tab = _tabController.index;
     return Scaffold(
       backgroundColor: AppColors.bgDark,
       appBar: AppBar(
         backgroundColor: AppColors.bgDark,
-        title: Text(S.of(context).progressScreen_title),
+        title: Text(l10n.nav_progress),
         actions: [
-          IconButton(
-            tooltip: S.of(context).progressScreen_addMeasurement,
-            icon: Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha(25),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(
-                Icons.add_rounded,
-                color: AppColors.primary,
-                size: 20,
-              ),
+          if (tab == _historyTab && WorkoutStore.instance.workouts.isNotEmpty)
+            IconButton(
+              onPressed: () => CsvExporter.exportAndShare(l10n),
+              icon: const Icon(Icons.ios_share_rounded, size: 20),
+              tooltip: l10n.history_exportCsv,
             ),
-            onPressed: _showAddSheet,
-            constraints: const BoxConstraints.tightFor(width: 48, height: 48),
-          ),
+          if (tab == _measurementsTab || tab == _photosTab)
+            IconButton(
+              tooltip: S.of(context).progressScreen_addMeasurement,
+              icon: Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withAlpha(25),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.add_rounded,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
+              ),
+              onPressed: _showAddSheet,
+              constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+            ),
           const SizedBox(width: 8),
         ],
         bottom: TabBar(
           controller: _tabController,
+          // Scrollable so longer translations (e.g. "Mensurations") never
+          // get truncated on narrow phones.
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.textMuted,
           indicatorColor: AppColors.primary,
           indicatorSize: TabBarIndicatorSize.label,
           tabs: [
-            Tab(text: S.of(context).progressScreen_measurements),
-            Tab(text: S.of(context).progressScreen_photos),
+            Tab(text: l10n.history_title),
+            Tab(text: l10n.progressScreen_measurements),
+            Tab(text: l10n.progressScreen_photos),
+            Tab(text: l10n.home_achievements),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
+          const HistoryScreen(),
           _MedidasTab(
             metric: _metric,
             onMetricChanged: (m) => setState(() => _metric = m),
             onAdd: _showAddSheet,
           ),
           _FotosTab(onAdd: _showAddSheet),
+          const AchievementsView(),
         ],
       ),
     );
@@ -130,7 +167,7 @@ enum _Metric {
   String get unit {
     switch (this) {
       case _Metric.weight:
-        return 'kg';
+        return weightSymbol;
       case _Metric.waist:
         return 'cm';
       case _Metric.chest:
@@ -140,10 +177,11 @@ enum _Metric {
     }
   }
 
+  /// The value as shown (and charted): body weight in the user's unit.
   double? valueOf(BodyMeasurement m) {
     switch (this) {
       case _Metric.weight:
-        return m.weight;
+        return m.weight == null ? null : kgToDisplay(m.weight!);
       case _Metric.waist:
         return m.waist;
       case _Metric.chest:
@@ -277,7 +315,7 @@ class _SummaryRow extends StatelessWidget {
           _SummaryItem(
             label: S.of(context).progressScreen_weight,
             value: latest?.weight != null
-                ? '${latest!.weight!.toStringAsFixed(1)} kg'
+                ? '${kgToDisplay(latest!.weight!).toStringAsFixed(1)} $weightSymbol'
                 : '—',
             color: _Metric.weight.color,
           ),
@@ -345,7 +383,7 @@ class _SummaryItem extends StatelessWidget {
           const SizedBox(height: 3),
           Text(
             label,
-            style: const TextStyle(color: AppColors.textMuted, fontSize: 10),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 10),
           ),
         ],
       ),
@@ -440,10 +478,7 @@ class _ChartCard extends StatelessWidget {
                   dataPoints.isEmpty
                       ? S.of(context).progressScreen_noDataMetric
                       : S.of(context).progressScreen_addMoreRecords,
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 13),
                 ),
               ),
             )
@@ -464,17 +499,11 @@ class _ChartCard extends StatelessWidget {
               children: [
                 Text(
                   _fmt(dataPoints.first.date),
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 10,
-                  ),
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 10),
                 ),
                 Text(
                   _fmt(dataPoints.last.date),
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 10,
-                  ),
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 10),
                 ),
               ],
             ),
@@ -503,7 +532,10 @@ class _LinePainter extends CustomPainter {
   final List<({double x, double y})> spots;
   final Color color;
 
-  const _LinePainter({required this.spots, required this.color});
+  /// Grid lines follow the theme, so a theme switch must repaint.
+  final Brightness brightness = AppColors.brightness;
+
+  _LinePainter({required this.spots, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -530,7 +562,7 @@ class _LinePainter extends CustomPainter {
 
     // Grid lines
     final gridPaint = Paint()
-      ..color = Colors.white.withAlpha(15)
+      ..color = AppColors.textPrimary.withAlpha(15)
       ..strokeWidth = 1;
     for (int i = 0; i <= 3; i++) {
       final y = padV + h * i / 3;
@@ -585,7 +617,7 @@ class _LinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_LinePainter old) =>
-      old.spots != spots || old.color != color;
+      old.spots != spots || old.color != color || old.brightness != brightness;
 }
 
 // ── Measurement tile ──────────────────────────────────────────────────────────
@@ -646,7 +678,7 @@ class _MeasurementTile extends StatelessWidget {
               children: [
                 Text(
                   _fmtDate(m.date, S.of(context)),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -669,7 +701,8 @@ class _MeasurementTile extends StatelessWidget {
                 children: [
                   if (m.weight != null)
                     _ValueChip(
-                      label: '${m.weight!.toStringAsFixed(1)} kg',
+                      label:
+                          '${kgToDisplay(m.weight!).toStringAsFixed(1)} $weightSymbol',
                       color: _Metric.weight.color,
                     ),
                   if (m.waist != null)
@@ -751,7 +784,7 @@ class _EmptyState extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 40),
         child: Column(
           children: [
-            const Icon(
+            Icon(
               Icons.monitor_weight_outlined,
               color: AppColors.textMuted,
               size: 52,
@@ -759,7 +792,7 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(height: 14),
             Text(
               S.of(context).progressScreen_noEntries,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -768,7 +801,7 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               S.of(context).progressScreen_noEntriesSubtitle,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textMuted,
                 fontSize: 13,
                 height: 1.5,
@@ -836,7 +869,7 @@ class _FotosTab extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 S.of(context).progressScreen_progressPhotos,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textPrimary,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -845,7 +878,7 @@ class _FotosTab extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 S.of(context).progressScreen_progressPhotosHint,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textMuted,
                   fontSize: 13,
                   height: 1.5,
@@ -900,7 +933,7 @@ class _FotosTab extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.photo_library_outlined,
                 color: AppColors.textMuted,
                 size: 52,
@@ -908,7 +941,7 @@ class _FotosTab extends StatelessWidget {
               const SizedBox(height: 14),
               Text(
                 S.of(context).progressScreen_noPhotos,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -917,7 +950,7 @@ class _FotosTab extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 S.of(context).progressScreen_noPhotosSubtitle,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.textMuted,
                   fontSize: 13,
                   height: 1.5,
@@ -1070,7 +1103,7 @@ class _MeasurementPhoto extends StatelessWidget {
     width: width,
     height: height,
     color: AppColors.bgCard,
-    child: const Icon(Icons.broken_image_outlined, color: AppColors.textMuted),
+    child: Icon(Icons.broken_image_outlined, color: AppColors.textMuted),
   );
 }
 
@@ -1149,7 +1182,7 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
               ),
               title: Text(
                 S.of(context).progressScreen_camera,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: AppColors.textPrimary),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -1163,7 +1196,7 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
               ),
               title: Text(
                 S.of(context).progressScreen_gallery,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: AppColors.textPrimary),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -1197,7 +1230,9 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
   }
 
   Future<void> _save() async {
-    final w = double.tryParse(_weightCtrl.text.replaceAll(',', '.'));
+    // Typed in the user's unit; body weight is stored in kg like loads.
+    final typedWeight = double.tryParse(_weightCtrl.text.replaceAll(',', '.'));
+    final w = typedWeight == null ? null : displayToKg(typedWeight);
     final wa = double.tryParse(_waistCtrl.text.replaceAll(',', '.'));
     final ch = double.tryParse(_chestCtrl.text.replaceAll(',', '.'));
     final hi = double.tryParse(_hipsCtrl.text.replaceAll(',', '.'));
@@ -1247,7 +1282,7 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
   Widget build(BuildContext context) {
     final bottom = MediaQuery.of(context).viewInsets.bottom;
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -1301,14 +1336,14 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                     const SizedBox(width: 10),
                     Text(
                       '${_date.day}/${_date.month}/${_date.year}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const Spacer(),
-                    const Icon(
+                    Icon(
                       Icons.chevron_right_rounded,
                       color: AppColors.textMuted,
                       size: 18,
@@ -1326,7 +1361,7 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                   child: _MeasureField(
                     controller: _weightCtrl,
                     label: S.of(context).progressScreen_weight,
-                    unit: 'kg',
+                    unit: weightSymbol,
                     color: _Metric.weight.color,
                   ),
                 ),
@@ -1482,7 +1517,7 @@ class _MeasureField extends StatelessWidget {
         decimal: true,
         signed: false,
       ),
-      style: const TextStyle(color: AppColors.textPrimary, fontSize: 14),
+      style: TextStyle(color: AppColors.textPrimary, fontSize: 14),
       decoration: InputDecoration(
         labelText: '$label ($unit)',
         labelStyle: TextStyle(color: color, fontSize: 13),
@@ -1490,11 +1525,11 @@ class _MeasureField extends StatelessWidget {
         fillColor: AppColors.bgDark,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.bgCardLight),
+          borderSide: BorderSide(color: AppColors.bgCardLight),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.bgCardLight),
+          borderSide: BorderSide(color: AppColors.bgCardLight),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

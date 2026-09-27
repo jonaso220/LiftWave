@@ -28,7 +28,7 @@ class _RoutineBlockHeader extends StatelessWidget {
           Expanded(
             child: Text(
               name,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
@@ -72,12 +72,12 @@ class _ExerciseNotesFieldState extends State<_ExerciseNotesField> {
     return TextField(
       decoration: InputDecoration(
         hintText: l10n.train_notesHint,
-        hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+        hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 12),
         isDense: true,
         contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         border: InputBorder.none,
       ),
-      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+      style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
       maxLines: 1,
       controller: _controller,
       onChanged: (v) {
@@ -90,11 +90,11 @@ class _ExerciseNotesFieldState extends State<_ExerciseNotesField> {
 class _ExerciseCard extends StatelessWidget {
   final SessionExercise exercise;
   final VoidCallback onAddSet;
-  final void Function(int) onRemoveSet;
+  final Future<void> Function(int) onRemoveSet;
   final void Function(int) onToggleDone;
   final VoidCallback onDelete;
   final VoidCallback onSetChanged;
-  final double? _lastWeight;
+  final List<WorkoutSet> previousSets;
   final ProgressionRecommendation? recommendation;
   final VoidCallback? onApplyRecommendation;
 
@@ -105,10 +105,10 @@ class _ExerciseCard extends StatelessWidget {
     required this.onToggleDone,
     required this.onDelete,
     required this.onSetChanged,
+    this.previousSets = const [],
     this.recommendation,
     this.onApplyRecommendation,
-    double? lastWeight,
-  }) : _lastWeight = lastWeight;
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +116,8 @@ class _ExerciseCard extends StatelessWidget {
     final color = colorForMuscle(exercise.muscleGroup);
     final done = exercise.completedSets;
     final total = exercise.sets.length;
-    final lastW = _lastWeight;
+    // Steppers only under the next set to log, to keep the card compact.
+    final nextPendingSet = exercise.sets.indexWhere((set) => !set.completed);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -132,7 +133,7 @@ class _ExerciseCard extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(14, 12, 8, 10),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.drag_handle_rounded,
                   color: AppColors.textMuted,
                   size: 20,
@@ -169,26 +170,27 @@ class _ExerciseCard extends StatelessWidget {
                           if (done > 0)
                             Text(
                               l10n.train_setsProgress(done, total),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.accent,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                          if (done == 0 && lastW != null) ...[
-                            const Spacer(),
-                            Text(
-                              l10n.train_lastWeight(
-                                lastW == lastW.roundToDouble()
-                                    ? lastW.toStringAsFixed(0)
-                                    : lastW.toStringAsFixed(1),
-                              ),
-                              style: const TextStyle(
-                                color: AppColors.textMuted,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ],
+                          // Last session's load now lives in the PREVIOUS
+                          // column, so this spot shows the exercise's rest.
+                          const Spacer(),
+                          RestBadge(
+                            seconds: exercise.restSeconds,
+                            onTap: () async {
+                              final choice = await showRestPicker(
+                                context,
+                                current: exercise.restSeconds,
+                              );
+                              if (choice == null) return;
+                              exercise.restSeconds = choice.seconds;
+                              onSetChanged();
+                            },
+                          ),
                         ],
                       ),
                     ],
@@ -199,13 +201,7 @@ class _ExerciseCard extends StatelessWidget {
                   onSelected: (v) {
                     if (v == 'delete') onDelete();
                     if (v == 'progress') {
-                      showModalBottomSheet(
-                        context: context,
-                        backgroundColor: Colors.transparent,
-                        isScrollControlled: true,
-                        builder: (_) =>
-                            ExerciseProgressSheet(exerciseName: exercise.name),
-                      );
+                      showExerciseProgress(context, exercise.name);
                     }
                   },
                   itemBuilder: (_) => [
@@ -213,7 +209,7 @@ class _ExerciseCard extends StatelessWidget {
                       value: 'progress',
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.show_chart_rounded,
                             color: AppColors.accent,
                             size: 18,
@@ -221,10 +217,10 @@ class _ExerciseCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             l10n.train_viewProgress,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
-                            ),
+                            style: TextStyle(color: AppColors.textPrimary),
                           ),
+                          const SizedBox(width: 8),
+                          const ProBadge(),
                         ],
                       ),
                     ),
@@ -246,7 +242,7 @@ class _ExerciseCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.more_horiz_rounded,
                     color: AppColors.textMuted,
                   ),
@@ -264,29 +260,70 @@ class _ExerciseCard extends StatelessWidget {
               onApply: onApplyRecommendation,
             ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             child: Row(
               children: [
-                _ColHeader(label: l10n.train_setHeader, flex: 1),
-                _ColHeader(label: l10n.train_repsHeader, flex: 2),
-                _ColHeader(label: l10n.train_weightHeader, flex: 3),
-                const _ColHeader(label: '', flex: 1),
+                _ColHeader(
+                  label: l10n.train_setHeader,
+                  flex: SessionSetColumns.set,
+                ),
+                _ColHeader(
+                  label: l10n.train_previousHeader,
+                  flex: SessionSetColumns.previous,
+                ),
+                _ColHeader(
+                  label: weightSymbol.toUpperCase(),
+                  flex: SessionSetColumns.weight,
+                ),
+                _ColHeader(
+                  label: l10n.train_repsHeader,
+                  flex: SessionSetColumns.reps,
+                ),
+                const _ColHeader(label: '', flex: SessionSetColumns.done),
               ],
             ),
           ),
           const Divider(height: 1),
-          ...exercise.sets.asMap().entries.map(
-            (entry) => SessionSetRow(
-              key: ValueKey('${exercise.id}_set_${entry.key}'),
+          ...exercise.sets.asMap().entries.map((entry) {
+            final index = entry.key;
+            final isNextSet = index == nextPendingSet;
+            final previous = index < previousSets.length
+                ? previousSets[index]
+                : null;
+            return SessionSetRow(
+              key: ObjectKey(entry.value),
               set: entry.value,
-              index: entry.key,
-              onToggle: () => onToggleDone(entry.key),
+              index: index,
+              previous: previous,
+              onToggle: () => onToggleDone(index),
               onRemove: exercise.sets.length > 1
-                  ? () => onRemoveSet(entry.key)
+                  ? () => onRemoveSet(index)
                   : null,
               onChanged: onSetChanged,
-            ),
-          ),
+              showSteppers: isNextSet,
+              weightStep:
+                  ProgressionService.isBodyweight(exercise.equipment) &&
+                      entry.value.weight == 0
+                  ? 0
+                  : loadStepDisplay(exercise.equipment),
+              onEdited: (previousReps, previousWeight) =>
+                  exercise.propagateEdit(
+                    index,
+                    previousReps: previousReps,
+                    previousWeight: previousWeight,
+                  ),
+              onUsePrevious: previous == null
+                  ? null
+                  : () {
+                      exercise.fillSet(
+                        index,
+                        reps: previous.reps,
+                        weight: previous.weight,
+                      );
+                      onSetChanged();
+                    },
+            );
+          }),
           InkWell(
             onTap: onAddSet,
             borderRadius: const BorderRadius.vertical(
@@ -330,21 +367,36 @@ class _ProgressionSuggestion extends StatelessWidget {
     required this.onApply,
   });
 
-  String _formatWeight(double value) => value == value.roundToDouble()
-      ? value.toStringAsFixed(0)
-      : value.toStringAsFixed(1);
-
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
-    final reason = switch (recommendation.action) {
-      ProgressionAction.increaseLoad => l10n.train_increaseLoad,
-      ProgressionAction.addRepetition ||
-      ProgressionAction.bodyweightRepetition => l10n.train_addRepetition,
-      ProgressionAction.consolidateLoad => l10n.train_consolidateLoad,
+    final r = recommendation;
+    final locale = Localizations.localeOf(context).toString();
+    final previousWeight = formatLoadWithUnit(r.previousWeight, locale);
+    // One sentence that explains the suggestion from last session's numbers.
+    final reason = switch (r.action) {
+      ProgressionAction.increaseLoad => l10n.train_reasonIncreaseLoad(
+        r.previousReps,
+        previousWeight,
+        r.range.min,
+        r.range.max,
+      ),
+      ProgressionAction.addRepetition => l10n.train_reasonAddRep(
+        r.previousReps,
+        previousWeight,
+      ),
+      ProgressionAction.consolidateLoad => l10n.train_reasonConsolidate(
+        r.previousReps,
+        previousWeight,
+        r.range.min,
+        r.range.max,
+      ),
+      ProgressionAction.bodyweightRepetition => l10n.train_reasonBodyweight(
+        r.previousReps,
+      ),
     };
     final target = recommendation.suggestedWeight > 0
-        ? '${_formatWeight(recommendation.suggestedWeight)} kg × '
+        ? '${formatLoadWithUnit(recommendation.suggestedWeight, locale)} × '
               '${recommendation.suggestedReps}'
         : '${recommendation.suggestedReps} ${l10n.common_reps.toLowerCase()}';
 
@@ -366,7 +418,7 @@ class _ProgressionSuggestion extends StatelessWidget {
                 color: AppColors.primary.withAlpha(38),
                 borderRadius: BorderRadius.circular(9),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.trending_up_rounded,
                 color: AppColors.primaryLight,
                 size: 19,
@@ -379,7 +431,7 @@ class _ProgressionSuggestion extends StatelessWidget {
                 children: [
                   Text(
                     l10n.train_nextSuggestion,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
@@ -388,17 +440,19 @@ class _ProgressionSuggestion extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     target,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
                     reason,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: AppColors.textMuted,
-                      fontSize: 10,
+                      fontSize: 11,
+                      height: 1.3,
                     ),
                   ),
                 ],
@@ -441,12 +495,138 @@ class _ColHeader extends StatelessWidget {
       child: Text(
         label,
         textAlign: TextAlign.center,
-        style: const TextStyle(
+        style: TextStyle(
           color: AppColors.textMuted,
           fontSize: 10,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.5,
         ),
+      ),
+    );
+  }
+}
+
+/// "+150 kg de volumen respecto a la última vez" under the summary stats.
+class _VolumeComparisonLine extends StatelessWidget {
+  final VolumeComparison comparison;
+
+  /// Formats a volume in kg with the user's unit, e.g. "150 kg".
+  final String Function(int kg) formatKg;
+
+  const _VolumeComparisonLine({
+    required this.comparison,
+    required this.formatKg,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    final delta = comparison.delta;
+    final (text, icon, color) = delta > 0
+        ? (
+            l10n.train_volumeUp(formatKg(delta)),
+            Icons.trending_up_rounded,
+            AppColors.accent,
+          )
+        : delta < 0
+        ? (
+            l10n.train_volumeDown(formatKg(-delta)),
+            Icons.trending_down_rounded,
+            AppColors.textMuted,
+          )
+        : (
+            l10n.train_volumeSame,
+            Icons.trending_flat_rounded,
+            AppColors.textMuted,
+          );
+    return Row(
+      children: [
+        Icon(icon, color: color, size: 18),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: color,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Lists the exercises where the user lifted more than ever before.
+class _PersonalRecordsCard extends StatelessWidget {
+  final List<PersonalRecord> records;
+
+  /// Formats a load in kg with the user's unit, e.g. "85 kg".
+  final String Function(double kg) formatKg;
+
+  const _PersonalRecordsCard({required this.records, required this.formatKg});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.accentYellow.withAlpha(25),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.accentYellow.withAlpha(90)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.workspace_premium_rounded,
+                color: AppColors.accentYellow,
+                size: 18,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                l10n.train_newRecords,
+                style: TextStyle(
+                  color: AppColors.accentYellow,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          for (final record in records)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text:
+                          '${ExerciseLocalization.name(l10n, record.exerciseName)}  ',
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    TextSpan(
+                      text: l10n.train_recordLine(
+                        formatKg(record.weight),
+                        formatKg(record.previousBest),
+                      ),
+                      style: TextStyle(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+                style: const TextStyle(fontSize: 13),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -481,12 +661,12 @@ class _SummaryStat extends StatelessWidget {
         const SizedBox(width: 12),
         Text(
           label,
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
         const Spacer(),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 14,
             fontWeight: FontWeight.w700,

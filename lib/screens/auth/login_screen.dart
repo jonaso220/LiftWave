@@ -11,9 +11,14 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
 import 'email_auth_screen.dart';
+import 'guest_prompts.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  /// Shown from the app to a guest creating their account: the providers
+  /// link to the guest's user instead of replacing it.
+  final bool upgradingGuest;
+
+  const LoginScreen({super.key, this.upgradingGuest = false});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -22,14 +27,64 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _loadingGoogle = false;
   bool _loadingApple = false;
+  bool _loadingGuest = false;
+
+  // ── Guest ─────────────────────────────────────────────────────────────────
+
+  Future<void> _handleGuest() async {
+    setState(() => _loadingGuest = true);
+    try {
+      await AuthService.instance.continueAsGuest();
+      // Auth state stream in main.dart will navigate automatically
+    } on FirebaseAuthException catch (e) {
+      if (mounted) _showError(AuthService.errorMessage(e.code, S.of(context)));
+    } catch (_) {
+      if (mounted) _showError(S.of(context).authError_default);
+    } finally {
+      if (mounted) setState(() => _loadingGuest = false);
+    }
+  }
+
+  /// A guest's account now has a provider: tell them and return to the app
+  /// (linking keeps the same user, so main.dart does not navigate).
+  void _onGuestLinked() {
+    if (!mounted || !widget.upgradingGuest) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(S.of(context).guest_accountCreated),
+        backgroundColor: AppColors.accent,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    Navigator.of(context).popUntil((route) => route.isFirst);
+  }
+
+  /// The provider account already exists: offer to switch to it, leaving the
+  /// guest workouts behind.
+  Future<void> _handleExistingAccount(GuestAccountExistsException e) async {
+    if (!await confirmSwitchFromGuest(context)) return;
+    try {
+      await AuthService.instance.signInWithExistingCredential(e.credential);
+      if (mounted) Navigator.of(context).popUntil((route) => route.isFirst);
+    } on FirebaseAuthException catch (error) {
+      if (mounted) {
+        _showError(AuthService.errorMessage(error.code, S.of(context)));
+      }
+    } catch (_) {
+      if (mounted) _showError(S.of(context).authError_default);
+    }
+  }
 
   // ── Google ────────────────────────────────────────────────────────────────
 
   Future<void> _handleGoogle() async {
     setState(() => _loadingGoogle = true);
     try {
-      await AuthService.instance.signInWithGoogle();
+      final result = await AuthService.instance.signInWithGoogle();
       // Auth state stream in main.dart will navigate automatically
+      if (result != null) _onGuestLinked();
+    } on GuestAccountExistsException catch (e) {
+      await _handleExistingAccount(e);
     } on FirebaseAuthException catch (e) {
       if (mounted) _showError(AuthService.errorMessage(e.code, S.of(context)));
     } catch (_) {
@@ -44,9 +99,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleApple() async {
     setState(() => _loadingApple = true);
     try {
-      await AuthService.instance.signInWithApple();
+      final result = await AuthService.instance.signInWithApple();
+      if (result != null) _onGuestLinked();
     } on AuthCancelledException {
       // User cancelled — do nothing.
+    } on GuestAccountExistsException catch (e) {
+      await _handleExistingAccount(e);
     } on FirebaseAuthException catch (e) {
       if (mounted) _showError(AuthService.errorMessage(e.code, S.of(context)));
     } catch (_) {
@@ -61,7 +119,9 @@ class _LoginScreenState extends State<LoginScreen> {
   void _handleEmail() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const EmailAuthScreen()),
+      MaterialPageRoute(
+        builder: (_) => EmailAuthScreen(startInRegister: widget.upgradingGuest),
+      ),
     );
   }
 
@@ -83,12 +143,15 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bgDark,
+      appBar: widget.upgradingGuest
+          ? AppBar(backgroundColor: AppColors.bgDark, elevation: 0)
+          : null,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 28),
           child: Column(
             children: [
-              const SizedBox(height: 60),
+              SizedBox(height: widget.upgradingGuest ? 8 : 60),
 
               // ── Hero ────────────────────────────────────────────────────
               _buildHero()
@@ -143,9 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Row(
                   children: [
-                    const Expanded(
-                      child: Divider(color: AppColors.bgCardLight),
-                    ),
+                    Expanded(child: Divider(color: AppColors.bgCardLight)),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
@@ -156,9 +217,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    const Expanded(
-                      child: Divider(color: AppColors.bgCardLight),
-                    ),
+                    Expanded(child: Divider(color: AppColors.bgCardLight)),
                   ],
                 ),
               ).animate().fadeIn(delay: 350.ms, duration: 400.ms),
@@ -181,6 +240,35 @@ class _LoginScreenState extends State<LoginScreen> {
                   .animate()
                   .fadeIn(delay: 400.ms, duration: 400.ms)
                   .slideY(begin: 0.3, end: 0, delay: 400.ms, duration: 400.ms),
+
+              // ── Try without an account ───────────────────────────────────
+              if (!widget.upgradingGuest) ...[
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 48,
+                  child: _loadingGuest
+                      ? const Center(
+                          child: SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              color: AppColors.primary,
+                              strokeWidth: 2,
+                            ),
+                          ),
+                        )
+                      : TextButton(
+                          onPressed: _handleGuest,
+                          child: Text(
+                            S.of(context).login_continueGuest,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                ).animate().fadeIn(delay: 450.ms, duration: 400.ms),
+              ],
 
               const SizedBox(height: 48),
 
@@ -212,7 +300,7 @@ class _LoginScreenState extends State<LoginScreen> {
       children: [
         Text(
           l10n.login_legalPrefix,
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textMuted,
             fontSize: 11,
             height: 1.5,
@@ -236,7 +324,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         Text(
           ' ${l10n.login_legalAnd} ',
-          style: const TextStyle(
+          style: TextStyle(
             color: AppColors.textMuted,
             fontSize: 11,
             height: 1.5,
@@ -258,7 +346,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-        const Text(
+        Text(
           '.',
           style: TextStyle(
             color: AppColors.textMuted,
@@ -300,7 +388,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         const SizedBox(height: 24),
-        const Text(
+        Text(
           'LiftWave',
           style: TextStyle(
             color: AppColors.textPrimary,
@@ -311,7 +399,10 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          S.of(context).login_tagline,
+          widget.upgradingGuest
+              ? S.of(context).guest_createAccountSubtitle
+              : S.of(context).login_tagline,
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 15,

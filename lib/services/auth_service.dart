@@ -13,6 +13,15 @@ import 'user_data_deletion_service.dart';
 /// Thrown when the user cancels the sign-in flow (not an error).
 class AuthCancelledException implements Exception {}
 
+/// Thrown when a guest tries to save their progress with a Google / Apple
+/// account that already exists. Signing in with [credential] switches to
+/// that account; the guest's workouts are not moved.
+class GuestAccountExistsException implements Exception {
+  final AuthCredential credential;
+
+  GuestAccountExistsException(this.credential);
+}
+
 class AuthService {
   AuthService._();
   static final AuthService instance = AuthService._();
@@ -22,6 +31,62 @@ class AuthService {
   User? get currentUser => _auth.currentUser;
   bool get isLoggedIn => currentUser != null;
   Stream<User?> get authStateChanges => _auth.authStateChanges();
+
+  /// Guests use an anonymous Firebase account: they get a real uid, so their
+  /// workouts sync like anyone else's, and creating an account later links a
+  /// provider to that same uid without moving any data.
+  bool get isGuest => currentUser?.isAnonymous ?? false;
+
+  // ── Guest ─────────────────────────────────────────────────────────────────
+
+  Future<void> continueAsGuest() async {
+    await _auth.signInAnonymously();
+  }
+
+  /// Leaves the current account for an existing one the user confirmed
+  /// (see [GuestAccountExistsException]).
+  Future<UserCredential> signInWithExistingCredential(
+    AuthCredential credential,
+  ) {
+    return _auth.signInWithCredential(credential);
+  }
+
+  /// Signs in with [credential], or links it to the guest account so its
+  /// data is kept.
+  Future<UserCredential> _signInOrLink(AuthCredential credential) async {
+    final user = _auth.currentUser;
+    if (user == null || !user.isAnonymous) {
+      return _auth.signInWithCredential(credential);
+    }
+    try {
+      final result = await user.linkWithCredential(credential);
+      await _adoptProviderProfile(result.user);
+      return result;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'credential-already-in-use' ||
+          e.code == 'email-already-in-use' ||
+          e.code == 'account-exists-with-different-credential') {
+        throw GuestAccountExistsException(e.credential ?? credential);
+      }
+      rethrow;
+    }
+  }
+
+  /// Linking keeps the anonymous profile, so copy the provider's name and
+  /// photo when the account has none yet.
+  Future<void> _adoptProviderProfile(User? user) async {
+    if (user == null) return;
+    final provider = user.providerData.isEmpty ? null : user.providerData.first;
+    if (provider == null) return;
+    if ((user.displayName ?? '').isEmpty &&
+        (provider.displayName ?? '').isNotEmpty) {
+      await user.updateDisplayName(provider.displayName);
+    }
+    if ((user.photoURL ?? '').isEmpty && (provider.photoURL ?? '').isNotEmpty) {
+      await user.updatePhotoURL(provider.photoURL);
+    }
+    await user.reload();
+  }
 
   // ── Google ────────────────────────────────────────────────────────────────
 
@@ -35,7 +100,9 @@ class AuthService {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      return await _auth.signInWithCredential(credential);
+      return await _signInOrLink(credential);
+    } on GuestAccountExistsException {
+      rethrow;
     } catch (e) {
       debugPrint('AuthService.signInWithGoogle error: $e');
       rethrow;
@@ -69,7 +136,7 @@ class AuthService {
         rawNonce: rawNonce,
       );
 
-      return await _auth.signInWithCredential(oauthCredential);
+      return await _signInOrLink(oauthCredential);
     } on SignInWithAppleAuthorizationException catch (e) {
       if (e.code == AuthorizationErrorCode.canceled) {
         throw AuthCancelledException();
@@ -77,6 +144,8 @@ class AuthService {
       debugPrint('AuthService.signInWithApple error: $e');
       rethrow;
     } on AuthCancelledException {
+      rethrow;
+    } on GuestAccountExistsException {
       rethrow;
     } catch (e) {
       debugPrint('AuthService.signInWithApple error: $e');
@@ -102,16 +171,22 @@ class AuthService {
     String password,
     String name,
   ) async {
-    try {
-      final cred = await _auth.createUserWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
-      );
-      await cred.user?.updateDisplayName(name.trim());
-      return cred;
-    } on FirebaseAuthException {
-      rethrow;
-    }
+    final guest = _auth.currentUser;
+    // A guest keeps their uid (and data) by linking the new email account.
+    final cred = guest != null && guest.isAnonymous
+        ? await guest.linkWithCredential(
+            EmailAuthProvider.credential(
+              email: email.trim(),
+              password: password,
+            ),
+          )
+        : await _auth.createUserWithEmailAndPassword(
+            email: email.trim(),
+            password: password,
+          );
+    await cred.user?.updateDisplayName(name.trim());
+    await cred.user?.reload();
+    return cred;
   }
 
   Future<void> sendPasswordReset(String email) async {
@@ -166,6 +241,9 @@ class AuthService {
         return l10n.authError_networkFailed;
       case 'requires-recent-login':
         return l10n.profile_deleteReauthError;
+      case 'provider-already-linked':
+      case 'credential-already-in-use':
+        return l10n.guest_existingAccountTitle;
       default:
         return l10n.authError_default;
     }

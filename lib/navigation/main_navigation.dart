@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/train/train_screen.dart';
-import '../screens/history/history_screen.dart';
-import '../screens/exercises/exercises_screen.dart';
+import '../screens/profile/profile_screen.dart';
+import '../screens/progress/progress_screen.dart';
 import '../theme/app_theme.dart';
 import '../utils/ui_scale.dart';
 
@@ -25,9 +25,9 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     final screens = [
       HomeScreen(onNavigate: _navigateTo),
-      TrainScreen(onSessionRestored: () => _navigateTo(1)),
-      const HistoryScreen(),
-      ExercisesScreen(onStartWorkout: () => _navigateTo(1)),
+      TrainScreen(onSessionRestored: () => _navigateTo(AppTab.train)),
+      const ProgressScreen(),
+      const ProfileScreen(),
     ];
 
     return Scaffold(
@@ -43,11 +43,8 @@ class _MainNavigationState extends State<MainNavigation> {
         icon: Icons.fitness_center_rounded,
         label: S.of(context).nav_train,
       ),
-      _NavItem(icon: Icons.history_rounded, label: S.of(context).nav_history),
-      _NavItem(
-        icon: Icons.menu_book_rounded,
-        label: S.of(context).nav_exercises,
-      ),
+      _NavItem(icon: Icons.insights_rounded, label: S.of(context).nav_progress),
+      _NavItem(icon: Icons.person_rounded, label: S.of(context).nav_profile),
     ];
 
     // Icons / bar height are fixed sizes that textScaler can't reach, so we
@@ -56,7 +53,7 @@ class _MainNavigationState extends State<MainNavigation> {
     final scale = uiScaleForWidth(MediaQuery.of(context).size.width);
 
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.bgCard,
         border: Border(top: BorderSide(color: AppColors.bgCardLight, width: 1)),
       ),
