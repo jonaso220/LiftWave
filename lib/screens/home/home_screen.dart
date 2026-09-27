@@ -5,6 +5,7 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/exercise_localization.dart';
 import '../../utils/routine_days.dart';
+import '../../utils/weight_units.dart';
 import '../../data/custom_template_store.dart';
 import '../../data/mock_data.dart';
 import '../../data/workout_store.dart';
@@ -92,11 +93,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return '${m}m';
   }
 
-  String _formatVolume(int kg) {
-    if (kg >= 1000) return '${(kg / 1000).toStringAsFixed(1)}k';
-    return '$kg';
-  }
-
   String _formatDate(DateTime date, S l10n) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -180,8 +176,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         (s, w) => s + w.duration,
                       ),
                     ),
-                    volume: _formatVolume(
+                    volume: formatVolume(
                       weekWorkouts.fold(0, (s, w) => s + w.totalVolume),
+                      compact: true,
                     ),
                     onTap: () => widget.onNavigate(AppTab.progress),
                     onConfigure: () => openTrainingPreferences(context),
@@ -302,7 +299,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   _WorkoutStat(
                     label: l10n.common_volume,
-                    value: '${_formatVolume(workout.totalVolume)} kg',
+                    value: formatVolume(workout.totalVolume, compact: true),
                   ),
                 ],
               ),
@@ -559,7 +556,7 @@ class _WeekCard extends StatelessWidget {
               if (workoutCount > 0) ...[
                 const SizedBox(height: 10),
                 Text(
-                  '${l10n.home_weekTime}: $duration  ·  ${l10n.home_weekVolume}: $volume kg',
+                  '${l10n.home_weekTime}: $duration  ·  ${l10n.home_weekVolume}: $volume',
                   style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                 ),
               ],

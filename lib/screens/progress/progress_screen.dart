@@ -15,6 +15,7 @@ import '../../services/subscription_service.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/csv_exporter.dart';
 import '../../utils/pro_gate.dart';
+import '../../utils/weight_units.dart';
 import '../history/history_screen.dart';
 import 'achievements_view.dart';
 
@@ -166,7 +167,7 @@ enum _Metric {
   String get unit {
     switch (this) {
       case _Metric.weight:
-        return 'kg';
+        return weightSymbol;
       case _Metric.waist:
         return 'cm';
       case _Metric.chest:
@@ -176,10 +177,11 @@ enum _Metric {
     }
   }
 
+  /// The value as shown (and charted): body weight in the user's unit.
   double? valueOf(BodyMeasurement m) {
     switch (this) {
       case _Metric.weight:
-        return m.weight;
+        return m.weight == null ? null : kgToDisplay(m.weight!);
       case _Metric.waist:
         return m.waist;
       case _Metric.chest:
@@ -313,7 +315,7 @@ class _SummaryRow extends StatelessWidget {
           _SummaryItem(
             label: S.of(context).progressScreen_weight,
             value: latest?.weight != null
-                ? '${latest!.weight!.toStringAsFixed(1)} kg'
+                ? '${kgToDisplay(latest!.weight!).toStringAsFixed(1)} $weightSymbol'
                 : '—',
             color: _Metric.weight.color,
           ),
@@ -699,7 +701,8 @@ class _MeasurementTile extends StatelessWidget {
                 children: [
                   if (m.weight != null)
                     _ValueChip(
-                      label: '${m.weight!.toStringAsFixed(1)} kg',
+                      label:
+                          '${kgToDisplay(m.weight!).toStringAsFixed(1)} $weightSymbol',
                       color: _Metric.weight.color,
                     ),
                   if (m.waist != null)
@@ -1227,7 +1230,9 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
   }
 
   Future<void> _save() async {
-    final w = double.tryParse(_weightCtrl.text.replaceAll(',', '.'));
+    // Typed in the user's unit; body weight is stored in kg like loads.
+    final typedWeight = double.tryParse(_weightCtrl.text.replaceAll(',', '.'));
+    final w = typedWeight == null ? null : displayToKg(typedWeight);
     final wa = double.tryParse(_waistCtrl.text.replaceAll(',', '.'));
     final ch = double.tryParse(_chestCtrl.text.replaceAll(',', '.'));
     final hi = double.tryParse(_hipsCtrl.text.replaceAll(',', '.'));
@@ -1356,7 +1361,7 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                   child: _MeasureField(
                     controller: _weightCtrl,
                     label: S.of(context).progressScreen_weight,
-                    unit: 'kg',
+                    unit: weightSymbol,
                     color: _Metric.weight.color,
                   ),
                 ),

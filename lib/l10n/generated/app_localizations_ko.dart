@@ -236,17 +236,17 @@ class SKo extends S {
 
   @override
   String train_reasonIncreaseLoad(int reps, String weight, int min, int max) {
-    return '$weight kg로 $reps회, 목표 범위($min–$max회)의 상한에 도달했어요. 무게를 올릴 때예요.';
+    return '$weight로 $reps회, 목표 범위($min–$max회)의 상한에 도달했어요. 무게를 올릴 때예요.';
   }
 
   @override
   String train_reasonAddRep(int reps, String weight) {
-    return '$weight kg로 $reps회 했어요. 무게를 올리기 전에 1회 더 해보세요.';
+    return '$weight로 $reps회 했어요. 무게를 올리기 전에 1회 더 해보세요.';
   }
 
   @override
   String train_reasonConsolidate(int reps, String weight, int min, int max) {
-    return '$reps회로 목표 범위($min–$max회)보다 적었어요. $min회에 도달할 때까지 $weight kg를 유지하세요.';
+    return '$reps회로 목표 범위($min–$max회)보다 적었어요. $min회에 도달할 때까지 $weight를 유지하세요.';
   }
 
   @override
@@ -875,7 +875,7 @@ class SKo extends S {
   String get train_repsHeader => '횟수';
 
   @override
-  String get train_weightHeader => '무게 (kg)';
+  String get train_weightHeader => '무게';
 
   @override
   String get train_addSet => '세트 추가';
@@ -936,6 +936,15 @@ class SKo extends S {
   String get profile_keepScreenOnSubtitle => '세트 사이에 휴대폰이 잠기지 않게 합니다';
 
   @override
+  String get profile_weightUnit => '무게 단위';
+
+  @override
+  String get weightUnit_kg => '킬로그램 (kg)';
+
+  @override
+  String get weightUnit_lb => '파운드 (lb)';
+
+  @override
   String get train_repShort => '회';
 
   @override
@@ -955,17 +964,17 @@ class SKo extends S {
 
   @override
   String train_recordLine(String weight, String previous) {
-    return '$weight kg (이전 $previous kg)';
+    return '$weight (이전 $previous)';
   }
 
   @override
   String train_volumeUp(String kg) {
-    return '지난번보다 볼륨 +$kg kg';
+    return '지난번보다 볼륨 +$kg';
   }
 
   @override
   String train_volumeDown(String kg) {
-    return '지난번보다 볼륨 −$kg kg';
+    return '지난번보다 볼륨 −$kg';
   }
 
   @override
@@ -1194,7 +1203,7 @@ class SKo extends S {
   String get history_total => '합계';
 
   @override
-  String get history_volumeKg => '볼륨 kg';
+  String get history_volumeKg => '볼륨';
 
   @override
   String get history_routinesByDay => '요일별 루틴';

@@ -9,6 +9,7 @@ import '../../services/subscription_service.dart';
 import '../../services/screen_awake_service.dart';
 import '../../services/theme_controller.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/weight_units.dart';
 import '../auth/guest_prompts.dart';
 import '../onboarding/training_preferences_screen.dart';
 import '../paywall/paywall_screen.dart';
@@ -189,6 +190,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         onTap: _chooseAppearance,
                       ),
+                      ListTile(
+                        leading: Icon(
+                          Icons.fitness_center_rounded,
+                          color: AppColors.primaryLight,
+                        ),
+                        title: Text(
+                          l10n.profile_weightUnit,
+                          style: TextStyle(color: AppColors.textPrimary),
+                        ),
+                        subtitle: Text(
+                          _unitLabel(l10n, WeightUnits.instance.unit),
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 12,
+                          ),
+                        ),
+                        trailing: Icon(
+                          Icons.chevron_right_rounded,
+                          color: AppColors.textMuted,
+                        ),
+                        onTap: _chooseWeightUnit,
+                      ),
                       SwitchListTile(
                         secondary: Icon(
                           Icons.stay_current_portrait_rounded,
@@ -316,6 +339,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
     if (choice != null) await ThemeController.instance.setMode(choice);
+  }
+
+  static String _unitLabel(S l10n, WeightUnit unit) => switch (unit) {
+    WeightUnit.kg => l10n.weightUnit_kg,
+    WeightUnit.lb => l10n.weightUnit_lb,
+  };
+
+  Future<void> _chooseWeightUnit() async {
+    final l10n = S.of(context);
+    final current = WeightUnits.instance.unit;
+    final choice = await showModalBottomSheet<WeightUnit>(
+      context: context,
+      backgroundColor: AppColors.bgCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: RadioGroup<WeightUnit>(
+            groupValue: current,
+            onChanged: (unit) => Navigator.pop(ctx, unit),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+                  child: Text(
+                    l10n.profile_weightUnit,
+                    style: Theme.of(ctx).textTheme.headlineSmall,
+                  ),
+                ),
+                for (final unit in WeightUnit.values)
+                  RadioListTile<WeightUnit>(
+                    value: unit,
+                    activeColor: AppColors.primary,
+                    title: Text(
+                      _unitLabel(l10n, unit),
+                      style: TextStyle(color: AppColors.textPrimary),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    if (choice != null) await WeightUnits.instance.setUnit(choice);
   }
 
   Future<void> _restorePurchases() async {

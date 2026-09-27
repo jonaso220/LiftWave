@@ -71,10 +71,15 @@ class ProgressionService {
     required String equipment,
     required List<Workout> workouts,
     TrainingGoal? goal,
+    double? loadIncrementKg,
   }) {
     final latestExercise = _latestExercise(exerciseName, workouts);
     if (latestExercise == null) return null;
-    return _recommendFrom(latestExercise, equipment, repRangeFor(goal));
+    return _recommendFrom(
+      latestExercise,
+      loadIncrementKg ?? loadIncrementFor(equipment),
+      repRangeFor(goal),
+    );
   }
 
   /// Sets the user completed the last time they logged [exerciseName], in
@@ -119,7 +124,7 @@ class ProgressionService {
 
   static ProgressionRecommendation _recommendFrom(
     WorkoutExercise latestExercise,
-    String equipment,
+    double loadIncrementKg,
     RepRange range,
   ) {
     final completed = latestExercise.sets
@@ -154,7 +159,7 @@ class ProgressionService {
       return ProgressionRecommendation(
         previousWeight: workingWeight,
         previousReps: previousReps,
-        suggestedWeight: workingWeight + loadIncrementFor(equipment),
+        suggestedWeight: workingWeight + loadIncrementKg,
         suggestedReps: range.min,
         action: ProgressionAction.increaseLoad,
         range: range,

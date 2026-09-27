@@ -6,6 +6,7 @@ import '../models/models.dart';
 import '../models/session_models.dart';
 import '../theme/app_theme.dart';
 import '../utils/weight_format.dart';
+import '../utils/weight_units.dart';
 
 /// Column proportions shared by [SessionSetRow] and the header above it:
 /// SET · PREVIOUS · KG · REPS · ✓.
@@ -40,7 +41,8 @@ class SessionSetRow extends StatefulWidget {
   /// adjustments do not need the keyboard.
   final bool showSteppers;
 
-  /// Load change per tap. Zero hides the weight buttons (bodyweight work).
+  /// Load change per tap, in the user's unit (kg or lb). Zero hides the
+  /// weight buttons (bodyweight work).
   final double weightStep;
 
   const SessionSetRow({
@@ -71,21 +73,29 @@ class _SessionSetRowState extends State<SessionSetRow> {
     _repsCtrl = TextEditingController(
       text: widget.set.reps > 0 ? '${widget.set.reps}' : '',
     );
-    _weightCtrl = TextEditingController(
-      text: widget.set.weight > 0 ? _fmt(widget.set.weight) : '',
-    );
+    _weightCtrl = TextEditingController(text: _weightText());
+    WeightUnits.instance.addListener(_syncFields);
+  }
+
+  /// The stored load (always kg) in the unit the user reads and types.
+  String _weightText() =>
+      widget.set.weight > 0 ? _fmt(kgToDisplay(widget.set.weight)) : '';
+
+  void _syncFields() {
+    _repsCtrl.text = widget.set.reps > 0 ? '${widget.set.reps}' : '';
+    _weightCtrl.text = _weightText();
   }
 
   @override
   void didUpdateWidget(covariant SessionSetRow oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (identical(oldWidget.set, widget.set)) return;
-    _repsCtrl.text = widget.set.reps > 0 ? '${widget.set.reps}' : '';
-    _weightCtrl.text = widget.set.weight > 0 ? _fmt(widget.set.weight) : '';
+    _syncFields();
   }
 
   @override
   void dispose() {
+    WeightUnits.instance.removeListener(_syncFields);
     _repsCtrl.dispose();
     _weightCtrl.dispose();
     super.dispose();
@@ -103,20 +113,21 @@ class _SessionSetRowState extends State<SessionSetRow> {
   }
 
   /// Applies a stepper tap, clamped at zero, and refreshes this row's fields.
+  /// [weight] is in the user's unit, so 135 lb + 5 lb is exactly 140 lb.
   void _bump({double weight = 0, int reps = 0}) {
     HapticFeedback.selectionClick();
     _edit(() {
       if (weight != 0) {
-        final next = ((widget.set.weight + weight) * 100).round() / 100;
-        widget.set.weight = next < 0 ? 0 : next;
+        final shown = kgToDisplay(widget.set.weight) + weight;
+        final next = (shown * 100).round() / 100;
+        widget.set.weight = next <= 0 ? 0 : displayToKg(next);
       }
       if (reps != 0) {
         final next = widget.set.reps + reps;
         widget.set.reps = next < 0 ? 0 : next;
       }
     });
-    _weightCtrl.text = widget.set.weight > 0 ? _fmt(widget.set.weight) : '';
-    _repsCtrl.text = widget.set.reps > 0 ? '${widget.set.reps}' : '';
+    _syncFields();
   }
 
   void _toggle() {
@@ -137,11 +148,11 @@ class _SessionSetRowState extends State<SessionSetRow> {
         children: [
           if (step > 0) ...[
             _StepButton(
-              label: '−$stepLabel kg',
+              label: '−$stepLabel $weightSymbol',
               onTap: () => _bump(weight: -step),
             ),
             _StepButton(
-              label: '+$stepLabel kg',
+              label: '+$stepLabel $weightSymbol',
               onTap: () => _bump(weight: step),
             ),
             const SizedBox(width: 8),
@@ -210,8 +221,9 @@ class _SessionSetRowState extends State<SessionSetRow> {
                   isInteger: false,
                   done: done,
                   onChanged: (v) => _edit(
-                    () => widget.set.weight =
-                        double.tryParse(v.replaceAll(',', '.')) ?? 0,
+                    () => widget.set.weight = displayToKg(
+                      double.tryParse(v.replaceAll(',', '.')) ?? 0,
+                    ),
                   ),
                 ),
               ),
@@ -352,7 +364,7 @@ class _PreviousCell extends StatelessWidget {
     }
     final l10n = S.of(context);
     final label = prev.weight > 0
-        ? '${formatWeight(prev.weight, Localizations.localeOf(context).toString())} × ${prev.reps}'
+        ? '${formatLoad(prev.weight, Localizations.localeOf(context).toString())} × ${prev.reps}'
         : '${prev.reps} ${l10n.common_reps.toLowerCase()}';
     final text = Text(
       label,

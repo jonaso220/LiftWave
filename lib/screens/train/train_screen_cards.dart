@@ -271,7 +271,10 @@ class _ExerciseCard extends StatelessWidget {
                   label: l10n.train_previousHeader,
                   flex: SessionSetColumns.previous,
                 ),
-                const _ColHeader(label: 'KG', flex: SessionSetColumns.weight),
+                _ColHeader(
+                  label: weightSymbol.toUpperCase(),
+                  flex: SessionSetColumns.weight,
+                ),
                 _ColHeader(
                   label: l10n.train_repsHeader,
                   flex: SessionSetColumns.reps,
@@ -302,7 +305,7 @@ class _ExerciseCard extends StatelessWidget {
                   ProgressionService.isBodyweight(exercise.equipment) &&
                       entry.value.weight == 0
                   ? 0
-                  : ProgressionService.loadIncrementFor(exercise.equipment),
+                  : loadStepDisplay(exercise.equipment),
               onEdited: (previousReps, previousWeight) =>
                   exercise.propagateEdit(
                     index,
@@ -364,16 +367,12 @@ class _ProgressionSuggestion extends StatelessWidget {
     required this.onApply,
   });
 
-  String _formatWeight(double value) => value == value.roundToDouble()
-      ? value.toStringAsFixed(0)
-      : value.toStringAsFixed(1);
-
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context);
     final r = recommendation;
     final locale = Localizations.localeOf(context).toString();
-    final previousWeight = formatWeight(r.previousWeight, locale);
+    final previousWeight = formatLoadWithUnit(r.previousWeight, locale);
     // One sentence that explains the suggestion from last session's numbers.
     final reason = switch (r.action) {
       ProgressionAction.increaseLoad => l10n.train_reasonIncreaseLoad(
@@ -397,7 +396,7 @@ class _ProgressionSuggestion extends StatelessWidget {
       ),
     };
     final target = recommendation.suggestedWeight > 0
-        ? '${_formatWeight(recommendation.suggestedWeight)} kg × '
+        ? '${formatLoadWithUnit(recommendation.suggestedWeight, locale)} × '
               '${recommendation.suggestedReps}'
         : '${recommendation.suggestedReps} ${l10n.common_reps.toLowerCase()}';
 
@@ -510,6 +509,8 @@ class _ColHeader extends StatelessWidget {
 /// "+150 kg de volumen respecto a la última vez" under the summary stats.
 class _VolumeComparisonLine extends StatelessWidget {
   final VolumeComparison comparison;
+
+  /// Formats a volume in kg with the user's unit, e.g. "150 kg".
   final String Function(int kg) formatKg;
 
   const _VolumeComparisonLine({
@@ -560,6 +561,8 @@ class _VolumeComparisonLine extends StatelessWidget {
 /// Lists the exercises where the user lifted more than ever before.
 class _PersonalRecordsCard extends StatelessWidget {
   final List<PersonalRecord> records;
+
+  /// Formats a load in kg with the user's unit, e.g. "85 kg".
   final String Function(double kg) formatKg;
 
   const _PersonalRecordsCard({required this.records, required this.formatKg});

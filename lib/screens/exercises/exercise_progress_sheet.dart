@@ -5,6 +5,7 @@ import '../../data/workout_store.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/exercise_localization.dart';
 import '../../utils/pro_gate.dart';
+import '../../utils/weight_units.dart';
 
 /// Opens the progress charts for [exerciseName], a PRO feature. Free users
 /// see the paywall first; the sheet opens if they subscribe there.
@@ -33,6 +34,11 @@ class ExerciseProgressSheet extends StatefulWidget {
 
 class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
   bool _showVolume = false; // false = peso máximo, true = volumen
+
+  /// A load or a volume (stored in kg) in the user's unit.
+  String _formatValue(double kg) => _showVolume
+      ? formatVolume(kg)
+      : formatLoadWithUnit(kg, Localizations.localeOf(context).toString());
 
   List<_DataPoint> _buildData() {
     final points = <_DataPoint>[];
@@ -217,8 +223,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
             label: _showVolume
                 ? S.of(context).progress_lastVolume
                 : S.of(context).progress_lastWeight,
-            value:
-                '${current == current.roundToDouble() ? current.toStringAsFixed(0) : current.toStringAsFixed(1)} kg',
+            value: _formatValue(current),
             color: _showVolume ? AppColors.accentOrange : AppColors.accent,
           ),
         ),
@@ -226,8 +231,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
         Expanded(
           child: _StatBox(
             label: S.of(context).progress_best,
-            value:
-                '${best == best.roundToDouble() ? best.toStringAsFixed(0) : best.toStringAsFixed(1)} kg',
+            value: _formatValue(best),
             color: AppColors.accentYellow,
           ),
         ),
@@ -269,7 +273,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
                 ),
                 const Spacer(),
                 Text(
-                  '${val == val.roundToDouble() ? val.toStringAsFixed(0) : val.toStringAsFixed(1)} kg',
+                  _formatValue(val),
                   style: TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 13,

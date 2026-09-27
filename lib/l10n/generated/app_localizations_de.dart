@@ -240,17 +240,17 @@ class SDe extends S {
 
   @override
   String train_reasonIncreaseLoad(int reps, String weight, int min, int max) {
-    return 'Du hast $reps Wdh. mit $weight kg geschafft, das Maximum deines Bereichs ($min–$max). Zeit, das Gewicht zu erhöhen.';
+    return 'Du hast $reps Wdh. mit $weight geschafft, das Maximum deines Bereichs ($min–$max). Zeit, das Gewicht zu erhöhen.';
   }
 
   @override
   String train_reasonAddRep(int reps, String weight) {
-    return 'Du hast $reps Wdh. mit $weight kg geschafft. Schaffe eine Wdh. mehr, bevor du das Gewicht erhöhst.';
+    return 'Du hast $reps Wdh. mit $weight geschafft. Schaffe eine Wdh. mehr, bevor du das Gewicht erhöhst.';
   }
 
   @override
   String train_reasonConsolidate(int reps, String weight, int min, int max) {
-    return 'Du hast $reps Wdh. geschafft, unter deinem Bereich ($min–$max). Bleib bei $weight kg, bis du $min erreichst.';
+    return 'Du hast $reps Wdh. geschafft, unter deinem Bereich ($min–$max). Bleib bei $weight, bis du $min erreichst.';
   }
 
   @override
@@ -917,7 +917,7 @@ class SDe extends S {
   String get train_repsHeader => 'WDH.';
 
   @override
-  String get train_weightHeader => 'GEWICHT (kg)';
+  String get train_weightHeader => 'GEWICHT';
 
   @override
   String get train_addSet => 'Satz hinzufügen';
@@ -980,6 +980,15 @@ class SDe extends S {
       'Verhindert, dass sich das Telefon zwischen Sätzen sperrt';
 
   @override
+  String get profile_weightUnit => 'Gewichtseinheit';
+
+  @override
+  String get weightUnit_kg => 'Kilogramm (kg)';
+
+  @override
+  String get weightUnit_lb => 'Pfund (lb)';
+
+  @override
   String get train_repShort => 'Wdh.';
 
   @override
@@ -999,17 +1008,17 @@ class SDe extends S {
 
   @override
   String train_recordLine(String weight, String previous) {
-    return '$weight kg (vorher $previous kg)';
+    return '$weight (vorher $previous)';
   }
 
   @override
   String train_volumeUp(String kg) {
-    return '+$kg kg Volumen im Vergleich zum letzten Mal';
+    return '+$kg Volumen im Vergleich zum letzten Mal';
   }
 
   @override
   String train_volumeDown(String kg) {
-    return '$kg kg weniger Volumen als beim letzten Mal';
+    return '$kg weniger Volumen als beim letzten Mal';
   }
 
   @override
@@ -1254,7 +1263,7 @@ class SDe extends S {
   String get history_total => 'Gesamt';
 
   @override
-  String get history_volumeKg => 'Volumen kg';
+  String get history_volumeKg => 'Volumen';
 
   @override
   String get history_routinesByDay => 'Routinen nach Tag';

@@ -236,17 +236,17 @@ class SJa extends S {
 
   @override
   String train_reasonIncreaseLoad(int reps, String weight, int min, int max) {
-    return '$weight kgで$reps回、目標範囲（$min〜$max回）の上限に達しました。重量を上げましょう。';
+    return '$weightで$reps回、目標範囲（$min〜$max回）の上限に達しました。重量を上げましょう。';
   }
 
   @override
   String train_reasonAddRep(int reps, String weight) {
-    return '$weight kgで$reps回できました。重量を上げる前にもう1回増やしましょう。';
+    return '$weightで$reps回できました。重量を上げる前にもう1回増やしましょう。';
   }
 
   @override
   String train_reasonConsolidate(int reps, String weight, int min, int max) {
-    return '$reps回で、目標範囲（$min〜$max回）を下回りました。$min回に届くまで$weight kgを続けましょう。';
+    return '$reps回で、目標範囲（$min〜$max回）を下回りました。$min回に届くまで$weightを続けましょう。';
   }
 
   @override
@@ -875,7 +875,7 @@ class SJa extends S {
   String get train_repsHeader => 'レップ';
 
   @override
-  String get train_weightHeader => '重量 (kg)';
+  String get train_weightHeader => '重量';
 
   @override
   String get train_addSet => 'セットを追加';
@@ -936,6 +936,15 @@ class SJa extends S {
   String get profile_keepScreenOnSubtitle => 'セット間に端末がロックされるのを防ぎます';
 
   @override
+  String get profile_weightUnit => '重量の単位';
+
+  @override
+  String get weightUnit_kg => 'キログラム (kg)';
+
+  @override
+  String get weightUnit_lb => 'ポンド (lb)';
+
+  @override
   String get train_repShort => '回';
 
   @override
@@ -955,17 +964,17 @@ class SJa extends S {
 
   @override
   String train_recordLine(String weight, String previous) {
-    return '$weight kg（以前の最高 $previous kg）';
+    return '$weight（以前の最高 $previous）';
   }
 
   @override
   String train_volumeUp(String kg) {
-    return '前回より総重量 +$kg kg';
+    return '前回より総重量 +$kg';
   }
 
   @override
   String train_volumeDown(String kg) {
-    return '前回より総重量 −$kg kg';
+    return '前回より総重量 −$kg';
   }
 
   @override
@@ -1194,7 +1203,7 @@ class SJa extends S {
   String get history_total => '合計';
 
   @override
-  String get history_volumeKg => 'ボリューム kg';
+  String get history_volumeKg => 'ボリューム';
 
   @override
   String get history_routinesByDay => '曜日別ルーティン';

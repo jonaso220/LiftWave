@@ -97,14 +97,14 @@ void main() {
 
   test('explanations quote last session and the range', () {
     expect(
-      SEs().train_reasonIncreaseLoad(12, '60', 8, 12),
+      SEs().train_reasonIncreaseLoad(12, '60 kg', 8, 12),
       'Hiciste 12 reps con 60 kg, el tope de tu rango (8–12). '
       'Toca subir el peso.',
     );
     expect(
-      SEn().train_reasonConsolidate(5, '80', 8, 12),
+      SEn().train_reasonConsolidate(5, '176.4 lb', 8, 12),
       'You did 5 reps, below your range (8–12). '
-      'Stay at 80 kg until you reach 8.',
+      'Stay at 176.4 lb until you reach 8.',
     );
   });
 }

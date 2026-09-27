@@ -554,19 +554,19 @@ abstract class S {
   /// No description provided for @train_reasonIncreaseLoad.
   ///
   /// In es, this message translates to:
-  /// **'Hiciste {reps} reps con {weight} kg, el tope de tu rango ({min}–{max}). Toca subir el peso.'**
+  /// **'Hiciste {reps} reps con {weight}, el tope de tu rango ({min}–{max}). Toca subir el peso.'**
   String train_reasonIncreaseLoad(int reps, String weight, int min, int max);
 
   /// No description provided for @train_reasonAddRep.
   ///
   /// In es, this message translates to:
-  /// **'Hiciste {reps} reps con {weight} kg. Suma una repetición antes de subir el peso.'**
+  /// **'Hiciste {reps} reps con {weight}. Suma una repetición antes de subir el peso.'**
   String train_reasonAddRep(int reps, String weight);
 
   /// No description provided for @train_reasonConsolidate.
   ///
   /// In es, this message translates to:
-  /// **'Hiciste {reps} reps, por debajo de tu rango ({min}–{max}). Mantén {weight} kg hasta llegar a {min}.'**
+  /// **'Hiciste {reps} reps, por debajo de tu rango ({min}–{max}). Mantén {weight} hasta llegar a {min}.'**
   String train_reasonConsolidate(int reps, String weight, int min, int max);
 
   /// No description provided for @train_reasonBodyweight.
@@ -1736,7 +1736,7 @@ abstract class S {
   /// No description provided for @train_weightHeader.
   ///
   /// In es, this message translates to:
-  /// **'PESO (kg)'**
+  /// **'PESO'**
   String get train_weightHeader;
 
   /// No description provided for @train_addSet.
@@ -1847,6 +1847,24 @@ abstract class S {
   /// **'Evita que el teléfono se bloquee entre series'**
   String get profile_keepScreenOnSubtitle;
 
+  /// No description provided for @profile_weightUnit.
+  ///
+  /// In es, this message translates to:
+  /// **'Unidad de peso'**
+  String get profile_weightUnit;
+
+  /// No description provided for @weightUnit_kg.
+  ///
+  /// In es, this message translates to:
+  /// **'Kilogramos (kg)'**
+  String get weightUnit_kg;
+
+  /// No description provided for @weightUnit_lb.
+  ///
+  /// In es, this message translates to:
+  /// **'Libras (lb)'**
+  String get weightUnit_lb;
+
   /// No description provided for @train_repShort.
   ///
   /// In es, this message translates to:
@@ -1886,19 +1904,19 @@ abstract class S {
   /// No description provided for @train_recordLine.
   ///
   /// In es, this message translates to:
-  /// **'{weight} kg (antes {previous} kg)'**
+  /// **'{weight} (antes {previous})'**
   String train_recordLine(String weight, String previous);
 
   /// No description provided for @train_volumeUp.
   ///
   /// In es, this message translates to:
-  /// **'+{kg} kg de volumen respecto a la última vez'**
+  /// **'+{kg} de volumen respecto a la última vez'**
   String train_volumeUp(String kg);
 
   /// No description provided for @train_volumeDown.
   ///
   /// In es, this message translates to:
-  /// **'{kg} kg menos de volumen que la última vez'**
+  /// **'{kg} menos de volumen que la última vez'**
   String train_volumeDown(String kg);
 
   /// No description provided for @train_volumeSame.
@@ -2312,7 +2330,7 @@ abstract class S {
   /// No description provided for @history_volumeKg.
   ///
   /// In es, this message translates to:
-  /// **'Volumen kg'**
+  /// **'Volumen'**
   String get history_volumeKg;
 
   /// No description provided for @history_routinesByDay.

@@ -239,17 +239,17 @@ class SEn extends S {
 
   @override
   String train_reasonIncreaseLoad(int reps, String weight, int min, int max) {
-    return 'You did $reps reps at $weight kg, the top of your range ($min–$max). Time to add weight.';
+    return 'You did $reps reps at $weight, the top of your range ($min–$max). Time to add weight.';
   }
 
   @override
   String train_reasonAddRep(int reps, String weight) {
-    return 'You did $reps reps at $weight kg. Add one rep before adding weight.';
+    return 'You did $reps reps at $weight. Add one rep before adding weight.';
   }
 
   @override
   String train_reasonConsolidate(int reps, String weight, int min, int max) {
-    return 'You did $reps reps, below your range ($min–$max). Stay at $weight kg until you reach $min.';
+    return 'You did $reps reps, below your range ($min–$max). Stay at $weight until you reach $min.';
   }
 
   @override
@@ -910,7 +910,7 @@ class SEn extends S {
   String get train_repsHeader => 'REPS';
 
   @override
-  String get train_weightHeader => 'WEIGHT (kg)';
+  String get train_weightHeader => 'WEIGHT';
 
   @override
   String get train_addSet => 'Add set';
@@ -973,6 +973,15 @@ class SEn extends S {
       'Stops the phone from locking between sets';
 
   @override
+  String get profile_weightUnit => 'Weight unit';
+
+  @override
+  String get weightUnit_kg => 'Kilograms (kg)';
+
+  @override
+  String get weightUnit_lb => 'Pounds (lb)';
+
+  @override
   String get train_repShort => 'rep';
 
   @override
@@ -992,17 +1001,17 @@ class SEn extends S {
 
   @override
   String train_recordLine(String weight, String previous) {
-    return '$weight kg (was $previous kg)';
+    return '$weight (was $previous)';
   }
 
   @override
   String train_volumeUp(String kg) {
-    return '+$kg kg volume vs. last time';
+    return '+$kg volume vs. last time';
   }
 
   @override
   String train_volumeDown(String kg) {
-    return '$kg kg less volume than last time';
+    return '$kg less volume than last time';
   }
 
   @override
@@ -1243,7 +1252,7 @@ class SEn extends S {
   String get history_total => 'Total';
 
   @override
-  String get history_volumeKg => 'Volume kg';
+  String get history_volumeKg => 'Volume';
 
   @override
   String get history_routinesByDay => 'Routines by day';

@@ -27,7 +27,7 @@ import '../../utils/exercise_localization.dart';
 import '../../utils/muscle_colors.dart';
 import '../../utils/pro_gate.dart';
 import '../../utils/routine_days.dart';
-import '../../utils/weight_format.dart';
+import '../../utils/weight_units.dart';
 import '../../widgets/common/muscle_chip.dart';
 import '../../widgets/rest_picker.dart';
 import '../../widgets/rest_timer_overlay.dart';
@@ -744,21 +744,21 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
             _SummaryStat(
               icon: Icons.bar_chart_rounded,
               label: l10n.train_totalVolume,
-              value: '$totalVolume kg',
+              value: formatVolume(totalVolume),
               color: AppColors.accentYellow,
             ),
             if (comparison != null) ...[
               const SizedBox(height: 12),
               _VolumeComparisonLine(
                 comparison: comparison,
-                formatKg: (kg) => formatWeight(kg.toDouble(), locale),
+                formatKg: (kg) => formatVolume(kg),
               ),
             ],
             if (records.isNotEmpty) ...[
               const SizedBox(height: 14),
               _PersonalRecordsCard(
                 records: records,
-                formatKg: (kg) => formatWeight(kg, locale),
+                formatKg: (kg) => formatLoadWithUnit(kg, locale),
               ),
             ],
           ],
@@ -1137,6 +1137,8 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       equipment: equipment,
       workouts: WorkoutStore.instance.workouts,
       goal: TrainingPreferencesStore.instance.preferences?.goal,
+      // 5 lb when training in pounds, so suggestions land on real plates.
+      loadIncrementKg: loadStepKg(equipment),
     );
   }
 

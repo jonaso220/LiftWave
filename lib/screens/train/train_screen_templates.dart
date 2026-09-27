@@ -1042,7 +1042,7 @@ class _PreviewExRow extends StatelessWidget {
     final isBodyweight =
         ex.equipment == 'Peso corporal' || ex.equipment == 'Sin material';
     final weightStr = ex.weight > 0
-        ? '${ex.weight.toInt()} kg'
+        ? formatLoadWithUnit(ex.weight, l10n.localeName)
         : isBodyweight
         ? l10n.train_bodyweightLabel
         : l10n.train_chooseWeight;

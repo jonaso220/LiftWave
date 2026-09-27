@@ -8,6 +8,7 @@ import '../../data/workout_store.dart';
 import '../../models/models.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/exercise_localization.dart';
+import '../../utils/weight_units.dart';
 
 /// Editable view of a past workout. Users can fix reps, weight and notes
 /// they forgot to log correctly. Adding/removing exercises is out of scope.
@@ -268,7 +269,7 @@ class _ExerciseCard extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    l10n.train_weightHeader,
+                    '${l10n.train_weightHeader} ($weightSymbol)',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppColors.textMuted,
@@ -452,22 +453,31 @@ class _EditableSet extends ChangeNotifier {
   final TextEditingController weightCtrl;
   bool _completed;
 
+  /// The stored load (kg) and how it was first shown, so saving without
+  /// touching the field never rounds it through a unit conversion.
+  final double _originalWeight;
+  final String _initialWeightText;
+
   _EditableSet._({
     required this.repsCtrl,
     required this.weightCtrl,
     required bool completed,
-  }) : _completed = completed;
+    required double originalWeight,
+  }) : _completed = completed,
+       _originalWeight = originalWeight,
+       _initialWeightText = weightCtrl.text;
 
-  factory _EditableSet.from(WorkoutSet s, {required bool completed}) =>
-      _EditableSet._(
-        repsCtrl: TextEditingController(text: '${s.reps}'),
-        weightCtrl: TextEditingController(
-          text: s.weight % 1 == 0
-              ? s.weight.toStringAsFixed(0)
-              : s.weight.toString(),
-        ),
-        completed: completed,
-      );
+  factory _EditableSet.from(WorkoutSet s, {required bool completed}) {
+    final shown = kgToDisplay(s.weight);
+    return _EditableSet._(
+      repsCtrl: TextEditingController(text: '${s.reps}'),
+      weightCtrl: TextEditingController(
+        text: shown % 1 == 0 ? shown.toStringAsFixed(0) : shown.toString(),
+      ),
+      completed: completed,
+      originalWeight: s.weight,
+    );
+  }
 
   bool get completed => _completed;
   void toggleCompleted() {
@@ -477,8 +487,10 @@ class _EditableSet extends ChangeNotifier {
 
   WorkoutSet toSet(int setNumber) {
     final reps = int.tryParse(repsCtrl.text.trim()) ?? 0;
-    final weight =
-        double.tryParse(weightCtrl.text.trim().replaceAll(',', '.')) ?? 0;
+    final text = weightCtrl.text.trim();
+    final weight = text == _initialWeightText.trim()
+        ? _originalWeight
+        : displayToKg(double.tryParse(text.replaceAll(',', '.')) ?? 0);
     return WorkoutSet(
       setNumber: setNumber,
       reps: reps.clamp(0, 999),

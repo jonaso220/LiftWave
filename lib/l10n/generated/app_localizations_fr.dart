@@ -240,17 +240,17 @@ class SFr extends S {
 
   @override
   String train_reasonIncreaseLoad(int reps, String weight, int min, int max) {
-    return 'Vous avez fait $reps répétitions à $weight kg, le haut de votre plage ($min–$max). Augmentez la charge.';
+    return 'Vous avez fait $reps répétitions à $weight, le haut de votre plage ($min–$max). Augmentez la charge.';
   }
 
   @override
   String train_reasonAddRep(int reps, String weight) {
-    return 'Vous avez fait $reps répétitions à $weight kg. Ajoutez une répétition avant d\'augmenter la charge.';
+    return 'Vous avez fait $reps répétitions à $weight. Ajoutez une répétition avant d\'augmenter la charge.';
   }
 
   @override
   String train_reasonConsolidate(int reps, String weight, int min, int max) {
-    return 'Vous avez fait $reps répétitions, sous votre plage ($min–$max). Restez à $weight kg jusqu\'à atteindre $min.';
+    return 'Vous avez fait $reps répétitions, sous votre plage ($min–$max). Restez à $weight jusqu\'à atteindre $min.';
   }
 
   @override
@@ -922,7 +922,7 @@ class SFr extends S {
   String get train_repsHeader => 'REPS';
 
   @override
-  String get train_weightHeader => 'POIDS (kg)';
+  String get train_weightHeader => 'POIDS';
 
   @override
   String get train_addSet => 'Ajouter une série';
@@ -985,6 +985,15 @@ class SFr extends S {
       'Empêche le téléphone de se verrouiller entre les séries';
 
   @override
+  String get profile_weightUnit => 'Unité de poids';
+
+  @override
+  String get weightUnit_kg => 'Kilogrammes (kg)';
+
+  @override
+  String get weightUnit_lb => 'Livres (lb)';
+
+  @override
   String get train_repShort => 'rép.';
 
   @override
@@ -1005,17 +1014,17 @@ class SFr extends S {
 
   @override
   String train_recordLine(String weight, String previous) {
-    return '$weight kg (avant $previous kg)';
+    return '$weight (avant $previous)';
   }
 
   @override
   String train_volumeUp(String kg) {
-    return '+$kg kg de volume par rapport à la dernière fois';
+    return '+$kg de volume par rapport à la dernière fois';
   }
 
   @override
   String train_volumeDown(String kg) {
-    return '$kg kg de volume en moins que la dernière fois';
+    return '$kg de volume en moins que la dernière fois';
   }
 
   @override
@@ -1260,7 +1269,7 @@ class SFr extends S {
   String get history_total => 'Total';
 
   @override
-  String get history_volumeKg => 'Volume kg';
+  String get history_volumeKg => 'Volume';
 
   @override
   String get history_routinesByDay => 'Routines par jour';

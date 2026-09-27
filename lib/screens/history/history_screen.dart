@@ -9,6 +9,7 @@ import '../../data/workout_store.dart';
 import '../../models/models.dart';
 import '../../services/weekly_plan_service.dart';
 import '../../utils/routine_days.dart';
+import '../../utils/weight_units.dart';
 import '../home/weekly_plan_card.dart';
 import '../profile/profile_screen.dart';
 import 'workout_detail_screen.dart';
@@ -58,11 +59,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return '${m}m';
   }
 
-  String _formatVolume(int kg) {
-    if (kg >= 1000) return '${(kg / 1000).toStringAsFixed(1)}k';
-    return '$kg';
-  }
-
   // Returns the weekday index (0=Mon … 6=Sun) for each workout this week.
   Set<int> get _trainedDaysThisWeek {
     final now = DateTime.now();
@@ -104,8 +100,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
               child: _WeekSummaryCard(
                 workoutCount: weekWorkouts.length,
                 totalDuration: _formatWeekDuration(weekWorkouts),
-                totalVolume: _formatVolume(
+                totalVolume: formatVolume(
                   weekWorkouts.fold(0, (s, w) => s + w.totalVolume),
+                  compact: true,
                 ),
                 trainedDays: _trainedDaysThisWeek,
                 todayIndex: DateTime.now().weekday - 1,
@@ -481,7 +478,7 @@ class _WorkoutHistoryCard extends StatelessWidget {
           '$displayName. $dateLabel. '
           '${l10n.train_exerciseCount(completedExercises)}. '
           '${l10n.common_sets}: ${workout.totalSets}. '
-          '${l10n.common_volume}: ${workout.totalVolume} kg',
+          '${l10n.common_volume}: ${formatVolume(workout.totalVolume)}',
       button: true,
       onTap: openWorkout,
       child: ExcludeSemantics(
@@ -550,7 +547,7 @@ class _WorkoutHistoryCard extends StatelessWidget {
                     const SizedBox(width: 12),
                     _HistStat(
                       label: l10n.common_volume,
-                      value: '${workout.totalVolume} kg',
+                      value: formatVolume(workout.totalVolume),
                     ),
                   ],
                 ),

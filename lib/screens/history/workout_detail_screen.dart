@@ -4,7 +4,7 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/workout_store.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/muscle_colors.dart';
-import '../../utils/weight_format.dart';
+import '../../utils/weight_units.dart';
 import '../../utils/exercise_localization.dart';
 import '../../models/models.dart';
 import 'workout_edit_screen.dart';
@@ -236,7 +236,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         Expanded(
           child: _DetailStatCard(
             icon: Icons.bar_chart_rounded,
-            value: '${workout.totalVolume} kg',
+            value: formatVolume(workout.totalVolume),
             label: S.of(context).common_volume,
             color: AppColors.accentOrange,
           ),
@@ -524,7 +524,10 @@ class _ExerciseDetailCard extends StatelessWidget {
                     flex: 2,
                     child: Text(
                       set.weight > 0
-                          ? '${formatWeight(set.weight, S.of(context).localeName)} kg'
+                          ? formatLoadWithUnit(
+                              set.weight,
+                              S.of(context).localeName,
+                            )
                           : S.of(context).common_bodyweight,
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -538,7 +541,10 @@ class _ExerciseDetailCard extends StatelessWidget {
                     flex: 2,
                     child: Text(
                       set.weight > 0
-                          ? '${formatWeight(set.reps * set.weight, S.of(context).localeName)} kg'
+                          ? formatLoadWithUnit(
+                              set.reps * set.weight,
+                              S.of(context).localeName,
+                            )
                           : '-',
                       textAlign: TextAlign.center,
                       style: TextStyle(

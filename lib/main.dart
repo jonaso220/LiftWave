@@ -18,6 +18,7 @@ import 'services/theme_controller.dart';
 import 'services/watch_service.dart';
 import 'theme/app_theme.dart';
 import 'utils/ui_scale.dart';
+import 'utils/weight_units.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +32,7 @@ void main() async {
   // Resolve the palette before the first frame so the app never flashes the
   // wrong theme.
   await ThemeController.instance.load();
+  await WeightUnits.instance.load();
   AppColors.usePalette(
     ThemeController.paletteFor(
       ThemeController.instance.mode,
@@ -86,12 +88,14 @@ class _LiftWaveAppState extends State<LiftWaveApp> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     ThemeController.instance.addListener(_applyTheme);
+    WeightUnits.instance.addListener(_rebuildAll);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     ThemeController.instance.removeListener(_applyTheme);
+    WeightUnits.instance.removeListener(_rebuildAll);
     super.dispose();
   }
 
@@ -107,9 +111,14 @@ class _LiftWaveAppState extends State<LiftWaveApp> with WidgetsBindingObserver {
     if (identical(palette, AppColors.palette)) return;
     AppColors.usePalette(palette);
     _applySystemBars();
-    // Screens read AppColors while building, not from Theme, so rebuild every
-    // element (open routes included). State is kept: an active workout, the
-    // selected tab and the navigation stack all survive the switch.
+    _rebuildAll();
+  }
+
+  /// Screens read AppColors and the weight unit while building, not from an
+  /// inherited widget, so rebuild every element (open routes included).
+  /// State is kept: an active workout, the selected tab and the navigation
+  /// stack all survive the switch.
+  void _rebuildAll() {
     void rebuild(Element element) {
       element.markNeedsBuild();
       element.visitChildren(rebuild);
