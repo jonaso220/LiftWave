@@ -1,6 +1,6 @@
 # Publicación Android en Google Play
 
-El workflow **Android - Google Play** se ejecuta al publicar en `main` un incremento de el código después de `+` en `pubspec.yaml`. Compila, ejecuta las pruebas, firma con la clave de subida de LiftWave y carga un **borrador en la prueba cerrada Alpha**. Los cambios sin incremento de código no generan una subida.
+El workflow **Android - Google Play** se ejecuta al publicar en `main` un incremento de el código después de `+` en `pubspec.yaml`. Compila, ejecuta las pruebas, firma con la clave de subida de LiftWave y carga un **borrador en el canal de producción**. Los cambios sin incremento de código no generan una subida.
 
 Con cada versión, actualizar también `scripts/play/release-notes.json` (máximo 500 caracteres por idioma). No guardar contraseñas ni claves en Git.
 
