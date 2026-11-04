@@ -1,7 +1,7 @@
 name: liftwave
 description: LiftWave - Tu app de fitness personal.
 publish_to: 'none'
-version: 1.3.5+27
+version: 1.3.6+28
 
 environment:
   sdk: ^3.11.1
@@ -19,9 +19,12 @@ dependencies:
   shared_preferences: ^2.3.3
   image_picker: ^1.1.2
   path_provider: ^2.1.4
-  firebase_core: ^3.6.0
-  cloud_firestore: ^5.4.4
-  firebase_auth: ^5.3.1
+  # Parche de seguridad de Firestore (4/11/2026, certificados de eMudhra): la línea
+  # Firebase 11 del SDK de Apple no tiene arreglo; firebase_core 4.15.2 fija 12.19.3,
+  # la versión parcheada (cloud_firestore 6.10.1+ según la guía de Firebase).
+  firebase_core: ^4.15.2
+  cloud_firestore: ^6.10.1
+  firebase_auth: ^6.7.1
   google_sign_in: ^6.2.1
   sign_in_with_apple: ^6.1.3
   crypto: ^3.0.5
