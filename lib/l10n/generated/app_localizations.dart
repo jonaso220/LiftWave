@@ -1343,6 +1343,30 @@ abstract class S {
   /// **'Alterna las series; el descanso empieza al terminar la ronda.'**
   String get superset_hint;
 
+  /// No description provided for @widget_today.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy toca'**
+  String get widget_today;
+
+  /// No description provided for @widget_weekOfTarget.
+  ///
+  /// In es, this message translates to:
+  /// **'{done}/{target} esta semana'**
+  String widget_weekOfTarget(String done, String target);
+
+  /// No description provided for @widget_weekOne.
+  ///
+  /// In es, this message translates to:
+  /// **'1 sesión esta semana'**
+  String get widget_weekOne;
+
+  /// No description provided for @widget_weekOther.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} sesiones esta semana'**
+  String widget_weekOther(String count);
+
   /// No description provided for @reminders_title.
   ///
   /// In es, this message translates to:

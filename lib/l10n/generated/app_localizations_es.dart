@@ -679,6 +679,22 @@ class SEs extends S {
       'Alterna las series; el descanso empieza al terminar la ronda.';
 
   @override
+  String get widget_today => 'Hoy toca';
+
+  @override
+  String widget_weekOfTarget(String done, String target) {
+    return '$done/$target esta semana';
+  }
+
+  @override
+  String get widget_weekOne => '1 sesión esta semana';
+
+  @override
+  String widget_weekOther(String count) {
+    return '$count sesiones esta semana';
+  }
+
+  @override
   String get reminders_title => 'Recordatorios de entrenamiento';
 
   @override

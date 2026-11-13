@@ -677,6 +677,22 @@ class SPt extends S {
       'Alterne as séries; o descanso começa ao terminar a rodada.';
 
   @override
+  String get widget_today => 'Hoje';
+
+  @override
+  String widget_weekOfTarget(String done, String target) {
+    return '$done/$target nesta semana';
+  }
+
+  @override
+  String get widget_weekOne => '1 treino nesta semana';
+
+  @override
+  String widget_weekOther(String count) {
+    return '$count treinos nesta semana';
+  }
+
+  @override
   String get reminders_title => 'Lembretes de treino';
 
   @override

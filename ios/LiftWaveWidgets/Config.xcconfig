@@ -1,0 +1,9 @@
+// Build settings of the widget extension.
+//
+// Flutter writes the app's version (from pubspec.yaml) to Generated.xcconfig;
+// taking it from there keeps the extension's version equal to the app's,
+// which the App Store requires, without bumping it by hand.
+#include? "../Flutter/Generated.xcconfig"
+
+MARKETING_VERSION = $(FLUTTER_BUILD_NAME)
+CURRENT_PROJECT_VERSION = $(FLUTTER_BUILD_NUMBER)

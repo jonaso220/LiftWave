@@ -4,6 +4,7 @@ import UIKit
 @main
 @objc class AppDelegate: FlutterAppDelegate {
   private var screenChannel: FlutterMethodChannel?
+  private var liveActivityChannel: FlutterMethodChannel?
 
   override func application(
     _ application: UIApplication,
@@ -31,6 +32,12 @@ import UIKit
       result(nil)
     }
     screenChannel = channel
+
+    // The rest countdown as a Live Activity
+    // (see lib/services/live_activity_service.dart).
+    let liveActivityRegistrar = self.registrar(forPlugin: "RestLiveActivity")!
+    liveActivityChannel = RestLiveActivityChannel.register(
+      with: liveActivityRegistrar.messenger())
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

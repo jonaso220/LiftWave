@@ -17,6 +17,7 @@ import '../../data/workout_store.dart';
 import '../exercises/exercise_progress_sheet.dart';
 import '../exercises/exercises_screen.dart';
 import '../auth/guest_prompts.dart';
+import '../../services/live_activity_service.dart';
 import '../../services/plate_calculator.dart';
 import '../../services/rest_alert_service.dart';
 import '../../services/rest_timer_controller.dart';
@@ -98,6 +99,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     CustomTemplateStore.instance.addListener(_onTemplatesChanged);
     WorkoutLauncher.instance.addListener(_onLauncherChanged);
     WatchService.instance.onWatchCommand = _handleWatchCommand;
+    RestTimerController.instance.addListener(_syncLiveActivity);
     // Consume any template queued before this screen mounted (e.g. tapped on
     // Home before navigating).
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -112,6 +114,8 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     CustomTemplateStore.instance.removeListener(_onTemplatesChanged);
     WorkoutLauncher.instance.removeListener(_onLauncherChanged);
+    RestTimerController.instance.removeListener(_syncLiveActivity);
+    unawaited(LiveActivityService.instance.end());
     if (WatchService.instance.onWatchCommand == _handleWatchCommand) {
       WatchService.instance.onWatchCommand = null;
     }
@@ -216,6 +220,31 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
 
   /// Hands the end of a running rest to the system while the app is in the
   /// background, where the Dart timer no longer ticks.
+  /// Mirrors the rest (or timed set) countdown to the iPhone Lock Screen
+  /// and Dynamic Island while it runs.
+  void _syncLiveActivity() {
+    final rest = RestTimerController.instance;
+    final deadline = rest.deadline;
+    if (deadline == null || !mounted) {
+      unawaited(LiveActivityService.instance.end());
+      return;
+    }
+    final l10n = S.of(context);
+    final hold = rest.isHold;
+    final name = _workoutName;
+    unawaited(
+      LiveActivityService.instance.show(
+        end: deadline,
+        total: Duration(seconds: rest.total),
+        title: hold ? l10n.hold_running : l10n.restTimer_resting,
+        finishedTitle: hold ? l10n.hold_alertTitle : l10n.rest_alertTitle,
+        workoutName: name == null
+            ? l10n.train_freeWorkout
+            : ExerciseLocalization.workoutName(l10n, name),
+      ),
+    );
+  }
+
   void _scheduleRestAlert() {
     final deadline = RestTimerController.instance.deadline;
     if (deadline == null || !mounted) return;

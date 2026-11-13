@@ -9,6 +9,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import 'user_data_deletion_service.dart';
+import 'home_widget_service.dart';
 
 /// Thrown when the user cancels the sign-in flow (not an error).
 class AuthCancelledException implements Exception {}
@@ -197,6 +198,8 @@ class AuthService {
 
   Future<void> signOut() async {
     await Future.wait([GoogleSignIn().signOut(), _auth.signOut()]);
+    // The home-screen widget must not keep showing this account's routines.
+    await HomeWidgetService.instance.clear();
   }
 
   bool get currentUserUsesPassword =>

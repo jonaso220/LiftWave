@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_app_name" translatable="false">LiftWave</string>
+    <!-- Home-screen widget: shown in the widget picker. -->
+    <string name="widget_description">Today\'s routine and this week\'s sessions</string>
+    <!-- Home-screen widget: shown until the app has data for it. -->
+    <string name="widget_open_app">Open LiftWave to start</string>
+</resources>

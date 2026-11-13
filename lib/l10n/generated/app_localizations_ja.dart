@@ -662,6 +662,22 @@ class SJa extends S {
   String get superset_hint => 'セットを交互に行います。休憩は1巡終わってから始まります。';
 
   @override
+  String get widget_today => '今日';
+
+  @override
+  String widget_weekOfTarget(String done, String target) {
+    return '今週 $done/$target';
+  }
+
+  @override
+  String get widget_weekOne => '今週 1回';
+
+  @override
+  String widget_weekOther(String count) {
+    return '今週 $count回';
+  }
+
+  @override
   String get reminders_title => 'トレーニングのリマインダー';
 
   @override

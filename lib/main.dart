@@ -13,6 +13,8 @@ import 'screens/auth/login_screen.dart';
 import 'screens/onboarding/training_onboarding_gate.dart';
 import 'services/firebase_service.dart';
 import 'services/health_sync_service.dart';
+import 'services/home_widget_service.dart';
+import 'services/live_activity_service.dart';
 import 'services/rest_alert_service.dart';
 import 'services/rest_timer_controller.dart';
 import 'services/subscription_service.dart';
@@ -66,6 +68,14 @@ void _applySystemBars() {
 }
 
 Future<void> _initializeBackgroundServices() async {
+  // The home-screen widget shows an account's routines: empty it whenever
+  // nobody is signed in (at launch, on sign-out and when the account is
+  // deleted).
+  FirebaseAuth.instance.authStateChanges().listen((user) {
+    if (user == null) unawaited(HomeWidgetService.instance.clear());
+  });
+  // A rest countdown left on the Lock Screen by a launch that was killed.
+  unawaited(LiveActivityService.instance.end());
   try {
     await Future.wait([
       ScreenAwakeService.instance.init(),

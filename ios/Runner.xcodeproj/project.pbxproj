@@ -18,14 +18,22 @@
 		0CA1000000000000000000B7 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 0CA1000000000000000000A6 /* Localizable.xcstrings */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		1B8556AFFAF72B6D5A9EF46C /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 30F6F5D82264116F5ED9894B /* Pods_Runner.framework */; };
+		2CFE0395D1617788A5BC17DA /* LiftWaveHomeWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 265A372BD27D4E1E88F5555C /* LiftWaveHomeWidget.swift */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
+		3772635F6C906231DE161FE9 /* LiftWaveWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DED9AE738B7B2530B446D228 /* LiftWaveWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		411BC79642A944DF86971D63 /* RestLiveActivityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B95CEE9FE0BEE8C4A457182F /* RestLiveActivityController.swift */; };
 		50993A0E6CF35D56E5B97702 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A38F85AF44D0BBFDB363BE8 /* Pods_RunnerTests.framework */; };
+		5285F52B3047CB450A5281EB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A169DB655BDB4174FD04849 /* Foundation.framework */; };
+		6BD95D6AEFE0EEF257984009 /* LiftWaveWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B200E18DFD2702FFB44FBA /* LiftWaveWidgetsBundle.swift */; };
+		6D33C3661BE8A021AF01E990 /* RestLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B45295C719130CFB61573EE /* RestLiveActivity.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
+		894CDEB37A2F79AAF637D370 /* RestActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF847971C31EB7DC78E6E97 /* RestActivityAttributes.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		F6E04E8AD4B35917BA256AFB /* RestActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF847971C31EB7DC78E6E97 /* RestActivityAttributes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +57,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 97C146ED1CF9000F007C117D;
 			remoteInfo = Runner;
+		};
+		3DE989431939EB16CFA2F4C1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D2616FCDC11498902EDFA168;
+			remoteInfo = LiftWaveWidgets;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -74,6 +89,17 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DD49F6F3CC856CA99D6035FD /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				3772635F6C906231DE161FE9 /* LiftWaveWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -90,16 +116,20 @@
 		0CA1000000000000000000A7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
+		265A372BD27D4E1E88F5555C /* LiftWaveHomeWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiftWaveHomeWidget.swift; sourceTree = "<group>"; };
 		30F6F5D82264116F5ED9894B /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
+		4A169DB655BDB4174FD04849 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		4A38F85AF44D0BBFDB363BE8 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A995F3577DF3816520B6037 /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
+		4F25CB151B7110AE53523FC7 /* Config.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
+		7C198E9E5C1C5A81F94E3903 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		800D2C4685D542DDA96CE78E /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
@@ -108,9 +138,15 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		99B200E18DFD2702FFB44FBA /* LiftWaveWidgetsBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiftWaveWidgetsBundle.swift; sourceTree = "<group>"; };
+		9B45295C719130CFB61573EE /* RestLiveActivity.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RestLiveActivity.swift; sourceTree = "<group>"; };
 		9D72531BCFC61320148837AD /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
+		AC133466F7E7B6F78F0C5E28 /* LiftWaveWidgets.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = LiftWaveWidgets.entitlements; sourceTree = "<group>"; };
 		B3959148A8F7803EB9A7EE93 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+		B95CEE9FE0BEE8C4A457182F /* RestLiveActivityController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RestLiveActivityController.swift; sourceTree = "<group>"; };
 		C880C4B23DD1D0AFEE21F4FB /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
+		DDF847971C31EB7DC78E6E97 /* RestActivityAttributes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RestActivityAttributes.swift; sourceTree = "<group>"; };
+		DED9AE738B7B2530B446D228 /* LiftWaveWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LiftWaveWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +154,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		627FC617F5E762E05A8AE6F9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5285F52B3047CB450A5281EB /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -154,6 +198,21 @@
 			path = "LiftWave Watch App Watch App";
 			sourceTree = "<group>";
 		};
+		0E4E9DE4A9C3ABF4DDA03D0E /* LiftWaveWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				99B200E18DFD2702FFB44FBA /* LiftWaveWidgetsBundle.swift */,
+				265A372BD27D4E1E88F5555C /* LiftWaveHomeWidget.swift */,
+				9B45295C719130CFB61573EE /* RestLiveActivity.swift */,
+				DDF847971C31EB7DC78E6E97 /* RestActivityAttributes.swift */,
+				7C198E9E5C1C5A81F94E3903 /* Info.plist */,
+				AC133466F7E7B6F78F0C5E28 /* LiftWaveWidgets.entitlements */,
+				4F25CB151B7110AE53523FC7 /* Config.xcconfig */,
+			);
+			name = LiftWaveWidgets;
+			path = LiftWaveWidgets;
+			sourceTree = "<group>";
+		};
 		331C8082294A63A400263BE5 /* RunnerTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -173,6 +232,14 @@
 				02F0536FFB06EA85270C5F70 /* Pods-RunnerTests.profile.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		5B560B566D36A8EAC61BA788 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				4A169DB655BDB4174FD04849 /* Foundation.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 		9740EEB11CF90186004384FC /* Flutter */ = {
@@ -196,6 +263,7 @@
 				331C8082294A63A400263BE5 /* RunnerTests */,
 				4BC55DBBBB10C4BD46F8DCAF /* Pods */,
 				B5DD96F5F567C953EB80B33A /* Frameworks */,
+				0E4E9DE4A9C3ABF4DDA03D0E /* LiftWaveWidgets */,
 			);
 			sourceTree = "<group>";
 		};
@@ -206,6 +274,7 @@
 				331C8081294A63A400263BE5 /* RunnerTests.xctest */,
 				0C13FCE02F674377005C9EA9 /* LiftWave Watch App.app */,
 				0C13FCE52F674377005C9EA9 /* LiftWave Watch App Watch App.app */,
+				DED9AE738B7B2530B446D228 /* LiftWaveWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -223,6 +292,7 @@
 				0C99AA011F674377005C9EA9 /* WatchSessionManager.swift */,
 				7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				B95CEE9FE0BEE8C4A457182F /* RestLiveActivityController.swift */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -232,6 +302,7 @@
 			children = (
 				30F6F5D82264116F5ED9894B /* Pods_Runner.framework */,
 				4A38F85AF44D0BBFDB363BE8 /* Pods_RunnerTests.framework */,
+				5B560B566D36A8EAC61BA788 /* iOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -302,6 +373,7 @@
 				97C146EC1CF9000F007C117D /* Resources */,
 				0C13FCF32F674377005C9EA9 /* Embed Watch Content */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
+				DD49F6F3CC856CA99D6035FD /* Embed Foundation Extensions */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				201F6EEDFB86946272977D7C /* [CP] Embed Pods Frameworks */,
 				31AE0739978CF316C0609D4A /* [CP] Copy Pods Resources */,
@@ -310,11 +382,29 @@
 			);
 			dependencies = (
 				0CA2000000000000000000D1 /* PBXTargetDependency */,
+				28D809C1241DF128D0FEF118 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
 			productType = "com.apple.product-type.application";
+		};
+		D2616FCDC11498902EDFA168 /* LiftWaveWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F677E602BB2C8DBE5B3109F /* Build configuration list for PBXNativeTarget "LiftWaveWidgets" */;
+			buildPhases = (
+				AB954B1B2B922A79981CB142 /* Sources */,
+				627FC617F5E762E05A8AE6F9 /* Frameworks */,
+				3AE746CF0DAFD9AC5FB767BB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LiftWaveWidgets;
+			productName = LiftWaveWidgets;
+			productReference = DED9AE738B7B2530B446D228 /* LiftWaveWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -341,6 +431,10 @@
 						CreatedOnToolsVersion = 7.3.1;
 						LastSwiftMigration = 1100;
 					};
+					D2616FCDC11498902EDFA168 = {
+						CreatedOnToolsVersion = 16.0;
+						ProvisioningStyle = Automatic;
+					};
 				};
 			};
 			buildConfigurationList = 97C146E91CF9000F007C117D /* Build configuration list for PBXProject "Runner" */;
@@ -366,6 +460,7 @@
 				331C8080294A63A400263BE5 /* RunnerTests */,
 				0C13FCDF2F674377005C9EA9 /* LiftWave Watch App */,
 				0C13FCE42F674377005C9EA9 /* LiftWave Watch App Watch App */,
+				D2616FCDC11498902EDFA168 /* LiftWaveWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -388,6 +483,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		331C807F294A63A400263BE5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3AE746CF0DAFD9AC5FB767BB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -548,6 +650,19 @@
 				0C99AA001F674377005C9EA9 /* WatchSessionManager.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */,
+				411BC79642A944DF86971D63 /* RestLiveActivityController.swift in Sources */,
+				894CDEB37A2F79AAF637D370 /* RestActivityAttributes.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB954B1B2B922A79981CB142 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6BD95D6AEFE0EEF257984009 /* LiftWaveWidgetsBundle.swift in Sources */,
+				2CFE0395D1617788A5BC17DA /* LiftWaveHomeWidget.swift in Sources */,
+				6D33C3661BE8A021AF01E990 /* RestLiveActivity.swift in Sources */,
+				F6E04E8AD4B35917BA256AFB /* RestActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -564,6 +679,12 @@
 			platformFilter = watchos;
 			target = 0C13FCE42F674377005C9EA9 /* LiftWave Watch App Watch App */;
 			targetProxy = 0CA2000000000000000000C1 /* PBXContainerItemProxy */;
+		};
+		28D809C1241DF128D0FEF118 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = LiftWaveWidgets;
+			target = D2616FCDC11498902EDFA168 /* LiftWaveWidgets */;
+			targetProxy = 3DE989431939EB16CFA2F4C1 /* PBXContainerItemProxy */;
 		};
 		331C8086294A63A400263BE5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -707,8 +828,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -754,8 +875,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -799,8 +920,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -933,6 +1054,34 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
+			};
+			name = Profile;
+		};
+		8D931295659480FD33005A9E /* Profile */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F25CB151B7110AE53523FC7 /* Config.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = LiftWaveWidgets/LiftWaveWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = MAFKA6L5JR;
+				ENABLE_BITCODE = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LiftWaveWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.liftwave.liftwave.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
 			};
 			name = Profile;
 		};
@@ -1094,6 +1243,61 @@
 			};
 			name = Release;
 		};
+		D4C94A7A77FC2880927D3826 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F25CB151B7110AE53523FC7 /* Config.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = LiftWaveWidgets/LiftWaveWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = MAFKA6L5JR;
+				ENABLE_BITCODE = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LiftWaveWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.liftwave.liftwave.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		E00F9988D6EFFC5663017BCF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F25CB151B7110AE53523FC7 /* Config.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = LiftWaveWidgets/LiftWaveWidgets.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = MAFKA6L5JR;
+				ENABLE_BITCODE = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LiftWaveWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.liftwave.liftwave.widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1123,6 +1327,16 @@
 				331C8088294A63A400263BE5 /* Debug */,
 				331C8089294A63A400263BE5 /* Release */,
 				331C808A294A63A400263BE5 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4F677E602BB2C8DBE5B3109F /* Build configuration list for PBXNativeTarget "LiftWaveWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D4C94A7A77FC2880927D3826 /* Release */,
+				E00F9988D6EFFC5663017BCF /* Debug */,
+				8D931295659480FD33005A9E /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

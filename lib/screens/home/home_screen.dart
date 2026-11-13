@@ -14,6 +14,7 @@ import '../../data/mock_data.dart';
 import '../../data/workout_store.dart';
 import '../../data/training_preferences_store.dart';
 import '../../models/models.dart';
+import '../../services/home_widget_sync.dart';
 import '../../services/today_suggestion.dart';
 import '../../services/weekly_plan_service.dart';
 import '../../services/workout_launcher.dart';
@@ -51,7 +52,20 @@ class _HomeScreenState extends State<HomeScreen> {
     WorkoutLauncher.instance.sessionActive.addListener(_onStoreChanged);
     CustomTemplateStore.instance.addListener(_syncReminders);
     WorkoutReminderService.instance.addListener(_syncReminders);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _syncReminders());
+    WorkoutStore.instance.addListener(_syncWidget);
+    CustomTemplateStore.instance.addListener(_syncWidget);
+    TrainingPreferencesStore.instance.addListener(_syncWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _syncReminders();
+      _syncWidget();
+    });
+  }
+
+  /// Keeps the home-screen widget showing today's routine and this week's
+  /// sessions.
+  void _syncWidget() {
+    if (!mounted) return;
+    unawaited(syncHomeWidget(S.of(context)));
   }
 
   /// Keeps the scheduled workout reminders naming the current routines.
@@ -69,6 +83,9 @@ class _HomeScreenState extends State<HomeScreen> {
     WorkoutLauncher.instance.sessionActive.removeListener(_onStoreChanged);
     CustomTemplateStore.instance.removeListener(_syncReminders);
     WorkoutReminderService.instance.removeListener(_syncReminders);
+    WorkoutStore.instance.removeListener(_syncWidget);
+    CustomTemplateStore.instance.removeListener(_syncWidget);
+    TrainingPreferencesStore.instance.removeListener(_syncWidget);
     super.dispose();
   }
 

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home-screen widget: shown in the widget picker. -->
+    <string name="widget_description">A rotina de hoje e os treinos da semana</string>
+    <!-- Home-screen widget: shown until the app has data for it. -->
+    <string name="widget_open_app">Abra o LiftWave para começar</string>
+</resources>

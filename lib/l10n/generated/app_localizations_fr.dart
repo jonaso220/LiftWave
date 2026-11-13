@@ -682,6 +682,22 @@ class SFr extends S {
       'Alternez les séries ; le repos commence à la fin du tour.';
 
   @override
+  String get widget_today => 'Aujourd\'hui';
+
+  @override
+  String widget_weekOfTarget(String done, String target) {
+    return '$done/$target cette semaine';
+  }
+
+  @override
+  String get widget_weekOne => '1 séance cette semaine';
+
+  @override
+  String widget_weekOther(String count) {
+    return '$count séances cette semaine';
+  }
+
+  @override
   String get reminders_title => 'Rappels d\'entraînement';
 
   @override

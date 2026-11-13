@@ -678,6 +678,22 @@ class SDe extends S {
       'Wechsle die Sätze ab; die Pause beginnt nach der Runde.';
 
   @override
+  String get widget_today => 'Heute';
+
+  @override
+  String widget_weekOfTarget(String done, String target) {
+    return '$done/$target diese Woche';
+  }
+
+  @override
+  String get widget_weekOne => '1 Training diese Woche';
+
+  @override
+  String widget_weekOther(String count) {
+    return '$count Trainings diese Woche';
+  }
+
+  @override
   String get reminders_title => 'Trainingserinnerungen';
 
   @override

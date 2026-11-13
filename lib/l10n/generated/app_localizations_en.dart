@@ -673,6 +673,22 @@ class SEn extends S {
       'Alternate the sets; rest starts when the round is done.';
 
   @override
+  String get widget_today => 'Today';
+
+  @override
+  String widget_weekOfTarget(String done, String target) {
+    return '$done/$target this week';
+  }
+
+  @override
+  String get widget_weekOne => '1 session this week';
+
+  @override
+  String widget_weekOther(String count) {
+    return '$count sessions this week';
+  }
+
+  @override
   String get reminders_title => 'Workout reminders';
 
   @override

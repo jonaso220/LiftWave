@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Home-screen widget: shown in the widget picker. -->
+    <string name="widget_description">오늘의 루틴과 이번 주 운동</string>
+    <!-- Home-screen widget: shown until the app has data for it. -->
+    <string name="widget_open_app">LiftWave를 열어 시작하세요</string>
+</resources>

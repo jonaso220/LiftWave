@@ -662,6 +662,22 @@ class SKo extends S {
   String get superset_hint => '세트를 번갈아 수행하세요. 한 라운드가 끝나면 휴식이 시작됩니다.';
 
   @override
+  String get widget_today => '오늘';
+
+  @override
+  String widget_weekOfTarget(String done, String target) {
+    return '이번 주 $done/$target';
+  }
+
+  @override
+  String get widget_weekOne => '이번 주 1회';
+
+  @override
+  String widget_weekOther(String count) {
+    return '이번 주 $count회';
+  }
+
+  @override
   String get reminders_title => '운동 알림';
 
   @override

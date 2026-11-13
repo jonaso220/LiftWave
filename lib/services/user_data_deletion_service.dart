@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/progress_models.dart';
 import 'workout_reminder_service.dart';
+import 'home_widget_service.dart';
 
 /// Deletes all cloud and device-local data owned by a LiftWave user.
 ///
@@ -110,5 +111,6 @@ class UserDataDeletionService {
     }
     // The reminders named this account's routines.
     await WorkoutReminderService.instance.reset();
+    await HomeWidgetService.instance.clear();
   }
 }
