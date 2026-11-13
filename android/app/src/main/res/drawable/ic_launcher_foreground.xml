@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Foreground of the adaptive launcher icon: the LiftWave artwork, kept
+     inside the area every launcher shape shows (circle, squircle, rounded
+     square), so neither the dumbbell nor the name is cut off. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/ic_launcher_art"
+    android:inset="22%" />
