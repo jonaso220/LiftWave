@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Resources only referenced by name from Dart, which the release
+     resource shrinker cannot see and would remove: the notification icon
+     flutter_local_notifications looks up as "ic_stat_rest". Without it the
+     plugin fails to start and no rest alert or reminder is ever shown. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_stat_rest" />
