@@ -3,7 +3,11 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../models/progress_models.dart';
+import 'workout_reminder_service.dart';
 
 /// Deletes all cloud and device-local data owned by a LiftWave user.
 ///
@@ -50,12 +54,26 @@ class UserDataDeletionService {
     final prefs = await SharedPreferences.getInstance();
     final photoPaths = <String>{};
     final rawMeasurements = prefs.getStringList('body_measurements_$uid');
-    if (rawMeasurements != null) {
+    if (rawMeasurements != null && rawMeasurements.isNotEmpty) {
+      // The cache holds file names (or absolute paths from older builds,
+      // stale once iOS moves the app container); the files themselves are in
+      // the documents directory.
+      String? documentsDir;
+      try {
+        documentsDir = (await getApplicationDocumentsDirectory()).path;
+      } on Object catch (error) {
+        debugPrint('Documents directory unavailable for cleanup: $error');
+      }
       for (final raw in rawMeasurements) {
         try {
           final data = Map<String, dynamic>.from(jsonDecode(raw) as Map);
-          final path = data['photoPath'] as String?;
-          if (path != null && path.isNotEmpty) photoPaths.add(path);
+          final stored = data['photoPath'] as String?;
+          if (stored == null || stored.isEmpty) continue;
+          if (File(stored).isAbsolute) photoPaths.add(stored);
+          if (documentsDir != null) {
+            final current = rebasePhotoPath(stored, documentsDir);
+            if (current != null) photoPaths.add(current);
+          }
         } on Object {
           // A malformed cache entry must not block account deletion.
         }
@@ -90,5 +108,7 @@ class UserDataDeletionService {
     ]) {
       await prefs.remove(key);
     }
+    // The reminders named this account's routines.
+    await WorkoutReminderService.instance.reset();
   }
 }

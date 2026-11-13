@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/muscle_colors.dart';
+import '../../utils/calendar_days.dart';
 import '../../utils/exercise_localization.dart';
 import '../../data/mock_data.dart';
 import '../../data/training_preferences_store.dart';
@@ -13,6 +15,7 @@ import '../../utils/weight_units.dart';
 import '../home/weekly_plan_card.dart';
 import '../profile/profile_screen.dart';
 import 'workout_detail_screen.dart';
+import '../../utils/date_format.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -22,6 +25,54 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
+  final TextEditingController _searchCtrl = TextEditingController();
+  String _query = '';
+
+  /// Month shown in the calendar, and the day picked in it (which narrows
+  /// the list below to that day's workouts).
+  DateTime _calendarMonth = startOfMonth(DateTime.now());
+  DateTime? _selectedDay;
+
+  void _showMonth(DateTime month) => setState(() {
+    _calendarMonth = startOfMonth(month);
+    _selectedDay = null;
+  });
+
+  void _toggleDay(DateTime day) => setState(() {
+    final current = _selectedDay;
+    _selectedDay = current != null && isSameCalendarDay(current, day)
+        ? null
+        : day;
+  });
+
+  /// Workouts whose name, or any of their exercises, contain the search
+  /// text. Matches what the user sees (translated names) and the stored
+  /// names, ignoring case and accents.
+  List<Workout> _matching(List<Workout> workouts) {
+    final day = _selectedDay;
+    if (day != null) {
+      workouts = workouts
+          .where((workout) => isSameCalendarDay(workout.date, day))
+          .toList();
+    }
+    final query = _foldForSearch(_query.trim());
+    if (query.isEmpty) return workouts;
+    final l10n = S.of(context);
+    bool hit(String text) => _foldForSearch(text).contains(query);
+    return workouts
+        .where(
+          (workout) =>
+              hit(workout.name) ||
+              hit(ExerciseLocalization.workoutName(l10n, workout.name)) ||
+              workout.exercises.any(
+                (exercise) =>
+                    hit(exercise.name) ||
+                    hit(ExerciseLocalization.name(l10n, exercise.name)),
+              ),
+        )
+        .toList();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -33,6 +84,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void dispose() {
     WorkoutStore.instance.removeListener(_onStoreChanged);
     TrainingPreferencesStore.instance.removeListener(_onStoreChanged);
+    _searchCtrl.dispose();
     super.dispose();
   }
 
@@ -43,9 +95,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   // ── Week stats ─────────────────────────────────────────────────────────────
 
   List<Workout> get _weekWorkouts {
-    final now = DateTime.now();
-    final weekStart = now.subtract(Duration(days: now.weekday - 1));
-    final start = DateTime(weekStart.year, weekStart.month, weekStart.day);
+    final start = startOfWeek(DateTime.now());
     return WorkoutStore.instance.workouts
         .where((w) => !w.date.isBefore(start))
         .toList();
@@ -61,9 +111,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   // Returns the weekday index (0=Mon … 6=Sun) for each workout this week.
   Set<int> get _trainedDaysThisWeek {
-    final now = DateTime.now();
-    final weekStart = now.subtract(Duration(days: now.weekday - 1));
-    final start = DateTime(weekStart.year, weekStart.month, weekStart.day);
+    final start = startOfWeek(DateTime.now());
     return WorkoutStore.instance.workouts
         .where((w) => !w.date.isBefore(start))
         .map((w) => w.date.weekday - 1) // 0=Mon
@@ -79,6 +127,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           (day) => allWorkouts.any((workout) => _dayForWorkout(workout) == day),
         )
         .toList();
+    final listedWorkouts = _matching(allWorkouts);
     final preferences = TrainingPreferencesStore.instance.preferences;
     final weeklyPlan = preferences == null
         ? null
@@ -167,19 +216,120 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
             ),
 
-          if (allWorkouts.isNotEmpty)
+          // ── Calendar ───────────────────────────────────────────────────────
+          if (allWorkouts.isNotEmpty) ...[
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
                 child: Text(
-                  S.of(context).history_allWorkouts,
+                  S.of(context).history_calendar,
                   style: Theme.of(context).textTheme.headlineSmall,
+                ),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _HistoryCalendar(
+                  month: _calendarMonth,
+                  workouts: allWorkouts,
+                  selectedDay: _selectedDay,
+                  onShowMonth: _showMonth,
+                  onDayTap: _toggleDay,
+                ),
+              ),
+            ),
+          ],
+
+          if (allWorkouts.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        S.of(context).history_allWorkouts,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                    ),
+                    // The day picked in the calendar; tapping it shows
+                    // every workout again.
+                    if (_selectedDay != null)
+                      InputChip(
+                        label: Text(formatShortDate(context, _selectedDay!)),
+                        onDeleted: () => setState(() => _selectedDay = null),
+                        deleteIconColor: AppColors.textSecondary,
+                        backgroundColor: AppColors.primary.withAlpha(40),
+                        side: BorderSide(
+                          color: AppColors.primary.withAlpha(90),
+                        ),
+                        labelStyle: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+
+          if (allWorkouts.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                child: TextField(
+                  controller: _searchCtrl,
+                  onChanged: (value) => setState(() => _query = value),
+                  onTapOutside: (_) =>
+                      FocusManager.instance.primaryFocus?.unfocus(),
+                  textInputAction: TextInputAction.search,
+                  style: TextStyle(color: AppColors.textPrimary, fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: S.of(context).history_searchHint,
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: AppColors.textMuted,
+                      size: 20,
+                    ),
+                    suffixIcon: _query.isEmpty
+                        ? null
+                        : IconButton(
+                            tooltip: MaterialLocalizations.of(
+                              context,
+                            ).deleteButtonTooltip,
+                            icon: Icon(
+                              Icons.close_rounded,
+                              color: AppColors.textMuted,
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              _searchCtrl.clear();
+                              setState(() => _query = '');
+                            },
+                          ),
+                  ),
+                ),
+              ),
+            ),
+
+          // ── Loading ────────────────────────────────────────────────────────
+          // On a new device the history is still coming down from the cloud;
+          // "no workouts yet" would read as lost data.
+          if (allWorkouts.isEmpty && !WorkoutStore.instance.isLoaded)
+            const SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primary,
+                  strokeWidth: 2,
                 ),
               ),
             ),
 
           // ── Empty state ────────────────────────────────────────────────────
-          if (allWorkouts.isEmpty)
+          if (allWorkouts.isEmpty && WorkoutStore.instance.isLoaded)
             SliverFillRemaining(
               hasScrollBody: false,
               child: Center(
@@ -219,17 +369,29 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
 
           // ── Workout list ───────────────────────────────────────────────────
-          if (allWorkouts.isNotEmpty) ...[
+          if (allWorkouts.isNotEmpty && listedWorkouts.isEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Center(
+                  child: Text(
+                    S.of(context).history_noResults,
+                    style: TextStyle(color: AppColors.textMuted, fontSize: 14),
+                  ),
+                ),
+              ),
+            ),
+          if (listedWorkouts.isNotEmpty) ...[
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
-                  if (index >= allWorkouts.length) return null;
-                  final workout = allWorkouts[index];
+                  if (index >= listedWorkouts.length) return null;
+                  final workout = listedWorkouts[index];
                   // Built lazily while scrolling: a per-index delay made
                   // older workouts show up seconds late.
                   return _WorkoutHistoryCard(workout: workout);
-                }, childCount: allWorkouts.length),
+                }, childCount: listedWorkouts.length),
               ),
             ),
           ],
@@ -244,6 +406,218 @@ class _HistoryScreenState extends State<HistoryScreen> {
     storedDay: workout.routineDay,
     name: workout.name,
   );
+}
+
+// ── Calendar ──────────────────────────────────────────────────────────────────
+
+/// A month at a glance: the days trained are marked, and tapping one shows
+/// only that day's workouts in the list.
+class _HistoryCalendar extends StatelessWidget {
+  final DateTime month;
+  final List<Workout> workouts;
+  final DateTime? selectedDay;
+  final ValueChanged<DateTime> onShowMonth;
+  final ValueChanged<DateTime> onDayTap;
+
+  const _HistoryCalendar({
+    required this.month,
+    required this.workouts,
+    required this.selectedDay,
+    required this.onShowMonth,
+    required this.onDayTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    final today = startOfDay(DateTime.now());
+    final trained = {
+      for (final workout in workouts)
+        if (workout.hasCompletedWork) startOfDay(workout.date),
+    };
+    final oldest = workouts.isEmpty
+        ? today
+        : workouts
+              .map((workout) => workout.date)
+              .reduce((a, b) => a.isBefore(b) ? a : b);
+    final canGoBack = month.isAfter(startOfMonth(oldest));
+    final canGoForward = month.isBefore(startOfMonth(today));
+
+    final title = DateFormat.yMMMM(
+      Localizations.localeOf(context).toString(),
+    ).format(month);
+    final weekdays = [
+      l10n.history_dayMon,
+      l10n.history_dayTue,
+      l10n.history_dayWed,
+      l10n.history_dayThu,
+      l10n.history_dayFri,
+      l10n.history_daySat,
+      l10n.history_daySun,
+    ];
+    final cells = monthGrid(month);
+    final material = MaterialLocalizations.of(context);
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 12),
+      decoration: BoxDecoration(
+        color: AppColors.bgCard,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.bgCardLight),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              IconButton(
+                tooltip: material.previousMonthTooltip,
+                onPressed: canGoBack
+                    ? () => onShowMonth(addMonths(month, -1))
+                    : null,
+                icon: const Icon(Icons.chevron_left_rounded),
+                color: AppColors.textSecondary,
+                disabledColor: AppColors.bgCardLight,
+              ),
+              Expanded(
+                child: Text(
+                  title.isEmpty
+                      ? title
+                      : '${title[0].toUpperCase()}${title.substring(1)}',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              IconButton(
+                tooltip: material.nextMonthTooltip,
+                onPressed: canGoForward
+                    ? () => onShowMonth(addMonths(month, 1))
+                    : null,
+                icon: const Icon(Icons.chevron_right_rounded),
+                color: AppColors.textSecondary,
+                disabledColor: AppColors.bgCardLight,
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              for (final label in weekdays)
+                Expanded(
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          for (var row = 0; row < cells.length; row += 7)
+            Row(
+              children: [
+                for (final day in cells.sublist(row, row + 7))
+                  Expanded(
+                    child: day == null
+                        ? const SizedBox(height: 42)
+                        : _CalendarDay(
+                            day: day,
+                            trained: trained.contains(day),
+                            selected:
+                                selectedDay != null &&
+                                isSameCalendarDay(selectedDay!, day),
+                            isToday: day == today,
+                            isFuture: day.isAfter(today),
+                            onTap: trained.contains(day)
+                                ? () => onDayTap(day)
+                                : null,
+                          ),
+                  ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CalendarDay extends StatelessWidget {
+  final DateTime day;
+  final bool trained;
+  final bool selected;
+  final bool isToday;
+  final bool isFuture;
+  final VoidCallback? onTap;
+
+  const _CalendarDay({
+    required this.day,
+    required this.trained,
+    required this.selected,
+    required this.isToday,
+    required this.isFuture,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final Color background;
+    final Color foreground;
+    if (selected) {
+      background = AppColors.primary;
+      foreground = Colors.white;
+    } else if (trained) {
+      background = AppColors.accent.withAlpha(46);
+      foreground = AppColors.asText(AppColors.accent);
+    } else {
+      background = Colors.transparent;
+      foreground = isFuture ? AppColors.textMuted : AppColors.textSecondary;
+    }
+    return Semantics(
+      button: onTap != null,
+      selected: selected,
+      label: formatShortDate(context, day),
+      child: ExcludeSemantics(
+        child: InkResponse(
+          onTap: onTap,
+          radius: 22,
+          child: SizedBox(
+            height: 42,
+            child: Center(
+              child: Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: background,
+                  shape: BoxShape.circle,
+                  border: isToday && !selected
+                      ? Border.all(color: AppColors.primaryLight, width: 1.5)
+                      : null,
+                ),
+                child: Center(
+                  child: Text(
+                    '${day.day}',
+                    style: TextStyle(
+                      color: foreground,
+                      fontSize: 13,
+                      fontWeight: trained || selected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 // ── Week summary card ─────────────────────────────────────────────────────────
@@ -433,14 +807,11 @@ class _WorkoutHistoryCard extends StatelessWidget {
   const _WorkoutHistoryCard({required this.workout});
 
   String _formatDate(DateTime date, BuildContext context) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final d = DateTime(date.year, date.month, date.day);
-    final diff = today.difference(d).inDays;
+    final diff = calendarDaysBetween(date, DateTime.now());
     if (diff == 0) return S.of(context).common_today;
     if (diff == 1) return S.of(context).common_yesterday;
     if (diff < 7) return S.of(context).common_daysAgo(diff);
-    return '${date.day}/${date.month}/${date.year}';
+    return formatShortDate(context, date);
   }
 
   String _formatDuration(Duration d) {
@@ -796,8 +1167,24 @@ class _SmallMuscleTag extends StatelessWidget {
       ),
       child: Text(
         ExerciseLocalization.muscle(S.of(context), muscle),
-        style: TextStyle(color: c, fontSize: 10, fontWeight: FontWeight.w600),
+        style: TextStyle(
+          color: AppColors.asText(c),
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
+}
+
+/// Lower case without Latin accents, so "bulgara" finds "búlgara".
+String _foldForSearch(String text) {
+  const accented = 'áàäâãéèëêíìïîóòöôõúùüûñç';
+  const plain = 'aaaaaeeeeiiiiooooouuuunc';
+  final buffer = StringBuffer();
+  for (final char in text.toLowerCase().split('')) {
+    final index = accented.indexOf(char);
+    buffer.write(index == -1 ? char : plain[index]);
+  }
+  return buffer.toString();
 }

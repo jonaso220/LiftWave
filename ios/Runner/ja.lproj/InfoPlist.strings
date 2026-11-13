@@ -1,3 +1,5 @@
 "NSCameraUsageDescription" = "LiftWaveは進捗写真を撮影するためにカメラへのアクセスが必要です。";
 "NSPhotoLibraryUsageDescription" = "LiftWaveは進捗写真を追加するために写真へのアクセスが必要です。";
+"NSHealthUpdateUsageDescription" = "LiftWaveは、記録したワークアウトと体重をヘルスケアに保存します。";
+"NSHealthShareUsageDescription" = "LiftWaveはヘルスケアのデータを読み取りません。記録したワークアウトと体重を保存するだけです。";
 "CFBundleDisplayName" = "LiftWave";

@@ -128,7 +128,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(S.of(context).paywall_purchaseError),
+            content: Text(
+              S.of(context).paywall_purchaseError,
+              style: TextStyle(color: AppColors.readableOn(AppColors.error)),
+            ),
             backgroundColor: AppColors.error,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -173,7 +176,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
     }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          style: TextStyle(color: AppColors.readableOn(bg)),
+        ),
         backgroundColor: bg,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -680,6 +686,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
         Text(
           _selectedHasTrial
               ? l10n.paywall_legalTextTrial
+              : Platform.isAndroid
+              ? l10n.paywall_legalTextPlay
               : l10n.paywall_legalText,
           textAlign: TextAlign.center,
           style: TextStyle(

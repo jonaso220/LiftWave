@@ -6,6 +6,9 @@ enum ProgressionAction {
   addRepetition,
   consolidateLoad,
   bodyweightRepetition,
+
+  /// A timed exercise: hold a few seconds longer than last time.
+  holdLonger,
 }
 
 /// Target repetitions for double progression: add reps inside the range,
@@ -72,9 +75,11 @@ class ProgressionService {
     required List<Workout> workouts,
     TrainingGoal? goal,
     double? loadIncrementKg,
+    bool timed = false,
   }) {
     final latestExercise = _latestExercise(exerciseName, workouts);
     if (latestExercise == null) return null;
+    if (timed) return _recommendHold(latestExercise);
     return _recommendFrom(
       latestExercise,
       loadIncrementKg ?? loadIncrementFor(equipment),
@@ -107,8 +112,10 @@ class ProgressionService {
       for (final exercise in workout.exercises) {
         if (_normalize(exercise.name) != normalizedName) continue;
 
+        // A session where the exercise was only warmed up says nothing
+        // about the working load.
         final hasCompletedSet = exercise.sets.any(
-          (set) => set.completed && set.reps > 0,
+          (set) => set.completed && set.reps > 0 && set.type.countsAsWork,
         );
         if (!hasCompletedSet) continue;
 
@@ -122,13 +129,37 @@ class ProgressionService {
     return latestExercise;
   }
 
+  /// For an exercise held for time (the sets' `reps` are seconds): same
+  /// load, a few seconds more than the shortest hold of last session.
+  static ProgressionRecommendation _recommendHold(
+    WorkoutExercise latestExercise,
+  ) {
+    final completed = latestExercise.sets
+        .where((set) => set.completed && set.reps > 0 && set.type.countsAsWork)
+        .toList();
+    final weight = completed
+        .map((set) => set.weight)
+        .reduce((a, b) => a > b ? a : b);
+    final seconds = completed
+        .where((set) => (set.weight - weight).abs() < 0.001)
+        .map((set) => set.reps)
+        .reduce((a, b) => a < b ? a : b);
+    return ProgressionRecommendation(
+      previousWeight: weight,
+      previousReps: seconds,
+      suggestedWeight: weight,
+      suggestedReps: seconds + holdStepSeconds,
+      action: ProgressionAction.holdLonger,
+    );
+  }
+
   static ProgressionRecommendation _recommendFrom(
     WorkoutExercise latestExercise,
     double loadIncrementKg,
     RepRange range,
   ) {
     final completed = latestExercise.sets
-        .where((set) => set.completed && set.reps > 0)
+        .where((set) => set.completed && set.reps > 0 && set.type.countsAsWork)
         .toList();
     final weighted = completed.where((set) => set.weight > 0).toList();
     if (weighted.isEmpty) {

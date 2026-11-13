@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/exercise_localization.dart';
+import '../../utils/calendar_days.dart';
 import '../../utils/routine_days.dart';
 import '../../utils/weight_units.dart';
 import '../../data/custom_template_store.dart';
@@ -14,7 +17,10 @@ import '../../models/models.dart';
 import '../../services/today_suggestion.dart';
 import '../../services/weekly_plan_service.dart';
 import '../../services/workout_launcher.dart';
+import '../../services/workout_reminder_service.dart';
+import '../../services/workout_reminder_sync.dart';
 import '../profile/profile_screen.dart';
+import '../../utils/date_format.dart';
 
 /// Tab indexes in [MainNavigation].
 abstract final class AppTab {
@@ -43,6 +49,16 @@ class _HomeScreenState extends State<HomeScreen> {
     TrainingPreferencesStore.instance.addListener(_onStoreChanged);
     CustomTemplateStore.instance.addListener(_onStoreChanged);
     WorkoutLauncher.instance.sessionActive.addListener(_onStoreChanged);
+    CustomTemplateStore.instance.addListener(_syncReminders);
+    WorkoutReminderService.instance.addListener(_syncReminders);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncReminders());
+  }
+
+  /// Keeps the scheduled workout reminders naming the current routines.
+  /// This screen lives for the whole session, so it is where that is done.
+  void _syncReminders() {
+    if (!mounted) return;
+    unawaited(syncWorkoutReminders(S.of(context)));
   }
 
   @override
@@ -51,6 +67,8 @@ class _HomeScreenState extends State<HomeScreen> {
     TrainingPreferencesStore.instance.removeListener(_onStoreChanged);
     CustomTemplateStore.instance.removeListener(_onStoreChanged);
     WorkoutLauncher.instance.sessionActive.removeListener(_onStoreChanged);
+    CustomTemplateStore.instance.removeListener(_syncReminders);
+    WorkoutReminderService.instance.removeListener(_syncReminders);
     super.dispose();
   }
 
@@ -61,9 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // ── Computed properties ──────────────────────────────────────────────────
 
   List<Workout> _weekWorkouts(List<Workout> workouts) {
-    final now = DateTime.now();
-    final weekStart = now.subtract(Duration(days: now.weekday - 1));
-    final start = DateTime(weekStart.year, weekStart.month, weekStart.day);
+    final start = startOfWeek(DateTime.now());
     return workouts.where((w) => !w.date.isBefore(start)).toList();
   }
 
@@ -94,14 +110,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   String _formatDate(DateTime date, S l10n) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final d = DateTime(date.year, date.month, date.day);
-    final diff = today.difference(d).inDays;
+    final diff = calendarDaysBetween(date, DateTime.now());
     if (diff == 0) return l10n.common_today;
     if (diff == 1) return l10n.common_yesterday;
     if (diff < 7) return l10n.common_daysAgo(diff);
-    return '${date.day}/${date.month}/${date.year}';
+    return formatShortDate(context, date);
   }
 
   void _startSuggestion(TodaySuggestion suggestion) {

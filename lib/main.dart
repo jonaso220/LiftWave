@@ -12,10 +12,14 @@ import 'data/custom_template_store.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/onboarding/training_onboarding_gate.dart';
 import 'services/firebase_service.dart';
+import 'services/health_sync_service.dart';
+import 'services/rest_alert_service.dart';
+import 'services/rest_timer_controller.dart';
 import 'services/subscription_service.dart';
 import 'services/screen_awake_service.dart';
 import 'services/theme_controller.dart';
 import 'services/watch_service.dart';
+import 'services/workout_reminder_service.dart';
 import 'theme/app_theme.dart';
 import 'utils/ui_scale.dart';
 import 'utils/weight_units.dart';
@@ -65,6 +69,10 @@ Future<void> _initializeBackgroundServices() async {
   try {
     await Future.wait([
       ScreenAwakeService.instance.init(),
+      RestAlertService.instance.init(),
+      HealthSyncService.instance.init(),
+      WorkoutReminderService.instance.init(),
+      RestTimerController.instance.load(),
       SubscriptionService.instance.init(),
       CustomExerciseStore.instance.load(),
       CustomTemplateStore.instance.load(),

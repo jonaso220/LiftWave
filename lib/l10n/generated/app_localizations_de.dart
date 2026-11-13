@@ -471,6 +471,16 @@ class SDe extends S {
   String get editWorkout_saved => 'Training aktualisiert';
 
   @override
+  String get detail_deleteWorkout => 'Training löschen';
+
+  @override
+  String get detail_deleteWorkoutConfirm =>
+      'Es wird aus deinem Verlauf entfernt. Das kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get detail_workoutDeleted => 'Training gelöscht';
+
+  @override
   String get home_viewAll => 'Alle anzeigen';
 
   @override
@@ -503,6 +513,236 @@ class SDe extends S {
 
   @override
   String get profile_deleteAccount => 'Konto löschen';
+
+  @override
+  String get progressScreen_deleteMeasurementTitle => 'Eintrag löschen?';
+
+  @override
+  String get progressScreen_deleteMeasurementBody =>
+      'Der Eintrag und sein Foto werden gelöscht. Das kann nicht rückgängig gemacht werden.';
+
+  @override
+  String get profile_signOutConfirm =>
+      'Abmelden? Deine Daten bleiben in deinem Konto gespeichert.';
+
+  @override
+  String get profile_deleteSubscriptionNote =>
+      'Das Löschen des Kontos kündigt dein Abo nicht. Kündige es vorher im Store.';
+
+  @override
+  String get profile_manageSubscription => 'Abo verwalten';
+
+  @override
+  String get profile_help => 'Hilfe & Support';
+
+  @override
+  String get rest_alertTitle => 'Pause beendet';
+
+  @override
+  String get rest_alertBody => 'Zeit für deinen nächsten Satz.';
+
+  @override
+  String get rest_alertChannel => 'Pausentimer';
+
+  @override
+  String get profile_restAlert => 'Hinweis am Ende der Pause';
+
+  @override
+  String get profile_restAlertSubtitle =>
+      'Benachrichtigung mit Ton, wenn die App nicht im Vordergrund ist';
+
+  @override
+  String get profile_restAlertExact => 'Exakte Alarme erlauben';
+
+  @override
+  String get profile_restAlertExactSubtitle =>
+      'Ohne diese Berechtigung kann Android den Hinweis verzögern';
+
+  @override
+  String get editWorkout_date => 'Datum und Uhrzeit';
+
+  @override
+  String get editWorkout_duration => 'Dauer (Min.)';
+
+  @override
+  String get history_searchHint => 'Training oder Übung suchen';
+
+  @override
+  String get history_noResults => 'Keine Ergebnisse';
+
+  @override
+  String get history_calendar => 'Kalender';
+
+  @override
+  String get progress_oneRm => '1RM (gesch.)';
+
+  @override
+  String get progress_recordsTitle => 'Rekorde';
+
+  @override
+  String get progress_bestLift => 'Schwerster Satz';
+
+  @override
+  String get progress_bestOneRm => 'Bestes geschätztes 1RM';
+
+  @override
+  String get setType_title => 'Satztyp';
+
+  @override
+  String get setType_normal => 'Normal';
+
+  @override
+  String get setType_warmup => 'Aufwärmen';
+
+  @override
+  String get setType_drop => 'Dropsatz';
+
+  @override
+  String get setType_failure => 'Bis zum Muskelversagen';
+
+  @override
+  String get setType_warmupHint => 'Zählt nicht für Volumen oder Rekorde';
+
+  @override
+  String get setType_warmupShort => 'A';
+
+  @override
+  String get setType_dropShort => 'D';
+
+  @override
+  String get setType_failureShort => 'V';
+
+  @override
+  String get plates_title => 'Scheibenrechner';
+
+  @override
+  String get plates_target => 'Gesamtgewicht';
+
+  @override
+  String get plates_bar => 'Stange';
+
+  @override
+  String get plates_perSide => 'Pro Seite';
+
+  @override
+  String get plates_onlyBar => 'Nur die Stange';
+
+  @override
+  String get plates_belowBar => 'Das Gewicht ist geringer als die Stange';
+
+  @override
+  String plates_missing(String amount) {
+    return '$amount lassen sich mit diesen Scheiben nicht auflegen';
+  }
+
+  @override
+  String get train_secondsHeader => 'SEK';
+
+  @override
+  String get train_secondsShort => 's';
+
+  @override
+  String get train_startHold => 'Start';
+
+  @override
+  String get train_measureByTime => 'Nach Zeit erfassen';
+
+  @override
+  String get train_measureByReps => 'Nach Wiederholungen erfassen';
+
+  @override
+  String get hold_running => 'LÄUFT';
+
+  @override
+  String get hold_alertTitle => 'Zeit abgelaufen';
+
+  @override
+  String get hold_alertBody => 'Satz geschafft.';
+
+  @override
+  String train_reasonHold(int seconds) {
+    return 'Du hast $seconds s gehalten. Versuche 5 s mehr.';
+  }
+
+  @override
+  String get superset_label => 'Supersatz';
+
+  @override
+  String get superset_linkNext => 'Supersatz mit nächster Übung';
+
+  @override
+  String get superset_unlink => 'Aus Supersatz entfernen';
+
+  @override
+  String get superset_hint =>
+      'Wechsle die Sätze ab; die Pause beginnt nach der Runde.';
+
+  @override
+  String get reminders_title => 'Trainingserinnerungen';
+
+  @override
+  String get reminders_off => 'Aus';
+
+  @override
+  String get reminders_enable => 'Ans Training erinnern';
+
+  @override
+  String get reminders_enableSubtitle =>
+      'Eine Benachrichtigung an den gewählten Tagen';
+
+  @override
+  String get reminders_days => 'Tage';
+
+  @override
+  String get reminders_time => 'Uhrzeit';
+
+  @override
+  String get reminders_notificationTitle => 'Zeit fürs Training';
+
+  @override
+  String get reminders_notificationBody =>
+      'Dein heutiges Training wartet auf dich.';
+
+  @override
+  String reminders_notificationRoutine(String routine) {
+    return 'Heute dran: $routine';
+  }
+
+  @override
+  String get reminders_permissionDenied =>
+      'Aktiviere die Benachrichtigungen für LiftWave in den Systemeinstellungen, um Erinnerungen zu erhalten.';
+
+  @override
+  String health_sync(String store) {
+    return 'Mit $store synchronisieren';
+  }
+
+  @override
+  String health_syncSubtitle(String store) {
+    return 'Speichert deine erfassten Trainings und dein Körpergewicht in $store';
+  }
+
+  @override
+  String health_enabled(String store) {
+    return 'Fertig. Deine nächsten Trainings werden in $store gespeichert.';
+  }
+
+  @override
+  String health_denied(String store) {
+    return 'Aktivierung nicht möglich. Prüfe die Berechtigungen von LiftWave in $store.';
+  }
+
+  @override
+  String get health_needsInstall =>
+      'Installiere oder aktualisiere Health Connect, um die Synchronisierung zu aktivieren.';
+
+  @override
+  String get health_install => 'Installieren';
+
+  @override
+  String health_unsupported(String store) {
+    return '$store ist auf diesem Gerät nicht verfügbar.';
+  }
 
   @override
   String get profile_purchasesRestored => 'Käufe erfolgreich wiederhergestellt';
@@ -1332,6 +1572,10 @@ class SDe extends S {
       'Das Abo verlängert sich automatisch. Du kannst jederzeit\nim App Store kündigen.';
 
   @override
+  String get paywall_legalTextPlay =>
+      'Das Abo verlängert sich automatisch. Du kannst jederzeit\nbei Google Play kündigen.';
+
+  @override
   String get paywall_legalTextTrial =>
       'Die kostenlose Testphase wird in ein kostenpflichtiges Abonnement umgewandelt. Jederzeit vor Ablauf kündbar. Das Abonnement verlängert sich automatisch.';
 
@@ -1758,6 +2002,801 @@ class SDe extends S {
 
   @override
   String get template_legs_name => 'Beine';
+
+  @override
+  String get ex_pecho_6_name => 'Schrägbankdrücken mit Langhantel';
+
+  @override
+  String get ex_pecho_6_desc =>
+      'Stelle die Bank auf 30–45° ein. Greife die Langhantel etwas weiter als schulterbreit. Senke die Stange kontrolliert bis zum oberen Teil der Brust und drücke sie bis zur vollen Streckung nach oben. Halte den unteren Rücken an der Bank und die Schulterblätter zusammengezogen.';
+
+  @override
+  String get ex_pecho_6_b1 =>
+      'Betont den oberen (klavikulären) Anteil der Brust';
+
+  @override
+  String get ex_pecho_6_b2 => 'Ermöglicht höhere Gewichte als mit Kurzhanteln';
+
+  @override
+  String get ex_pecho_6_b3 => 'Verbessert die Druckkraft aus erhöhten Winkeln';
+
+  @override
+  String get ex_pecho_7_name => 'Negativbankdrücken mit Kurzhanteln';
+
+  @override
+  String get ex_pecho_7_desc =>
+      'Stelle die Bank auf eine Negativneigung von 15–30° ein. Mit einer Kurzhantel in jeder Hand auf Brusthöhe drücke nach oben und führe die Hanteln oben zusammen. Senke kontrolliert ab und spüre die Dehnung im unteren Anteil der Brust.';
+
+  @override
+  String get ex_pecho_7_b1 => 'Trainiert den unteren Anteil des Brustmuskels';
+
+  @override
+  String get ex_pecho_7_b2 => 'Reduziert die Beteiligung der Schultern';
+
+  @override
+  String get ex_pecho_7_b3 =>
+      'Größerer Bewegungsumfang als beim Negativbankdrücken mit Langhantel';
+
+  @override
+  String get ex_pecho_8_name => 'Liegestütze';
+
+  @override
+  String get ex_pecho_8_desc =>
+      'Stütze die Hände schulterbreit auf dem Boden ab, die Füße zusammen. Halte den Körper vom Kopf bis zu den Fersen gerade. Senke dich durch Beugen der Ellbogen, bis die Brust fast den Boden berührt, und drücke dich wieder hoch. Halte den Core während der gesamten Bewegung angespannt.';
+
+  @override
+  String get ex_pecho_8_b1 => 'Kein Equipment nötig';
+
+  @override
+  String get ex_pecho_8_b2 =>
+      'Viele Varianten zur Steigerung (Diamant, mit erhöhten Füßen, mit Klatschen)';
+
+  @override
+  String get ex_pecho_8_b3 => 'Verbundübung, die auch den Core stärkt';
+
+  @override
+  String get ex_pecho_9_name => 'Überzüge mit Kurzhantel';
+
+  @override
+  String get ex_pecho_9_desc =>
+      'Lege dich auf eine Flachbank und halte eine Kurzhantel mit beiden Händen über der Brust, Arme gestreckt. Senke die Hantel in einem Bogen hinter den Kopf, bis du die Dehnung in Brust und Latissimus spürst. Kehre in die Ausgangsposition zurück und spanne dabei die Brust an.';
+
+  @override
+  String get ex_pecho_9_b1 => 'Trainiert Brust und Latissimus gleichzeitig';
+
+  @override
+  String get ex_pecho_9_b2 =>
+      'Verbessert die Mobilität von Schultern und Brustkorb';
+
+  @override
+  String get ex_pecho_9_b3 =>
+      'Hervorragende Ergänzung zwischen Drück- und Rudersätzen';
+
+  @override
+  String get ex_esp_6_name => 'T-Bar-Rudern';
+
+  @override
+  String get ex_esp_6_desc =>
+      'Stelle dich schulterbreit über die T-Bar-Stange. Beuge dich mit neutralem Rücken nach vorn und ziehe die Griffe zur Brust, die Ellbogen nach hinten. Ziehe die Schulterblätter in der Endposition zusammen und senke kontrolliert ab.';
+
+  @override
+  String get ex_esp_6_b1 => 'Entwickelt die Dicke des mittleren Rückens';
+
+  @override
+  String get ex_esp_6_b2 =>
+      'Ermöglicht sehr hohe Gewichte bei geringerer Belastung des unteren Rückens als freies Rudern';
+
+  @override
+  String get ex_esp_6_b3 => 'Trainiert Haltung und Schulterblattstabilität';
+
+  @override
+  String get ex_esp_7_name => 'Rudern sitzend am Kabelzug';
+
+  @override
+  String get ex_esp_7_desc =>
+      'Setze dich vor den unteren Kabelzug, die Füße abgestützt. Greife den Griff mit gestreckten Armen und neutralem Rücken. Ziehe die Hände zum Bauch, ziehe die Schulterblätter zusammen und halte den Oberkörper aufrecht. Kehre kontrolliert zurück, ohne den Rücken zu runden.';
+
+  @override
+  String get ex_esp_7_b1 => 'Konstante Spannung über die gesamte Bewegung';
+
+  @override
+  String get ex_esp_7_b2 =>
+      'Einfache Gewichtssteigerung und zugängliche Technik';
+
+  @override
+  String get ex_esp_7_b3 => 'Hervorragend für die Dicke des mittleren Rückens';
+
+  @override
+  String get ex_esp_8_name => 'Shrugs mit Kurzhanteln';
+
+  @override
+  String get ex_esp_8_desc =>
+      'Stehe aufrecht mit einer Kurzhantel in jeder Hand an den Seiten, Arme locker. Ziehe die Schultern zu den Ohren hoch, ohne die Ellbogen zu beugen. Halte die Kontraktion oben 1 Sekunde und senke langsam ab. Kreise nicht mit den Schultern, die Bewegung ist rein vertikal.';
+
+  @override
+  String get ex_esp_8_b1 => 'Direkte Isolation des oberen Trapezmuskels';
+
+  @override
+  String get ex_esp_8_b2 => 'Verbessert die Haltung und die Optik des Nackens';
+
+  @override
+  String get ex_esp_8_b3 =>
+      'Stärkt die Schulterblattstabilität für andere Hebeübungen';
+
+  @override
+  String get ex_esp_9_name => 'Good Morning';
+
+  @override
+  String get ex_esp_9_desc =>
+      'Lege die Langhantel wie bei der Kniebeuge auf dem Trapezmuskel ab. Mit hüftbreitem Stand und leicht gebeugten Knien beuge dich aus der Hüfte nach vorn und halte den Rücken neutral. Senke dich, bis der Oberkörper fast parallel zum Boden ist, und richte dich mit angespanntem Gesäß wieder auf.';
+
+  @override
+  String get ex_esp_9_b1 => 'Stärkt die hintere Kette und den unteren Rücken';
+
+  @override
+  String get ex_esp_9_b2 =>
+      'Verbessert die Hüftbeugebewegung (Hip Hinge) für Kreuzheben und Kniebeuge';
+
+  @override
+  String get ex_esp_9_b3 => 'Wichtige Assistenzübung im Powerlifting';
+
+  @override
+  String get ex_pier_6_name => 'Frontkniebeuge';
+
+  @override
+  String get ex_pier_6_desc =>
+      'Lege die Langhantel auf den vorderen Deltamuskeln ab, Ellbogen hoch, im Kreuzgriff oder Clean-Griff. Füße schulterbreit. Senke dich mit aufrechtem Oberkörper und nach vorn zeigenden Ellbogen, bis die Oberschenkel tiefer als parallel zum Boden sind. Drücke dich über die Fersen in die Ausgangsposition zurück.';
+
+  @override
+  String get ex_pier_6_b1 =>
+      'Betont den Quadrizeps stärker als die Kniebeuge mit der Hantel im Nacken';
+
+  @override
+  String get ex_pier_6_b2 =>
+      'Erfordert einen sehr starken Core und eine aufrechte Haltung';
+
+  @override
+  String get ex_pier_6_b3 =>
+      'Technische Grundlage für Clean und Thruster im CrossFit';
+
+  @override
+  String get ex_pier_7_name => 'Bulgarische Kniebeuge';
+
+  @override
+  String get ex_pier_7_desc =>
+      'Lege den Spann des hinteren Fußes auf eine Bank und halte eine Kurzhantel in jeder Hand. Mit dem vorderen Fuß weit vorn senke dich durch Beugen des vorderen Knies, bis der Oberschenkel parallel zum Boden ist. Drücke dich über die vordere Ferse wieder nach oben.';
+
+  @override
+  String get ex_pier_7_b1 =>
+      'Einbeiniges Training, das Dysbalancen zwischen den Beinen korrigiert';
+
+  @override
+  String get ex_pier_7_b2 => 'Intensive Aktivierung von Gesäß und Quadrizeps';
+
+  @override
+  String get ex_pier_7_b3 => 'Verbessert Gleichgewicht und Hüftstabilität';
+
+  @override
+  String get ex_pier_8_name => 'Rumänisches Kreuzheben';
+
+  @override
+  String get ex_pier_8_desc =>
+      'Stehe aufrecht mit der Langhantel auf Hüfthöhe, schulterbreit im Obergriff. Mit leicht gebeugten, fixierten Knien lasse die Stange an den Beinen entlang nach unten gleiten, indem du den Oberkörper aus der Hüfte nach vorn neigst, bis du Spannung in den Beinbeugern spürst. Richte dich mit angespanntem Gesäß wieder auf.';
+
+  @override
+  String get ex_pier_8_b1 => 'Intensive Isolation von Beinbeugern und Gesäß';
+
+  @override
+  String get ex_pier_8_b2 =>
+      'Stärkt die hintere Kette und verbessert die Hüftbeugebewegung (Hip Hinge)';
+
+  @override
+  String get ex_pier_8_b3 =>
+      'Reduziert das Verletzungsrisiko der Beinbeuger beim Laufen oder Springen';
+
+  @override
+  String get ex_pier_9_name => 'Beinstrecker-Maschine';
+
+  @override
+  String get ex_pier_9_desc =>
+      'Setze dich in die Maschine mit angelehntem Rücken und der Rolle auf dem Spann. Strecke die Knie und hebe das Gewicht, bis die Beine fast gerade sind, ohne die Knie durchzudrücken. Spanne den Quadrizeps oben an und senke kontrolliert ab.';
+
+  @override
+  String get ex_pier_9_b1 => 'Direkte Isolation des Quadrizeps';
+
+  @override
+  String get ex_pier_9_b2 =>
+      'Nützlich für Rehabilitation und gezieltes Hypertrophietraining';
+
+  @override
+  String get ex_pier_9_b3 => 'Präzise Gewichtseinstellung bei geringem Risiko';
+
+  @override
+  String get ex_pier_10_name => 'Wadenheben';
+
+  @override
+  String get ex_pier_10_desc =>
+      'Positioniere die Schultern unter den Polstern der Wadenmaschine (oder nutze im Stehen eine Kurzhantel). Stelle die Fußballen auf eine Plattform, die Fersen hängen frei. Drücke dich über die Fußballen nach oben und spanne die Waden oben an. Senke langsam ab und spüre die Dehnung.';
+
+  @override
+  String get ex_pier_10_b1 =>
+      'Isolation von Schollenmuskel und Zwillingswadenmuskel';
+
+  @override
+  String get ex_pier_10_b2 =>
+      'Verbessert die Schnellkraft bei Sprüngen und Sprints';
+
+  @override
+  String get ex_pier_10_b3 =>
+      'Reduziert das Verletzungsrisiko an Sprunggelenk und Achillessehne';
+
+  @override
+  String get ex_hom_5_name => 'Schulterdrücken mit Kurzhanteln';
+
+  @override
+  String get ex_hom_5_desc =>
+      'Sitzend mit gerader Rückenlehne halte je eine Kurzhantel seitlich neben den Schultern, Handflächen nach vorn. Drücke die Hanteln nach oben, bis sie sich über dem Kopf fast berühren, ohne die Ellbogen durchzustrecken. Senke kontrolliert in die Ausgangsposition ab.';
+
+  @override
+  String get ex_hom_5_b1 =>
+      'Größerer Bewegungsumfang als beim Drücken mit der Langhantel';
+
+  @override
+  String get ex_hom_5_b2 => 'Ermöglicht, jede Seite unabhängig zu trainieren';
+
+  @override
+  String get ex_hom_5_b3 =>
+      'Weniger Belastung für die Schultern als mit der Langhantel';
+
+  @override
+  String get ex_hom_6_name => 'Frontheben';
+
+  @override
+  String get ex_hom_6_desc =>
+      'Stehe aufrecht mit einer Kurzhantel in jeder Hand vor den Oberschenkeln, Handflächen zum Körper. Hebe die Arme abwechselnd oder gleichzeitig nach vorn bis auf Schulterhöhe und halte die Ellbogen fast gestreckt. Senke langsam ab, ohne zu schwingen.';
+
+  @override
+  String get ex_hom_6_b1 => 'Isolation des vorderen Deltamuskels';
+
+  @override
+  String get ex_hom_6_b2 => 'Verbessert die Optik der Schulter von vorn';
+
+  @override
+  String get ex_hom_6_b3 =>
+      'Assistenzübung für Bankdrücken und Schulterdrücken';
+
+  @override
+  String get ex_hom_7_name => 'Vorgebeugtes Seitheben mit Kurzhanteln';
+
+  @override
+  String get ex_hom_7_desc =>
+      'Beuge dich aus der Hüfte nach vorn, bis der Oberkörper fast parallel zum Boden ist, eine Kurzhantel in jeder Hand, die Arme hängen herab. Hebe die Arme seitlich bis auf Schulterhöhe, Ellbogen leicht gebeugt. Spanne den hinteren Deltamuskel oben an und senke kontrolliert ab.';
+
+  @override
+  String get ex_hom_7_b1 =>
+      'Isolation des hinteren Deltamuskels, entscheidend für die Haltung';
+
+  @override
+  String get ex_hom_7_b2 => 'Gleicht die Auswirkungen von Druckübungen aus';
+
+  @override
+  String get ex_hom_7_b3 =>
+      'Reduziert das Verletzungsrisiko der Rotatorenmanschette';
+
+  @override
+  String get ex_bra_6_name => 'Scottcurls';
+
+  @override
+  String get ex_bra_6_desc =>
+      'Setze dich an die Scottbank und lege die Arme auf dem Polster ab. Greife die Stange (gerade oder SZ) im Untergriff. Beuge die Ellbogen und führe die Stange kontrolliert zu den Schultern. Senke langsam ab, ohne die Ellbogen am Ende durchzustrecken.';
+
+  @override
+  String get ex_bra_6_b1 => 'Isoliert den Bizeps, da die Schulter fixiert ist';
+
+  @override
+  String get ex_bra_6_b2 => 'Macht Schwungholen unmöglich, strikte Technik';
+
+  @override
+  String get ex_bra_6_b3 =>
+      'Hervorragend für die maximale Kontraktion des Bizeps';
+
+  @override
+  String get ex_bra_7_name => 'Konzentrationscurls';
+
+  @override
+  String get ex_bra_7_desc =>
+      'Setze dich mit gespreizten Beinen auf eine Bank. Stütze den Ellbogen des arbeitenden Arms an der Innenseite des Oberschenkels ab, die Kurzhantel hängt herab. Beuge den Ellbogen und führe die Hantel zur Schulter, sodass der Bizeps isoliert arbeitet. Spanne oben an und senke kontrolliert ab.';
+
+  @override
+  String get ex_bra_7_b1 =>
+      'Reine Isolation des Bizeps mit maximaler Kontraktion';
+
+  @override
+  String get ex_bra_7_b2 =>
+      'Ermöglicht den Fokus auf die Mind-Muscle-Connection';
+
+  @override
+  String get ex_bra_7_b3 => 'Ideal als Abschlussübung im Armtraining';
+
+  @override
+  String get ex_bra_8_name => 'Enges Bankdrücken';
+
+  @override
+  String get ex_bra_8_desc =>
+      'Lege dich auf eine Flachbank und greife die Langhantel im engen Griff, schulterbreit. Senke die Stange kontrolliert, bis sie das Brustbein leicht berührt, und halte die Ellbogen eng am Körper. Drücke nach oben und betone dabei die Streckung des Trizeps.';
+
+  @override
+  String get ex_bra_8_b1 => 'Verbundübung mit Schwerpunkt auf dem Trizeps';
+
+  @override
+  String get ex_bra_8_b2 =>
+      'Ermöglicht höhere Gewichte als eine Isolationsübung für den Trizeps';
+
+  @override
+  String get ex_bra_8_b3 =>
+      'Überträgt sich auf die Kraft beim Bankdrücken und Schulterdrücken';
+
+  @override
+  String get ex_bra_9_name => 'Dips an der Bank';
+
+  @override
+  String get ex_bra_9_desc =>
+      'Stütze die Hände hinter dir auf einer Bank ab, die Finger zeigen nach vorn. Strecke die Beine vor dir aus und stelle die Fersen auf (oder beuge die Knie, um es leichter zu machen). Senke dich, indem du die Ellbogen nach hinten bis 90° beugst, und drücke dich wieder hoch.';
+
+  @override
+  String get ex_bra_9_b1 => 'Isolation des Trizeps ganz ohne Equipment';
+
+  @override
+  String get ex_bra_9_b2 =>
+      'Leicht zu steigern durch Zusatzgewicht auf dem Schoß';
+
+  @override
+  String get ex_bra_9_b3 =>
+      'Verbessert die Druckkraft aus Positionen hinter dem Körper';
+
+  @override
+  String get ex_core_5_name => 'Russian Twists';
+
+  @override
+  String get ex_core_5_desc =>
+      'Setze dich auf den Boden, die Knie gebeugt und die Füße angehoben oder aufgestellt, und lehne dich 45° nach hinten. Lege die Hände zusammen (oder halte ein Gewicht) und drehe den Oberkörper von Seite zu Seite, wobei du den Boden berührst oder das Gewicht zu jeder Seite führst. Halte den Core angespannt.';
+
+  @override
+  String get ex_core_5_b1 => 'Direkte Isolation der schrägen Bauchmuskeln';
+
+  @override
+  String get ex_core_5_b2 =>
+      'Verbessert die Rumpfrotation, entscheidend im Sport';
+
+  @override
+  String get ex_core_5_b3 =>
+      'Steigerung durch Zusatzgewicht möglich (Kurzhantel, Scheibe, Ball)';
+
+  @override
+  String get ex_core_6_name => 'Mountain Climbers';
+
+  @override
+  String get ex_core_6_desc =>
+      'Gehe in den hohen Stütz, die Hände unter den Schultern. Ziehe abwechselnd und schnell ein Knie zur Brust, als würdest du auf der Stelle laufen. Halte die Hüfte tief und den Core während der gesamten Bewegung angespannt.';
+
+  @override
+  String get ex_core_6_b1 => 'Kombiniert Core-Training mit Cardio';
+
+  @override
+  String get ex_core_6_b2 => 'Kein Equipment nötig, ideal für HIIT';
+
+  @override
+  String get ex_core_6_b3 => 'Verbessert Koordination und Ausdauer';
+
+  @override
+  String get ex_core_7_name => 'Hollow Hold';
+
+  @override
+  String get ex_core_7_desc =>
+      'Lege dich auf den Rücken, die Arme über den Kopf gestreckt und die Beine gestreckt. Hebe Arme und Beine leicht vom Boden ab und drücke den unteren Rücken in den Boden. Halte die „Boot“-Position mit vollständig angespanntem Core.';
+
+  @override
+  String get ex_core_7_b1 =>
+      'Turnerische Grundlage für viele CrossFit-Bewegungen';
+
+  @override
+  String get ex_core_7_b2 => 'Stärkt den gesamten Core isometrisch';
+
+  @override
+  String get ex_core_7_b3 =>
+      'Verbessert Haltung und Kraft für strikte Klimmzüge';
+
+  @override
+  String get ex_core_8_name => 'Seitstütz (Side Plank)';
+
+  @override
+  String get ex_core_8_desc =>
+      'Lege dich auf die Seite, den Unterarm aufgestützt und den Ellbogen unter der Schulter. Hebe die Hüfte vom Boden ab, sodass der Körper von den Füßen bis zum Kopf eine gerade Linie bildet. Halte die Position, ohne die Hüfte absinken zu lassen. Wiederhole auf der anderen Seite.';
+
+  @override
+  String get ex_core_8_b1 =>
+      'Intensive Isolation der schrägen Bauchmuskeln und des seitlichen Cores';
+
+  @override
+  String get ex_core_8_b2 =>
+      'Verbessert die Stabilität von Hüfte und Wirbelsäule';
+
+  @override
+  String get ex_core_8_b3 => 'Ohne Equipment und gelenkschonend';
+
+  @override
+  String get ex_core_9_name => 'Dead Bug';
+
+  @override
+  String get ex_core_9_desc =>
+      'Lege dich auf den Rücken, die Arme zur Decke gestreckt und die Knie 90° gebeugt über der Hüfte. Senke gleichzeitig den rechten Arm hinter den Kopf und das gestreckte linke Bein zum Boden. Kehre zurück und wechsle die Seiten, während der untere Rücken am Boden bleibt.';
+
+  @override
+  String get ex_core_9_b1 =>
+      'Verbessert die Anti-Extensions-Stabilität des Cores';
+
+  @override
+  String get ex_core_9_b2 =>
+      'Hervorragend für Anfänger und die Rehabilitation des unteren Rückens';
+
+  @override
+  String get ex_core_9_b3 => 'Trainiert die kontralaterale Koordination';
+
+  @override
+  String get ex_cf_1_name => 'Umsetzen (Clean)';
+
+  @override
+  String get ex_cf_1_desc =>
+      'Greife die Langhantel vom Boden im Obergriff knapp außerhalb der Knie. Ziehe explosiv, indem du Hüfte und Knie streckst, ziehe die Schultern hoch und tauche unter die Stange, um sie in der Frontkniebeuge mit hohen Ellbogen aufzunehmen. Stehe auf und schließe den Lift ab.';
+
+  @override
+  String get ex_cf_1_b1 =>
+      'Vollständige olympische Hebeübung für Explosivkraft';
+
+  @override
+  String get ex_cf_1_b2 =>
+      'Entwickelt Koordination, Schnelligkeit und Kraft gleichzeitig';
+
+  @override
+  String get ex_cf_1_b3 => 'Grundlage vieler CrossFit-WODs';
+
+  @override
+  String get ex_cf_2_name => 'Power Clean';
+
+  @override
+  String get ex_cf_2_desc =>
+      'Wie der Clean, aber ohne Aufnahme in der vollen Kniebeuge: Du nimmst die Stange in der Viertelkniebeuge mit hohen Ellbogen und in der Frontposition auf den Schultern auf. Schneller und mit geringeren Anforderungen an die Mobilität als der Clean.';
+
+  @override
+  String get ex_cf_2_b1 => 'Entwickelt die Explosivkraft der hinteren Kette';
+
+  @override
+  String get ex_cf_2_b2 => 'Technisch zugänglicher als der volle Clean';
+
+  @override
+  String get ex_cf_2_b3 =>
+      'Hervorragend für Einsteiger in die olympischen Lifts';
+
+  @override
+  String get ex_cf_3_name => 'Reißen (Snatch)';
+
+  @override
+  String get ex_cf_3_desc =>
+      'Greife die Langhantel vom Boden mit sehr weitem Griff. Ziehe explosiv und nimm die Stange mit gestreckten Armen über dem Kopf in einer tiefen Kniebeuge (Overhead Squat) auf. Stehe auf und halte die Stange dabei oben.';
+
+  @override
+  String get ex_cf_3_b1 =>
+      'Der umfassendste und technisch anspruchsvollste olympische Lift';
+
+  @override
+  String get ex_cf_3_b2 =>
+      'Entwickelt Explosivkraft, Mobilität und Stabilität gleichzeitig';
+
+  @override
+  String get ex_cf_3_b3 => 'Verbrennt mehr Kalorien als fast jede andere Übung';
+
+  @override
+  String get ex_cf_4_name => 'Power Snatch';
+
+  @override
+  String get ex_cf_4_desc =>
+      'Wie der Snatch, aber die Stange wird in der Viertelkniebeuge mit über dem Kopf gestreckten Armen aufgenommen. Schneller und mit geringeren Anforderungen an die Mobilität von Sprunggelenken und Hüfte.';
+
+  @override
+  String get ex_cf_4_b1 => 'Zugänglicher als der volle Snatch';
+
+  @override
+  String get ex_cf_4_b2 => 'Entwickelt die Explosivkraft der hinteren Kette';
+
+  @override
+  String get ex_cf_4_b3 => 'Hervorragend für Mobilität und Koordination';
+
+  @override
+  String get ex_cf_5_name => 'Thruster';
+
+  @override
+  String get ex_cf_5_desc =>
+      'Halte die Langhantel in der Frontposition (auf den vorderen Deltamuskeln). Führe eine volle Frontkniebeuge aus und nutze beim Hochkommen den Schwung der Beine, um die Stange mit gestreckten Armen über den Kopf zu drücken. Senke die Stange in die Frontposition ab und wiederhole.';
+
+  @override
+  String get ex_cf_5_b1 =>
+      'Trainiert den ganzen Körper in einer einzigen Bewegung';
+
+  @override
+  String get ex_cf_5_b2 => 'Paradeübung in WODs wie „Fran“';
+
+  @override
+  String get ex_cf_5_b3 => 'Kombiniert Kraft und metabolische Ausdauer';
+
+  @override
+  String get ex_cf_6_name => 'Push Press';
+
+  @override
+  String get ex_cf_6_desc =>
+      'Mit der Langhantel in der Frontposition auf den Schultern führe einen schnellen Dip aus, indem du die Knie leicht beugst. Strecke die Beine explosiv, um die Stange über den Kopf zu treiben, bis die Arme gestreckt sind. Senke kontrolliert in die Ausgangsposition ab.';
+
+  @override
+  String get ex_cf_6_b1 =>
+      'Ermöglicht mehr Gewicht als das strikte Schulterdrücken';
+
+  @override
+  String get ex_cf_6_b2 =>
+      'Entwickelt die Explosivkraft beim vertikalen Drücken';
+
+  @override
+  String get ex_cf_6_b3 =>
+      'Überträgt sich auf den Jerk und andere olympische Lifts';
+
+  @override
+  String get ex_cf_7_name => 'Push Jerk';
+
+  @override
+  String get ex_cf_7_desc =>
+      'Wie der Push Press, aber während du die Stange nach oben treibst, gibst du in den Beinen nach und nimmst die Stange in der Viertelkniebeuge mit bereits gestreckten Armen auf. Stehe anschließend auf und schließe den Lift ab. Ermöglicht mehr Gewicht als der Push Press.';
+
+  @override
+  String get ex_cf_7_b1 =>
+      'Bewegt mehr Gewicht über den Kopf als jede Drückvariante';
+
+  @override
+  String get ex_cf_7_b2 =>
+      'Technischer olympischer Lift mit hoher Explosivkraft';
+
+  @override
+  String get ex_cf_7_b3 => 'Bestandteil des Clean & Jerk';
+
+  @override
+  String get ex_cf_8_name => 'Wall Balls';
+
+  @override
+  String get ex_cf_8_desc =>
+      'Stehe mit einem Medizinball vor der Brust, mit Blick zu einer Wand. Führe eine tiefe Kniebeuge aus und wirf den Ball beim Hochkommen auf ein hohes Ziel an der Wand (ca. 3 m). Fange den Ball auf Brusthöhe und gehe sofort in die nächste Kniebeuge.';
+
+  @override
+  String get ex_cf_8_b1 => 'Herz-Kreislauf- und Schnellkraftübung zugleich';
+
+  @override
+  String get ex_cf_8_b2 => 'Standardbewegung in vielen CrossFit-Benchmarks';
+
+  @override
+  String get ex_cf_8_b3 => 'Trainiert Koordination und Rhythmus';
+
+  @override
+  String get ex_cf_9_name => 'American Kettlebell Swing';
+
+  @override
+  String get ex_cf_9_desc =>
+      'Stehe aufrecht, die Kettlebell hängt mit beiden Händen gehalten zwischen den Beinen. Beuge dich aus der Hüfte, um sie nach hinten zu führen, und strecke die Hüfte explosiv, um sie mit gestreckten Armen über den Kopf zu schwingen. Die Kraft kommt aus der Hüfte, nicht aus den Armen.';
+
+  @override
+  String get ex_cf_9_b1 => 'Entwickelt die Explosivkraft der Hüfte';
+
+  @override
+  String get ex_cf_9_b2 => 'Cardio und Kraft in einer einzigen Bewegung';
+
+  @override
+  String get ex_cf_9_b3 =>
+      'Standard im CrossFit (der Russian Swing geht nur bis zur Brust)';
+
+  @override
+  String get ex_cf_10_name => 'Russian Kettlebell Swing';
+
+  @override
+  String get ex_cf_10_desc =>
+      'Identisch mit dem American Swing, aber die Kettlebell wird nur bis auf Brust-/Augenhöhe geschwungen, nicht über den Kopf. Technisch einfacher und mit weniger Belastung für die Schultern.';
+
+  @override
+  String get ex_cf_10_b1 => 'Einstieg in das Training mit der Kettlebell';
+
+  @override
+  String get ex_cf_10_b2 => 'Weniger Schulterbelastung als beim American Swing';
+
+  @override
+  String get ex_cf_10_b3 => 'Ideal für Anfänger und hohe Wiederholungszahlen';
+
+  @override
+  String get ex_cf_11_name => 'Box Jumps';
+
+  @override
+  String get ex_cf_11_desc =>
+      'Stelle dich vor eine Box oder stabile Plattform, beuge die Knie und springe auf die Box, sodass du mit den ganzen Füßen auf der Fläche landest. Strecke oben Hüfte und Knie. Springe herunter oder steige Schritt für Schritt ab, um die Belastung zu reduzieren.';
+
+  @override
+  String get ex_cf_11_b1 =>
+      'Reine Plyometrie zur Entwicklung von Explosivkraft';
+
+  @override
+  String get ex_cf_11_b2 => 'Verbessert Sprunghöhe und Explosivität';
+
+  @override
+  String get ex_cf_11_b3 => 'Klassischer Bestandteil vieler WODs';
+
+  @override
+  String get ex_cf_12_name => 'Burpees';
+
+  @override
+  String get ex_cf_12_desc =>
+      'Gehe aus dem Stand in die Hocke und stütze die Hände auf dem Boden ab. Springe mit den Füßen nach hinten in die Liegestützposition. Führe einen Liegestütz aus und berühre mit der Brust den Boden. Springe mit den Füßen zurück zu den Händen und springe senkrecht hoch, die Arme nach oben gestreckt.';
+
+  @override
+  String get ex_cf_12_b1 => 'Ganzkörperübung ohne Equipment';
+
+  @override
+  String get ex_cf_12_b2 => 'Intensives Cardio und Krafttraining zugleich';
+
+  @override
+  String get ex_cf_12_b3 =>
+      'Standard in Benchmarks wie „Murph“ und vielen WODs';
+
+  @override
+  String get ex_cf_13_name => 'Toes-to-Bar';
+
+  @override
+  String get ex_cf_13_desc =>
+      'Hänge an der Stange im Obergriff. Aktiviere den Latissimus und hebe die gestreckten (oder leicht gebeugten) Beine, bis die Füße die Stange berühren. Senke kontrolliert ab, ohne übermäßig zu schwingen. Nutze den „Kip“, um den Rhythmus zu halten.';
+
+  @override
+  String get ex_cf_13_b1 => 'Dynamisches, sehr anspruchsvolles Core-Training';
+
+  @override
+  String get ex_cf_13_b2 => 'Verbessert Griffkraft und Latissimus';
+
+  @override
+  String get ex_cf_13_b3 => 'Bestandteil vieler CrossFit-WODs';
+
+  @override
+  String get ex_cf_14_name => 'Knees-to-Elbow';
+
+  @override
+  String get ex_cf_14_desc =>
+      'Hänge an der Stange im Obergriff. Beuge Hüfte und Knie und führe die Knie in einer dynamischen, kontrollierten Bewegung zu den Ellbogen. Senke kontrolliert ab. Nützlich als Vorstufe zu Toes-to-Bar.';
+
+  @override
+  String get ex_cf_14_b1 => 'Vorstufe zu Toes-to-Bar';
+
+  @override
+  String get ex_cf_14_b2 =>
+      'Dynamisches Core-Training mit geringerem technischem Anspruch';
+
+  @override
+  String get ex_cf_14_b3 => 'Verbessert die Griffkraft';
+
+  @override
+  String get ex_cf_15_name => 'Muscle-Up';
+
+  @override
+  String get ex_cf_15_desc =>
+      'Hänge dich im False Grip an die Ringe (oder die Stange). Ziehe den Körper explosiv nach oben, vollziehe den Übergang über die Ringe und drücke dich oben durch Strecken der Arme in den Stütz. Senke dich ab und kontrolliere dabei den umgekehrten Übergang.';
+
+  @override
+  String get ex_cf_15_b1 =>
+      'Fortgeschrittene Turnbewegung aus Ziehen + Drücken';
+
+  @override
+  String get ex_cf_15_b2 =>
+      'Wichtiger Meilenstein im CrossFit (RX in vielen WODs)';
+
+  @override
+  String get ex_cf_15_b3 => 'Entwickelt extreme Relativkraft zum Körpergewicht';
+
+  @override
+  String get ex_cf_16_name => 'Pistol Squat';
+
+  @override
+  String get ex_cf_16_desc =>
+      'Stehe auf einem Bein und strecke das andere parallel zum Boden nach vorn. Senke dich in eine tiefe Kniebeuge, halte das Gleichgewicht und lass den Standfuß flach auf dem Boden. Drücke dich über die Ferse nach oben, ohne dass das freie Bein den Boden berührt. Wiederhole auf der anderen Seite.';
+
+  @override
+  String get ex_cf_16_b1 =>
+      'Einbeinige Kniebeuge mit höchstem Schwierigkeitsgrad';
+
+  @override
+  String get ex_cf_16_b2 =>
+      'Entwickelt die Mobilität von Sprunggelenk und Hüfte';
+
+  @override
+  String get ex_cf_16_b3 => 'Einbeiniges Training, das Asymmetrien korrigiert';
+
+  @override
+  String get ex_cf_17_name => 'Handstand Push-Up (HSPU)';
+
+  @override
+  String get ex_cf_17_desc =>
+      'Stütze die Hände etwa 30 cm vor einer Wand auf dem Boden ab und schwinge dich hoch in den Handstand an der Wand. Senke dich durch Beugen der Ellbogen, bis der Kopf den Boden (oder ein AbMat) berührt. Drücke dich wieder nach oben. Nutze den „Kip“, wenn du Unterstützung brauchst.';
+
+  @override
+  String get ex_cf_17_b1 => 'Vertikales Drücken mit dem gesamten Körpergewicht';
+
+  @override
+  String get ex_cf_17_b2 => 'Verbessert die Stabilität von Schulter und Core';
+
+  @override
+  String get ex_cf_17_b3 => 'Wichtiger turnerischer Meilenstein im CrossFit';
+
+  @override
+  String get ex_cf_18_name => 'Turkish Get-Up';
+
+  @override
+  String get ex_cf_18_desc =>
+      'Lege dich auf den Rücken und halte eine Kettlebell mit einem zur Decke gestreckten Arm. Stehe Schritt für Schritt auf (Ellbogen → Hand → Hüfte anheben → Bein durchschwingen → Kniestand → Stand) und halte die Kettlebell dabei stets oben. Kehre die Bewegung um.';
+
+  @override
+  String get ex_cf_18_b1 => 'Einzigartige funktionelle Ganzkörperbewegung';
+
+  @override
+  String get ex_cf_18_b2 => 'Verbessert Mobilität, Stabilität und Koordination';
+
+  @override
+  String get ex_cf_18_b3 => 'Hervorragendes Training für Schulter und Core';
+
+  @override
+  String get ex_cf_19_name => 'Double Unders';
+
+  @override
+  String get ex_cf_19_desc =>
+      'Springe Seil und lasse es bei jedem Sprung zweimal unter den Füßen durchlaufen. Halte die Sprünge flach und den Rhythmus der Handgelenke schnell. Arme eng am Körper, Ellbogen nah an der Taille. Erfordert Koordination und ein Speed Rope.';
+
+  @override
+  String get ex_cf_19_b1 => 'Explosives Cardio mit hoher Intensität';
+
+  @override
+  String get ex_cf_19_b2 => 'Verbessert Koordination und Timing';
+
+  @override
+  String get ex_cf_19_b3 => 'Standard in Hunderten von CrossFit-WODs';
+
+  @override
+  String get ex_cf_20_name => 'Farmer\'s Carry';
+
+  @override
+  String get ex_cf_20_desc =>
+      'Halte eine schwere Kurzhantel oder Kettlebell in jeder Hand an den Seiten. Gehe mit kurzen Schritten und halte dabei eine aufrechte Haltung, die Schultern zurück und den Core angespannt. Lege eine festgelegte Strecke zurück oder arbeite auf Zeit.';
+
+  @override
+  String get ex_cf_20_b1 => 'Stärkt Griff und Unterarme';
+
+  @override
+  String get ex_cf_20_b2 => 'Funktionelles Training für den ganzen Körper';
+
+  @override
+  String get ex_cf_20_b3 => 'Verbessert die Haltung und die Core-Stabilität';
+
+  @override
+  String get ex_cf_21_name => 'Goblet Squat';
+
+  @override
+  String get ex_cf_21_desc =>
+      'Halte eine Kettlebell (oder Kurzhantel) vor der Brust auf Höhe des Brustbeins und greife sie an den „Hörnern“. Führe eine tiefe Kniebeuge aus, mit aufrechtem Oberkörper und nach vorn zeigenden Ellbogen. Drücke dich über die Fersen wieder nach oben.';
+
+  @override
+  String get ex_cf_21_b1 => 'Perfekter Einstieg in die Kniebeuge mit Gewicht';
+
+  @override
+  String get ex_cf_21_b2 =>
+      'Vermittelt eine aufrechte Haltung und die richtige Tiefe';
+
+  @override
+  String get ex_cf_21_b3 => 'Hervorragend zur Aktivierung des Cores';
 
   @override
   String get ex_pecho_1_name => 'Bankdrücken';

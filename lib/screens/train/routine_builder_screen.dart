@@ -7,7 +7,9 @@ import '../../data/custom_template_store.dart';
 import '../../data/workout_templates.dart';
 import '../../models/models.dart';
 import '../../theme/app_theme.dart';
+import '../../models/session_models.dart';
 import '../../widgets/rest_picker.dart';
+import '../../widgets/set_type_badge.dart';
 import '../../utils/exercise_localization.dart';
 import '../../utils/routine_days.dart';
 import '../../widgets/common/muscle_chip.dart';
@@ -83,6 +85,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
             'sets': draft.sets,
             'reps': draft.reps,
             'restSeconds': draft.restSeconds,
+            'supersetId': draft.supersetId,
           },
         )
         .toList(),
@@ -90,12 +93,25 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
 
   bool get _hasUnsavedChanges => _draftSignature() != _initialSignature;
 
+  void _linkSuperset(int index) {
+    setState(() => linkWithNext(_exercises, index, newSupersetId()));
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(S.of(context).superset_hint)));
+  }
+
+  void _unlinkSuperset(int index) {
+    setState(() => unlinkFromSuperset(_exercises, index));
+  }
+
   int _orderForDay(RoutineDay day) {
     final initial = widget.initialTemplate;
     final initialDay = initial == null
         ? widget.initialDay
-        : RoutineDay.fromStorage(initial.routineDay) ??
-              routineDayFromName(initial.name) ??
+        : routineDayForHistoryGrouping(
+                storedDay: initial.routineDay,
+                name: initial.name,
+              ) ??
               widget.initialDay;
     if (initial != null && initialDay == day) {
       return initial.routineOrder ??
@@ -112,8 +128,10 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
         .where((template) => template.id != initial?.id)
         .where(
           (template) =>
-              (RoutineDay.fromStorage(template.routineDay) ??
-                  routineDayFromName(template.name)) ==
+              routineDayForHistoryGrouping(
+                storedDay: template.routineDay,
+                name: template.name,
+              ) ==
               day,
         )
         .map(
@@ -185,7 +203,7 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
             widget.initialTemplate?.id ??
             'custom_tpl_${DateTime.now().millisecondsSinceEpoch}',
         name: name,
-        routineDay: day?.storageKey,
+        routineDay: day?.storageKey ?? routineDayUnassigned,
         routineOrder: day == null ? null : _orderForDay(day),
         exercises: _exercises
             .map(
@@ -195,8 +213,9 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
                 equipment: draft.exercise.equipment,
                 sets: draft.sets,
                 reps: draft.reps,
-                weight: 0,
+                weight: draft.weight,
                 restSeconds: draft.restSeconds,
+                supersetId: draft.supersetId,
               ),
             )
             .toList(),
@@ -244,7 +263,10 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
             const SizedBox(height: 8),
             TextField(
               controller: _nameController,
-              autofocus: widget.initialDay == null,
+              // Only a brand-new routine starts by typing its name; opening
+              // the keyboard over one being edited hides its exercises.
+              autofocus:
+                  widget.initialTemplate == null && widget.initialDay == null,
               textCapitalization: TextCapitalization.sentences,
               style: TextStyle(color: AppColors.textPrimary),
               onChanged: (_) => setState(() => _showNameError = false),
@@ -366,13 +388,40 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
                 ),
               )
             else
-              ...List.generate(
-                _exercises.length,
-                (index) => _PlannedExerciseCard(
-                  key: ValueKey('${_exercises[index].exercise.id}-$index'),
+              // The order here is the order of the workout, so it can be
+              // rearranged by dragging the handle on each card.
+              ReorderableListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                buildDefaultDragHandles: false,
+                itemCount: _exercises.length,
+                onReorder: (oldIndex, newIndex) => setState(() {
+                  if (newIndex > oldIndex) newIndex--;
+                  _exercises.insert(newIndex, _exercises.removeAt(oldIndex));
+                  // A superset is made of neighbours: moving one out
+                  // breaks it.
+                  normalizeSupersets(_exercises);
+                }),
+                proxyDecorator: (child, _, _) =>
+                    Material(color: Colors.transparent, child: child),
+                itemBuilder: (context, index) => _PlannedExerciseCard(
+                  key: ObjectKey(_exercises[index]),
+                  index: index,
                   draft: _exercises[index],
                   onChanged: () => setState(() {}),
-                  onRemove: () => setState(() => _exercises.removeAt(index)),
+                  onRemove: () => setState(() {
+                    _exercises.removeAt(index);
+                    normalizeSupersets(_exercises);
+                  }),
+                  inSuperset: isInSuperset(_exercises, index),
+                  onLinkNext:
+                      index < _exercises.length - 1 &&
+                          !isLinkedWithNext(_exercises, index)
+                      ? () => _linkSuperset(index)
+                      : null,
+                  onUnlink: isInSuperset(_exercises, index)
+                      ? () => _unlinkSuperset(index)
+                      : null,
                 ),
               ),
           ],
@@ -404,13 +453,20 @@ class _RoutineBuilderScreenState extends State<RoutineBuilderScreen> {
   }
 }
 
-class _PlannedExercise {
+class _PlannedExercise implements MutableSupersetMember {
   final Exercise exercise;
   int sets;
   int reps;
   int? restSeconds;
 
-  _PlannedExercise({required this.exercise}) : sets = 3, reps = 10;
+  @override
+  String? supersetId;
+
+  /// Load saved with the routine ("Save as routine" stores the one used).
+  /// The builder has no field for it, so it is carried through untouched.
+  final double weight;
+
+  _PlannedExercise({required this.exercise}) : sets = 3, reps = 10, weight = 0;
 
   _PlannedExercise.fromTemplate(TemplateExercise template)
     : exercise = Exercise(
@@ -423,19 +479,35 @@ class _PlannedExercise {
       ),
       sets = template.sets,
       reps = template.reps,
-      restSeconds = template.restSeconds;
+      restSeconds = template.restSeconds,
+      supersetId = template.supersetId,
+      weight = template.weight;
 }
 
 class _PlannedExerciseCard extends StatelessWidget {
+  final int index;
   final _PlannedExercise draft;
   final VoidCallback onChanged;
   final VoidCallback onRemove;
 
+  /// The exercise is alternated with its neighbours as a superset.
+  final bool inSuperset;
+
+  /// Groups this exercise with the next one; null when that is not possible.
+  final VoidCallback? onLinkNext;
+
+  /// Takes this exercise out of its superset; null when it is in none.
+  final VoidCallback? onUnlink;
+
   const _PlannedExerciseCard({
     super.key,
+    required this.index,
     required this.draft,
     required this.onChanged,
     required this.onRemove,
+    this.inSuperset = false,
+    this.onLinkNext,
+    this.onUnlink,
   });
 
   @override
@@ -443,122 +515,199 @@ class _PlannedExerciseCard extends StatelessWidget {
     final l10n = S.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.bgCardLight),
+        border: Border.all(
+          color: inSuperset
+              ? AppColors.primary.withAlpha(140)
+              : AppColors.bgCardLight,
+        ),
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      ExerciseLocalization.name(
-                        l10n,
-                        draft.exercise.name,
-                        id: draft.exercise.id,
-                      ),
-                      style: TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: [
-                        MuscleChip(label: draft.exercise.muscleGroup),
-                        if (draft.exercise.equipment.isNotEmpty)
-                          Text(
-                            ExerciseLocalization.equipment(
-                              l10n,
-                              draft.exercise.equipment,
-                            ),
-                            style: TextStyle(
-                              color: AppColors.textMuted,
-                              fontSize: 11,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                tooltip: l10n.train_deleteExercise,
-                onPressed: onRemove,
-                icon: Icon(
-                  Icons.close_rounded,
+          if (inSuperset) const SupersetStrip(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
+            child: _buildBody(context, l10n),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, S l10n) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            ReorderableDragStartListener(
+              index: index,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 8, 10, 8),
+                child: Icon(
+                  Icons.drag_handle_rounded,
                   color: AppColors.textMuted,
-                  size: 20,
+                  size: 22,
+                  semanticLabel: WidgetsLocalizations.of(context).reorderItemUp,
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _NumberStepper(
-                  label: l10n.common_sets,
-                  value: draft.sets,
-                  minimum: 1,
-                  maximum: 12,
-                  onChanged: (value) {
-                    draft.sets = value;
-                    onChanged();
-                  },
-                ),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    ExerciseLocalization.name(
+                      l10n,
+                      draft.exercise.name,
+                      id: draft.exercise.id,
+                    ),
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: [
+                      MuscleChip(label: draft.exercise.muscleGroup),
+                      if (draft.exercise.equipment.isNotEmpty)
+                        Text(
+                          ExerciseLocalization.equipment(
+                            l10n,
+                            draft.exercise.equipment,
+                          ),
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 11,
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _NumberStepper(
-                  label: l10n.train_repsHeader,
-                  value: draft.reps,
-                  minimum: 1,
-                  maximum: 100,
-                  onChanged: (value) {
-                    draft.reps = value;
-                    onChanged();
-                  },
-                ),
+            ),
+            IconButton(
+              tooltip: l10n.train_deleteExercise,
+              onPressed: onRemove,
+              icon: Icon(
+                Icons.close_rounded,
+                color: AppColors.textMuted,
+                size: 20,
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text(
-                l10n.rest_label,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const Spacer(),
-              RestBadge(
-                seconds: draft.restSeconds,
-                onTap: () async {
-                  final choice = await showRestPicker(
-                    context,
-                    current: draft.restSeconds,
-                  );
-                  if (choice == null) return;
-                  draft.restSeconds = choice.seconds;
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _NumberStepper(
+                label: l10n.common_sets,
+                value: draft.sets,
+                minimum: 1,
+                maximum: 12,
+                onChanged: (value) {
+                  draft.sets = value;
                   onChanged();
                 },
               ),
-            ],
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _NumberStepper(
+                label: l10n.train_repsHeader,
+                value: draft.reps,
+                minimum: 1,
+                maximum: 100,
+                onChanged: (value) {
+                  draft.reps = value;
+                  onChanged();
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Text(
+              l10n.rest_label,
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const Spacer(),
+            RestBadge(
+              seconds: draft.restSeconds,
+              onTap: () async {
+                final choice = await showRestPicker(
+                  context,
+                  current: draft.restSeconds,
+                );
+                if (choice == null) return;
+                draft.restSeconds = choice.seconds;
+                onChanged();
+              },
+            ),
+          ],
+        ),
+        if (onLinkNext != null || onUnlink != null)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Wrap(
+              spacing: 4,
+              children: [
+                if (onLinkNext != null)
+                  _SupersetAction(
+                    icon: Icons.link_rounded,
+                    label: l10n.superset_linkNext,
+                    onPressed: onLinkNext!,
+                  ),
+                if (onUnlink != null)
+                  _SupersetAction(
+                    icon: Icons.link_off_rounded,
+                    label: l10n.superset_unlink,
+                    onPressed: onUnlink!,
+                  ),
+              ],
+            ),
           ),
-        ],
+      ],
+    );
+  }
+}
+
+class _SupersetAction extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  const _SupersetAction({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 16),
+      label: Text(label),
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.asText(AppColors.primaryLight),
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        minimumSize: const Size(0, 40),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -642,8 +791,7 @@ class _StepperButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: enabled ? onPressed : null,
-      visualDensity: VisualDensity.compact,
-      constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+      constraints: const BoxConstraints.tightFor(width: 44, height: 40),
       padding: EdgeInsets.zero,
       icon: Icon(icon, size: 18),
     );

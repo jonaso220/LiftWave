@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'watch_service.dart';
 
@@ -29,6 +30,71 @@ class RestTimerController extends ChangeNotifier {
   DateTime? _deadline;
   DateTime Function() _now = DateTime.now;
 
+  // The same bar also counts down a set of a timed exercise (a "hold").
+  bool _isHold = false;
+  VoidCallback? _onHoldFinished;
+
+  /// The countdown is a set being held, not a rest.
+  bool get isHold => _isHold;
+
+  void _endHold() {
+    _isHold = false;
+    _onHoldFinished = null;
+  }
+
+  /// Counts down [seconds] for a set of a timed exercise and calls
+  /// [onFinished] when the time is up. The user's preferred rest is left
+  /// untouched.
+  void startHold(int seconds, {required VoidCallback onFinished}) {
+    if (seconds <= 0) return;
+    _ticker?.cancel();
+    _isHold = true;
+    _onHoldFinished = onFinished;
+    _total = seconds;
+    _remaining = seconds;
+    _deadline = _now().add(Duration(seconds: seconds));
+    _isRunning = true;
+    _isVisible = true;
+    HapticFeedback.lightImpact();
+    _syncWatch();
+    _runTicker();
+    notifyListeners();
+  }
+
+  static const _preferredKey = 'rest_preferred_seconds';
+  static const _customKey = 'rest_preferred_is_custom';
+
+  /// Restores the rest duration the user last chose, so it does not go back
+  /// to 90 s on every launch.
+  Future<void> load() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final stored = prefs.getInt(_preferredKey);
+      if (stored == null || stored <= 0 || stored > 3600) return;
+      if (_isVisible) return; // A rest already started: leave it alone.
+      _preferredSeconds = stored;
+      _total = stored;
+      _remaining = stored;
+      _isCustom = prefs.getBool(_customKey) ?? !presets.contains(stored);
+      notifyListeners();
+    } catch (_) {
+      // The default duration is used.
+    }
+  }
+
+  Future<void> _savePreference() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_preferredKey, _preferredSeconds);
+      await prefs.setBool(_customKey, _isCustom);
+    } catch (_) {
+      // The choice still applies for this session.
+    }
+  }
+
+  /// When the running rest ends; null while paused, finished or hidden.
+  DateTime? get deadline => _isRunning ? _deadline : null;
+
   int get total => _total;
   int get remaining => _remaining;
   bool get isRunning => _isRunning;
@@ -44,6 +110,7 @@ class RestTimerController extends ChangeNotifier {
   void startWithDefault({int? seconds}) {
     final s = seconds ?? _preferredSeconds;
     if (s <= 0) return;
+    _endHold();
     _ticker?.cancel();
     _total = s;
     _remaining = s;
@@ -98,6 +165,7 @@ class RestTimerController extends ChangeNotifier {
   }
 
   void selectPreset(int seconds) {
+    _endHold();
     _ticker?.cancel();
     _total = seconds;
     _remaining = seconds;
@@ -107,10 +175,12 @@ class RestTimerController extends ChangeNotifier {
     _isCustom = false;
     _syncWatch();
     notifyListeners();
+    _savePreference();
   }
 
   void setCustom(int seconds) {
     if (seconds <= 0) return;
+    _endHold();
     _ticker?.cancel();
     _total = seconds;
     _remaining = seconds;
@@ -120,6 +190,7 @@ class RestTimerController extends ChangeNotifier {
     _isCustom = true;
     _syncWatch();
     notifyListeners();
+    _savePreference();
   }
 
   void addTime(int seconds) {
@@ -155,6 +226,7 @@ class RestTimerController extends ChangeNotifier {
 
   /// Hide the overlay and stop the timer entirely.
   void dismiss() {
+    _endHold();
     _ticker?.cancel();
     _remaining = _total;
     _isRunning = false;
@@ -193,6 +265,18 @@ class RestTimerController extends ChangeNotifier {
     _isRunning = false;
     _deadline = null;
     HapticFeedback.heavyImpact();
+    if (_isHold) {
+      // The set is over: hand it back (it is marked done, which starts the
+      // rest and shows this bar again) instead of showing "done".
+      final onFinished = _onHoldFinished;
+      _endHold();
+      _isVisible = false;
+      _remaining = _total = _preferredSeconds;
+      _syncWatch();
+      notifyListeners();
+      onFinished?.call();
+      return;
+    }
     _syncWatch();
     notifyListeners();
   }

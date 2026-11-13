@@ -20,10 +20,25 @@ class WeightUnits extends ChangeNotifier {
   WeightUnit _unit = WeightUnit.kg;
   WeightUnit get unit => _unit;
 
+  /// Gyms load plates in pounds in the United States, Liberia and Myanmar,
+  /// and in kilograms everywhere else.
+  static WeightUnit defaultFor(String? countryCode) =>
+      const {'US', 'LR', 'MM'}.contains(countryCode?.toUpperCase())
+      ? WeightUnit.lb
+      : WeightUnit.kg;
+
   Future<void> load() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final stored = prefs.getString(_key);
+      if (stored == null && prefs.getKeys().isEmpty) {
+        // First launch of a fresh install: start in the region's unit and
+        // keep that choice. An existing install with no stored unit stays in
+        // kilograms, the unit it has been logging in all along.
+        _unit = defaultFor(PlatformDispatcher.instance.locale.countryCode);
+        if (_unit != WeightUnit.kg) await prefs.setString(_key, _unit.name);
+        return;
+      }
       _unit = WeightUnit.values.firstWhere(
         (unit) => unit.name == stored,
         orElse: () => WeightUnit.kg,

@@ -201,45 +201,27 @@ class _CustomTemplateCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
+              // Three stacked actions: each gets a 44 × 36 target instead of
+              // the bare 19 px icon, so a near miss does not open the routine.
               Column(
                 children: [
-                  Semantics(
-                    label: l10n.train_editRoutine,
-                    button: true,
-                    child: GestureDetector(
-                      onTap: onEdit,
-                      child: Icon(
-                        Icons.edit_rounded,
-                        color: AppColors.primaryLight,
-                        size: 19,
-                      ),
-                    ),
+                  _RoutineAction(
+                    icon: Icons.edit_rounded,
+                    color: AppColors.primaryLight,
+                    tooltip: l10n.train_editRoutine,
+                    onTap: onEdit,
                   ),
-                  const SizedBox(height: 8),
-                  Semantics(
-                    label: l10n.train_organizeRoutine,
-                    button: true,
-                    child: GestureDetector(
-                      onTap: onOrganize,
-                      child: const Icon(
-                        Icons.event_note_rounded,
-                        color: AppColors.primary,
-                        size: 19,
-                      ),
-                    ),
+                  _RoutineAction(
+                    icon: Icons.event_note_rounded,
+                    color: AppColors.primary,
+                    tooltip: l10n.train_organizeRoutine,
+                    onTap: onOrganize,
                   ),
-                  const SizedBox(height: 8),
-                  Semantics(
-                    label: l10n.common_delete,
-                    button: true,
-                    child: GestureDetector(
-                      onTap: onDelete,
-                      child: Icon(
-                        Icons.delete_outline_rounded,
-                        color: AppColors.textMuted,
-                        size: 18,
-                      ),
-                    ),
+                  _RoutineAction(
+                    icon: Icons.delete_outline_rounded,
+                    color: AppColors.textMuted,
+                    tooltip: l10n.common_delete,
+                    onTap: onDelete,
                   ),
                 ],
               ),
@@ -702,6 +684,38 @@ class _RoutineBlockTile extends StatelessWidget {
   }
 }
 
+class _RoutineAction extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String tooltip;
+  final VoidCallback? onTap;
+
+  const _RoutineAction({
+    required this.icon,
+    required this.color,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Not an IconButton: Material pads those to 48 px, which made the card
+    // a third taller. 44 × 36 each keeps the three within the card's height.
+    return Tooltip(
+      message: tooltip,
+      child: InkResponse(
+        onTap: onTap,
+        radius: 22,
+        child: SizedBox(
+          width: 44,
+          height: 36,
+          child: Icon(icon, color: color, size: 19, semanticLabel: tooltip),
+        ),
+      ),
+    );
+  }
+}
+
 class _SmallMuscleTag extends StatelessWidget {
   final String muscle;
   const _SmallMuscleTag({required this.muscle});
@@ -717,7 +731,11 @@ class _SmallMuscleTag extends StatelessWidget {
       ),
       child: Text(
         ExerciseLocalization.muscle(S.of(context), muscle),
-        style: TextStyle(color: c, fontSize: 10, fontWeight: FontWeight.w600),
+        style: TextStyle(
+          color: AppColors.asText(c),
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -991,6 +1009,7 @@ class _CustomTemplatePreviewSheet extends StatelessWidget {
                   exercise: t.exercises[i],
                   index: i,
                   color: AppColors.accentOrange,
+                  inSuperset: isInSuperset(t.exercises, i),
                 ),
               ),
             ),
@@ -1030,11 +1049,13 @@ class _PreviewExRow extends StatelessWidget {
   final TemplateExercise exercise;
   final int index;
   final Color color;
+  final bool inSuperset;
 
   const _PreviewExRow({
     required this.exercise,
     required this.index,
     required this.color,
+    this.inSuperset = false,
   });
 
   @override
@@ -1053,7 +1074,11 @@ class _PreviewExRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.bgDark,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.bgCardLight),
+        border: Border.all(
+          color: inSuperset
+              ? AppColors.primary.withAlpha(140)
+              : AppColors.bgCardLight,
+        ),
       ),
       child: Row(
         children: [
@@ -1093,6 +1118,10 @@ class _PreviewExRow extends StatelessWidget {
                   '${ExerciseLocalization.muscle(S.of(context), ex.muscleGroup)} · ${ExerciseLocalization.equipment(S.of(context), ex.equipment)}',
                   style: TextStyle(color: AppColors.textMuted, fontSize: 11),
                 ),
+                if (inSuperset) ...[
+                  const SizedBox(height: 4),
+                  const SupersetTag(),
+                ],
               ],
             ),
           ),

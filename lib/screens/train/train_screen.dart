@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/achievement_store.dart';
 import '../../data/active_workout_store.dart';
+import '../../data/custom_exercise_store.dart';
 import '../../data/custom_template_store.dart';
 import '../../data/mock_data.dart';
 import '../../data/training_preferences_store.dart';
@@ -16,6 +17,8 @@ import '../../data/workout_store.dart';
 import '../exercises/exercise_progress_sheet.dart';
 import '../exercises/exercises_screen.dart';
 import '../auth/guest_prompts.dart';
+import '../../services/plate_calculator.dart';
+import '../../services/rest_alert_service.dart';
 import '../../services/rest_timer_controller.dart';
 import '../../services/progression_service.dart';
 import '../../services/watch_service.dart';
@@ -32,7 +35,9 @@ import '../../widgets/common/muscle_chip.dart';
 import '../../widgets/rest_picker.dart';
 import '../../widgets/rest_timer_overlay.dart';
 import '../../widgets/session_set_row.dart';
+import '../../widgets/set_type_badge.dart';
 import 'exercise_picker_screen.dart';
+import 'plate_calculator_sheet.dart';
 import 'routine_builder_screen.dart';
 
 part 'train_screen_templates.dart';
@@ -69,6 +74,21 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
   int? _routineOrder;
   WorkoutLaunchSource _launchSource = WorkoutLaunchSource.freeSession;
   DateTime? _startedAt;
+
+  /// Set when the session was left open for hours: the moment it really
+  /// stopped, used as the workout's date instead of "now".
+  DateTime? _endedAt;
+  bool _inBackground = false;
+  int _exerciseIdSequence = 0;
+
+  // The session screen rebuilds every second while the clock runs, and each
+  // of these lookups scans the whole workout history, so their results are
+  // kept until the history, the goal or the unit changes.
+  final Map<String, ProgressionRecommendation?> _recommendationCache = {};
+  final Map<String, List<WorkoutSet>> _previousSetsCache = {};
+  int _historyCacheRevision = -1;
+  TrainingGoal? _historyCacheGoal;
+  WeightUnit? _historyCacheUnit;
   bool _restoreChecked = false;
 
   @override
@@ -96,22 +116,41 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       WatchService.instance.onWatchCommand = null;
     }
     _timer?.cancel();
+    if (_workoutStarted) {
+      // Signing out or deleting the account tears this screen down with a
+      // workout open. Its snapshot stays saved for that user, but the shared
+      // session flag and rest timer must not leak into the next account (or
+      // keep the screen awake). Deferred: listeners cannot rebuild while the
+      // tree is being unmounted.
+      Future.microtask(() {
+        WorkoutLauncher.instance.sessionActive.value = false;
+        RestTimerController.instance.dismiss();
+        WatchService.instance.updateWorkoutState(active: false);
+      });
+    }
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    _inBackground = state != AppLifecycleState.resumed;
     if (!_workoutStarted) return;
     switch (state) {
       case AppLifecycleState.resumed:
+        // Back on screen: the overlay and its haptic take over again.
+        unawaited(RestAlertService.instance.cancel());
         _catchUpFromClock(syncWatch: true);
         RestTimerController.instance.syncFromClock();
       case AppLifecycleState.inactive:
+        _catchUpFromClock(syncWatch: false);
+        RestTimerController.instance.syncFromClock();
+        _persistActiveWorkout();
       case AppLifecycleState.hidden:
       case AppLifecycleState.paused:
         _catchUpFromClock(syncWatch: false);
         RestTimerController.instance.syncFromClock();
         _persistActiveWorkout();
+        _scheduleRestAlert();
       case AppLifecycleState.detached:
         break;
     }
@@ -127,35 +166,42 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     final shouldRestore = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.bgCard,
-        title: Text(
-          l10n.train_resumeTitle,
-          style: TextStyle(color: AppColors.textPrimary),
-        ),
-        content: Text(
-          l10n.train_resumeBody(snapshot.workoutName ?? l10n.train_freeWorkout),
-          style: TextStyle(color: AppColors.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(
-              l10n.train_resumeDiscard,
-              style: const TextStyle(color: AppColors.error),
-            ),
+      // Android's back button would otherwise close the dialog with no
+      // answer; the unfinished workout is only discarded when the user says so.
+      builder: (ctx) => PopScope(
+        canPop: false,
+        child: AlertDialog(
+          backgroundColor: AppColors.bgCard,
+          title: Text(
+            l10n.train_resumeTitle,
+            style: TextStyle(color: AppColors.textPrimary),
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(
-              l10n.train_resumeContinue,
-              style: const TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w700,
+          content: Text(
+            l10n.train_resumeBody(
+              snapshot.workoutName ?? l10n.train_freeWorkout,
+            ),
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(
+                l10n.train_resumeDiscard,
+                style: const TextStyle(color: AppColors.error),
               ),
             ),
-          ),
-        ],
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(
+                l10n.train_resumeContinue,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
 
@@ -163,24 +209,63 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     if (shouldRestore == true) {
       _restoreFromSnapshot(snapshot);
       widget.onSessionRestored?.call();
-    } else {
+    } else if (shouldRestore == false) {
       await ActiveWorkoutStore.instance.clear();
     }
   }
 
+  /// Hands the end of a running rest to the system while the app is in the
+  /// background, where the Dart timer no longer ticks.
+  void _scheduleRestAlert() {
+    final deadline = RestTimerController.instance.deadline;
+    if (deadline == null || !mounted) return;
+    final l10n = S.of(context);
+    final hold = RestTimerController.instance.isHold;
+    unawaited(
+      RestAlertService.instance.schedule(
+        at: deadline,
+        title: hold ? l10n.hold_alertTitle : l10n.rest_alertTitle,
+        body: hold ? l10n.hold_alertBody : l10n.rest_alertBody,
+        channelName: l10n.rest_alertChannel,
+      ),
+    );
+  }
+
   void _restoreFromSnapshot(ActiveWorkoutSnapshot snap) {
+    final now = DateTime.now();
+    // A session nobody touched for hours comes back paused at the time it
+    // had, not as a day-long workout dated today.
+    final abandoned = snap.isAbandonedAt(now);
+    final seenIds = <String>{};
     setState(() {
       _exercises
         ..clear()
-        ..addAll(snap.exercises);
+        ..addAll([
+          // Snapshots from older builds can hold two exercises with one id,
+          // which breaks the reorderable list.
+          for (final exercise in snap.exercises)
+            seenIds.add(exercise.id)
+                ? exercise
+                : SessionExercise(
+                    id: _newExerciseId(exercise.id),
+                    name: exercise.name,
+                    muscleGroup: exercise.muscleGroup,
+                    equipment: exercise.equipment,
+                    sets: exercise.sets,
+                    notes: exercise.notes,
+                    routineBlockName: exercise.routineBlockName,
+                    restSeconds: exercise.restSeconds,
+                  ),
+        ]);
       _workoutName = snap.workoutName;
       _routineDay = snap.routineDay;
       _routineOrder = snap.routineOrder;
       _launchSource = snap.launchSource;
       _workoutStarted = true;
-      _startedAt = snap.startedAt;
-      _elapsedSeconds = snap.elapsedAt(DateTime.now());
-      _timerRunning = snap.timerRunning;
+      _startedAt = abandoned ? null : snap.startedAt;
+      _endedAt = abandoned ? snap.lastActiveAt : snap.endedAt;
+      _elapsedSeconds = snap.elapsedAt(now);
+      _timerRunning = !abandoned && snap.timerRunning;
     });
     WorkoutLauncher.instance.sessionActive.value = true;
     _syncWatch();
@@ -193,6 +278,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       workoutStarted: _workoutStarted,
       timerRunning: _timerRunning,
       startedAt: _startedAt,
+      endedAt: _endedAt,
       elapsedSeconds: _elapsedSeconds,
       workoutName: _workoutName,
       routineDay: _routineDay,
@@ -205,8 +291,10 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
   void _onTemplatesChanged() => setState(() {});
 
   RoutineDay? _dayForTemplate(CustomTemplate template) =>
-      RoutineDay.fromStorage(template.routineDay) ??
-      routineDayFromName(template.name);
+      routineDayForHistoryGrouping(
+        storedDay: template.routineDay,
+        name: template.name,
+      );
 
   List<CustomTemplate> _templatesForDay(RoutineDay day) {
     final result = CustomTemplateStore.instance.templates
@@ -345,18 +433,23 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     setState(() {
       _exercises.clear();
       for (final ex in w.exercises) {
-        final lastWeight = _lastWeightFor(ex.name);
         _exercises.add(
           SessionExercise(
-            id: '${w.id}_${ex.name}_${DateTime.now().millisecondsSinceEpoch}',
+            id: _newExerciseId('${w.id}_${ex.name}'),
             name: ex.name,
             muscleGroup: ex.muscleGroup,
-            equipment: '',
+            // History does not store the equipment, and the load steps and
+            // bodyweight handling depend on it.
+            equipment: _equipmentFor(ex.name),
             routineBlockName: ex.routineBlockName,
+            timed: ex.timed,
+            supersetId: ex.supersetId,
+            // Each set keeps its own load: a 40/60/80 pyramid must not come
+            // back as 80/80/80.
             sets: ex.sets
                 .map(
                   (s) =>
-                      SessionSet(reps: s.reps, weight: lastWeight ?? s.weight),
+                      SessionSet(reps: s.reps, weight: s.weight, type: s.type),
                 )
                 .toList(),
           ),
@@ -394,10 +487,53 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     );
   }
 
+  /// Session ids key the reorderable list, so they must differ even for the
+  /// same exercise added twice within one millisecond.
+  String _newExerciseId(String prefix) =>
+      '${prefix}_${DateTime.now().microsecondsSinceEpoch}_${_exerciseIdSequence++}';
+
+  String _equipmentFor(String exerciseName) {
+    for (final exercise in [
+      ...CustomExerciseStore.instance.exercises,
+      ...mockExercises,
+    ]) {
+      if (exercise.name == exerciseName) return exercise.equipment;
+    }
+    return '';
+  }
+
+  /// Stops the clock where it was when the workout was left open for hours
+  /// (phone locked or app in the background), so it is not saved as a
+  /// day-long session dated today. The user can resume it or finish it.
+  bool _pauseIfAbandoned(DateTime now) {
+    final started = _startedAt;
+    if (!_timerRunning || started == null) return false;
+    final lastActive = started.add(Duration(seconds: _elapsedSeconds));
+    if (now.difference(lastActive) <= ActiveWorkoutSnapshot.abandonedAfter) {
+      return false;
+    }
+    _timer?.cancel();
+    void pause() {
+      _timerRunning = false;
+      _startedAt = null;
+      _endedAt = lastActive;
+    }
+
+    if (mounted) {
+      setState(pause);
+    } else {
+      pause();
+    }
+    _syncWatch();
+    _persistActiveWorkout();
+    return true;
+  }
+
   /// Rebuilds elapsed time from [_startedAt] so a suspended Dart ticker does
   /// not freeze the session clock after the phone is locked.
   void _catchUpFromClock({required bool syncWatch}) {
     if (!_timerRunning || _startedAt == null) return;
+    if (_pauseIfAbandoned(DateTime.now())) return;
     final elapsed = DateTime.now()
         .difference(_startedAt!)
         .inSeconds
@@ -429,6 +565,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       _elapsedSeconds = 0;
       _timerRunning = true;
       _startedAt = now;
+      _endedAt = null;
     });
     WorkoutLauncher.instance.sessionActive.value = true;
     _scheduleWorkoutTimer();
@@ -441,6 +578,10 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!_timerRunning || _startedAt == null) return;
+      // Where the OS keeps the ticker alive in the background, wait for the
+      // return to the foreground: that is when a forgotten session is told
+      // apart from a long rest.
+      if (_inBackground) return;
       final elapsed = DateTime.now()
           .difference(_startedAt!)
           .inSeconds
@@ -460,6 +601,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     setState(() {
       _timerRunning = true;
       _startedAt = DateTime.now().subtract(Duration(seconds: _elapsedSeconds));
+      _endedAt = null;
     });
     _syncWatch();
     _persistActiveWorkout();
@@ -473,7 +615,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
         final lastWeight = _lastWeightFor(ex.name, equipment: ex.equipment);
         _exercises.add(
           SessionExercise(
-            id: '${t.id}_${ex.name}_${DateTime.now().millisecondsSinceEpoch}',
+            id: _newExerciseId('${t.id}_${ex.name}'),
             name: ex.name,
             muscleGroup: ex.muscleGroup,
             equipment: ex.equipment,
@@ -496,12 +638,13 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
         final lastWeight = _lastWeightFor(ex.name, equipment: ex.equipment);
         _exercises.add(
           SessionExercise(
-            id: '${t.id}_${ex.name}_${DateTime.now().millisecondsSinceEpoch}',
+            id: _newExerciseId('${t.id}_${ex.name}'),
             name: ex.name,
             muscleGroup: ex.muscleGroup,
             equipment: ex.equipment,
             routineBlockName: t.name,
             restSeconds: ex.restSeconds,
+            supersetId: ex.supersetId,
             sets: List.generate(
               ex.sets,
               (_) => SessionSet(reps: ex.reps, weight: lastWeight ?? ex.weight),
@@ -509,6 +652,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
           ),
         );
       }
+      normalizeSupersets(_exercises);
     });
     _startWorkout(
       name: t.name,
@@ -527,12 +671,17 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
           final lastWeight = _lastWeightFor(ex.name, equipment: ex.equipment);
           _exercises.add(
             SessionExercise(
-              id: '${block.id}_${ex.name}_${DateTime.now().microsecondsSinceEpoch}',
+              id: _newExerciseId('${block.id}_${ex.name}'),
               name: ex.name,
               muscleGroup: ex.muscleGroup,
               equipment: ex.equipment,
               routineBlockName: block.name,
               restSeconds: ex.restSeconds,
+              // Kept apart per routine: a superset never runs from one
+              // routine of the day into the next.
+              supersetId: ex.supersetId == null
+                  ? null
+                  : '${block.id}_${ex.supersetId}',
               sets: List.generate(
                 ex.sets,
                 (_) =>
@@ -542,6 +691,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
           );
         }
       }
+      normalizeSupersets(_exercises);
     });
     _startWorkout(
       name: S.of(context).train_routineForDay(routineDayLabel(context, day)),
@@ -609,6 +759,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       _exercises.clear();
       _elapsedSeconds = 0;
       _startedAt = null;
+      _endedAt = null;
     });
     WorkoutLauncher.instance.sessionActive.value = false;
     _syncWatch();
@@ -638,26 +789,61 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       );
       return;
     }
+    final wasRunning = _timerRunning;
     _timer?.cancel();
     setState(() {
       _timerRunning = false;
       _startedAt = null;
     });
     _persistActiveWorkout();
-    _showSummaryDialog();
+    _showSummaryDialog(resumeTimer: wasRunning);
+  }
+
+  /// Drops the cached history lookups when what they depend on changed: the
+  /// saved workouts, the training goal or the weight unit.
+  void _refreshHistoryCache() {
+    final revision = WorkoutStore.instance.revision;
+    final goal = TrainingPreferencesStore.instance.preferences?.goal;
+    final unit = WeightUnits.instance.unit;
+    if (revision == _historyCacheRevision &&
+        goal == _historyCacheGoal &&
+        unit == _historyCacheUnit) {
+      return;
+    }
+    _historyCacheRevision = revision;
+    _historyCacheGoal = goal;
+    _historyCacheUnit = unit;
+    _recommendationCache.clear();
+    _previousSetsCache.clear();
   }
 
   ProgressionRecommendation? _recommendationFor(
     String exerciseName, {
     String equipment = '',
+    bool? timed,
   }) {
-    return ProgressionService.recommend(
+    _refreshHistoryCache();
+    final isTimed = timed ?? isTimedByDefault(exerciseName);
+    final key = '$exerciseName\u0000$equipment\u0000$isTimed';
+    if (_recommendationCache.containsKey(key)) {
+      return _recommendationCache[key];
+    }
+    return _recommendationCache[key] = ProgressionService.recommend(
       exerciseName: exerciseName,
       equipment: equipment,
       workouts: WorkoutStore.instance.workouts,
-      goal: TrainingPreferencesStore.instance.preferences?.goal,
+      goal: _historyCacheGoal,
       // 5 lb when training in pounds, so suggestions land on real plates.
       loadIncrementKg: loadStepKg(equipment),
+      timed: isTimed,
+    );
+  }
+
+  List<WorkoutSet> _previousSetsFor(String exerciseName) {
+    _refreshHistoryCache();
+    return _previousSetsCache[exerciseName] ??= ProgressionService.previousSets(
+      exerciseName: exerciseName,
+      workouts: WorkoutStore.instance.workouts,
     );
   }
 
@@ -678,7 +864,8 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     setState(() {
       for (var i = 0; i < exercise.sets.length; i++) {
         final set = exercise.sets[i];
-        if (set.completed) continue;
+        // The suggestion is for the working sets; a warm-up keeps its load.
+        if (set.completed || !set.type.countsAsWork) continue;
         exercise.sets[i] = set.copyWith(
           reps: value.suggestedReps,
           weight: value.suggestedWeight,
@@ -717,7 +904,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     setState(() {
       _exercises.add(
         SessionExercise(
-          id: '${ex.id}_${DateTime.now().millisecondsSinceEpoch}',
+          id: _newExerciseId(ex.id),
           name: ex.name,
           muscleGroup: ex.muscleGroup,
           equipment: ex.equipment,
@@ -733,7 +920,10 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     final ex = _exercises[index];
     final hasCompletedSets = ex.sets.any((s) => s.completed);
     if (!hasCompletedSets) {
-      setState(() => _exercises.removeAt(index));
+      setState(() {
+        _exercises.removeAt(index);
+        normalizeSupersets(_exercises);
+      });
       _persistActiveWorkout();
       _syncWatch();
       return;
@@ -762,7 +952,10 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              setState(() => _exercises.removeAt(index));
+              setState(() {
+                _exercises.removeAt(index);
+                normalizeSupersets(_exercises);
+              });
               _persistActiveWorkout();
               _syncWatch();
             },
@@ -781,6 +974,8 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
       if (newIndex > oldIndex) newIndex--;
       final item = _exercises.removeAt(oldIndex);
       _exercises.insert(newIndex, item);
+      // A superset is made of neighbours: moving one out breaks it.
+      normalizeSupersets(_exercises);
     });
     _persistActiveWorkout();
     _syncWatch();
@@ -838,6 +1033,44 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     _syncWatch();
   }
 
+  void _linkSuperset(int index) {
+    setState(() {
+      linkWithNext(_exercises, index, newSupersetId());
+    });
+    _persistActiveWorkout();
+    final l10n = S.of(context);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(l10n.superset_hint)));
+  }
+
+  void _unlinkSuperset(int index) {
+    setState(() => unlinkFromSuperset(_exercises, index));
+    _persistActiveWorkout();
+  }
+
+  /// Counts down a set of a timed exercise in the timer bar and marks it
+  /// done when the time is up (which then starts the rest as usual).
+  void _startHold(int exIndex, int setIndex) {
+    final set = _exercises[exIndex].sets[setIndex];
+    if (set.completed || set.reps <= 0) return;
+    RestTimerController.instance.startHold(
+      set.reps,
+      onFinished: () {
+        if (!mounted || set.completed) return;
+        // The list may have been reordered or edited meanwhile: find the
+        // set again by identity.
+        for (var e = 0; e < _exercises.length; e++) {
+          final s = _exercises[e].sets.indexOf(set);
+          if (s != -1) {
+            _toggleSetDone(e, s);
+            return;
+          }
+        }
+      },
+    );
+  }
+
   void _toggleSetDone(int exIndex, int setIndex) {
     final s = _exercises[exIndex].sets[setIndex];
     final wasCompleted = s.completed;
@@ -849,9 +1082,15 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
     // Auto-start the rest timer when a set transitions to completed, with
     // the exercise's own rest when the routine defines one.
     if (!wasCompleted) {
+      // In a superset the next exercise follows straight away: the rest
+      // comes once the whole round is done.
+      if (!supersetRoundComplete(_exercises, exIndex)) return;
       RestTimerController.instance.startWithDefault(
         seconds: _exercises[exIndex].restSeconds,
       );
+      // First rest ever: ask for notification permission now that there is
+      // an obvious reason for it.
+      unawaited(RestAlertService.instance.ensurePermissionAsked());
     }
   }
 
@@ -1162,6 +1401,10 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
           child: _exercises.isEmpty
               ? _buildNoExercisesHint()
               : ReorderableListView.builder(
+                  // The iOS number pad has no "done" key: scrolling the list
+                  // puts it away.
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                   itemCount: _exercises.length,
                   onReorder: _reorderExercise,
@@ -1182,6 +1425,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                     final recommendation = _recommendationFor(
                       exercise.name,
                       equipment: exercise.equipment,
+                      timed: exercise.timed,
                     );
                     return Column(
                       key: ValueKey(exercise.id),
@@ -1191,10 +1435,7 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                           _RoutineBlockHeader(name: exercise.routineBlockName!),
                         _ExerciseCard(
                           exercise: exercise,
-                          previousSets: ProgressionService.previousSets(
-                            exerciseName: exercise.name,
-                            workouts: WorkoutStore.instance.workouts,
-                          ),
+                          previousSets: _previousSetsFor(exercise.name),
                           recommendation: recommendation,
                           onApplyRecommendation: recommendation == null
                               ? null
@@ -1202,6 +1443,16 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                           onAddSet: () => _addSet(i),
                           onRemoveSet: (si) => _removeSet(i, si),
                           onToggleDone: (si) => _toggleSetDone(i, si),
+                          onStartHold: (si) => _startHold(i, si),
+                          inSuperset: isInSuperset(_exercises, i),
+                          onLinkNext:
+                              i < _exercises.length - 1 &&
+                                  !isLinkedWithNext(_exercises, i)
+                              ? () => _linkSuperset(i)
+                              : null,
+                          onUnlink: isInSuperset(_exercises, i)
+                              ? () => _unlinkSuperset(i)
+                              : null,
                           onDelete: () => _removeExercise(i),
                           onSetChanged: () => setState(() {}),
                         ),
@@ -1332,9 +1583,8 @@ class _TrainScreenState extends State<TrainScreen> with WidgetsBindingObserver {
                 icon: const Icon(Icons.close_rounded, size: 22),
                 color: AppColors.textMuted,
                 tooltip: l10n.common_cancel,
-                visualDensity: VisualDensity.compact,
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                constraints: const BoxConstraints(),
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
               ),
               const SizedBox(width: 4),
               TextButton.icon(

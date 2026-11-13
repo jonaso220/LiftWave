@@ -7,10 +7,16 @@ import 'package:flutter/services.dart';
 import 'package:liftwave/data/active_workout_store.dart';
 import 'package:liftwave/data/persistent_sync_queue.dart';
 import 'package:liftwave/data/custom_template_store.dart';
+import 'package:liftwave/data/mock_data.dart';
 import 'package:liftwave/data/workout_templates.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:liftwave/l10n/generated/app_localizations_en.dart';
 import 'package:liftwave/l10n/generated/app_localizations_es.dart';
+import 'package:liftwave/l10n/generated/app_localizations_de.dart';
+import 'package:liftwave/l10n/generated/app_localizations_fr.dart';
+import 'package:liftwave/l10n/generated/app_localizations_ja.dart';
+import 'package:liftwave/l10n/generated/app_localizations_ko.dart';
+import 'package:liftwave/l10n/generated/app_localizations_pt.dart';
 import 'package:liftwave/models/models.dart';
 import 'package:liftwave/models/progress_models.dart';
 import 'package:liftwave/models/session_models.dart';
@@ -152,6 +158,195 @@ void main() {
       isTrue,
     );
   });
+
+  test(
+    'a workout left open for hours keeps the time it had when last used',
+    () {
+      final startedAt = DateTime(2026, 8, 17, 10);
+      // Last saved 40 minutes in, with the clock still running.
+      final snapshot = ActiveWorkoutSnapshot(
+        timerRunning: true,
+        startedAt: startedAt,
+        elapsedSeconds: 2400,
+        workoutName: 'Rutina',
+        routineDay: null,
+        routineOrder: null,
+        launchSource: WorkoutLaunchSource.savedRoutine,
+        exercises: const [],
+      );
+      final lastActive = startedAt.add(const Duration(minutes: 40));
+      expect(snapshot.lastActiveAt, lastActive);
+
+      // A long rest with the phone locked still counts as training time.
+      final afterRest = lastActive.add(const Duration(minutes: 20));
+      expect(snapshot.isAbandonedAt(afterRest), isFalse);
+      expect(snapshot.elapsedAt(afterRest), 3600);
+
+      // Reopened two days later: not a 24-hour workout.
+      final twoDaysLater = lastActive.add(const Duration(days: 2));
+      expect(snapshot.isAbandonedAt(twoDaysLater), isTrue);
+      expect(snapshot.elapsedAt(twoDaysLater), 2400);
+
+      // A paused session is never "abandoned": its clock was not running.
+      final paused = ActiveWorkoutSnapshot(
+        timerRunning: false,
+        startedAt: null,
+        elapsedSeconds: 2400,
+        workoutName: 'Rutina',
+        routineDay: null,
+        routineOrder: null,
+        launchSource: WorkoutLaunchSource.savedRoutine,
+        exercises: const [],
+      );
+      expect(paused.isAbandonedAt(twoDaysLater), isFalse);
+      expect(paused.elapsedAt(twoDaysLater), 2400);
+    },
+  );
+
+  test('ordinals in a routine name are not read as weekdays', () {
+    expect(routineDayFromName('Segunda rutina de pecho'), isNull);
+    expect(routineDayFromName('Quinta'), isNull);
+    expect(routineDayFromName('Sexta sesión'), isNull);
+    expect(routineDayFromName('Lunesta'), isNull);
+    // The Portuguese weekdays still work when written in full.
+    expect(routineDayFromName('Peito segunda-feira'), RoutineDay.monday);
+    expect(routineDayFromName('Pernas Sexta Feira'), RoutineDay.friday);
+    expect(routineDayFromName('Sábado piernas'), RoutineDay.saturday);
+    expect(routineDayFromName('Pierna lunes'), RoutineDay.monday);
+  });
+
+  test('a routine explicitly left without a day ignores its name', () {
+    expect(
+      routineDayForHistoryGrouping(storedDay: null, name: 'Pierna lunes'),
+      RoutineDay.monday,
+    );
+    expect(
+      routineDayForHistoryGrouping(
+        storedDay: routineDayUnassigned,
+        name: 'Pierna lunes',
+      ),
+      isNull,
+    );
+    // 2026-07-28 is a Tuesday: the completion date decides, not the name.
+    expect(
+      routineDayForWorkout(
+        storedDay: routineDayUnassigned,
+        name: 'Pierna lunes',
+        date: DateTime(2026, 7, 28),
+      ),
+      RoutineDay.tuesday,
+    );
+
+    final assigned = CustomTemplate(
+      id: 't1',
+      name: 'Pierna lunes',
+      exercises: const [],
+      routineDay: RoutineDay.monday.storageKey,
+      routineOrder: 2,
+    );
+    final cleared = assigned.copyWith(clearRoutineDay: true);
+    expect(cleared.routineDay, routineDayUnassigned);
+    expect(cleared.routineOrder, isNull);
+  });
+
+  test('snackbar text contrasts with its background in both themes', () {
+    const dark = Color(0xFF15152B);
+    const white = Color(0xFFFFFFFF);
+    expect(AppColors.readableOn(AppColors.error), dark);
+    expect(AppColors.readableOn(AppPalette.dark.accent), dark);
+    expect(AppColors.readableOn(AppPalette.light.accent), dark);
+    expect(AppColors.readableOn(AppPalette.dark.textMuted), white);
+    expect(AppColors.readableOn(AppPalette.dark.bgCardLight), white);
+    expect(AppColors.readableOn(AppPalette.light.bgCardLight), dark);
+    double contrast(Color a, Color b) {
+      final la = a.computeLuminance(), lb = b.computeLuminance();
+      final hi = la > lb ? la : lb, lo = la > lb ? lb : la;
+      return (hi + 0.05) / (lo + 0.05);
+    }
+
+    for (final palette in [AppPalette.dark, AppPalette.light]) {
+      // Card-toned snackbars take the theme's primary text colour.
+      expect(
+        contrast(palette.textPrimary, palette.bgCardLight),
+        greaterThan(4.5),
+      );
+      for (final background in [
+        AppColors.error,
+        palette.accent,
+        palette.textMuted,
+      ]) {
+        expect(
+          contrast(AppColors.readableOn(background), background),
+          greaterThan(4.5),
+        );
+      }
+    }
+  });
+
+  test('every catalogue exercise is translated in every language', () {
+    final languages = <S>[SEn(), SEs(), SPt(), SDe(), SFr(), SJa(), SKo()];
+    for (final l10n in languages) {
+      for (final exercise in mockExercises) {
+        final reason = '${exercise.id} in ${l10n.localeName}';
+        final description = ExerciseLocalization.description(
+          l10n,
+          exercise.description,
+          id: exercise.id,
+        );
+        expect(description, isNotEmpty, reason: reason);
+        expect(
+          description,
+          isNot(l10n.exercises_descriptionUnavailable),
+          reason: reason,
+        );
+        expect(
+          ExerciseLocalization.benefits(
+            l10n,
+            exercise.benefits,
+            id: exercise.id,
+          ),
+          hasLength(exercise.benefits.length),
+          reason: reason,
+        );
+        expect(
+          ExerciseLocalization.name(l10n, exercise.name),
+          isNotEmpty,
+          reason: reason,
+        );
+      }
+    }
+    // Spanish is the catalogue's own language: nothing may drift from it.
+    final es = SEs();
+    for (final exercise in mockExercises) {
+      expect(ExerciseLocalization.name(es, exercise.name), exercise.name);
+      expect(
+        ExerciseLocalization.description(
+          es,
+          exercise.description,
+          id: exercise.id,
+        ),
+        exercise.description,
+      );
+    }
+  });
+
+  test(
+    'an exercise is translated by name when its id is not a catalogue id',
+    () {
+      final en = SEn();
+      final byCatalogue = ExerciseLocalization.name(en, 'Press de banca');
+      expect(byCatalogue, isNot('Press de banca'));
+      // The routine editor rebuilds its exercises with ids of its own.
+      expect(
+        ExerciseLocalization.name(
+          en,
+          'Press de banca',
+          id: 'routine_Press de banca_Barra',
+        ),
+        byCatalogue,
+      );
+    },
+  );
 
   test('legacy routine names are grouped by weekday and ordinal', () {
     expect(routineDayFromName('1er biserie Martes julio'), RoutineDay.tuesday);
@@ -404,6 +599,8 @@ void main() {
     expect(result!.routineOrder, 2);
     expect(result!.exercises.single.sets, 4);
     expect(result!.exercises.single.reps, 8);
+    // The builder has no load field; renaming must not wipe the saved one.
+    expect(result!.exercises.single.weight, 20);
   });
 
   testWidgets('routine builder confirms before discarding changes', (
@@ -696,6 +893,38 @@ void main() {
     await directory.delete(recursive: true);
   });
 
+  test('account cleanup finds photos after the app container moved', () async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+    final documents = await Directory.systemTemp.createTemp('liftwave-docs');
+    const pathProvider = MethodChannel('plugins.flutter.io/path_provider');
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(
+      pathProvider,
+      (call) async => call.method == 'getApplicationDocumentsDirectory'
+          ? documents.path
+          : null,
+    );
+    addTearDown(() => messenger.setMockMethodCallHandler(pathProvider, null));
+
+    final stalePhoto = File('${documents.path}/progress_1.jpg');
+    final namedPhoto = File('${documents.path}/progress_2.jpg');
+    await stalePhoto.writeAsString('private');
+    await namedPhoto.writeAsString('private');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('body_measurements_user-1', [
+      jsonEncode({'id': 'm1', 'photoPath': '/old/container/progress_1.jpg'}),
+      jsonEncode({'id': 'm2', 'photoPath': 'progress_2.jpg'}),
+    ]);
+
+    await UserDataDeletionService.deleteLocalData('user-1');
+
+    expect(await stalePhoto.exists(), isFalse);
+    expect(await namedPhoto.exists(), isFalse);
+    await documents.delete(recursive: true);
+  });
+
   test('authoritative cloud merge does not resurrect cache-only records', () {
     final resolved = mergeAuthoritativeCloudWithPending<String>(
       cloud: const {'cloud': 'remote value'},
@@ -861,6 +1090,42 @@ void main() {
     expect(legacy.hasPhoto, isTrue);
     expect(legacy.toCloudJson().containsKey('photoPath'), isFalse);
   });
+
+  test(
+    'progress photos are cached by file name and follow the app container',
+    () {
+      final saved = BodyMeasurement.fromJson({
+        'id': 'measurement-1',
+        'date': '2026-07-13T12:00:00.000',
+        'weight': 80,
+        'photoPath':
+            '/var/mobile/Containers/Data/Application/OLD/Documents/progress_1.jpg',
+      });
+
+      expect(saved.toLocalJson()['photoPath'], 'progress_1.jpg');
+
+      const newDocuments =
+          '/var/mobile/Containers/Data/Application/NEW/Documents';
+      // A path written by an older build and a bare file name resolve alike.
+      expect(
+        rebasePhotoPath(saved.photoPath, newDocuments),
+        '$newDocuments/progress_1.jpg',
+      );
+      expect(
+        rebasePhotoPath('progress_1.jpg', '$newDocuments/'),
+        '$newDocuments/progress_1.jpg',
+      );
+      expect(rebasePhotoPath(null, newDocuments), isNull);
+      expect(rebasePhotoPath('', newDocuments), isNull);
+
+      final withoutPhoto = BodyMeasurement.fromJson({
+        'id': 'measurement-2',
+        'date': '2026-07-13T12:00:00.000',
+        'weight': 80,
+      });
+      expect(withoutPhoto.toLocalJson()['photoPath'], isNull);
+    },
+  );
 
   test(
     'sync queue keeps the latest mutation and protects newer writes',

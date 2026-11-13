@@ -460,6 +460,15 @@ class SJa extends S {
   String get editWorkout_saved => 'トレーニングを更新しました';
 
   @override
+  String get detail_deleteWorkout => 'トレーニングを削除';
+
+  @override
+  String get detail_deleteWorkoutConfirm => '履歴から削除されます。この操作は元に戻せません。';
+
+  @override
+  String get detail_workoutDeleted => 'トレーニングを削除しました';
+
+  @override
   String get home_viewAll => 'すべて見る';
 
   @override
@@ -491,6 +500,231 @@ class SJa extends S {
 
   @override
   String get profile_deleteAccount => 'アカウントを削除';
+
+  @override
+  String get progressScreen_deleteMeasurementTitle => '記録を削除しますか？';
+
+  @override
+  String get progressScreen_deleteMeasurementBody =>
+      '記録と写真が削除されます。この操作は元に戻せません。';
+
+  @override
+  String get profile_signOutConfirm => 'ログアウトしますか？データはアカウントに保存されたままです。';
+
+  @override
+  String get profile_deleteSubscriptionNote =>
+      'アカウントを削除してもサブスクリプションは解約されません。先にストアで解約してください。';
+
+  @override
+  String get profile_manageSubscription => 'サブスクリプションを管理';
+
+  @override
+  String get profile_help => 'ヘルプとサポート';
+
+  @override
+  String get rest_alertTitle => '休憩終了';
+
+  @override
+  String get rest_alertBody => '次のセットの時間です。';
+
+  @override
+  String get rest_alertChannel => '休憩タイマー';
+
+  @override
+  String get profile_restAlert => '休憩終了時に通知';
+
+  @override
+  String get profile_restAlertSubtitle => 'アプリを表示していないときに音で通知します';
+
+  @override
+  String get profile_restAlertExact => '正確なアラームを許可';
+
+  @override
+  String get profile_restAlertExactSubtitle =>
+      'この権限がないと、Androidが通知を遅らせる場合があります';
+
+  @override
+  String get editWorkout_date => '日時';
+
+  @override
+  String get editWorkout_duration => '時間（分）';
+
+  @override
+  String get history_searchHint => 'トレーニングまたは種目を検索';
+
+  @override
+  String get history_noResults => '結果なし';
+
+  @override
+  String get history_calendar => 'カレンダー';
+
+  @override
+  String get progress_oneRm => '推定1RM';
+
+  @override
+  String get progress_recordsTitle => '記録';
+
+  @override
+  String get progress_bestLift => '最高重量';
+
+  @override
+  String get progress_bestOneRm => '推定1RMベスト';
+
+  @override
+  String get setType_title => 'セットの種類';
+
+  @override
+  String get setType_normal => '通常';
+
+  @override
+  String get setType_warmup => 'ウォームアップ';
+
+  @override
+  String get setType_drop => 'ドロップセット';
+
+  @override
+  String get setType_failure => '限界まで';
+
+  @override
+  String get setType_warmupHint => 'ボリュームや記録には含まれません';
+
+  @override
+  String get setType_warmupShort => 'W';
+
+  @override
+  String get setType_dropShort => 'D';
+
+  @override
+  String get setType_failureShort => 'F';
+
+  @override
+  String get plates_title => 'プレート計算機';
+
+  @override
+  String get plates_target => '合計重量';
+
+  @override
+  String get plates_bar => 'バー';
+
+  @override
+  String get plates_perSide => '片側';
+
+  @override
+  String get plates_onlyBar => 'バーのみ';
+
+  @override
+  String get plates_belowBar => '重量がバーより軽いです';
+
+  @override
+  String plates_missing(String amount) {
+    return 'このプレートでは$amountを載せられません';
+  }
+
+  @override
+  String get train_secondsHeader => '秒';
+
+  @override
+  String get train_secondsShort => '秒';
+
+  @override
+  String get train_startHold => '開始';
+
+  @override
+  String get train_measureByTime => '時間で記録';
+
+  @override
+  String get train_measureByReps => '回数で記録';
+
+  @override
+  String get hold_running => '実施中';
+
+  @override
+  String get hold_alertTitle => '時間です';
+
+  @override
+  String get hold_alertBody => 'セット完了です。';
+
+  @override
+  String train_reasonHold(int seconds) {
+    return '$seconds秒キープしました。5秒延ばしてみましょう。';
+  }
+
+  @override
+  String get superset_label => 'スーパーセット';
+
+  @override
+  String get superset_linkNext => '次の種目とスーパーセット';
+
+  @override
+  String get superset_unlink => 'スーパーセットを解除';
+
+  @override
+  String get superset_hint => 'セットを交互に行います。休憩は1巡終わってから始まります。';
+
+  @override
+  String get reminders_title => 'トレーニングのリマインダー';
+
+  @override
+  String get reminders_off => 'オフ';
+
+  @override
+  String get reminders_enable => 'トレーニングを通知する';
+
+  @override
+  String get reminders_enableSubtitle => '選んだ曜日に通知します';
+
+  @override
+  String get reminders_days => '曜日';
+
+  @override
+  String get reminders_time => '時刻';
+
+  @override
+  String get reminders_notificationTitle => 'トレーニングの時間です';
+
+  @override
+  String get reminders_notificationBody => '今日のトレーニングが待っています。';
+
+  @override
+  String reminders_notificationRoutine(String routine) {
+    return '今日のメニュー：$routine';
+  }
+
+  @override
+  String get reminders_permissionDenied =>
+      'リマインダーを受け取るには、システム設定でLiftWaveの通知をオンにしてください。';
+
+  @override
+  String health_sync(String store) {
+    return '$storeと同期';
+  }
+
+  @override
+  String health_syncSubtitle(String store) {
+    return '記録したワークアウトと体重を$storeに保存します';
+  }
+
+  @override
+  String health_enabled(String store) {
+    return '完了しました。今後のワークアウトは$storeに保存されます。';
+  }
+
+  @override
+  String health_denied(String store) {
+    return '有効にできませんでした。$storeでLiftWaveの権限を確認してください。';
+  }
+
+  @override
+  String get health_needsInstall =>
+      '同期を有効にするには、Health Connectをインストールまたは更新してください。';
+
+  @override
+  String get health_install => 'インストール';
+
+  @override
+  String health_unsupported(String store) {
+    return 'このデバイスでは$storeを利用できません。';
+  }
 
   @override
   String get profile_purchasesRestored => '購入が正常に復元されました';
@@ -1262,6 +1496,10 @@ class SJa extends S {
       'サブスクリプションは自動的に更新されます。\nApp Storeからいつでもキャンセルできます。';
 
   @override
+  String get paywall_legalTextPlay =>
+      'サブスクリプションは自動的に更新されます。\nGoogle Playからいつでもキャンセルできます。';
+
+  @override
   String get paywall_legalTextTrial =>
       '無料トライアル終了後、有料サブスクリプションに自動移行します。トライアル期間中いつでもキャンセル可能。サブスクリプションは自動更新されます。';
 
@@ -1651,6 +1889,742 @@ class SJa extends S {
 
   @override
   String get template_legs_name => '脚';
+
+  @override
+  String get ex_pecho_6_name => 'インクラインベンチプレス';
+
+  @override
+  String get ex_pecho_6_desc =>
+      'ベンチを30〜45度に調整します。肩幅よりやや広めのグリップでバーを握ります。バーをコントロールしながら胸の上部まで下ろし、腕が完全に伸びるまで押し上げます。腰をベンチにつけ、肩甲骨を寄せたままにしてください。';
+
+  @override
+  String get ex_pecho_6_b1 => '胸の上部（鎖骨部）を重点的に鍛える';
+
+  @override
+  String get ex_pecho_6_b2 => 'ダンベルよりも高重量を扱える';
+
+  @override
+  String get ex_pecho_6_b3 => '高い角度からのプッシュ力を向上させる';
+
+  @override
+  String get ex_pecho_7_name => 'デクラインダンベルプレス';
+
+  @override
+  String get ex_pecho_7_desc =>
+      'ベンチを15〜30度のデクラインに調整します。両手にダンベルを持って胸の高さに構え、トップでダンベルを近づけるように押し上げます。胸の下部のストレッチを感じながらコントロールして下ろします。';
+
+  @override
+  String get ex_pecho_7_b1 => '大胸筋の下部を鍛える';
+
+  @override
+  String get ex_pecho_7_b2 => '肩の関与を減らす';
+
+  @override
+  String get ex_pecho_7_b3 => 'バーベルのデクラインプレスより可動域が広い';
+
+  @override
+  String get ex_pecho_8_name => '腕立て伏せ（プッシュアップ）';
+
+  @override
+  String get ex_pecho_8_desc =>
+      '両手を肩幅に開いて床につき、両足を揃えます。頭からかかとまで体をまっすぐに保ちます。肘を曲げて胸が床に触れる直前まで体を下ろし、押し上げて戻ります。動作中は体幹を引き締めたままにしてください。';
+
+  @override
+  String get ex_pecho_8_b1 => '器具が不要';
+
+  @override
+  String get ex_pecho_8_b2 => '段階的に進歩できる多彩なバリエーション（ダイヤモンド、デクライン、クラップ）';
+
+  @override
+  String get ex_pecho_8_b3 => '体幹も強化する複合エクササイズ';
+
+  @override
+  String get ex_pecho_9_name => 'ダンベルプルオーバー';
+
+  @override
+  String get ex_pecho_9_desc =>
+      'フラットベンチに仰向けになり、1つのダンベルを両手で持って胸の上に構え、腕を伸ばします。胸と広背筋のストレッチを感じるまで、弧を描くようにダンベルを頭の後方へ下ろします。胸を収縮させながら元の位置に戻します。';
+
+  @override
+  String get ex_pecho_9_b1 => '胸と広背筋を同時に鍛える';
+
+  @override
+  String get ex_pecho_9_b2 => '肩と胸郭の可動性を向上させる';
+
+  @override
+  String get ex_pecho_9_b3 => 'プレスやロウのセット間の補助種目として優れている';
+
+  @override
+  String get ex_esp_6_name => 'Tバーロウ';
+
+  @override
+  String get ex_esp_6_desc =>
+      '足を肩幅に開いてTバーをまたいで立ちます。背中をニュートラルに保ちながら上体を前傾させ、肘を後ろに引きながらハンドルを胸に向かって引きます。最終位置で肩甲骨を寄せ、コントロールしながら下ろします。';
+
+  @override
+  String get ex_esp_6_b1 => '背中中部の厚みを発達させる';
+
+  @override
+  String get ex_esp_6_b2 => 'フリーのロウより腰への負担が少なく、非常に高重量を扱える';
+
+  @override
+  String get ex_esp_6_b3 => '姿勢と肩甲骨の安定性を鍛える';
+
+  @override
+  String get ex_esp_7_name => 'シーテッドケーブルロウ';
+
+  @override
+  String get ex_esp_7_desc =>
+      'ロープーリーの前に座り、足をしっかり置きます。腕を伸ばし、背中をニュートラルにしてアタッチメントを握ります。肩甲骨を寄せ、上体を起こしたまま、手を腹部に向かって引きます。背中を丸めずにコントロールしながら戻します。';
+
+  @override
+  String get ex_esp_7_b1 => '動作全体を通して一定の張力がかかる';
+
+  @override
+  String get ex_esp_7_b2 => '重量を上げやすく、テクニックが習得しやすい';
+
+  @override
+  String get ex_esp_7_b3 => '背中中部の厚みを発達させるのに優れている';
+
+  @override
+  String get ex_esp_8_name => 'ダンベルシュラッグ';
+
+  @override
+  String get ex_esp_8_desc =>
+      '両手にダンベルを持って体の横に構え、腕をリラックスさせて立ちます。肘を曲げずに肩を耳に向かって引き上げます。トップで1秒間収縮を保ち、ゆっくり下ろします。肩を回さないでください。動きは純粋に垂直方向です。';
+
+  @override
+  String get ex_esp_8_b1 => '僧帽筋上部を直接アイソレーションする';
+
+  @override
+  String get ex_esp_8_b2 => '姿勢と首まわりの見た目を改善する';
+
+  @override
+  String get ex_esp_8_b3 => '他のリフトのための肩甲骨の安定性を強化する';
+
+  @override
+  String get ex_esp_9_name => 'グッドモーニング';
+
+  @override
+  String get ex_esp_9_desc =>
+      'スクワットと同じようにバーを僧帽筋の上に乗せます。足を腰幅に開き、膝を軽く曲げた状態で、背中をニュートラルに保ちながら股関節から上体を前傾させます。上体が床とほぼ平行になるまで下ろし、臀筋を絞りながら戻ります。';
+
+  @override
+  String get ex_esp_9_b1 => 'ポステリアチェーンと腰部を強化する';
+
+  @override
+  String get ex_esp_9_b2 => 'デッドリフトやスクワットのためのヒップヒンジを向上させる';
+
+  @override
+  String get ex_esp_9_b3 => 'パワーリフティングの重要な補助種目';
+
+  @override
+  String get ex_pier_6_name => 'フロントスクワット';
+
+  @override
+  String get ex_pier_6_desc =>
+      'バーを三角筋前部の上に乗せ、肘を高く上げ、クロスグリップまたはクリーングリップで握ります。足を肩幅に開きます。上体を垂直に保ち、肘を前に向けたまま、太ももが床と平行より下になるまで下ろします。かかとで押して元の位置に戻ります。';
+
+  @override
+  String get ex_pier_6_b1 => 'バックスクワットより大腿四頭筋を重点的に鍛える';
+
+  @override
+  String get ex_pier_6_b2 => '非常に強い体幹とまっすぐな姿勢が求められる';
+
+  @override
+  String get ex_pier_6_b3 => 'クロスフィットのクリーンやスラスターの技術的な基礎';
+
+  @override
+  String get ex_pier_7_name => 'ブルガリアンスクワット';
+
+  @override
+  String get ex_pier_7_desc =>
+      '両手にダンベルを持ち、後ろ足の甲をベンチに乗せます。前足を前方に出した状態で、太ももが床と平行になるまで前の膝を曲げて下ろします。前足のかかとで押して立ち上がります。';
+
+  @override
+  String get ex_pier_7_b1 => '片脚ずつ鍛え、左右の脚の不均衡を改善する';
+
+  @override
+  String get ex_pier_7_b2 => '臀筋と大腿四頭筋を強く活性化する';
+
+  @override
+  String get ex_pier_7_b3 => 'バランスと股関節の安定性を向上させる';
+
+  @override
+  String get ex_pier_8_name => 'ルーマニアンデッドリフト';
+
+  @override
+  String get ex_pier_8_desc =>
+      '肩幅のオーバーハンドグリップでバーを握り、腰の高さに構えて立ちます。膝を軽く曲げて固定したまま、ハムストリングスに張りを感じるまで、股関節から上体を前傾させながらバーを脚に沿って滑らせます。臀筋を絞りながら戻ります。';
+
+  @override
+  String get ex_pier_8_b1 => 'ハムストリングスと臀筋を強くアイソレーションする';
+
+  @override
+  String get ex_pier_8_b2 => 'ポステリアチェーンを強化し、ヒップヒンジを向上させる';
+
+  @override
+  String get ex_pier_8_b3 => '走る・跳ぶ動作でのハムストリングスの怪我のリスクを軽減する';
+
+  @override
+  String get ex_pier_9_name => 'レッグエクステンション';
+
+  @override
+  String get ex_pier_9_desc =>
+      'マシンに座り、背中をシートにつけ、ローラーを足の甲に当てます。膝をロックせずに、脚がほぼまっすぐになるまで膝を伸ばしてウェイトを持ち上げます。トップで大腿四頭筋を収縮させ、コントロールしながら下ろします。';
+
+  @override
+  String get ex_pier_9_b1 => '大腿四頭筋を直接アイソレーションする';
+
+  @override
+  String get ex_pier_9_b2 => 'リハビリや部位を絞った筋肥大トレーニングに役立つ';
+
+  @override
+  String get ex_pier_9_b3 => '負荷を細かく調整でき、リスクが低い';
+
+  @override
+  String get ex_pier_10_name => 'カーフレイズ';
+
+  @override
+  String get ex_pier_10_desc =>
+      'カーフマシンのパッドの下に肩を入れます（または立った状態でダンベルを使います）。つま先をプラットフォームに乗せ、かかとを台の外に出します。つま先で押して体を持ち上げ、トップでふくらはぎを収縮させます。ストレッチを感じながらゆっくり下ろします。';
+
+  @override
+  String get ex_pier_10_b1 => 'ヒラメ筋と腓腹筋をアイソレーションする';
+
+  @override
+  String get ex_pier_10_b2 => 'ジャンプやスプリントのパワーを向上させる';
+
+  @override
+  String get ex_pier_10_b3 => '足首とアキレス腱の怪我のリスクを軽減する';
+
+  @override
+  String get ex_hom_5_name => 'ダンベルショルダープレス';
+
+  @override
+  String get ex_hom_5_desc =>
+      '背もたれをまっすぐに立てて座り、手のひらを前に向けてダンベルを肩の両側に構えます。肘をロックせずに、頭上でダンベルがほぼ触れ合うまで押し上げます。コントロールしながら元の位置に下ろします。';
+
+  @override
+  String get ex_hom_5_b1 => 'バーベルプレスより可動域が広い';
+
+  @override
+  String get ex_hom_5_b2 => '左右それぞれを独立して鍛えられる';
+
+  @override
+  String get ex_hom_5_b3 => 'バーベルに比べて肩への負担を軽減する';
+
+  @override
+  String get ex_hom_6_name => 'フロントレイズ';
+
+  @override
+  String get ex_hom_6_desc =>
+      '両手にダンベルを持って太ももの前に構え、手のひらを体に向けて立ちます。肘をほぼ伸ばしたまま、腕を交互にまたは同時に前方へ肩の高さまで持ち上げます。体を揺らさずにゆっくり下ろします。';
+
+  @override
+  String get ex_hom_6_b1 => '三角筋前部をアイソレーションする';
+
+  @override
+  String get ex_hom_6_b2 => '肩の正面からの見た目を改善する';
+
+  @override
+  String get ex_hom_6_b3 => 'ベンチプレスとミリタリープレスの補助種目';
+
+  @override
+  String get ex_hom_7_name => 'ダンベルリアレイズ';
+
+  @override
+  String get ex_hom_7_desc =>
+      '股関節から上体を前傾させて床とほぼ平行にし、両手にダンベルを持って腕を下に垂らします。肘を軽く曲げた状態で、腕を横に肩の高さまで持ち上げます。トップでリアデルトを収縮させ、コントロールしながら下ろします。';
+
+  @override
+  String get ex_hom_7_b1 => '姿勢の要となるリアデルトをアイソレーションする';
+
+  @override
+  String get ex_hom_7_b2 => 'プッシュ系トレーニングの影響を相殺する';
+
+  @override
+  String get ex_hom_7_b3 => '回旋筋腱板の怪我のリスクを軽減する';
+
+  @override
+  String get ex_bra_6_name => 'プリーチャーカール';
+
+  @override
+  String get ex_bra_6_desc =>
+      'プリーチャーベンチに座り、腕をパッドの上に乗せます。バー（ストレートまたはEZ）をアンダーハンドグリップで握ります。動きをコントロールしながら肘を曲げ、バーを肩に向かって持ち上げます。最後に肘をロックせずにゆっくり下ろします。';
+
+  @override
+  String get ex_bra_6_b1 => '肩を固定することで二頭筋をアイソレーションする';
+
+  @override
+  String get ex_bra_6_b2 => '反動が使えず、ストリクトなフォームになる';
+
+  @override
+  String get ex_bra_6_b3 => '二頭筋の最大収縮に優れている';
+
+  @override
+  String get ex_bra_7_name => 'コンセントレーションカール';
+
+  @override
+  String get ex_bra_7_desc =>
+      '脚を開いてベンチに座ります。動かす側の腕の肘を太ももの内側に当て、ダンベルを下に垂らします。二頭筋をアイソレーションしながら肘を曲げ、ダンベルを肩に向かって持ち上げます。トップで収縮させ、コントロールしながら下ろします。';
+
+  @override
+  String get ex_bra_7_b1 => '最大収縮で二頭筋を純粋にアイソレーションする';
+
+  @override
+  String get ex_bra_7_b2 => 'マインドマッスルコネクションに集中できる';
+
+  @override
+  String get ex_bra_7_b3 => '腕のトレーニングの仕上げ種目として最適';
+
+  @override
+  String get ex_bra_8_name => 'ナローグリップベンチプレス';
+
+  @override
+  String get ex_bra_8_desc =>
+      'フラットベンチに仰向けになり、肩幅のナローグリップでバーを握ります。肘を体の側面につけたまま、バーをコントロールしながら胸骨に軽く触れるまで下ろします。三頭筋の伸展を意識しながら押し上げます。';
+
+  @override
+  String get ex_bra_8_b1 => '三頭筋を重点的に鍛える複合エクササイズ';
+
+  @override
+  String get ex_bra_8_b2 => '三頭筋のアイソレーション種目よりも高重量を扱える';
+
+  @override
+  String get ex_bra_8_b3 => 'ベンチプレスとミリタリープレスの筋力向上につながる';
+
+  @override
+  String get ex_bra_9_name => 'ベンチディップス';
+
+  @override
+  String get ex_bra_9_desc =>
+      '背後のベンチに、指を前に向けて両手をつきます。脚を前に伸ばしてかかとを床につけます（膝を曲げると楽になります）。肘を後ろに曲げながら90度になるまで体を下ろし、押し上げて戻ります。';
+
+  @override
+  String get ex_bra_9_b1 => '器具なしで三頭筋をアイソレーションできる';
+
+  @override
+  String get ex_bra_9_b2 => '太ももの上に重りを乗せて簡単に負荷を上げられる';
+
+  @override
+  String get ex_bra_9_b3 => '体の後方の位置からのプッシュ力を向上させる';
+
+  @override
+  String get ex_core_5_name => 'ロシアンツイスト';
+
+  @override
+  String get ex_core_5_desc =>
+      '膝を曲げて床に座り、足は浮かせるか床につけ、上体を後方に45度傾けます。両手を合わせ（またはウェイトを持ち）、上体を左右にひねって床にタッチするか、ウェイトを左右に運びます。体幹を引き締めたままにしてください。';
+
+  @override
+  String get ex_core_5_b1 => '腹斜筋を直接アイソレーションする';
+
+  @override
+  String get ex_core_5_b2 => 'スポーツで重要な体幹の回旋を向上させる';
+
+  @override
+  String get ex_core_5_b3 => '重り（ダンベル、プレート、ボール）を加えて負荷を上げられる';
+
+  @override
+  String get ex_core_6_name => 'マウンテンクライマー';
+
+  @override
+  String get ex_core_6_desc =>
+      '両手を肩の真下に置いてハイプランクの姿勢をとります。その場で走るように、片膝ずつ交互に素早く胸に引き寄せます。動作中は腰を低く保ち、体幹を引き締めたままにしてください。';
+
+  @override
+  String get ex_core_6_b1 => '体幹トレーニングと有酸素運動を組み合わせる';
+
+  @override
+  String get ex_core_6_b2 => '器具が不要でHIITに最適';
+
+  @override
+  String get ex_core_6_b3 => 'コーディネーションと持久力を向上させる';
+
+  @override
+  String get ex_core_7_name => 'ホロウホールド';
+
+  @override
+  String get ex_core_7_desc =>
+      '仰向けになり、腕を頭上に伸ばし、脚をまっすぐ伸ばします。腰を床に押しつけながら、腕と脚を床から少し浮かせます。体幹を完全に収縮させたまま「舟」の姿勢をキープします。';
+
+  @override
+  String get ex_core_7_b1 => 'クロスフィットの多くの動作の体操的な基礎';
+
+  @override
+  String get ex_core_7_b2 => '体幹全体をアイソメトリックに強化する';
+
+  @override
+  String get ex_core_7_b3 => '姿勢とストリクト懸垂のための筋力を向上させる';
+
+  @override
+  String get ex_core_8_name => 'サイドプランク';
+
+  @override
+  String get ex_core_8_desc =>
+      '横向きに寝て前腕を床につき、肘を肩の真下に置きます。腰を床から持ち上げ、足から頭まで一直線にします。腰が落ちないように姿勢をキープします。反対側も同様に行います。';
+
+  @override
+  String get ex_core_8_b1 => '腹斜筋と体幹側部を強くアイソレーションする';
+
+  @override
+  String get ex_core_8_b2 => '股関節と脊柱の安定性を向上させる';
+
+  @override
+  String get ex_core_8_b3 => '器具不要で低衝撃';
+
+  @override
+  String get ex_core_9_name => 'デッドバグ';
+
+  @override
+  String get ex_core_9_desc =>
+      '仰向けになり、腕を天井に向かって伸ばし、膝を90度に曲げて股関節の真上に置きます。右腕を頭の後方へ、伸ばした左脚を床に向かって同時に下ろします。腰を床につけたまま元に戻し、左右を入れ替えて行います。';
+
+  @override
+  String get ex_core_9_b1 => '体幹の抗伸展の安定性を向上させる';
+
+  @override
+  String get ex_core_9_b2 => '初心者や腰のリハビリに最適';
+
+  @override
+  String get ex_core_9_b3 => '対側のコーディネーションを鍛える';
+
+  @override
+  String get ex_cf_1_name => 'クリーン';
+
+  @override
+  String get ex_cf_1_desc =>
+      '床から、膝のすぐ外側でオーバーハンドグリップでバーを握ります。股関節と膝を伸ばしながら爆発的に引き上げ、肩をすくめ、バーの下に体を滑り込ませて、肘を高く上げたフロントスクワットの姿勢で受け止めます。立ち上がってリフトを完了します。';
+
+  @override
+  String get ex_cf_1_b1 => '爆発的なパワーを養う完全なオリンピックリフト';
+
+  @override
+  String get ex_cf_1_b2 => 'コーディネーション・スピード・筋力を同時に発達させる';
+
+  @override
+  String get ex_cf_1_b3 => 'クロスフィットの多くのWODの基礎';
+
+  @override
+  String get ex_cf_2_name => 'パワークリーン';
+
+  @override
+  String get ex_cf_2_desc =>
+      'クリーンと同じですが、フルスクワットでは受け止めません。肘を高く上げ、バーを肩の前側に乗せてクォータースクワットで受け止めます。クリーンよりも速く、可動性の要求も少なくなります。';
+
+  @override
+  String get ex_cf_2_b1 => 'ポステリアチェーンの爆発的なパワーを発達させる';
+
+  @override
+  String get ex_cf_2_b2 => 'フルクリーンより技術的に取り組みやすい';
+
+  @override
+  String get ex_cf_2_b3 => 'オリンピックリフトの初心者に最適';
+
+  @override
+  String get ex_cf_3_name => 'スナッチ';
+
+  @override
+  String get ex_cf_3_desc =>
+      '床から、非常に広いグリップでバーを握ります。爆発的に引き上げ、腕を伸ばしてバーを頭上で受け止めながら深いスクワット（オーバーヘッドスクワット）の姿勢になります。バーを頭上に保ったまま立ち上がります。';
+
+  @override
+  String get ex_cf_3_b1 => '最も総合的で技術的に難しいオリンピックリフト';
+
+  @override
+  String get ex_cf_3_b2 => 'パワー・可動性・安定性を同時に発達させる';
+
+  @override
+  String get ex_cf_3_b3 => 'ほぼどのエクササイズよりも多くのカロリーを消費する';
+
+  @override
+  String get ex_cf_4_name => 'パワースナッチ';
+
+  @override
+  String get ex_cf_4_desc =>
+      'スナッチと同じですが、腕を頭上に伸ばした状態でクォータースクワットでバーを受け止めます。より速く、足首と股関節の可動性の要求も少なくなります。';
+
+  @override
+  String get ex_cf_4_b1 => 'フルスナッチより取り組みやすい';
+
+  @override
+  String get ex_cf_4_b2 => 'ポステリアチェーンの爆発的なパワーを発達させる';
+
+  @override
+  String get ex_cf_4_b3 => '可動性とコーディネーションに優れている';
+
+  @override
+  String get ex_cf_5_name => 'スラスター';
+
+  @override
+  String get ex_cf_5_desc =>
+      'バーをフロントポジション（三角筋前部の上）に構えます。フルのフロントスクワットを行い、立ち上がる際に脚の勢いを使ってバーを頭上に押し上げ、腕を伸ばします。バーをフロントポジションに下ろし、繰り返します。';
+
+  @override
+  String get ex_cf_5_b1 => '1つの動きで全身を鍛える';
+
+  @override
+  String get ex_cf_5_b2 => '「Fran」などのWODの看板種目';
+
+  @override
+  String get ex_cf_5_b3 => '筋力と代謝的な持久力を組み合わせる';
+
+  @override
+  String get ex_cf_6_name => 'プッシュプレス';
+
+  @override
+  String get ex_cf_6_desc =>
+      'バーを肩の上のフロントポジションに構え、膝を軽く曲げて素早くディップします。脚を爆発的に伸ばしてバーを頭上に押し上げ、腕を伸ばしきります。コントロールしながら元の位置に下ろします。';
+
+  @override
+  String get ex_cf_6_b1 => 'ストリクトなミリタリープレスよりも高重量を扱える';
+
+  @override
+  String get ex_cf_6_b2 => '垂直方向のプッシュパワーを発達させる';
+
+  @override
+  String get ex_cf_6_b3 => 'ジャークなどのオリンピックリフトに活きる';
+
+  @override
+  String get ex_cf_7_name => 'プッシュジャーク';
+
+  @override
+  String get ex_cf_7_desc =>
+      'プッシュプレスと同じですが、バーを押し上げる際に脚を緩めて体を沈め、腕を伸ばしきった状態でクォータースクワットでバーを受け止めます。その後、立ち上がってリフトを完了します。プッシュプレスよりも高重量を扱えます。';
+
+  @override
+  String get ex_cf_7_b1 => 'どのプレスよりも重い重量を頭上に挙げられる';
+
+  @override
+  String get ex_cf_7_b2 => '技術的で高いパワーを要するオリンピックリフト';
+
+  @override
+  String get ex_cf_7_b3 => 'クリーン＆ジャークの構成要素';
+
+  @override
+  String get ex_cf_8_name => 'ウォールボール';
+
+  @override
+  String get ex_cf_8_desc =>
+      'メディシンボールを胸の前に持ち、壁に向かって立ちます。深くスクワットし、立ち上がりながら壁の高い位置にあるターゲット（約3m）に向かってボールを投げます。胸の高さでボールをキャッチし、すぐに次のスクワットに入ります。';
+
+  @override
+  String get ex_cf_8_b1 => '有酸素運動とパワーを同時に鍛えるエクササイズ';
+
+  @override
+  String get ex_cf_8_b2 => 'クロスフィットの多くのベンチマークで定番の動作';
+
+  @override
+  String get ex_cf_8_b3 => 'コーディネーションとリズムを鍛える';
+
+  @override
+  String get ex_cf_9_name => 'アメリカンケトルベルスイング';
+
+  @override
+  String get ex_cf_9_desc =>
+      '両手でケトルベルを持ち、脚の間にぶら下げて立ちます。ヒップヒンジでケトルベルを後方に引き、股関節を爆発的に伸ばして、腕を伸ばしたまま頭上まで振り上げます。力は腕ではなく股関節から生み出します。';
+
+  @override
+  String get ex_cf_9_b1 => '股関節の爆発的なパワーを発達させる';
+
+  @override
+  String get ex_cf_9_b2 => '1つの動きで有酸素運動と筋力を鍛える';
+
+  @override
+  String get ex_cf_9_b3 => 'クロスフィットの標準（ロシアンは胸の高さまで）';
+
+  @override
+  String get ex_cf_10_name => 'ロシアンケトルベルスイング';
+
+  @override
+  String get ex_cf_10_desc =>
+      'アメリカンスイングと同じですが、ケトルベルは頭上ではなく胸・目の高さまでしか上げません。技術的に簡単で、肩への負担も少なくなります。';
+
+  @override
+  String get ex_cf_10_b1 => 'ケトルベルトレーニングの入門種目';
+
+  @override
+  String get ex_cf_10_b2 => 'アメリカンスイングより肩への負担が少ない';
+
+  @override
+  String get ex_cf_10_b3 => '初心者や高回数に最適';
+
+  @override
+  String get ex_cf_11_name => 'ボックスジャンプ';
+
+  @override
+  String get ex_cf_11_desc =>
+      '安定したボックスまたは台の前に立ち、膝を曲げてボックスに跳び乗り、両足全体を面に乗せて着地します。トップで股関節と膝を伸ばします。跳び下りるか、衝撃を減らすために一歩ずつ下ります。';
+
+  @override
+  String get ex_cf_11_b1 => 'パワーを養う純粋なプライオメトリクス';
+
+  @override
+  String get ex_cf_11_b2 => '垂直跳びと爆発力を向上させる';
+
+  @override
+  String get ex_cf_11_b3 => '多くのWODの定番種目';
+
+  @override
+  String get ex_cf_12_name => 'バーピー';
+
+  @override
+  String get ex_cf_12_desc =>
+      '立った状態からしゃがみ、両手を床につきます。両足を後ろに跳ばしてプランクの姿勢になります。胸を床につけて腕立て伏せを1回行います。両足を手の方へ跳んで戻し、腕を上に伸ばしながら真上にジャンプします。';
+
+  @override
+  String get ex_cf_12_b1 => '器具不要の全身エクササイズ';
+
+  @override
+  String get ex_cf_12_b2 => '高強度の有酸素運動と筋力トレーニングを同時に行える';
+
+  @override
+  String get ex_cf_12_b3 => '「Murph」などのベンチマークや多くのWODの定番';
+
+  @override
+  String get ex_cf_13_name => 'トゥーズトゥバー';
+
+  @override
+  String get ex_cf_13_desc =>
+      'オーバーハンドグリップでバーにぶら下がります。広背筋を活性化させ、伸ばした（または軽く曲げた）脚を、足がバーに触れるまで持ち上げます。過度に揺れないようにコントロールしながら下ろします。リズムを保つために「キップ」を使います。';
+
+  @override
+  String get ex_cf_13_b1 => '高強度のダイナミックな体幹トレーニング';
+
+  @override
+  String get ex_cf_13_b2 => '握力と広背筋を向上させる';
+
+  @override
+  String get ex_cf_13_b3 => 'クロスフィットの多くのWODの構成種目';
+
+  @override
+  String get ex_cf_14_name => 'ニーズトゥエルボー';
+
+  @override
+  String get ex_cf_14_desc =>
+      'オーバーハンドグリップでバーにぶら下がります。股関節と膝を曲げ、コントロールされたダイナミックな動きで膝を肘に向かって引き上げます。コントロールしながら下ろします。トゥーズトゥバーへのステップアップとして役立ちます。';
+
+  @override
+  String get ex_cf_14_b1 => 'トゥーズトゥバーへの段階的なステップ';
+
+  @override
+  String get ex_cf_14_b2 => '技術的な難度がそれほど高くないダイナミックな体幹トレーニング';
+
+  @override
+  String get ex_cf_14_b3 => '握力を向上させる';
+
+  @override
+  String get ex_cf_15_name => 'マッスルアップ';
+
+  @override
+  String get ex_cf_15_desc =>
+      'フォールスグリップでリング（またはバー）にぶら下がります。体を爆発的に引き上げてリングの上へ切り返し、トップで腕を伸ばして押し上げ、上で体を支えるサポート姿勢になります。逆の切り返しをコントロールしながら下ります。';
+
+  @override
+  String get ex_cf_15_b1 => 'プル＋プッシュを組み合わせた上級の体操系動作';
+
+  @override
+  String get ex_cf_15_b2 => 'クロスフィットの重要な到達目標（多くのWODでRX）';
+
+  @override
+  String get ex_cf_15_b3 => '体重に対する相対的な筋力を極限まで発達させる';
+
+  @override
+  String get ex_cf_16_name => 'ピストルスクワット';
+
+  @override
+  String get ex_cf_16_desc =>
+      '片脚で立ち、もう一方の脚を床と平行に前へ伸ばします。バランスを保ち、軸足の足裏全体を床につけたまま深くスクワットします。浮かせた脚が床に触れないように、かかとで押して立ち上がります。反対側も同様に行います。';
+
+  @override
+  String get ex_cf_16_b1 => '最高難度の片脚スクワット';
+
+  @override
+  String get ex_cf_16_b2 => '足首と股関節の可動性を発達させる';
+
+  @override
+  String get ex_cf_16_b3 => '左右差を改善する片側トレーニング';
+
+  @override
+  String get ex_cf_17_name => 'ハンドスタンドプッシュアップ（HSPU）';
+
+  @override
+  String get ex_cf_17_desc =>
+      '壁から約30cm離れた床に両手をつき、足を蹴り上げて壁に寄りかかった倒立の姿勢になります。頭が床（またはアブマット）に触れるまで肘を曲げて体を下ろします。押し上げて元に戻ります。補助が必要な場合は「キップ」を使います。';
+
+  @override
+  String get ex_cf_17_b1 => '全体重を使った垂直方向のプレス';
+
+  @override
+  String get ex_cf_17_b2 => '肩と体幹の安定性を向上させる';
+
+  @override
+  String get ex_cf_17_b3 => 'クロスフィットの重要な体操系の到達目標';
+
+  @override
+  String get ex_cf_18_name => 'ターキッシュゲットアップ';
+
+  @override
+  String get ex_cf_18_desc =>
+      '仰向けになり、片腕を天井に向かって伸ばしてケトルベルを持ちます。ケトルベルを常に上に保ったまま、段階的に立ち上がります（肘 → 手 → ヒップヒンジ → 脚のスイープ → 膝立ち → 立位）。動作を逆にたどって戻ります。';
+
+  @override
+  String get ex_cf_18_b1 => '他にない全身のファンクショナルな動作';
+
+  @override
+  String get ex_cf_18_b2 => '可動性・安定性・コーディネーションを向上させる';
+
+  @override
+  String get ex_cf_18_b3 => '肩と体幹のトレーニングに優れている';
+
+  @override
+  String get ex_cf_19_name => 'ダブルアンダー';
+
+  @override
+  String get ex_cf_19_desc =>
+      '1回のジャンプで縄を足の下に2回通して縄跳びをします。ジャンプは低く、手首の回転は速く保ちます。腕は体につけ、肘は腰の近くに置きます。コーディネーションとスピードロープが必要です。';
+
+  @override
+  String get ex_cf_19_b1 => '高強度の爆発的な有酸素運動';
+
+  @override
+  String get ex_cf_19_b2 => 'コーディネーションとタイミングを向上させる';
+
+  @override
+  String get ex_cf_19_b3 => 'クロスフィットの数百ものWODで定番';
+
+  @override
+  String get ex_cf_20_name => 'ファーマーズキャリー';
+
+  @override
+  String get ex_cf_20_desc =>
+      '重いダンベルまたはケトルベルを両手に持ち、体の横に構えます。姿勢をまっすぐに保ち、肩を後ろに引き、体幹を引き締めたまま小さな歩幅で歩きます。決めた距離を歩くか、時間を決めて行います。';
+
+  @override
+  String get ex_cf_20_b1 => '握力と前腕を強化する';
+
+  @override
+  String get ex_cf_20_b2 => '全身のファンクショナルトレーニング';
+
+  @override
+  String get ex_cf_20_b3 => '姿勢と体幹の安定性を向上させる';
+
+  @override
+  String get ex_cf_21_name => 'ゴブレットスクワット';
+
+  @override
+  String get ex_cf_21_desc =>
+      'ケトルベル（またはダンベル）を胸の前、胸骨の高さで、「ベル」の部分をつかんで持ちます。上体を垂直に保ち、肘を前に向けたまま深くスクワットします。かかとで押して立ち上がります。';
+
+  @override
+  String get ex_cf_21_b1 => '加重スクワットへの最適な入門種目';
+
+  @override
+  String get ex_cf_21_b2 => 'まっすぐな姿勢と正しい深さを身につけられる';
+
+  @override
+  String get ex_cf_21_b3 => '体幹の活性化に優れている';
 
   @override
   String get ex_pecho_1_name => 'ベンチプレス';

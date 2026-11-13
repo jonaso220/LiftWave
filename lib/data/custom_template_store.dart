@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../utils/routine_days.dart';
 import 'persistent_sync_queue.dart';
 import 'workout_templates.dart';
 
@@ -59,7 +60,9 @@ class CustomTemplate {
     id: id,
     name: name ?? this.name,
     exercises: exercises ?? this.exercises,
-    routineDay: clearRoutineDay ? null : routineDay ?? this.routineDay,
+    routineDay: clearRoutineDay
+        ? routineDayUnassigned
+        : routineDay ?? this.routineDay,
     routineOrder: clearRoutineDay ? null : routineOrder ?? this.routineOrder,
   );
 }

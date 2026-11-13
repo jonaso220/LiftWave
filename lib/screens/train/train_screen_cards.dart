@@ -98,6 +98,19 @@ class _ExerciseCard extends StatelessWidget {
   final ProgressionRecommendation? recommendation;
   final VoidCallback? onApplyRecommendation;
 
+  /// Starts the countdown of a set of a timed exercise.
+  final void Function(int setIndex)? onStartHold;
+
+  /// The exercise is alternated with its neighbours as a superset.
+  final bool inSuperset;
+
+  /// Groups this exercise with the next one. Null when that is not possible
+  /// (it is the last one, or they are already grouped).
+  final VoidCallback? onLinkNext;
+
+  /// Takes this exercise out of its superset. Null when it is in none.
+  final VoidCallback? onUnlink;
+
   const _ExerciseCard({
     required this.exercise,
     required this.onAddSet,
@@ -108,7 +121,26 @@ class _ExerciseCard extends StatelessWidget {
     this.previousSets = const [],
     this.recommendation,
     this.onApplyRecommendation,
+    this.onStartHold,
+    this.inSuperset = false,
+    this.onLinkNext,
+    this.onUnlink,
   });
+
+  /// The set of the last session this row is compared with: warm-ups line
+  /// up with warm-ups and working sets with working sets, each in order, so
+  /// adding a warm-up today does not shift every "previous" value down.
+  WorkoutSet? _previousFor(int index) {
+    final isWork = exercise.sets[index].type.countsAsWork;
+    var position = 0;
+    for (var i = 0; i < index; i++) {
+      if (exercise.sets[i].type.countsAsWork == isWork) position++;
+    }
+    final candidates = previousSets
+        .where((set) => set.type.countsAsWork == isWork)
+        .toList();
+    return position < candidates.length ? candidates[position] : null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,14 +153,20 @@ class _ExerciseCard extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.bgCardLight),
+        border: Border.all(
+          color: inSuperset
+              ? AppColors.primary.withAlpha(140)
+              : AppColors.bgCardLight,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (inSuperset) const SupersetStrip(),
           Padding(
             padding: const EdgeInsets.fromLTRB(14, 12, 8, 10),
             child: Row(
@@ -178,18 +216,25 @@ class _ExerciseCard extends StatelessWidget {
                             ),
                           // Last session's load now lives in the PREVIOUS
                           // column, so this spot shows the exercise's rest.
-                          const Spacer(),
-                          RestBadge(
-                            seconds: exercise.restSeconds,
-                            onTap: () async {
-                              final choice = await showRestPicker(
-                                context,
-                                current: exercise.restSeconds,
-                              );
-                              if (choice == null) return;
-                              exercise.restSeconds = choice.seconds;
-                              onSetChanged();
-                            },
+                          // It takes the room that is left: with the
+                          // progress label showing, a long rest label
+                          // overflowed the row on narrow phones.
+                          Expanded(
+                            child: Align(
+                              alignment: AlignmentDirectional.centerEnd,
+                              child: RestBadge(
+                                seconds: exercise.restSeconds,
+                                onTap: () async {
+                                  final choice = await showRestPicker(
+                                    context,
+                                    current: exercise.restSeconds,
+                                  );
+                                  if (choice == null) return;
+                                  exercise.restSeconds = choice.seconds;
+                                  onSetChanged();
+                                },
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -203,8 +248,100 @@ class _ExerciseCard extends StatelessWidget {
                     if (v == 'progress') {
                       showExerciseProgress(context, exercise.name);
                     }
+                    if (v == 'link') onLinkNext?.call();
+                    if (v == 'unlink') onUnlink?.call();
+                    if (v == 'measure') {
+                      exercise.timed = !exercise.timed;
+                      onSetChanged();
+                    }
+                    if (v == 'plates') {
+                      // Starts from the set about to be done.
+                      final pending = nextPendingSet == -1
+                          ? exercise.sets.last
+                          : exercise.sets[nextPendingSet];
+                      showPlateCalculator(context, initialKg: pending.weight);
+                    }
                   },
                   itemBuilder: (_) => [
+                    if (onLinkNext != null)
+                      PopupMenuItem(
+                        value: 'link',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.link_rounded,
+                              color: AppColors.primaryLight,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                l10n.superset_linkNext,
+                                style: TextStyle(color: AppColors.textPrimary),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    if (onUnlink != null)
+                      PopupMenuItem(
+                        value: 'unlink',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.link_off_rounded,
+                              color: AppColors.primaryLight,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                l10n.superset_unlink,
+                                style: TextStyle(color: AppColors.textPrimary),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    PopupMenuItem(
+                      value: 'measure',
+                      child: Row(
+                        children: [
+                          Icon(
+                            exercise.timed
+                                ? Icons.repeat_rounded
+                                : Icons.timer_outlined,
+                            color: AppColors.primaryLight,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            exercise.timed
+                                ? l10n.train_measureByReps
+                                : l10n.train_measureByTime,
+                            style: TextStyle(color: AppColors.textPrimary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (PlateCalculator.appliesTo(exercise.equipment))
+                      PopupMenuItem(
+                        value: 'plates',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.calculate_outlined,
+                              color: AppColors.primaryLight,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              l10n.plates_title,
+                              style: TextStyle(color: AppColors.textPrimary),
+                            ),
+                          ],
+                        ),
+                      ),
                     PopupMenuItem(
                       value: 'progress',
                       child: Row(
@@ -276,7 +413,9 @@ class _ExerciseCard extends StatelessWidget {
                   flex: SessionSetColumns.weight,
                 ),
                 _ColHeader(
-                  label: l10n.train_repsHeader,
+                  label: exercise.timed
+                      ? l10n.train_secondsHeader
+                      : l10n.train_repsHeader,
                   flex: SessionSetColumns.reps,
                 ),
                 const _ColHeader(label: '', flex: SessionSetColumns.done),
@@ -287,13 +426,20 @@ class _ExerciseCard extends StatelessWidget {
           ...exercise.sets.asMap().entries.map((entry) {
             final index = entry.key;
             final isNextSet = index == nextPendingSet;
-            final previous = index < previousSets.length
-                ? previousSets[index]
-                : null;
+            final previous = _previousFor(index);
             return SessionSetRow(
               key: ObjectKey(entry.value),
               set: entry.value,
               index: index,
+              number: exercise.workingNumberOf(index),
+              onTypeChanged: (type) {
+                entry.value.type = type;
+                onSetChanged();
+              },
+              timed: exercise.timed,
+              onStartHold: onStartHold == null
+                  ? null
+                  : () => onStartHold!(index),
               previous: previous,
               onToggle: () => onToggleDone(index),
               onRemove: exercise.sets.length > 1
@@ -394,10 +540,17 @@ class _ProgressionSuggestion extends StatelessWidget {
       ProgressionAction.bodyweightRepetition => l10n.train_reasonBodyweight(
         r.previousReps,
       ),
+      ProgressionAction.holdLonger => l10n.train_reasonHold(r.previousReps),
     };
+    final timed = r.action == ProgressionAction.holdLonger;
+    final amount = timed
+        ? '${r.suggestedReps} ${l10n.train_secondsShort}'
+        : '${r.suggestedReps}';
     final target = recommendation.suggestedWeight > 0
         ? '${formatLoadWithUnit(recommendation.suggestedWeight, locale)} × '
-              '${recommendation.suggestedReps}'
+              '$amount'
+        : timed
+        ? amount
         : '${recommendation.suggestedReps} ${l10n.common_reps.toLowerCase()}';
 
     return Padding(

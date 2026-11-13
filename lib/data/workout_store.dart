@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/models.dart';
 import 'persistent_sync_queue.dart';
+import '../services/health_sync_service.dart';
 
 /// Singleton that holds all completed workout sessions.
 /// Primary storage: Firestore (cloud sync).
@@ -25,6 +26,7 @@ class WorkoutStore extends ChangeNotifier {
         _uid = null;
         _syncQueue = null;
         _workouts.clear();
+        _historyChanged();
         _loaded = false;
         notifyListeners();
       }
@@ -40,8 +42,22 @@ class WorkoutStore extends ChangeNotifier {
 
   static String _localKeyFor(String uid) => 'workouts_cache_$uid';
 
-  /// Workouts sorted newest-first.
-  List<Workout> get workouts => List.unmodifiable(_workouts.reversed.toList());
+  List<Workout>? _newestFirst;
+  int _revision = 0;
+
+  /// Changes whenever the history does, so callers can keep results derived
+  /// from it (progression suggestions, previous sets) until it moves.
+  int get revision => _revision;
+
+  /// Workouts sorted newest-first. The copy is reused until the history
+  /// changes: screens read this on every rebuild.
+  List<Workout> get workouts =>
+      _newestFirst ??= List.unmodifiable(_workouts.reversed.toList());
+
+  void _historyChanged() {
+    _newestFirst = null;
+    _revision++;
+  }
 
   bool get isLoaded => _loaded;
 
@@ -87,6 +103,7 @@ class WorkoutStore extends ChangeNotifier {
         ..clear()
         ..addAll(resolved.values)
         ..sort((a, b) => a.date.compareTo(b.date));
+      _historyChanged();
       await _persistLocal(uid);
     } catch (e) {
       // Offline / fetch failed: keep whatever the local cache gave us.
@@ -112,6 +129,7 @@ class WorkoutStore extends ChangeNotifier {
       _workouts
         ..clear()
         ..addAll(loaded);
+      _historyChanged();
       notifyListeners();
     } catch (e) {
       debugPrint('WorkoutStore._loadLocal error: $e');
@@ -138,7 +156,9 @@ class WorkoutStore extends ChangeNotifier {
     final queue = _syncQueue;
     if (uid == null || queue == null) return;
     _workouts.add(workout);
+    _historyChanged();
     notifyListeners();
+    unawaited(HealthSyncService.instance.workoutSaved(workout));
 
     await _persistLocal(uid);
     await queue.enqueueUpsert(workout.id, workout.toJson());
@@ -155,8 +175,11 @@ class WorkoutStore extends ChangeNotifier {
     if (uid == null || queue == null) return;
     final idx = _workouts.indexWhere((w) => w.id == updated.id);
     if (idx == -1) return;
+    final previous = _workouts[idx];
     _workouts[idx] = updated;
+    _historyChanged();
     notifyListeners();
+    unawaited(HealthSyncService.instance.workoutUpdated(previous, updated));
 
     await _persistLocal(uid);
     await queue.enqueueUpsert(updated.id, updated.toJson());
@@ -169,8 +192,13 @@ class WorkoutStore extends ChangeNotifier {
     final uid = _uid;
     final queue = _syncQueue;
     if (uid == null || queue == null) return;
+    final removed = _workouts.where((w) => w.id == id).toList();
     _workouts.removeWhere((w) => w.id == id);
+    _historyChanged();
     notifyListeners();
+    for (final workout in removed) {
+      unawaited(HealthSyncService.instance.workoutRemoved(workout));
+    }
 
     await _persistLocal(uid);
     await queue.enqueueDelete(id);

@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart' show SetOptions;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/achievement_models.dart';
 import '../models/models.dart';
+import '../utils/calendar_days.dart';
 import '../services/firebase_service.dart';
 import 'workout_store.dart';
 
@@ -20,6 +22,10 @@ class AchievementStore extends ChangeNotifier {
   StreamSubscription<User?>? _authSub;
   String? _currentUid;
 
+  /// Whether this session has read the cloud copy. Until it has, the local
+  /// map may be missing achievements earned on another device.
+  bool _cloudMerged = false;
+
   String get _key {
     final uid = _currentUid;
     return uid == null ? _legacyKey : 'achievements_unlocked_$uid';
@@ -29,6 +35,7 @@ class AchievementStore extends ChangeNotifier {
     final newUid = user?.uid;
     if (newUid == _currentUid) return;
     _currentUid = newUid;
+    _cloudMerged = false;
     _unlocked.clear();
     // Reload for the new user; fire-and-forget.
     load();
@@ -81,7 +88,10 @@ class AchievementStore extends ChangeNotifier {
   Future<void> _loadCloud() async {
     if (_currentUid == null) return;
     try {
+      final uid = _currentUid;
       final doc = await FirebaseService.instance.achievementsDoc.get();
+      if (uid != _currentUid) return;
+      _cloudMerged = true;
       final data = doc.data();
       var changed = false;
 
@@ -132,12 +142,22 @@ class AchievementStore extends ChangeNotifier {
     await prefs.setString(_key, jsonEncode(map));
 
     // Mirror to the cloud so achievements survive reinstalls / new devices.
-    if (_currentUid != null) {
-      try {
-        await FirebaseService.instance.achievementsDoc.set(map);
-      } catch (e) {
-        debugPrint('AchievementStore._save cloud error: $e');
-      }
+    if (_currentUid == null) return;
+    if (!_cloudMerged) {
+      // The cloud copy could not be read at launch (offline). Try again
+      // first: a successful merge uploads whatever the cloud lacks.
+      await _loadCloud();
+      if (_cloudMerged) return;
+    }
+    try {
+      // merge: a device that only knows part of the achievements must add
+      // its own without erasing the ones earned elsewhere.
+      await FirebaseService.instance.achievementsDoc.set(
+        map,
+        SetOptions(merge: true),
+      );
+    } catch (e) {
+      debugPrint('AchievementStore._save cloud error: $e');
     }
   }
 
@@ -222,7 +242,7 @@ class AchievementStore extends ChangeNotifier {
       final latest = workouts.first;
       for (final ex in latest.exercises) {
         final maxWeightNow = ex.sets
-            .where((s) => s.completed)
+            .where((s) => s.completed && s.type.countsAsWork)
             .fold<double>(0, (m, s) => s.weight > m ? s.weight : m);
         if (maxWeightNow <= 0) continue;
 
@@ -232,14 +252,16 @@ class AchievementStore extends ChangeNotifier {
           for (final e in w.exercises) {
             if (e.name == ex.name) {
               for (final s in e.sets) {
-                if (s.completed && s.weight > previousMax) {
+                if (s.completed &&
+                    s.type.countsAsWork &&
+                    s.weight > previousMax) {
                   previousMax = s.weight;
                 }
               }
             }
           }
         }
-        if (previousMax > 0 && maxWeightNow > previousMax) {
+        if (previousMax > 0 && beatsPersonalRecord(maxWeightNow, previousMax)) {
           if (!_unlocked.containsKey(AchievementType.personalRecord)) {
             _unlocked[AchievementType.personalRecord] = now;
             newlyUnlocked.add(
@@ -521,7 +543,9 @@ class AchievementStore extends ChangeNotifier {
       for (final e in w.exercises) {
         if (!aliases.contains(e.name.toLowerCase().trim())) continue;
         for (final s in e.sets) {
-          if (s.completed && s.weight > max) max = s.weight;
+          if (s.completed && s.type.countsAsWork && s.weight > max) {
+            max = s.weight;
+          }
         }
       }
     }
@@ -534,24 +558,10 @@ class AchievementStore extends ChangeNotifier {
     for (int i = 0; i < requiredWeekends; i++) {
       // Find the Saturday of week (now - i weeks)
       final daysSinceSaturday = (now.weekday - DateTime.saturday + 7) % 7;
-      final saturday = DateTime(
-        now.year,
-        now.month,
-        now.day,
-      ).subtract(Duration(days: daysSinceSaturday + 7 * i));
-      final sunday = saturday.add(const Duration(days: 1));
-      final hasSat = workouts.any(
-        (w) =>
-            w.date.year == saturday.year &&
-            w.date.month == saturday.month &&
-            w.date.day == saturday.day,
-      );
-      final hasSun = workouts.any(
-        (w) =>
-            w.date.year == sunday.year &&
-            w.date.month == sunday.month &&
-            w.date.day == sunday.day,
-      );
+      final saturday = addCalendarDays(now, -(daysSinceSaturday + 7 * i));
+      final sunday = addCalendarDays(saturday, 1);
+      final hasSat = workouts.any((w) => isSameCalendarDay(w.date, saturday));
+      final hasSun = workouts.any((w) => isSameCalendarDay(w.date, sunday));
       if (!hasSat || !hasSun) return false;
     }
     return true;
@@ -563,13 +573,8 @@ class AchievementStore extends ChangeNotifier {
     int requiredGroups,
   ) {
     // Calendar week containing `reference` (Mon-Sun)
-    final weekday = reference.weekday; // 1 = Mon
-    final monday = DateTime(
-      reference.year,
-      reference.month,
-      reference.day,
-    ).subtract(Duration(days: weekday - 1));
-    final nextMonday = monday.add(const Duration(days: 7));
+    final monday = startOfWeek(reference);
+    final nextMonday = addCalendarDays(monday, 7);
     final groups = <String>{};
     for (final w in workouts) {
       if (w.date.isBefore(monday) || !w.date.isBefore(nextMonday)) continue;
@@ -584,17 +589,8 @@ class AchievementStore extends ChangeNotifier {
   bool _checkDayStreak(List<Workout> workouts, int days) {
     final now = DateTime.now();
     for (int i = 0; i < days; i++) {
-      final day = DateTime(
-        now.year,
-        now.month,
-        now.day,
-      ).subtract(Duration(days: i));
-      final hasWorkout = workouts.any(
-        (w) =>
-            w.date.year == day.year &&
-            w.date.month == day.month &&
-            w.date.day == day.day,
-      );
+      final day = addCalendarDays(now, -i);
+      final hasWorkout = workouts.any((w) => isSameCalendarDay(w.date, day));
       if (!hasWorkout) return false;
     }
     return true;

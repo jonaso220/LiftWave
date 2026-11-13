@@ -18,6 +18,7 @@ import '../../utils/pro_gate.dart';
 import '../../utils/weight_units.dart';
 import '../history/history_screen.dart';
 import 'achievements_view.dart';
+import '../../utils/date_format.dart';
 
 /// The Progress tab: workout history, body measurements, progress photos and
 /// achievements in one place.
@@ -62,6 +63,30 @@ class _ProgressScreenState extends State<ProgressScreen>
     if (!_tabController.indexIsChanging) _onChanged();
   }
 
+  Future<void> _exportCsv(BuildContext buttonContext) async {
+    final l10n = S.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    // The share sheet needs the button's position on iPad.
+    final box = buttonContext.findRenderObject() as RenderBox?;
+    final origin = box == null || !box.hasSize
+        ? null
+        : box.localToGlobal(Offset.zero) & box.size;
+    try {
+      await CsvExporter.exportAndShare(l10n, origin: origin);
+    } catch (e) {
+      debugPrint('CSV export failed: $e');
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            l10n.emailAuth_unexpectedError,
+            style: TextStyle(color: AppColors.readableOn(AppColors.error)),
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
+
   void _showAddSheet() {
     showModalBottomSheet(
       context: context,
@@ -82,10 +107,12 @@ class _ProgressScreenState extends State<ProgressScreen>
         title: Text(l10n.nav_progress),
         actions: [
           if (tab == _historyTab && WorkoutStore.instance.workouts.isNotEmpty)
-            IconButton(
-              onPressed: () => CsvExporter.exportAndShare(l10n),
-              icon: const Icon(Icons.ios_share_rounded, size: 20),
-              tooltip: l10n.history_exportCsv,
+            Builder(
+              builder: (buttonContext) => IconButton(
+                onPressed: () => _exportCsv(buttonContext),
+                icon: const Icon(Icons.ios_share_rounded, size: 20),
+                tooltip: l10n.history_exportCsv,
+              ),
             ),
           if (tab == _measurementsTab || tab == _photosTab)
             IconButton(
@@ -399,8 +426,6 @@ class _ChartCard extends StatelessWidget {
 
   const _ChartCard({required this.metric, required this.dataPoints});
 
-  String _fmt(DateTime d) => '${d.day}/${d.month}';
-
   String _delta(List<BodyMeasurement> pts) {
     if (pts.length < 2) return '';
     final first = metric.valueOf(pts.first)!;
@@ -498,11 +523,11 @@ class _ChartCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  _fmt(dataPoints.first.date),
+                  formatDayMonth(context, dataPoints.first.date),
                   style: TextStyle(color: AppColors.textMuted, fontSize: 10),
                 ),
                 Text(
-                  _fmt(dataPoints.last.date),
+                  formatDayMonth(context, dataPoints.last.date),
                   style: TextStyle(color: AppColors.textMuted, fontSize: 10),
                 ),
               ],
@@ -661,6 +686,41 @@ class _MeasurementTile extends StatelessWidget {
         ),
         child: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
       ),
+      // The swipe also deletes the photo file, so ask first.
+      confirmDismiss: (_) async {
+        final l10n = S.of(context);
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: AppColors.bgCard,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Text(
+              l10n.progressScreen_deleteMeasurementTitle,
+              style: TextStyle(color: AppColors.textPrimary),
+            ),
+            content: Text(
+              l10n.progressScreen_deleteMeasurementBody,
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(l10n.common_cancel),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(
+                  l10n.common_delete,
+                  style: const TextStyle(color: AppColors.error),
+                ),
+              ),
+            ],
+          ),
+        );
+        return confirmed ?? false;
+      },
       onDismissed: (_) => ProgressStore.instance.remove(m.id),
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
@@ -1034,7 +1094,7 @@ class _PhotoCard extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  '${measurement.date.day}/${measurement.date.month}/${measurement.date.year}',
+                  formatShortDate(context, measurement.date),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 11,
@@ -1124,6 +1184,7 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
   final _hipsCtrl = TextEditingController();
   String? _photoPath;
   bool _saving = false;
+  bool _missingValue = false;
   bool _photoCommitted = false;
 
   @override
@@ -1238,16 +1299,16 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
     final hi = double.tryParse(_hipsCtrl.text.replaceAll(',', '.'));
 
     if (w == null && wa == null && ch == null && hi == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.of(context).progressScreen_enterAtLeastOneValue),
-          backgroundColor: AppColors.error,
-        ),
-      );
+      // Shown inside the sheet: a snackbar would sit behind it, unseen until
+      // the sheet is closed.
+      setState(() => _missingValue = true);
       return;
     }
 
-    setState(() => _saving = true);
+    setState(() {
+      _missingValue = false;
+      _saving = true;
+    });
     HapticFeedback.mediumImpact();
 
     try {
@@ -1335,7 +1396,7 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      '${_date.day}/${_date.month}/${_date.year}',
+                      formatShortDate(context, _date),
                       style: TextStyle(
                         color: AppColors.textPrimary,
                         fontSize: 14,
@@ -1456,6 +1517,29 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                 ),
               ),
             ),
+            if (_missingValue) ...[
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.error_outline_rounded,
+                    color: AppColors.error,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      S.of(context).progressScreen_enterAtLeastOneValue,
+                      style: const TextStyle(
+                        color: AppColors.error,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 20),
 
             // Save button
@@ -1513,6 +1597,7 @@ class _MeasureField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       keyboardType: const TextInputType.numberWithOptions(
         decimal: true,
         signed: false,

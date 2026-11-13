@@ -472,6 +472,16 @@ class SEs extends S {
   String get editWorkout_saved => 'Entrenamiento actualizado';
 
   @override
+  String get detail_deleteWorkout => 'Eliminar entrenamiento';
+
+  @override
+  String get detail_deleteWorkoutConfirm =>
+      'Se eliminará de tu historial. Esta acción no se puede deshacer.';
+
+  @override
+  String get detail_workoutDeleted => 'Entrenamiento eliminado';
+
+  @override
   String get home_viewAll => 'Ver todo';
 
   @override
@@ -504,6 +514,234 @@ class SEs extends S {
 
   @override
   String get profile_deleteAccount => 'Eliminar cuenta';
+
+  @override
+  String get progressScreen_deleteMeasurementTitle => '¿Eliminar registro?';
+
+  @override
+  String get progressScreen_deleteMeasurementBody =>
+      'Se eliminarán el registro y su foto. Esta acción no se puede deshacer.';
+
+  @override
+  String get profile_signOutConfirm =>
+      '¿Cerrar sesión? Tus datos quedan guardados en tu cuenta.';
+
+  @override
+  String get profile_deleteSubscriptionNote =>
+      'Eliminar la cuenta no cancela tu suscripción. Cancélala antes desde la tienda.';
+
+  @override
+  String get profile_manageSubscription => 'Administrar suscripción';
+
+  @override
+  String get profile_help => 'Ayuda y soporte';
+
+  @override
+  String get rest_alertTitle => 'Descanso terminado';
+
+  @override
+  String get rest_alertBody => 'Es hora de tu siguiente serie.';
+
+  @override
+  String get rest_alertChannel => 'Temporizador de descanso';
+
+  @override
+  String get profile_restAlert => 'Avisar al terminar el descanso';
+
+  @override
+  String get profile_restAlertSubtitle =>
+      'Notificación con sonido cuando la app no está en pantalla';
+
+  @override
+  String get profile_restAlertExact => 'Permitir alarmas exactas';
+
+  @override
+  String get profile_restAlertExactSubtitle =>
+      'Sin este permiso, Android puede retrasar el aviso';
+
+  @override
+  String get editWorkout_date => 'Fecha y hora';
+
+  @override
+  String get editWorkout_duration => 'Duración (min)';
+
+  @override
+  String get history_searchHint => 'Buscar entrenamiento o ejercicio';
+
+  @override
+  String get history_noResults => 'Sin resultados';
+
+  @override
+  String get history_calendar => 'Calendario';
+
+  @override
+  String get progress_oneRm => '1RM est.';
+
+  @override
+  String get progress_recordsTitle => 'Récords';
+
+  @override
+  String get progress_bestLift => 'Mejor levantamiento';
+
+  @override
+  String get progress_bestOneRm => 'Mejor 1RM estimado';
+
+  @override
+  String get setType_title => 'Tipo de serie';
+
+  @override
+  String get setType_normal => 'Normal';
+
+  @override
+  String get setType_warmup => 'Calentamiento';
+
+  @override
+  String get setType_drop => 'Drop set';
+
+  @override
+  String get setType_failure => 'Al fallo';
+
+  @override
+  String get setType_warmupHint => 'No suma volumen ni récords';
+
+  @override
+  String get setType_warmupShort => 'C';
+
+  @override
+  String get setType_dropShort => 'D';
+
+  @override
+  String get setType_failureShort => 'F';
+
+  @override
+  String get plates_title => 'Calculadora de discos';
+
+  @override
+  String get plates_target => 'Peso total';
+
+  @override
+  String get plates_bar => 'Barra';
+
+  @override
+  String get plates_perSide => 'Por lado';
+
+  @override
+  String get plates_onlyBar => 'Solo la barra';
+
+  @override
+  String get plates_belowBar => 'El peso es menor que la barra';
+
+  @override
+  String plates_missing(String amount) {
+    return 'Faltan $amount que no se pueden cargar con estos discos';
+  }
+
+  @override
+  String get train_secondsHeader => 'SEG';
+
+  @override
+  String get train_secondsShort => 's';
+
+  @override
+  String get train_startHold => 'Iniciar';
+
+  @override
+  String get train_measureByTime => 'Medir por tiempo';
+
+  @override
+  String get train_measureByReps => 'Medir por repeticiones';
+
+  @override
+  String get hold_running => 'EN CURSO';
+
+  @override
+  String get hold_alertTitle => 'Tiempo cumplido';
+
+  @override
+  String get hold_alertBody => 'Terminaste la serie.';
+
+  @override
+  String train_reasonHold(int seconds) {
+    return 'Aguantaste $seconds s. Intenta sumar 5 s.';
+  }
+
+  @override
+  String get superset_label => 'Superserie';
+
+  @override
+  String get superset_linkNext => 'Superserie con el siguiente';
+
+  @override
+  String get superset_unlink => 'Quitar de la superserie';
+
+  @override
+  String get superset_hint =>
+      'Alterna las series; el descanso empieza al terminar la ronda.';
+
+  @override
+  String get reminders_title => 'Recordatorios de entrenamiento';
+
+  @override
+  String get reminders_off => 'Desactivados';
+
+  @override
+  String get reminders_enable => 'Recordarme entrenar';
+
+  @override
+  String get reminders_enableSubtitle => 'Una notificación los días que elijas';
+
+  @override
+  String get reminders_days => 'Días';
+
+  @override
+  String get reminders_time => 'Hora';
+
+  @override
+  String get reminders_notificationTitle => 'Hora de entrenar';
+
+  @override
+  String get reminders_notificationBody => 'Tu entrenamiento de hoy te espera.';
+
+  @override
+  String reminders_notificationRoutine(String routine) {
+    return 'Hoy toca: $routine';
+  }
+
+  @override
+  String get reminders_permissionDenied =>
+      'Activa las notificaciones de LiftWave en los ajustes del sistema para recibir recordatorios.';
+
+  @override
+  String health_sync(String store) {
+    return 'Sincronizar con $store';
+  }
+
+  @override
+  String health_syncSubtitle(String store) {
+    return 'Guarda en $store los entrenamientos y el peso corporal que registres';
+  }
+
+  @override
+  String health_enabled(String store) {
+    return 'Listo. Tus próximos entrenamientos se guardarán en $store.';
+  }
+
+  @override
+  String health_denied(String store) {
+    return 'No se pudo activar. Revisa los permisos de LiftWave en $store.';
+  }
+
+  @override
+  String get health_needsInstall =>
+      'Instala o actualiza Health Connect para activar la sincronización.';
+
+  @override
+  String get health_install => 'Instalar';
+
+  @override
+  String health_unsupported(String store) {
+    return '$store no está disponible en este dispositivo.';
+  }
 
   @override
   String get profile_purchasesRestored => 'Compras restauradas correctamente';
@@ -1332,6 +1570,10 @@ class SEs extends S {
       'La suscripción se renueva automáticamente. Puedes cancelar\nen cualquier momento desde la App Store.';
 
   @override
+  String get paywall_legalTextPlay =>
+      'La suscripción se renueva automáticamente. Puedes cancelar\nen cualquier momento desde Google Play.';
+
+  @override
   String get paywall_legalTextTrial =>
       'La prueba gratis se convierte en suscripción de pago. Cancela en cualquier momento antes de que termine. La suscripción se renueva automáticamente.';
 
@@ -1756,6 +1998,784 @@ class SEs extends S {
 
   @override
   String get template_legs_name => 'Piernas';
+
+  @override
+  String get ex_pecho_6_name => 'Press inclinado con barra';
+
+  @override
+  String get ex_pecho_6_desc =>
+      'Ajusta el banco a 30-45°. Agarra la barra con un agarre algo más ancho que los hombros. Baja la barra controladamente hasta la parte alta del pecho y empuja hacia arriba hasta extensión completa. Mantén la zona lumbar pegada al banco y los omóplatos retraídos.';
+
+  @override
+  String get ex_pecho_6_b1 =>
+      'Enfatiza el pectoral superior (porción clavicular)';
+
+  @override
+  String get ex_pecho_6_b2 => 'Permite cargar más peso que con mancuernas';
+
+  @override
+  String get ex_pecho_6_b3 =>
+      'Mejora la fuerza de empuje desde ángulos elevados';
+
+  @override
+  String get ex_pecho_7_name => 'Press declinado con mancuernas';
+
+  @override
+  String get ex_pecho_7_desc =>
+      'Ajusta el banco a una declinación de 15-30°. Con una mancuerna en cada mano a la altura del pecho, empuja hacia arriba juntando las mancuernas en la parte superior. Baja con control sintiendo el estiramiento de la porción inferior del pecho.';
+
+  @override
+  String get ex_pecho_7_b1 => 'Trabaja la porción inferior del pectoral';
+
+  @override
+  String get ex_pecho_7_b2 => 'Reduce la implicación de los hombros';
+
+  @override
+  String get ex_pecho_7_b3 => 'Mayor rango que el press declinado con barra';
+
+  @override
+  String get ex_pecho_8_name => 'Flexiones';
+
+  @override
+  String get ex_pecho_8_desc =>
+      'Apoya las manos en el suelo a la anchura de los hombros y los pies juntos. Mantén el cuerpo recto desde la cabeza hasta los talones. Baja flexionando los codos hasta casi rozar el pecho con el suelo y empuja de vuelta. Mantén el core apretado durante todo el movimiento.';
+
+  @override
+  String get ex_pecho_8_b1 => 'No requiere equipamiento';
+
+  @override
+  String get ex_pecho_8_b2 =>
+      'Múltiples variantes para progresar (diamante, declinadas, palmada)';
+
+  @override
+  String get ex_pecho_8_b3 =>
+      'Ejercicio compuesto que también fortalece el core';
+
+  @override
+  String get ex_pecho_9_name => 'Pullover con mancuerna';
+
+  @override
+  String get ex_pecho_9_desc =>
+      'Túmbate en banco plano sosteniendo una mancuerna con ambas manos sobre el pecho, brazos extendidos. Baja la mancuerna en arco por encima de la cabeza hasta sentir el estiramiento del pecho y los dorsales. Vuelve a la posición inicial contrayendo el pecho.';
+
+  @override
+  String get ex_pecho_9_b1 => 'Trabaja simultáneamente pecho y dorsales';
+
+  @override
+  String get ex_pecho_9_b2 => 'Mejora la movilidad de hombros y caja torácica';
+
+  @override
+  String get ex_pecho_9_b3 =>
+      'Excelente complemento entre series de press y remos';
+
+  @override
+  String get ex_esp_6_name => 'Remo en T';
+
+  @override
+  String get ex_esp_6_desc =>
+      'Posiciónate sobre la barra en T con los pies a la anchura de los hombros. Inclínate hacia adelante manteniendo la espalda neutra y tira de las asas hacia el pecho llevando los codos atrás. Aprieta los omóplatos en la posición final y baja con control.';
+
+  @override
+  String get ex_esp_6_b1 => 'Desarrolla el grosor de la espalda media';
+
+  @override
+  String get ex_esp_6_b2 =>
+      'Permite cargas muy altas con menor estrés lumbar que el remo libre';
+
+  @override
+  String get ex_esp_6_b3 => 'Trabaja la postura y la estabilidad escapular';
+
+  @override
+  String get ex_esp_7_name => 'Remo bajo en polea';
+
+  @override
+  String get ex_esp_7_desc =>
+      'Siéntate frente a la polea baja con los pies apoyados. Agarra el accesorio con los brazos extendidos y la espalda neutra. Tira de las manos hacia el abdomen retrayendo los omóplatos y manteniendo el torso erguido. Regresa controladamente sin redondear la espalda.';
+
+  @override
+  String get ex_esp_7_b1 => 'Tensión constante a lo largo del movimiento';
+
+  @override
+  String get ex_esp_7_b2 => 'Fácil progresión de peso y técnica accesible';
+
+  @override
+  String get ex_esp_7_b3 =>
+      'Excelente para desarrollar grosor de espalda media';
+
+  @override
+  String get ex_esp_8_name => 'Encogimientos con mancuernas';
+
+  @override
+  String get ex_esp_8_desc =>
+      'De pie con una mancuerna en cada mano a los costados, brazos relajados. Eleva los hombros hacia las orejas sin doblar los codos. Mantén la contracción 1 segundo en la cima y baja lentamente. No rotes los hombros, el movimiento es puramente vertical.';
+
+  @override
+  String get ex_esp_8_b1 => 'Aislamiento directo del trapecio superior';
+
+  @override
+  String get ex_esp_8_b2 => 'Mejora la postura y la apariencia del cuello';
+
+  @override
+  String get ex_esp_8_b3 =>
+      'Fortalece la estabilidad escapular para otros levantamientos';
+
+  @override
+  String get ex_esp_9_name => 'Good morning';
+
+  @override
+  String get ex_esp_9_desc =>
+      'Coloca la barra sobre los trapecios como en una sentadilla. Con los pies a la anchura de las caderas y rodillas ligeramente flexionadas, inclínate hacia adelante desde las caderas manteniendo la espalda neutra. Baja hasta que el torso esté casi paralelo al suelo y vuelve apretando glúteos.';
+
+  @override
+  String get ex_esp_9_b1 => 'Fortalece la cadena posterior y la zona lumbar';
+
+  @override
+  String get ex_esp_9_b2 =>
+      'Mejora la bisagra de cadera para peso muerto y sentadilla';
+
+  @override
+  String get ex_esp_9_b3 => 'Trabajo accesorio clave para powerlifting';
+
+  @override
+  String get ex_pier_6_name => 'Sentadilla frontal';
+
+  @override
+  String get ex_pier_6_desc =>
+      'Coloca la barra sobre los deltoides frontales, codos altos y agarre cruzado o limpio. Pies a la anchura de los hombros. Baja manteniendo el torso vertical y los codos al frente hasta que los muslos pasen la paralela. Empuja con los talones para volver a la posición inicial.';
+
+  @override
+  String get ex_pier_6_b1 =>
+      'Enfatiza más los cuádriceps que la sentadilla trasera';
+
+  @override
+  String get ex_pier_6_b2 => 'Exige un core muy fuerte y postura erguida';
+
+  @override
+  String get ex_pier_6_b3 => 'Base técnica para clean y thruster en CrossFit';
+
+  @override
+  String get ex_pier_7_name => 'Sentadilla búlgara';
+
+  @override
+  String get ex_pier_7_desc =>
+      'Coloca el empeine del pie de atrás sobre un banco, sosteniendo una mancuerna en cada mano. Con el pie delantero adelantado, baja flexionando la rodilla delantera hasta que el muslo esté paralelo al suelo. Empuja a través del talón delantero para volver arriba.';
+
+  @override
+  String get ex_pier_7_b1 =>
+      'Trabajo unilateral que corrige desequilibrios entre piernas';
+
+  @override
+  String get ex_pier_7_b2 => 'Activación intensa de glúteos y cuádriceps';
+
+  @override
+  String get ex_pier_7_b3 => 'Mejora el equilibrio y la estabilidad de cadera';
+
+  @override
+  String get ex_pier_8_name => 'Peso muerto rumano';
+
+  @override
+  String get ex_pier_8_desc =>
+      'De pie con la barra a la altura de las caderas, agarre prono a la anchura de los hombros. Con las rodillas ligeramente flexionadas y fijas, desliza la barra por las piernas inclinando el torso desde las caderas hasta sentir tensión en isquios. Vuelve apretando glúteos.';
+
+  @override
+  String get ex_pier_8_b1 => 'Aislamiento intenso de isquiotibiales y glúteos';
+
+  @override
+  String get ex_pier_8_b2 =>
+      'Fortalece la cadena posterior y mejora la bisagra de cadera';
+
+  @override
+  String get ex_pier_8_b3 =>
+      'Reduce el riesgo de lesiones de isquios al correr o saltar';
+
+  @override
+  String get ex_pier_9_name => 'Extensión de cuádriceps';
+
+  @override
+  String get ex_pier_9_desc =>
+      'Siéntate en la máquina con la espalda apoyada y el rodillo sobre el empeine. Extiende las rodillas levantando el peso hasta que las piernas estén casi rectas, sin bloquear las rodillas. Aprieta los cuádriceps en la cima y baja con control.';
+
+  @override
+  String get ex_pier_9_b1 => 'Aislamiento directo del cuádriceps';
+
+  @override
+  String get ex_pier_9_b2 =>
+      'Útil para rehabilitación y trabajo de hipertrofia focalizado';
+
+  @override
+  String get ex_pier_9_b3 => 'Ajuste de carga preciso y de bajo riesgo';
+
+  @override
+  String get ex_pier_10_name => 'Elevación de talones';
+
+  @override
+  String get ex_pier_10_desc =>
+      'Coloca los hombros bajo las almohadillas de la máquina de gemelos (o usa una mancuerna de pie). Apoya las puntas de los pies en una plataforma con los talones colgando. Sube empujando las puntas y aprieta los gemelos en la cima. Baja lentamente sintiendo el estiramiento.';
+
+  @override
+  String get ex_pier_10_b1 => 'Aislamiento del sóleo y gemelos';
+
+  @override
+  String get ex_pier_10_b2 => 'Mejora la potencia en saltos y sprints';
+
+  @override
+  String get ex_pier_10_b3 =>
+      'Reduce el riesgo de lesiones en tobillo y tendón de Aquiles';
+
+  @override
+  String get ex_hom_5_name => 'Press de hombros con mancuernas';
+
+  @override
+  String get ex_hom_5_desc =>
+      'Sentado con respaldo recto, sostén una mancuerna a cada lado de los hombros, palmas hacia adelante. Empuja las mancuernas hacia arriba hasta casi juntarlas por encima de la cabeza, sin bloquear los codos. Baja con control hasta la posición inicial.';
+
+  @override
+  String get ex_hom_5_b1 => 'Mayor rango de movimiento que el press con barra';
+
+  @override
+  String get ex_hom_5_b2 => 'Permite trabajar cada lado de forma independiente';
+
+  @override
+  String get ex_hom_5_b3 => 'Reduce el estrés en hombros respecto a la barra';
+
+  @override
+  String get ex_hom_6_name => 'Elevaciones frontales';
+
+  @override
+  String get ex_hom_6_desc =>
+      'De pie con una mancuerna en cada mano frente a los muslos, palmas hacia el cuerpo. Eleva los brazos alternados o simultáneamente al frente hasta la altura de los hombros, manteniendo los codos casi extendidos. Baja lentamente sin balancearse.';
+
+  @override
+  String get ex_hom_6_b1 => 'Aislamiento del deltoides anterior';
+
+  @override
+  String get ex_hom_6_b2 => 'Mejora la apariencia frontal del hombro';
+
+  @override
+  String get ex_hom_6_b3 =>
+      'Trabajo accesorio de press de banca y press militar';
+
+  @override
+  String get ex_hom_7_name => 'Pájaros con mancuernas';
+
+  @override
+  String get ex_hom_7_desc =>
+      'Inclínate hacia adelante desde la cadera con el torso casi paralelo al suelo, mancuerna en cada mano y brazos colgando. Eleva los brazos lateralmente hasta la altura de los hombros, codos ligeramente flexionados. Aprieta el deltoides posterior arriba y baja con control.';
+
+  @override
+  String get ex_hom_7_b1 =>
+      'Aislamiento del deltoides posterior, área clave para postura';
+
+  @override
+  String get ex_hom_7_b2 => 'Contrarresta los efectos del trabajo de empuje';
+
+  @override
+  String get ex_hom_7_b3 => 'Reduce el riesgo de lesiones del manguito rotador';
+
+  @override
+  String get ex_bra_6_name => 'Curl predicador';
+
+  @override
+  String get ex_bra_6_desc =>
+      'Siéntate en el banco predicador con los brazos apoyados sobre la almohadilla. Agarra la barra (recta o Z) con agarre supino. Flexiona los codos llevando la barra hacia los hombros, controlando el movimiento. Baja lentamente sin bloquear los codos al final.';
+
+  @override
+  String get ex_bra_6_b1 => 'Aísla el bíceps al inmovilizar el hombro';
+
+  @override
+  String get ex_bra_6_b2 => 'Imposibilita usar impulso, técnica estricta';
+
+  @override
+  String get ex_bra_6_b3 => 'Excelente para la contracción máxima del bíceps';
+
+  @override
+  String get ex_bra_7_name => 'Curl concentrado';
+
+  @override
+  String get ex_bra_7_desc =>
+      'Siéntate en un banco con las piernas abiertas. Apoya el codo del brazo de trabajo contra la cara interna del muslo, mancuerna colgando. Flexiona el codo llevando la mancuerna hacia el hombro, aislando el bíceps. Aprieta arriba y baja con control.';
+
+  @override
+  String get ex_bra_7_b1 =>
+      'Aislamiento puro del bíceps con máxima contracción';
+
+  @override
+  String get ex_bra_7_b2 => 'Permite enfocarse en la conexión mente-músculo';
+
+  @override
+  String get ex_bra_7_b3 => 'Ideal como ejercicio final del entreno de brazos';
+
+  @override
+  String get ex_bra_8_name => 'Press cerrado de banca';
+
+  @override
+  String get ex_bra_8_desc =>
+      'Túmbate en banco plano y agarra la barra con un agarre cerrado a la anchura de los hombros. Baja la barra controladamente hasta rozar el esternón manteniendo los codos pegados al cuerpo. Empuja hacia arriba enfatizando la extensión de tríceps.';
+
+  @override
+  String get ex_bra_8_b1 => 'Ejercicio compuesto que enfatiza los tríceps';
+
+  @override
+  String get ex_bra_8_b2 =>
+      'Permite cargar más peso que un aislamiento de tríceps';
+
+  @override
+  String get ex_bra_8_b3 =>
+      'Transfiere a fuerza en press de banca y press militar';
+
+  @override
+  String get ex_bra_9_name => 'Fondos en banco';
+
+  @override
+  String get ex_bra_9_desc =>
+      'Apoya las manos en un banco a tu espalda con los dedos hacia adelante. Extiende las piernas frente a ti apoyando los talones (o con rodillas flexionadas para facilitar). Baja flexionando los codos hacia atrás hasta 90° y empuja para subir.';
+
+  @override
+  String get ex_bra_9_b1 =>
+      'Aislamiento del tríceps sin necesidad de equipamiento';
+
+  @override
+  String get ex_bra_9_b2 => 'Fácil de progresar añadiendo peso en el regazo';
+
+  @override
+  String get ex_bra_9_b3 =>
+      'Mejora la fuerza de empuje desde posiciones detrás del cuerpo';
+
+  @override
+  String get ex_core_5_name => 'Russian twists';
+
+  @override
+  String get ex_core_5_desc =>
+      'Sentado en el suelo con las rodillas flexionadas y los pies elevados o apoyados, inclínate hacia atrás 45°. Junta las manos (o sostén un peso) y gira el torso de lado a lado tocando el suelo o llevando el peso a cada lateral. Mantén el core apretado.';
+
+  @override
+  String get ex_core_5_b1 => 'Aislamiento directo de los oblicuos';
+
+  @override
+  String get ex_core_5_b2 => 'Mejora la rotación del torso, clave en deportes';
+
+  @override
+  String get ex_core_5_b3 =>
+      'Se puede progresar añadiendo peso (mancuerna, disco, balón)';
+
+  @override
+  String get ex_core_6_name => 'Mountain climbers';
+
+  @override
+  String get ex_core_6_desc =>
+      'Adopta la posición de plancha alta con las manos bajo los hombros. Lleva una rodilla hacia el pecho de forma alternada y rápida, como si corrieras en el sitio. Mantén la cadera baja y el core apretado durante todo el movimiento.';
+
+  @override
+  String get ex_core_6_b1 => 'Combina trabajo de core con cardio';
+
+  @override
+  String get ex_core_6_b2 => 'No requiere equipamiento, ideal para HIIT';
+
+  @override
+  String get ex_core_6_b3 => 'Mejora la coordinación y la resistencia';
+
+  @override
+  String get ex_core_7_name => 'Hollow hold';
+
+  @override
+  String get ex_core_7_desc =>
+      'Túmbate boca arriba con brazos extendidos por encima de la cabeza y piernas estiradas. Eleva ligeramente los brazos y las piernas del suelo, llevando la zona lumbar contra el suelo. Mantén la posición de \"barco\" con el core completamente contraído.';
+
+  @override
+  String get ex_core_7_b1 =>
+      'Base gimnástica para muchos movimientos de CrossFit';
+
+  @override
+  String get ex_core_7_b2 =>
+      'Fortalece el core en su totalidad de forma isométrica';
+
+  @override
+  String get ex_core_7_b3 =>
+      'Mejora la postura y la fuerza para dominadas estrictas';
+
+  @override
+  String get ex_core_8_name => 'Plancha lateral';
+
+  @override
+  String get ex_core_8_desc =>
+      'Túmbate de lado con el antebrazo apoyado y el codo bajo el hombro. Eleva la cadera del suelo formando una línea recta desde los pies hasta la cabeza. Mantén la posición sin que la cadera se hunda. Repite del otro lado.';
+
+  @override
+  String get ex_core_8_b1 => 'Aislamiento intenso de oblicuos y core lateral';
+
+  @override
+  String get ex_core_8_b2 => 'Mejora la estabilidad de cadera y columna';
+
+  @override
+  String get ex_core_8_b3 => 'Sin equipamiento y bajo impacto';
+
+  @override
+  String get ex_core_9_name => 'Dead bug';
+
+  @override
+  String get ex_core_9_desc =>
+      'Túmbate boca arriba con brazos extendidos hacia el techo y rodillas flexionadas a 90° sobre las caderas. Baja simultáneamente el brazo derecho por detrás de la cabeza y la pierna izquierda extendida hacia el suelo. Vuelve y alterna lados manteniendo la zona lumbar pegada al suelo.';
+
+  @override
+  String get ex_core_9_b1 => 'Mejora la estabilidad anti-extensión del core';
+
+  @override
+  String get ex_core_9_b2 =>
+      'Excelente para principiantes y rehabilitación lumbar';
+
+  @override
+  String get ex_core_9_b3 => 'Trabaja la coordinación contralateral';
+
+  @override
+  String get ex_cf_1_name => 'Cargada (Clean)';
+
+  @override
+  String get ex_cf_1_desc =>
+      'Desde el suelo, agarra la barra con agarre prono justo por fuera de las rodillas. Tira explosivamente extendiendo caderas y rodillas, encoge los hombros y desliza el cuerpo bajo la barra recibiéndola en sentadilla frontal con los codos altos. Levántate completando el lift.';
+
+  @override
+  String get ex_cf_1_b1 =>
+      'Levantamiento olímpico completo de potencia explosiva';
+
+  @override
+  String get ex_cf_1_b2 =>
+      'Desarrolla coordinación, velocidad y fuerza simultáneamente';
+
+  @override
+  String get ex_cf_1_b3 => 'Base de muchos WODs de CrossFit';
+
+  @override
+  String get ex_cf_2_name => 'Power Clean';
+
+  @override
+  String get ex_cf_2_desc =>
+      'Igual que el Clean pero sin recibir en sentadilla completa: recibes la barra en cuarto de sentadilla con codos altos y la frontal en los hombros. Más rápido y menos exigente de movilidad que el Clean.';
+
+  @override
+  String get ex_cf_2_b1 =>
+      'Desarrolla potencia explosiva de la cadena posterior';
+
+  @override
+  String get ex_cf_2_b2 => 'Más accesible técnicamente que el Clean completo';
+
+  @override
+  String get ex_cf_2_b3 => 'Excelente para principiantes en lifts olímpicos';
+
+  @override
+  String get ex_cf_3_name => 'Arrancada (Snatch)';
+
+  @override
+  String get ex_cf_3_desc =>
+      'Desde el suelo, agarra la barra con agarre muy ancho. Tira explosivamente y recibe la barra por encima de la cabeza con los brazos extendidos en una sentadilla profunda (overhead squat). Levántate manteniendo la barra arriba.';
+
+  @override
+  String get ex_cf_3_b1 =>
+      'El lift olímpico más completo y técnicamente exigente';
+
+  @override
+  String get ex_cf_3_b2 =>
+      'Desarrolla potencia, movilidad y estabilidad simultáneamente';
+
+  @override
+  String get ex_cf_3_b3 =>
+      'Quema más calorías que casi cualquier otro ejercicio';
+
+  @override
+  String get ex_cf_4_name => 'Power Snatch';
+
+  @override
+  String get ex_cf_4_desc =>
+      'Igual que el Snatch pero recibiendo la barra en cuarto de sentadilla con los brazos extendidos por encima de la cabeza. Más rápido y menos exigente de movilidad de tobillos y caderas.';
+
+  @override
+  String get ex_cf_4_b1 => 'Más accesible que el Snatch completo';
+
+  @override
+  String get ex_cf_4_b2 => 'Desarrolla potencia explosiva de cadena posterior';
+
+  @override
+  String get ex_cf_4_b3 => 'Excelente para movilidad y coordinación';
+
+  @override
+  String get ex_cf_5_name => 'Thruster';
+
+  @override
+  String get ex_cf_5_desc =>
+      'Sostén la barra en posición frontal (sobre los deltoides delanteros). Realiza una sentadilla frontal completa y, al subir, usa el impulso de las piernas para empujar la barra por encima de la cabeza con los brazos extendidos. Baja la barra a la posición frontal y repite.';
+
+  @override
+  String get ex_cf_5_b1 => 'Trabaja todo el cuerpo en un solo movimiento';
+
+  @override
+  String get ex_cf_5_b2 => 'Ejercicio estrella de WODs como \"Fran\"';
+
+  @override
+  String get ex_cf_5_b3 => 'Combina fuerza y resistencia metabólica';
+
+  @override
+  String get ex_cf_6_name => 'Push Press';
+
+  @override
+  String get ex_cf_6_desc =>
+      'Con la barra en posición frontal sobre los hombros, realiza un dip rápido flexionando ligeramente las rodillas. Extiende explosivamente las piernas para impulsar la barra por encima de la cabeza hasta los brazos extendidos. Baja con control a la posición inicial.';
+
+  @override
+  String get ex_cf_6_b1 =>
+      'Permite mover más peso que el press militar estricto';
+
+  @override
+  String get ex_cf_6_b2 => 'Desarrolla potencia de empuje vertical';
+
+  @override
+  String get ex_cf_6_b3 => 'Transfiere a Jerk y otros lifts olímpicos';
+
+  @override
+  String get ex_cf_7_name => 'Push Jerk';
+
+  @override
+  String get ex_cf_7_desc =>
+      'Igual que el Push Press pero al impulsar la barra arriba, sueltas las piernas para recibir la barra en cuarto de sentadilla con los brazos ya extendidos. Después, levántate completando el lift. Permite cargar más peso que el Push Press.';
+
+  @override
+  String get ex_cf_7_b1 =>
+      'Mueve más peso por encima de la cabeza que cualquier press';
+
+  @override
+  String get ex_cf_7_b2 => 'Lift olímpico técnico y de alta potencia';
+
+  @override
+  String get ex_cf_7_b3 => 'Componente del Clean & Jerk';
+
+  @override
+  String get ex_cf_8_name => 'Wall Balls';
+
+  @override
+  String get ex_cf_8_desc =>
+      'De pie con un balón medicinal frente al pecho, mirando a una pared. Realiza una sentadilla profunda y al subir lanza la pelota hacia un objetivo alto en la pared (~3 m). Atrapa la pelota a la altura del pecho y desciende inmediatamente a la siguiente sentadilla.';
+
+  @override
+  String get ex_cf_8_b1 => 'Ejercicio cardiovascular y de potencia simultáneo';
+
+  @override
+  String get ex_cf_8_b2 =>
+      'Movimiento estándar en muchos benchmarks de CrossFit';
+
+  @override
+  String get ex_cf_8_b3 => 'Trabaja la coordinación y el ritmo';
+
+  @override
+  String get ex_cf_9_name => 'Kettlebell Swing americano';
+
+  @override
+  String get ex_cf_9_desc =>
+      'De pie con la kettlebell colgando entre las piernas con ambas manos. Bisagra de cadera para llevarla atrás y extiende explosivamente las caderas para impulsarla por encima de la cabeza con los brazos extendidos. La fuerza viene de la cadera, no de los brazos.';
+
+  @override
+  String get ex_cf_9_b1 => 'Desarrolla potencia explosiva de cadera';
+
+  @override
+  String get ex_cf_9_b2 => 'Cardio y fuerza en un solo movimiento';
+
+  @override
+  String get ex_cf_9_b3 =>
+      'Estándar en CrossFit (los rusos van solo hasta el pecho)';
+
+  @override
+  String get ex_cf_10_name => 'Kettlebell Swing ruso';
+
+  @override
+  String get ex_cf_10_desc =>
+      'Idéntico al swing americano pero la kettlebell solo se eleva hasta la altura del pecho/ojos, no por encima de la cabeza. Más fácil técnicamente y de menor estrés en hombros.';
+
+  @override
+  String get ex_cf_10_b1 => 'Punto de entrada al trabajo con kettlebell';
+
+  @override
+  String get ex_cf_10_b2 => 'Menos estrés de hombro que el swing americano';
+
+  @override
+  String get ex_cf_10_b3 => 'Ideal para principiantes y altas repeticiones';
+
+  @override
+  String get ex_cf_11_name => 'Box Jumps';
+
+  @override
+  String get ex_cf_11_desc =>
+      'Frente a un cajón o plataforma estable, flexiona las rodillas y salta sobre el cajón aterrizando con los pies completamente sobre la superficie. Extiende caderas y rodillas en la cima. Baja saltando o paso a paso para reducir impacto.';
+
+  @override
+  String get ex_cf_11_b1 => 'Pliometría pura para desarrollar potencia';
+
+  @override
+  String get ex_cf_11_b2 => 'Mejora el salto vertical y la explosividad';
+
+  @override
+  String get ex_cf_11_b3 => 'Componente clásico de muchos WODs';
+
+  @override
+  String get ex_cf_12_name => 'Burpees';
+
+  @override
+  String get ex_cf_12_desc =>
+      'De pie, agáchate y apoya las manos en el suelo. Salta con los pies hacia atrás hasta la posición de plancha. Realiza una flexión tocando el pecho al suelo. Salta con los pies de vuelta hacia las manos y salta vertical extendiendo los brazos arriba.';
+
+  @override
+  String get ex_cf_12_b1 => 'Ejercicio full-body sin equipamiento';
+
+  @override
+  String get ex_cf_12_b2 => 'Cardio intenso y trabajo de fuerza simultáneo';
+
+  @override
+  String get ex_cf_12_b3 =>
+      'Estándar de benchmarks como \"Murph\" y muchos WODs';
+
+  @override
+  String get ex_cf_13_name => 'Toes-to-Bar';
+
+  @override
+  String get ex_cf_13_desc =>
+      'Cuelga de la barra con agarre prono. Activa los dorsales y eleva las piernas extendidas (o con ligera flexión) hasta tocar la barra con los pies. Baja con control sin balanceo excesivo. Usa el \"kip\" para mantener cadencia.';
+
+  @override
+  String get ex_cf_13_b1 => 'Trabajo dinámico de core de alta exigencia';
+
+  @override
+  String get ex_cf_13_b2 => 'Mejora la fuerza de agarre y los dorsales';
+
+  @override
+  String get ex_cf_13_b3 => 'Componente de muchos WODs de CrossFit';
+
+  @override
+  String get ex_cf_14_name => 'Knees-to-Elbow';
+
+  @override
+  String get ex_cf_14_desc =>
+      'Cuelga de la barra con agarre prono. Flexiona las caderas y rodillas llevando las rodillas hacia los codos en un movimiento dinámico controlado. Baja con control. Útil como progresión hacia los Toes-to-Bar.';
+
+  @override
+  String get ex_cf_14_b1 => 'Progresión hacia Toes-to-Bar';
+
+  @override
+  String get ex_cf_14_b2 =>
+      'Trabajo de core dinámico sin tanta exigencia técnica';
+
+  @override
+  String get ex_cf_14_b3 => 'Mejora la fuerza de agarre';
+
+  @override
+  String get ex_cf_15_name => 'Muscle-Up';
+
+  @override
+  String get ex_cf_15_desc =>
+      'Cuélgate de las anillas (o barra) con agarre falso. Tira explosivamente del cuerpo hacia arriba haciendo una transición sobre las anillas y, en la cima, empuja extendiendo los brazos hasta quedar en soporte arriba. Baja controlando la transición inversa.';
+
+  @override
+  String get ex_cf_15_b1 =>
+      'Movimiento gimnástico avanzado de tracción + empuje';
+
+  @override
+  String get ex_cf_15_b2 => 'Hito clave en CrossFit (RX en muchos WODs)';
+
+  @override
+  String get ex_cf_15_b3 =>
+      'Desarrolla fuerza relativa al peso corporal extrema';
+
+  @override
+  String get ex_cf_16_name => 'Pistol Squat';
+
+  @override
+  String get ex_cf_16_desc =>
+      'De pie sobre una pierna, extiende la otra al frente paralela al suelo. Baja en sentadilla profunda manteniendo el equilibrio y el pie de apoyo plano. Sube empujando con el talón sin que la pierna libre toque el suelo. Repite del otro lado.';
+
+  @override
+  String get ex_cf_16_b1 => 'Sentadilla unilateral de máxima dificultad';
+
+  @override
+  String get ex_cf_16_b2 => 'Desarrolla movilidad de tobillo y cadera';
+
+  @override
+  String get ex_cf_16_b3 => 'Trabajo unilateral que corrige asimetrías';
+
+  @override
+  String get ex_cf_17_name => 'Handstand Push-Up (HSPU)';
+
+  @override
+  String get ex_cf_17_desc =>
+      'Apoya las manos en el suelo a unos 30 cm de una pared y patea hacia arriba hasta quedar en parada de manos contra la pared. Baja flexionando los codos hasta que la cabeza toque el suelo (o un abmat). Empuja para volver arriba. Usa el \"kip\" si necesitas asistencia.';
+
+  @override
+  String get ex_cf_17_b1 => 'Press vertical con peso corporal completo';
+
+  @override
+  String get ex_cf_17_b2 => 'Mejora la estabilidad de hombro y core';
+
+  @override
+  String get ex_cf_17_b3 => 'Hito gimnástico clave en CrossFit';
+
+  @override
+  String get ex_cf_18_name => 'Turkish Get-Up';
+
+  @override
+  String get ex_cf_18_desc =>
+      'Túmbate boca arriba sosteniendo una kettlebell con un brazo extendido hacia el techo. Levántate paso a paso (codo → mano → bisagra de cadera → barrida de pierna → arrodillado → de pie) manteniendo siempre la kettlebell arriba. Invierte el movimiento.';
+
+  @override
+  String get ex_cf_18_b1 => 'Movimiento funcional total-body único';
+
+  @override
+  String get ex_cf_18_b2 => 'Mejora la movilidad, estabilidad y coordinación';
+
+  @override
+  String get ex_cf_18_b3 => 'Excelente trabajo de hombro y core';
+
+  @override
+  String get ex_cf_19_name => 'Double Unders';
+
+  @override
+  String get ex_cf_19_desc =>
+      'Salta a la cuerda haciéndola pasar dos veces bajo los pies en cada salto. Mantén los saltos bajos y el ritmo de muñeca rápido. Brazos pegados al cuerpo, codos cerca de la cintura. Requiere coordinación y cuerda de velocidad.';
+
+  @override
+  String get ex_cf_19_b1 => 'Cardio explosivo de alta intensidad';
+
+  @override
+  String get ex_cf_19_b2 => 'Mejora la coordinación y el timing';
+
+  @override
+  String get ex_cf_19_b3 => 'Estándar en cientos de WODs de CrossFit';
+
+  @override
+  String get ex_cf_20_name => 'Farmer\'s Carry';
+
+  @override
+  String get ex_cf_20_desc =>
+      'Sostén una mancuerna o kettlebell pesada en cada mano a los costados. Camina con pasos cortos manteniendo la postura erguida, hombros atrás y core apretado. Recorre una distancia determinada o trabaja por tiempo.';
+
+  @override
+  String get ex_cf_20_b1 => 'Fortalece el agarre y los antebrazos';
+
+  @override
+  String get ex_cf_20_b2 => 'Trabajo funcional de todo el cuerpo';
+
+  @override
+  String get ex_cf_20_b3 => 'Mejora la postura y la estabilidad del core';
+
+  @override
+  String get ex_cf_21_name => 'Goblet Squat';
+
+  @override
+  String get ex_cf_21_desc =>
+      'Sostén una kettlebell (o mancuerna) frente al pecho a la altura del esternón, agarrándola por las \"campanas\". Realiza una sentadilla profunda manteniendo el torso vertical y los codos al frente. Empuja con los talones para volver arriba.';
+
+  @override
+  String get ex_cf_21_b1 =>
+      'Punto de entrada perfecto a la sentadilla con carga';
+
+  @override
+  String get ex_cf_21_b2 => 'Enseña postura erguida y profundidad correcta';
+
+  @override
+  String get ex_cf_21_b3 => 'Excelente para activar el core';
 
   @override
   String get ex_pecho_1_name => 'Press de banca';

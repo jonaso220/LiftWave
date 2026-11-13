@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>LiftWave guarda en Salud los entrenamientos y el peso corporal que registras.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>LiftWave no lee tus datos de Salud: solo guarda los entrenamientos y el peso corporal que registras.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>LiftWave necesita acceso a la cámara para tomar fotos de progreso.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

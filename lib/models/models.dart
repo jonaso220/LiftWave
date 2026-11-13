@@ -1,3 +1,7 @@
+import 'set_type.dart';
+
+export 'set_type.dart';
+
 // ── Workout models ────────────────────────────────────────────────────────────
 
 class WorkoutSet {
@@ -6,6 +10,7 @@ class WorkoutSet {
   final double weight;
   final bool completed;
   final bool completionRecorded;
+  final SetType type;
 
   const WorkoutSet({
     required this.setNumber,
@@ -13,6 +18,7 @@ class WorkoutSet {
     required this.weight,
     this.completed = false,
     this.completionRecorded = true,
+    this.type = SetType.normal,
   });
 
   Map<String, dynamic> toJson() => {
@@ -20,6 +26,7 @@ class WorkoutSet {
     'reps': reps,
     'weight': weight,
     'completed': completed,
+    if (type != SetType.normal) 'type': type.storageKey,
   };
 
   factory WorkoutSet.fromJson(Map<String, dynamic> j) => WorkoutSet(
@@ -28,6 +35,7 @@ class WorkoutSet {
     weight: (j['weight'] as num).toDouble(),
     completed: j['completed'] as bool? ?? false,
     completionRecorded: j.containsKey('completed'),
+    type: SetType.fromStorage(j['type']),
   );
 }
 
@@ -39,6 +47,15 @@ class WorkoutExercise {
   final String? notes;
   final String? routineBlockName;
 
+  /// Set when the user measured this exercise differently from its default
+  /// (see [timed]); null otherwise, and for every record saved before timed
+  /// exercises existed.
+  final bool? timedOverride;
+
+  /// Shared by the exercises done back to back as one superset; null for
+  /// an exercise done on its own.
+  final String? supersetId;
+
   const WorkoutExercise({
     required this.id,
     required this.name,
@@ -46,7 +63,12 @@ class WorkoutExercise {
     required this.sets,
     this.notes,
     this.routineBlockName,
+    this.timedOverride,
+    this.supersetId,
   });
+
+  /// Whether the sets were held for a time: their `reps` are then seconds.
+  bool get timed => timedOverride ?? isTimedByDefault(name);
 
   bool get hasCompletionData => sets.any((set) => set.completionRecorded);
 
@@ -60,10 +82,25 @@ class WorkoutExercise {
 
   int get completedSetCount => effectiveCompletedSets.length;
 
-  int get completedVolume => effectiveCompletedSets.fold(
-    0,
-    (sum, set) => sum + (set.reps * set.weight).round(),
-  );
+  /// Performed sets that are training work: everything but warm-ups. Volume,
+  /// records, weekly sets and progression are computed from these.
+  Iterable<WorkoutSet> get workingSets =>
+      effectiveCompletedSets.where((set) => set.type.countsAsWork);
+
+  /// Load × repetitions. A hold has no repetitions (its `reps` are
+  /// seconds), so it adds no volume.
+  int get completedVolume => timed
+      ? 0
+      : workingSets.fold(
+          0,
+          (sum, set) => sum + (set.reps * set.weight).round(),
+        );
+
+  /// The number shown for [set]: its position among the working sets, since
+  /// warm-ups carry a letter instead of a number.
+  int workingNumberOf(WorkoutSet set) => sets
+      .where((s) => s.setNumber <= set.setNumber && s.type.countsAsWork)
+      .length;
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -72,6 +109,8 @@ class WorkoutExercise {
     'sets': sets.map((s) => s.toJson()).toList(),
     'notes': notes,
     'routineBlockName': routineBlockName,
+    if (timedOverride != null) 'timed': timedOverride,
+    if (supersetId != null) 'supersetId': supersetId,
   };
 
   factory WorkoutExercise.fromJson(Map<String, dynamic> j) => WorkoutExercise(
@@ -83,6 +122,8 @@ class WorkoutExercise {
         .toList(),
     notes: j['notes'] as String?,
     routineBlockName: j['routineBlockName'] as String?,
+    timedOverride: j['timed'] as bool?,
+    supersetId: j['supersetId'] as String?,
   );
 }
 
@@ -206,3 +247,10 @@ class Exercise {
     this.benefits = const [],
   });
 }
+
+/// Whether [weight] is a genuinely heavier lift than [previousBest], both in
+/// kilograms. Loads typed in pounds come back from the kg they are stored in
+/// a hair off (60 kg shows as 132.28 lb, which is 60.0012 kg), so a tie must
+/// not count as a record. The margin is far below the smallest real plate.
+bool beatsPersonalRecord(double weight, double previousBest) =>
+    weight - previousBest >= 0.05;

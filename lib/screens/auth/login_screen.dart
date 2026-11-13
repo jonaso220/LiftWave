@@ -51,7 +51,10 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted || !widget.upgradingGuest) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(S.of(context).guest_accountCreated),
+        content: Text(
+          S.of(context).guest_accountCreated,
+          style: TextStyle(color: AppColors.readableOn(AppColors.accent)),
+        ),
         backgroundColor: AppColors.accent,
         behavior: SnackBarBehavior.floating,
       ),
@@ -129,7 +132,10 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(msg),
+        content: Text(
+          msg,
+          style: TextStyle(color: AppColors.readableOn(AppColors.error)),
+        ),
         backgroundColor: AppColors.error,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -413,16 +419,13 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // A plain icon: the remote SVG used here before could never be decoded by
+  // Image.network, so it only cost a failed request on every launch.
   Widget _googleIcon() {
-    return Image.network(
-      'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
-      width: 22,
-      height: 22,
-      errorBuilder: (_, _, _) => const Icon(
-        Icons.g_mobiledata_rounded,
-        size: 26,
-        color: Color(0xFF4285F4),
-      ),
+    return const Icon(
+      Icons.g_mobiledata_rounded,
+      size: 26,
+      color: Color(0xFF4285F4),
     );
   }
 }

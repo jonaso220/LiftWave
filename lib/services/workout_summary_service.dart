@@ -1,5 +1,6 @@
 import '../models/models.dart';
 import '../models/session_models.dart';
+import '../utils/routine_days.dart';
 
 /// A heavier load than ever before for an exercise.
 class PersonalRecord {
@@ -42,7 +43,9 @@ class WorkoutSummaryService {
       final best = exercises
           .where((e) => _normalize(e.name) == key)
           .expand((e) => e.sets)
-          .where((set) => set.completed && set.reps > 0)
+          .where(
+            (set) => set.completed && set.reps > 0 && set.type.countsAsWork,
+          )
           .fold<double>(0, (max, set) => set.weight > max ? set.weight : max);
       if (best <= 0) continue;
 
@@ -50,7 +53,7 @@ class WorkoutSummaryService {
       for (final workout in history) {
         for (final past in workout.exercises) {
           if (_normalize(past.name) != key) continue;
-          for (final set in past.effectiveCompletedSets) {
+          for (final set in past.workingSets) {
             if (set.reps <= 0) continue;
             if (previousBest == null || set.weight > previousBest) {
               previousBest = set.weight;
@@ -58,7 +61,9 @@ class WorkoutSummaryService {
           }
         }
       }
-      if (previousBest != null && previousBest > 0 && best > previousBest) {
+      if (previousBest != null &&
+          previousBest > 0 &&
+          beatsPersonalRecord(best, previousBest)) {
         records.add(
           PersonalRecord(
             exerciseName: exercise.name,
@@ -87,6 +92,7 @@ class WorkoutSummaryService {
       if (!workout.hasCompletedWork) continue;
       final sameRoutine =
           routineDay != null &&
+          routineDay != routineDayUnassigned &&
           workout.routineDay == routineDay &&
           workout.routineOrder == routineOrder;
       final sameName = _normalize(workout.name) == _normalize(workoutName);

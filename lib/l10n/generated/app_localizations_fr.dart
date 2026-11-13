@@ -474,6 +474,16 @@ class SFr extends S {
   String get editWorkout_saved => 'Entraînement mis à jour';
 
   @override
+  String get detail_deleteWorkout => 'Supprimer l\'entraînement';
+
+  @override
+  String get detail_deleteWorkoutConfirm =>
+      'Il sera retiré de votre historique. Cette action est irréversible.';
+
+  @override
+  String get detail_workoutDeleted => 'Entraînement supprimé';
+
+  @override
   String get home_viewAll => 'Tout voir';
 
   @override
@@ -506,6 +516,235 @@ class SFr extends S {
 
   @override
   String get profile_deleteAccount => 'Supprimer le compte';
+
+  @override
+  String get progressScreen_deleteMeasurementTitle => 'Supprimer l\'entrée ?';
+
+  @override
+  String get progressScreen_deleteMeasurementBody =>
+      'L\'entrée et sa photo seront supprimées. Cette action est irréversible.';
+
+  @override
+  String get profile_signOutConfirm =>
+      'Se déconnecter ? Vos données restent enregistrées dans votre compte.';
+
+  @override
+  String get profile_deleteSubscriptionNote =>
+      'Supprimer le compte n\'annule pas votre abonnement. Annulez-le d\'abord depuis la boutique.';
+
+  @override
+  String get profile_manageSubscription => 'Gérer l\'abonnement';
+
+  @override
+  String get profile_help => 'Aide et assistance';
+
+  @override
+  String get rest_alertTitle => 'Repos terminé';
+
+  @override
+  String get rest_alertBody => 'C\'est l\'heure de votre prochaine série.';
+
+  @override
+  String get rest_alertChannel => 'Minuteur de repos';
+
+  @override
+  String get profile_restAlert => 'Alerte à la fin du repos';
+
+  @override
+  String get profile_restAlertSubtitle =>
+      'Notification sonore quand l\'app n\'est pas à l\'écran';
+
+  @override
+  String get profile_restAlertExact => 'Autoriser les alarmes exactes';
+
+  @override
+  String get profile_restAlertExactSubtitle =>
+      'Sans cette autorisation, Android peut retarder l\'alerte';
+
+  @override
+  String get editWorkout_date => 'Date et heure';
+
+  @override
+  String get editWorkout_duration => 'Durée (min)';
+
+  @override
+  String get history_searchHint => 'Rechercher une séance ou un exercice';
+
+  @override
+  String get history_noResults => 'Aucun résultat';
+
+  @override
+  String get history_calendar => 'Calendrier';
+
+  @override
+  String get progress_oneRm => '1RM est.';
+
+  @override
+  String get progress_recordsTitle => 'Records';
+
+  @override
+  String get progress_bestLift => 'Charge maximale';
+
+  @override
+  String get progress_bestOneRm => 'Meilleur 1RM estimé';
+
+  @override
+  String get setType_title => 'Type de série';
+
+  @override
+  String get setType_normal => 'Normale';
+
+  @override
+  String get setType_warmup => 'Échauffement';
+
+  @override
+  String get setType_drop => 'Drop set';
+
+  @override
+  String get setType_failure => 'Jusqu\'à l\'échec';
+
+  @override
+  String get setType_warmupHint =>
+      'Ne compte ni pour le volume ni pour les records';
+
+  @override
+  String get setType_warmupShort => 'É';
+
+  @override
+  String get setType_dropShort => 'D';
+
+  @override
+  String get setType_failureShort => 'F';
+
+  @override
+  String get plates_title => 'Calculateur de disques';
+
+  @override
+  String get plates_target => 'Poids total';
+
+  @override
+  String get plates_bar => 'Barre';
+
+  @override
+  String get plates_perSide => 'Par côté';
+
+  @override
+  String get plates_onlyBar => 'Barre seule';
+
+  @override
+  String get plates_belowBar => 'Le poids est inférieur à celui de la barre';
+
+  @override
+  String plates_missing(String amount) {
+    return '$amount ne peuvent pas être chargés avec ces disques';
+  }
+
+  @override
+  String get train_secondsHeader => 'SEC';
+
+  @override
+  String get train_secondsShort => 's';
+
+  @override
+  String get train_startHold => 'Démarrer';
+
+  @override
+  String get train_measureByTime => 'Mesurer en temps';
+
+  @override
+  String get train_measureByReps => 'Mesurer en répétitions';
+
+  @override
+  String get hold_running => 'EN COURS';
+
+  @override
+  String get hold_alertTitle => 'Temps écoulé';
+
+  @override
+  String get hold_alertBody => 'Série terminée.';
+
+  @override
+  String train_reasonHold(int seconds) {
+    return 'Vous avez tenu $seconds s. Essayez d\'ajouter 5 s.';
+  }
+
+  @override
+  String get superset_label => 'Superset';
+
+  @override
+  String get superset_linkNext => 'Superset avec le suivant';
+
+  @override
+  String get superset_unlink => 'Retirer du superset';
+
+  @override
+  String get superset_hint =>
+      'Alternez les séries ; le repos commence à la fin du tour.';
+
+  @override
+  String get reminders_title => 'Rappels d\'entraînement';
+
+  @override
+  String get reminders_off => 'Désactivés';
+
+  @override
+  String get reminders_enable => 'Me rappeler de m\'entraîner';
+
+  @override
+  String get reminders_enableSubtitle => 'Une notification les jours choisis';
+
+  @override
+  String get reminders_days => 'Jours';
+
+  @override
+  String get reminders_time => 'Heure';
+
+  @override
+  String get reminders_notificationTitle => 'C\'est l\'heure de s\'entraîner';
+
+  @override
+  String get reminders_notificationBody => 'Votre séance du jour vous attend.';
+
+  @override
+  String reminders_notificationRoutine(String routine) {
+    return 'Au programme aujourd\'hui : $routine';
+  }
+
+  @override
+  String get reminders_permissionDenied =>
+      'Activez les notifications de LiftWave dans les réglages du système pour recevoir des rappels.';
+
+  @override
+  String health_sync(String store) {
+    return 'Synchroniser avec $store';
+  }
+
+  @override
+  String health_syncSubtitle(String store) {
+    return 'Enregistre dans $store les entraînements et le poids que vous saisissez';
+  }
+
+  @override
+  String health_enabled(String store) {
+    return 'C\'est fait. Vos prochains entraînements seront enregistrés dans $store.';
+  }
+
+  @override
+  String health_denied(String store) {
+    return 'Activation impossible. Vérifiez les autorisations de LiftWave dans $store.';
+  }
+
+  @override
+  String get health_needsInstall =>
+      'Installez ou mettez à jour Health Connect pour activer la synchronisation.';
+
+  @override
+  String get health_install => 'Installer';
+
+  @override
+  String health_unsupported(String store) {
+    return '$store n\'est pas disponible sur cet appareil.';
+  }
 
   @override
   String get profile_purchasesRestored => 'Achats restaurés avec succès';
@@ -1336,6 +1575,10 @@ class SFr extends S {
       'L\'abonnement se renouvelle automatiquement. Vous pouvez annuler\nà tout moment depuis l\'App Store.';
 
   @override
+  String get paywall_legalTextPlay =>
+      'L\'abonnement se renouvelle automatiquement. Vous pouvez annuler\nà tout moment depuis Google Play.';
+
+  @override
   String get paywall_legalTextTrial =>
       'L\'essai gratuit se transforme en abonnement payant. Annulez à tout moment avant la fin de l\'essai. L\'abonnement se renouvelle automatiquement.';
 
@@ -1763,6 +2006,807 @@ class SFr extends S {
 
   @override
   String get template_legs_name => 'Jambes';
+
+  @override
+  String get ex_pecho_6_name => 'Développé incliné à la barre';
+
+  @override
+  String get ex_pecho_6_desc =>
+      'Réglez le banc à 30-45°. Saisissez la barre avec une prise un peu plus large que les épaules. Descendez la barre de manière contrôlée jusqu\'au haut de la poitrine puis poussez vers le haut jusqu\'à l\'extension complète. Gardez le bas du dos collé au banc et les omoplates serrées.';
+
+  @override
+  String get ex_pecho_6_b1 =>
+      'Cible le haut des pectoraux (portion claviculaire)';
+
+  @override
+  String get ex_pecho_6_b2 =>
+      'Permet de charger plus lourd qu\'avec des haltères';
+
+  @override
+  String get ex_pecho_6_b3 =>
+      'Améliore la force de poussée sous des angles inclinés';
+
+  @override
+  String get ex_pecho_7_name => 'Développé décliné aux haltères';
+
+  @override
+  String get ex_pecho_7_desc =>
+      'Réglez le banc à une déclinaison de 15-30°. Avec un haltère dans chaque main à hauteur de poitrine, poussez vers le haut en rapprochant les haltères en haut. Redescendez avec contrôle en sentant l\'étirement de la portion inférieure des pectoraux.';
+
+  @override
+  String get ex_pecho_7_b1 => 'Travaille la portion inférieure des pectoraux';
+
+  @override
+  String get ex_pecho_7_b2 => 'Réduit la sollicitation des épaules';
+
+  @override
+  String get ex_pecho_7_b3 =>
+      'Plus grande amplitude que le développé décliné à la barre';
+
+  @override
+  String get ex_pecho_8_name => 'Pompes';
+
+  @override
+  String get ex_pecho_8_desc =>
+      'Posez les mains au sol à largeur d\'épaules, pieds joints. Gardez le corps droit de la tête aux talons. Descendez en fléchissant les coudes jusqu\'à ce que la poitrine frôle presque le sol puis repoussez. Gardez le core engagé tout au long du mouvement.';
+
+  @override
+  String get ex_pecho_8_b1 => 'Ne nécessite aucun équipement';
+
+  @override
+  String get ex_pecho_8_b2 =>
+      'Multiples variantes pour progresser (diamant, déclinées, claquées)';
+
+  @override
+  String get ex_pecho_8_b3 => 'Exercice composé qui renforce aussi le core';
+
+  @override
+  String get ex_pecho_9_name => 'Pull-over avec haltère';
+
+  @override
+  String get ex_pecho_9_desc =>
+      'Allongez-vous sur un banc plat en tenant un haltère à deux mains au-dessus de la poitrine, bras tendus. Descendez l\'haltère en arc par-dessus la tête jusqu\'à sentir l\'étirement des pectoraux et des dorsaux. Revenez en position initiale en contractant les pectoraux.';
+
+  @override
+  String get ex_pecho_9_b1 =>
+      'Travaille simultanément les pectoraux et les dorsaux';
+
+  @override
+  String get ex_pecho_9_b2 =>
+      'Améliore la mobilité des épaules et de la cage thoracique';
+
+  @override
+  String get ex_pecho_9_b3 =>
+      'Excellent complément entre les séries de développés et de rowings';
+
+  @override
+  String get ex_esp_6_name => 'Rowing T-bar';
+
+  @override
+  String get ex_esp_6_desc =>
+      'Placez-vous au-dessus de la barre en T, pieds à largeur d\'épaules. Penchez-vous en avant en gardant le dos neutre et tirez les poignées vers la poitrine en amenant les coudes vers l\'arrière. Serrez les omoplates en position finale et redescendez avec contrôle.';
+
+  @override
+  String get ex_esp_6_b1 => 'Développe l\'épaisseur du milieu du dos';
+
+  @override
+  String get ex_esp_6_b2 =>
+      'Permet des charges très lourdes avec moins de stress lombaire que le rowing libre';
+
+  @override
+  String get ex_esp_6_b3 => 'Travaille la posture et la stabilité scapulaire';
+
+  @override
+  String get ex_esp_7_name => 'Tirage horizontal à la poulie';
+
+  @override
+  String get ex_esp_7_desc =>
+      'Asseyez-vous face à la poulie basse, pieds en appui. Saisissez l\'accessoire bras tendus et dos neutre. Tirez les mains vers l\'abdomen en rétractant les omoplates et en gardant le buste droit. Revenez de manière contrôlée sans arrondir le dos.';
+
+  @override
+  String get ex_esp_7_b1 => 'Tension constante tout au long du mouvement';
+
+  @override
+  String get ex_esp_7_b2 =>
+      'Progression de charge facile et technique accessible';
+
+  @override
+  String get ex_esp_7_b3 =>
+      'Excellent pour développer l\'épaisseur du milieu du dos';
+
+  @override
+  String get ex_esp_8_name => 'Shrugs aux haltères';
+
+  @override
+  String get ex_esp_8_desc =>
+      'Debout avec un haltère dans chaque main le long du corps, bras relâchés. Élevez les épaules vers les oreilles sans plier les coudes. Maintenez la contraction 1 seconde en haut puis redescendez lentement. Ne faites pas rouler les épaules, le mouvement est purement vertical.';
+
+  @override
+  String get ex_esp_8_b1 => 'Isolation directe du trapèze supérieur';
+
+  @override
+  String get ex_esp_8_b2 => 'Améliore la posture et l\'apparence du cou';
+
+  @override
+  String get ex_esp_8_b3 =>
+      'Renforce la stabilité scapulaire pour les autres mouvements de force';
+
+  @override
+  String get ex_esp_9_name => 'Good morning';
+
+  @override
+  String get ex_esp_9_desc =>
+      'Placez la barre sur les trapèzes comme pour un squat. Pieds à largeur de hanches et genoux légèrement fléchis, penchez-vous en avant à partir des hanches en gardant le dos neutre. Descendez jusqu\'à ce que le buste soit presque parallèle au sol puis remontez en serrant les fessiers.';
+
+  @override
+  String get ex_esp_9_b1 =>
+      'Renforce la chaîne postérieure et la zone lombaire';
+
+  @override
+  String get ex_esp_9_b2 =>
+      'Améliore la charnière de hanche pour le soulevé de terre et le squat';
+
+  @override
+  String get ex_esp_9_b3 => 'Travail accessoire clé en powerlifting';
+
+  @override
+  String get ex_pier_6_name => 'Squat avant';
+
+  @override
+  String get ex_pier_6_desc =>
+      'Placez la barre sur les deltoïdes antérieurs, coudes hauts, en prise croisée ou en prise clean. Pieds à largeur d\'épaules. Descendez en gardant le buste vertical et les coudes vers l\'avant jusqu\'à ce que les cuisses passent sous la parallèle. Poussez à travers les talons pour revenir en position initiale.';
+
+  @override
+  String get ex_pier_6_b1 =>
+      'Sollicite davantage les quadriceps que le squat arrière';
+
+  @override
+  String get ex_pier_6_b2 => 'Exige un core très solide et une posture droite';
+
+  @override
+  String get ex_pier_6_b3 =>
+      'Base technique du clean et du thruster en CrossFit';
+
+  @override
+  String get ex_pier_7_name => 'Fente bulgare';
+
+  @override
+  String get ex_pier_7_desc =>
+      'Posez le cou-de-pied de la jambe arrière sur un banc, un haltère dans chaque main. Le pied avant avancé, descendez en fléchissant le genou avant jusqu\'à ce que la cuisse soit parallèle au sol. Poussez à travers le talon avant pour remonter.';
+
+  @override
+  String get ex_pier_7_b1 =>
+      'Travail unilatéral qui corrige les déséquilibres entre les jambes';
+
+  @override
+  String get ex_pier_7_b2 =>
+      'Activation intense des fessiers et des quadriceps';
+
+  @override
+  String get ex_pier_7_b3 =>
+      'Améliore l\'équilibre et la stabilité de la hanche';
+
+  @override
+  String get ex_pier_8_name => 'Soulevé de terre roumain';
+
+  @override
+  String get ex_pier_8_desc =>
+      'Debout avec la barre à hauteur de hanches, prise pronation à largeur d\'épaules. Genoux légèrement fléchis et fixes, faites glisser la barre le long des jambes en inclinant le buste à partir des hanches jusqu\'à sentir la tension dans les ischio-jambiers. Remontez en serrant les fessiers.';
+
+  @override
+  String get ex_pier_8_b1 =>
+      'Isolation intense des ischio-jambiers et des fessiers';
+
+  @override
+  String get ex_pier_8_b2 =>
+      'Renforce la chaîne postérieure et améliore la charnière de hanche';
+
+  @override
+  String get ex_pier_8_b3 =>
+      'Réduit le risque de blessures aux ischio-jambiers en course ou en saut';
+
+  @override
+  String get ex_pier_9_name => 'Leg extension';
+
+  @override
+  String get ex_pier_9_desc =>
+      'Asseyez-vous sur la machine, dos appuyé et rouleau sur le cou-de-pied. Étendez les genoux en soulevant la charge jusqu\'à ce que les jambes soient presque tendues, sans verrouiller les genoux. Contractez les quadriceps en haut et redescendez avec contrôle.';
+
+  @override
+  String get ex_pier_9_b1 => 'Isolation directe du quadriceps';
+
+  @override
+  String get ex_pier_9_b2 =>
+      'Utile pour la rééducation et le travail d\'hypertrophie ciblé';
+
+  @override
+  String get ex_pier_9_b3 => 'Réglage de charge précis et à faible risque';
+
+  @override
+  String get ex_pier_10_name => 'Extension des mollets';
+
+  @override
+  String get ex_pier_10_desc =>
+      'Placez les épaules sous les coussins de la machine à mollets (ou utilisez un haltère en position debout). Posez les pointes de pieds sur une plateforme, talons dans le vide. Montez en poussant sur les pointes et contractez les mollets en haut. Redescendez lentement en sentant l\'étirement.';
+
+  @override
+  String get ex_pier_10_b1 => 'Isolation du soléaire et des jumeaux';
+
+  @override
+  String get ex_pier_10_b2 => 'Améliore la puissance en saut et en sprint';
+
+  @override
+  String get ex_pier_10_b3 =>
+      'Réduit le risque de blessures à la cheville et au tendon d\'Achille';
+
+  @override
+  String get ex_hom_5_name => 'Développé épaules aux haltères';
+
+  @override
+  String get ex_hom_5_desc =>
+      'Assis, le dossier droit, tenez un haltère de chaque côté des épaules, paumes vers l\'avant. Poussez les haltères vers le haut jusqu\'à presque les joindre au-dessus de la tête, sans verrouiller les coudes. Redescendez avec contrôle jusqu\'à la position initiale.';
+
+  @override
+  String get ex_hom_5_b1 =>
+      'Plus grande amplitude de mouvement que le développé à la barre';
+
+  @override
+  String get ex_hom_5_b2 => 'Permet de travailler chaque côté indépendamment';
+
+  @override
+  String get ex_hom_5_b3 =>
+      'Réduit le stress sur les épaules par rapport à la barre';
+
+  @override
+  String get ex_hom_6_name => 'Élévations frontales';
+
+  @override
+  String get ex_hom_6_desc =>
+      'Debout avec un haltère dans chaque main devant les cuisses, paumes vers le corps. Élevez les bras vers l\'avant, en alternance ou simultanément, jusqu\'à hauteur des épaules en gardant les coudes presque tendus. Redescendez lentement sans vous balancer.';
+
+  @override
+  String get ex_hom_6_b1 => 'Isolation du deltoïde antérieur';
+
+  @override
+  String get ex_hom_6_b2 => 'Améliore l\'apparence de l\'épaule vue de face';
+
+  @override
+  String get ex_hom_6_b3 =>
+      'Travail accessoire du développé couché et du développé militaire';
+
+  @override
+  String get ex_hom_7_name => 'Oiseau aux haltères';
+
+  @override
+  String get ex_hom_7_desc =>
+      'Penchez-vous en avant à partir des hanches, le buste presque parallèle au sol, un haltère dans chaque main et les bras pendants. Élevez les bras latéralement jusqu\'à hauteur des épaules, coudes légèrement fléchis. Contractez le deltoïde postérieur en haut et redescendez avec contrôle.';
+
+  @override
+  String get ex_hom_7_b1 =>
+      'Isolation du deltoïde postérieur, zone clé pour la posture';
+
+  @override
+  String get ex_hom_7_b2 => 'Contrebalance les effets du travail de poussée';
+
+  @override
+  String get ex_hom_7_b3 =>
+      'Réduit le risque de blessures de la coiffe des rotateurs';
+
+  @override
+  String get ex_bra_6_name => 'Curl au pupitre';
+
+  @override
+  String get ex_bra_6_desc =>
+      'Asseyez-vous au pupitre, les bras en appui sur le coussin. Saisissez la barre (droite ou EZ) en prise supination. Fléchissez les coudes en amenant la barre vers les épaules, en contrôlant le mouvement. Redescendez lentement sans verrouiller les coudes en fin de mouvement.';
+
+  @override
+  String get ex_bra_6_b1 => 'Isole le biceps en immobilisant l\'épaule';
+
+  @override
+  String get ex_bra_6_b2 => 'Empêche d\'utiliser l\'élan, technique stricte';
+
+  @override
+  String get ex_bra_6_b3 => 'Excellent pour la contraction maximale du biceps';
+
+  @override
+  String get ex_bra_7_name => 'Curl concentré';
+
+  @override
+  String get ex_bra_7_desc =>
+      'Asseyez-vous sur un banc, jambes écartées. Appuyez le coude du bras qui travaille contre la face interne de la cuisse, l\'haltère pendant. Fléchissez le coude en amenant l\'haltère vers l\'épaule, en isolant le biceps. Contractez en haut et redescendez avec contrôle.';
+
+  @override
+  String get ex_bra_7_b1 =>
+      'Isolation pure du biceps avec contraction maximale';
+
+  @override
+  String get ex_bra_7_b2 =>
+      'Permet de se concentrer sur la connexion esprit-muscle';
+
+  @override
+  String get ex_bra_7_b3 => 'Idéal comme exercice final de la séance bras';
+
+  @override
+  String get ex_bra_8_name => 'Développé couché prise serrée';
+
+  @override
+  String get ex_bra_8_desc =>
+      'Allongez-vous sur un banc plat et saisissez la barre en prise serrée, à largeur d\'épaules. Descendez la barre de manière contrôlée jusqu\'à effleurer le sternum en gardant les coudes collés au corps. Poussez vers le haut en accentuant l\'extension des triceps.';
+
+  @override
+  String get ex_bra_8_b1 => 'Exercice composé qui cible les triceps';
+
+  @override
+  String get ex_bra_8_b2 =>
+      'Permet de charger plus lourd qu\'un exercice d\'isolation des triceps';
+
+  @override
+  String get ex_bra_8_b3 =>
+      'Transfert vers la force au développé couché et au développé militaire';
+
+  @override
+  String get ex_bra_9_name => 'Dips sur banc';
+
+  @override
+  String get ex_bra_9_desc =>
+      'Posez les mains sur un banc derrière vous, doigts vers l\'avant. Étendez les jambes devant vous en appui sur les talons (ou genoux fléchis pour faciliter). Descendez en fléchissant les coudes vers l\'arrière jusqu\'à 90° puis poussez pour remonter.';
+
+  @override
+  String get ex_bra_9_b1 => 'Isolation des triceps sans équipement';
+
+  @override
+  String get ex_bra_9_b2 =>
+      'Progression facile en ajoutant du poids sur les cuisses';
+
+  @override
+  String get ex_bra_9_b3 =>
+      'Améliore la force de poussée dans les positions derrière le corps';
+
+  @override
+  String get ex_core_5_name => 'Russian twists';
+
+  @override
+  String get ex_core_5_desc =>
+      'Assis au sol, genoux fléchis et pieds décollés ou posés, penchez-vous en arrière à 45°. Joignez les mains (ou tenez un poids) et tournez le buste d\'un côté à l\'autre en touchant le sol ou en amenant le poids de chaque côté. Gardez le core engagé.';
+
+  @override
+  String get ex_core_5_b1 => 'Isolation directe des obliques';
+
+  @override
+  String get ex_core_5_b2 =>
+      'Améliore la rotation du buste, essentielle dans le sport';
+
+  @override
+  String get ex_core_5_b3 =>
+      'Progression possible en ajoutant du poids (haltère, disque, ballon)';
+
+  @override
+  String get ex_core_6_name => 'Mountain climbers';
+
+  @override
+  String get ex_core_6_desc =>
+      'Placez-vous en position de planche haute, mains sous les épaules. Ramenez un genou vers la poitrine en alternance et rapidement, comme si vous couriez sur place. Gardez les hanches basses et le core engagé tout au long du mouvement.';
+
+  @override
+  String get ex_core_6_b1 => 'Combine travail du core et cardio';
+
+  @override
+  String get ex_core_6_b2 =>
+      'Ne nécessite aucun équipement, idéal pour le HIIT';
+
+  @override
+  String get ex_core_6_b3 => 'Améliore la coordination et l\'endurance';
+
+  @override
+  String get ex_core_7_name => 'Hollow hold';
+
+  @override
+  String get ex_core_7_desc =>
+      'Allongez-vous sur le dos, bras tendus au-dessus de la tête et jambes tendues. Décollez légèrement les bras et les jambes du sol en plaquant le bas du dos contre le sol. Maintenez la position de « bateau » avec le core entièrement contracté.';
+
+  @override
+  String get ex_core_7_b1 => 'Base gymnique de nombreux mouvements de CrossFit';
+
+  @override
+  String get ex_core_7_b2 =>
+      'Renforce l\'ensemble du core de manière isométrique';
+
+  @override
+  String get ex_core_7_b3 =>
+      'Améliore la posture et la force pour les tractions strictes';
+
+  @override
+  String get ex_core_8_name => 'Gainage latéral';
+
+  @override
+  String get ex_core_8_desc =>
+      'Allongez-vous sur le côté, en appui sur l\'avant-bras, le coude sous l\'épaule. Décollez les hanches du sol pour former une ligne droite des pieds à la tête. Maintenez la position sans laisser les hanches s\'affaisser. Répétez de l\'autre côté.';
+
+  @override
+  String get ex_core_8_b1 =>
+      'Isolation intense des obliques et du core latéral';
+
+  @override
+  String get ex_core_8_b2 =>
+      'Améliore la stabilité des hanches et de la colonne';
+
+  @override
+  String get ex_core_8_b3 => 'Sans équipement et à faible impact';
+
+  @override
+  String get ex_core_9_name => 'Dead bug';
+
+  @override
+  String get ex_core_9_desc =>
+      'Allongez-vous sur le dos, bras tendus vers le plafond et genoux fléchis à 90° au-dessus des hanches. Descendez simultanément le bras droit derrière la tête et la jambe gauche tendue vers le sol. Revenez et alternez les côtés en gardant le bas du dos collé au sol.';
+
+  @override
+  String get ex_core_9_b1 => 'Améliore la stabilité anti-extension du core';
+
+  @override
+  String get ex_core_9_b2 =>
+      'Excellent pour les débutants et la rééducation lombaire';
+
+  @override
+  String get ex_core_9_b3 => 'Travaille la coordination controlatérale';
+
+  @override
+  String get ex_cf_1_name => 'Épaulé (Clean)';
+
+  @override
+  String get ex_cf_1_desc =>
+      'Depuis le sol, saisissez la barre en pronation juste à l\'extérieur des genoux. Tirez de manière explosive en étendant les hanches et les genoux, haussez les épaules et glissez le corps sous la barre pour la recevoir en squat avant, coudes hauts. Relevez-vous pour terminer le mouvement.';
+
+  @override
+  String get ex_cf_1_b1 =>
+      'Mouvement d\'haltérophilie complet de puissance explosive';
+
+  @override
+  String get ex_cf_1_b2 =>
+      'Développe simultanément coordination, vitesse et force';
+
+  @override
+  String get ex_cf_1_b3 => 'Base de nombreux WOD de CrossFit';
+
+  @override
+  String get ex_cf_2_name => 'Power Clean';
+
+  @override
+  String get ex_cf_2_desc =>
+      'Identique au Clean mais sans réception en squat complet : vous recevez la barre en quart de squat, coudes hauts, en position frontale sur les épaules. Plus rapide et moins exigeant en mobilité que le Clean.';
+
+  @override
+  String get ex_cf_2_b1 =>
+      'Développe la puissance explosive de la chaîne postérieure';
+
+  @override
+  String get ex_cf_2_b2 => 'Techniquement plus accessible que le Clean complet';
+
+  @override
+  String get ex_cf_2_b3 => 'Excellent pour les débutants en haltérophilie';
+
+  @override
+  String get ex_cf_3_name => 'Arraché (Snatch)';
+
+  @override
+  String get ex_cf_3_desc =>
+      'Depuis le sol, saisissez la barre avec une prise très large. Tirez de manière explosive et recevez la barre au-dessus de la tête, bras tendus, en squat profond (overhead squat). Relevez-vous en gardant la barre en haut.';
+
+  @override
+  String get ex_cf_3_b1 =>
+      'Le mouvement d\'haltérophilie le plus complet et le plus exigeant techniquement';
+
+  @override
+  String get ex_cf_3_b2 =>
+      'Développe simultanément puissance, mobilité et stabilité';
+
+  @override
+  String get ex_cf_3_b3 =>
+      'Brûle plus de calories que presque tout autre exercice';
+
+  @override
+  String get ex_cf_4_name => 'Power Snatch';
+
+  @override
+  String get ex_cf_4_desc =>
+      'Identique au Snatch mais en recevant la barre en quart de squat, bras tendus au-dessus de la tête. Plus rapide et moins exigeant en mobilité des chevilles et des hanches.';
+
+  @override
+  String get ex_cf_4_b1 => 'Plus accessible que le Snatch complet';
+
+  @override
+  String get ex_cf_4_b2 =>
+      'Développe la puissance explosive de la chaîne postérieure';
+
+  @override
+  String get ex_cf_4_b3 => 'Excellent pour la mobilité et la coordination';
+
+  @override
+  String get ex_cf_5_name => 'Thruster';
+
+  @override
+  String get ex_cf_5_desc =>
+      'Tenez la barre en position frontale (sur les deltoïdes antérieurs). Réalisez un squat avant complet et, en remontant, utilisez l\'élan des jambes pour pousser la barre au-dessus de la tête, bras tendus. Ramenez la barre en position frontale et répétez.';
+
+  @override
+  String get ex_cf_5_b1 => 'Travaille tout le corps en un seul mouvement';
+
+  @override
+  String get ex_cf_5_b2 => 'Exercice phare de WOD comme « Fran »';
+
+  @override
+  String get ex_cf_5_b3 => 'Combine force et endurance métabolique';
+
+  @override
+  String get ex_cf_6_name => 'Push Press';
+
+  @override
+  String get ex_cf_6_desc =>
+      'La barre en position frontale sur les épaules, effectuez un dip rapide en fléchissant légèrement les genoux. Étendez les jambes de manière explosive pour propulser la barre au-dessus de la tête jusqu\'à avoir les bras tendus. Redescendez avec contrôle en position initiale.';
+
+  @override
+  String get ex_cf_6_b1 =>
+      'Permet de déplacer plus de charge que le développé militaire strict';
+
+  @override
+  String get ex_cf_6_b2 => 'Développe la puissance de poussée verticale';
+
+  @override
+  String get ex_cf_6_b3 =>
+      'Transfert vers le Jerk et d\'autres mouvements d\'haltérophilie';
+
+  @override
+  String get ex_cf_7_name => 'Push Jerk';
+
+  @override
+  String get ex_cf_7_desc =>
+      'Identique au Push Press mais, en propulsant la barre vers le haut, vous relâchez les jambes pour recevoir la barre en quart de squat, bras déjà tendus. Ensuite, relevez-vous pour terminer le mouvement. Permet de charger plus lourd que le Push Press.';
+
+  @override
+  String get ex_cf_7_b1 =>
+      'Déplace plus de charge au-dessus de la tête que n\'importe quel développé';
+
+  @override
+  String get ex_cf_7_b2 =>
+      'Mouvement d\'haltérophilie technique et de haute puissance';
+
+  @override
+  String get ex_cf_7_b3 => 'Composante du Clean & Jerk';
+
+  @override
+  String get ex_cf_8_name => 'Wall Balls';
+
+  @override
+  String get ex_cf_8_desc =>
+      'Debout avec un médecine-ball devant la poitrine, face à un mur. Réalisez un squat profond et, en remontant, lancez le ballon vers une cible haute sur le mur (~3 m). Rattrapez le ballon à hauteur de poitrine et enchaînez immédiatement avec le squat suivant.';
+
+  @override
+  String get ex_cf_8_b1 =>
+      'Exercice à la fois cardiovasculaire et de puissance';
+
+  @override
+  String get ex_cf_8_b2 =>
+      'Mouvement standard dans de nombreux benchmarks de CrossFit';
+
+  @override
+  String get ex_cf_8_b3 => 'Travaille la coordination et le rythme';
+
+  @override
+  String get ex_cf_9_name => 'Kettlebell Swing américain';
+
+  @override
+  String get ex_cf_9_desc =>
+      'Debout avec la kettlebell tenue à deux mains entre les jambes. Effectuez une charnière de hanche pour l\'amener vers l\'arrière puis étendez les hanches de manière explosive pour la propulser au-dessus de la tête, bras tendus. La force vient des hanches, pas des bras.';
+
+  @override
+  String get ex_cf_9_b1 => 'Développe la puissance explosive des hanches';
+
+  @override
+  String get ex_cf_9_b2 => 'Cardio et force en un seul mouvement';
+
+  @override
+  String get ex_cf_9_b3 =>
+      'Standard en CrossFit (le swing russe ne monte que jusqu\'à la poitrine)';
+
+  @override
+  String get ex_cf_10_name => 'Kettlebell Swing russe';
+
+  @override
+  String get ex_cf_10_desc =>
+      'Identique au swing américain mais la kettlebell ne monte que jusqu\'à hauteur de la poitrine ou des yeux, pas au-dessus de la tête. Techniquement plus facile et moins stressant pour les épaules.';
+
+  @override
+  String get ex_cf_10_b1 => 'Porte d\'entrée vers le travail avec kettlebell';
+
+  @override
+  String get ex_cf_10_b2 =>
+      'Moins de stress sur les épaules que le swing américain';
+
+  @override
+  String get ex_cf_10_b3 =>
+      'Idéal pour les débutants et les répétitions élevées';
+
+  @override
+  String get ex_cf_11_name => 'Box Jumps';
+
+  @override
+  String get ex_cf_11_desc =>
+      'Face à une box ou une plateforme stable, fléchissez les genoux et sautez sur la box en atterrissant avec les pieds entièrement sur la surface. Étendez les hanches et les genoux en haut. Redescendez en sautant ou pas à pas pour réduire l\'impact.';
+
+  @override
+  String get ex_cf_11_b1 => 'Pliométrie pure pour développer la puissance';
+
+  @override
+  String get ex_cf_11_b2 => 'Améliore la détente verticale et l\'explosivité';
+
+  @override
+  String get ex_cf_11_b3 => 'Composante classique de nombreux WOD';
+
+  @override
+  String get ex_cf_12_name => 'Burpees';
+
+  @override
+  String get ex_cf_12_desc =>
+      'Debout, accroupissez-vous et posez les mains au sol. Lancez les pieds vers l\'arrière d\'un saut pour arriver en position de planche. Réalisez une pompe en touchant le sol avec la poitrine. Ramenez les pieds vers les mains d\'un saut puis sautez à la verticale en tendant les bras vers le haut.';
+
+  @override
+  String get ex_cf_12_b1 => 'Exercice full-body sans équipement';
+
+  @override
+  String get ex_cf_12_b2 => 'Cardio intense et travail de force simultanés';
+
+  @override
+  String get ex_cf_12_b3 =>
+      'Standard de benchmarks comme « Murph » et de nombreux WOD';
+
+  @override
+  String get ex_cf_13_name => 'Toes-to-Bar';
+
+  @override
+  String get ex_cf_13_desc =>
+      'Suspendez-vous à la barre en pronation. Activez les dorsaux et élevez les jambes tendues (ou légèrement fléchies) jusqu\'à toucher la barre avec les pieds. Redescendez avec contrôle sans balancement excessif. Utilisez le « kip » pour garder la cadence.';
+
+  @override
+  String get ex_cf_13_b1 => 'Travail dynamique du core très exigeant';
+
+  @override
+  String get ex_cf_13_b2 => 'Améliore la force de préhension et les dorsaux';
+
+  @override
+  String get ex_cf_13_b3 => 'Composante de nombreux WOD de CrossFit';
+
+  @override
+  String get ex_cf_14_name => 'Knees-to-Elbow';
+
+  @override
+  String get ex_cf_14_desc =>
+      'Suspendez-vous à la barre en pronation. Fléchissez les hanches et les genoux en amenant les genoux vers les coudes dans un mouvement dynamique et contrôlé. Redescendez avec contrôle. Utile comme progression vers les Toes-to-Bar.';
+
+  @override
+  String get ex_cf_14_b1 => 'Progression vers les Toes-to-Bar';
+
+  @override
+  String get ex_cf_14_b2 =>
+      'Travail dynamique du core moins exigeant techniquement';
+
+  @override
+  String get ex_cf_14_b3 => 'Améliore la force de préhension';
+
+  @override
+  String get ex_cf_15_name => 'Muscle-Up';
+
+  @override
+  String get ex_cf_15_desc =>
+      'Suspendez-vous aux anneaux (ou à la barre) en fausse prise. Tirez le corps vers le haut de manière explosive en effectuant une transition au-dessus des anneaux et, en haut, poussez en tendant les bras jusqu\'à vous retrouver en appui. Redescendez en contrôlant la transition inverse.';
+
+  @override
+  String get ex_cf_15_b1 => 'Mouvement gymnique avancé de tirage + poussée';
+
+  @override
+  String get ex_cf_15_b2 => 'Étape clé en CrossFit (RX dans de nombreux WOD)';
+
+  @override
+  String get ex_cf_15_b3 =>
+      'Développe une force relative au poids du corps extrême';
+
+  @override
+  String get ex_cf_16_name => 'Pistol Squat';
+
+  @override
+  String get ex_cf_16_desc =>
+      'Debout sur une jambe, tendez l\'autre devant vous, parallèle au sol. Descendez en squat profond en gardant l\'équilibre et le pied d\'appui à plat. Remontez en poussant sur le talon sans que la jambe libre touche le sol. Répétez de l\'autre côté.';
+
+  @override
+  String get ex_cf_16_b1 => 'Squat unilatéral de difficulté maximale';
+
+  @override
+  String get ex_cf_16_b2 =>
+      'Développe la mobilité de la cheville et de la hanche';
+
+  @override
+  String get ex_cf_16_b3 => 'Travail unilatéral qui corrige les asymétries';
+
+  @override
+  String get ex_cf_17_name => 'Handstand Push-Up (HSPU)';
+
+  @override
+  String get ex_cf_17_desc =>
+      'Posez les mains au sol à environ 30 cm d\'un mur et lancez les jambes vers le haut pour vous retrouver en équilibre sur les mains contre le mur. Descendez en fléchissant les coudes jusqu\'à ce que la tête touche le sol (ou un abmat). Poussez pour remonter. Utilisez le « kip » si vous avez besoin d\'aide.';
+
+  @override
+  String get ex_cf_17_b1 => 'Développé vertical avec tout le poids du corps';
+
+  @override
+  String get ex_cf_17_b2 => 'Améliore la stabilité des épaules et du core';
+
+  @override
+  String get ex_cf_17_b3 => 'Étape gymnique clé en CrossFit';
+
+  @override
+  String get ex_cf_18_name => 'Turkish Get-Up';
+
+  @override
+  String get ex_cf_18_desc =>
+      'Allongez-vous sur le dos en tenant une kettlebell, un bras tendu vers le plafond. Relevez-vous étape par étape (coude → main → charnière de hanche → passage de jambe → à genoux → debout) en gardant toujours la kettlebell en haut. Inversez le mouvement.';
+
+  @override
+  String get ex_cf_18_b1 => 'Mouvement fonctionnel unique pour tout le corps';
+
+  @override
+  String get ex_cf_18_b2 =>
+      'Améliore la mobilité, la stabilité et la coordination';
+
+  @override
+  String get ex_cf_18_b3 => 'Excellent travail des épaules et du core';
+
+  @override
+  String get ex_cf_19_name => 'Double Unders';
+
+  @override
+  String get ex_cf_19_desc =>
+      'Sautez à la corde en la faisant passer deux fois sous les pieds à chaque saut. Gardez des sauts bas et un rythme de poignet rapide. Bras collés au corps, coudes près de la taille. Demande de la coordination et une corde de vitesse.';
+
+  @override
+  String get ex_cf_19_b1 => 'Cardio explosif de haute intensité';
+
+  @override
+  String get ex_cf_19_b2 => 'Améliore la coordination et le timing';
+
+  @override
+  String get ex_cf_19_b3 => 'Standard dans des centaines de WOD de CrossFit';
+
+  @override
+  String get ex_cf_20_name => 'Farmer\'s Carry';
+
+  @override
+  String get ex_cf_20_desc =>
+      'Tenez un haltère ou une kettlebell lourde dans chaque main le long du corps. Marchez à petits pas en gardant une posture droite, épaules en arrière et core engagé. Parcourez une distance donnée ou travaillez au temps.';
+
+  @override
+  String get ex_cf_20_b1 => 'Renforce la préhension et les avant-bras';
+
+  @override
+  String get ex_cf_20_b2 => 'Travail fonctionnel de tout le corps';
+
+  @override
+  String get ex_cf_20_b3 => 'Améliore la posture et la stabilité du core';
+
+  @override
+  String get ex_cf_21_name => 'Goblet Squat';
+
+  @override
+  String get ex_cf_21_desc =>
+      'Tenez une kettlebell (ou un haltère) devant la poitrine à hauteur du sternum, en la saisissant par les « cornes ». Réalisez un squat profond en gardant le buste vertical et les coudes vers l\'avant. Poussez à travers les talons pour remonter.';
+
+  @override
+  String get ex_cf_21_b1 => 'Porte d\'entrée idéale vers le squat avec charge';
+
+  @override
+  String get ex_cf_21_b2 =>
+      'Enseigne une posture droite et une profondeur correcte';
+
+  @override
+  String get ex_cf_21_b3 => 'Excellent pour activer le core';
 
   @override
   String get ex_pecho_1_name => 'Développé couché';

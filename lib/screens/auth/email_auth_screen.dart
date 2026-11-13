@@ -69,7 +69,10 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
       if (wasGuest && _isRegister) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(S.of(context).guest_accountCreated),
+            content: Text(
+              S.of(context).guest_accountCreated,
+              style: TextStyle(color: AppColors.readableOn(AppColors.accent)),
+            ),
             backgroundColor: AppColors.accent,
             behavior: SnackBarBehavior.floating,
           ),
@@ -105,7 +108,10 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(msg),
+        content: Text(
+          msg,
+          style: TextStyle(color: AppColors.readableOn(AppColors.error)),
+        ),
         backgroundColor: AppColors.error,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -117,7 +123,10 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(msg),
+        content: Text(
+          msg,
+          style: TextStyle(color: AppColors.readableOn(AppColors.success)),
+        ),
         backgroundColor: AppColors.success,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

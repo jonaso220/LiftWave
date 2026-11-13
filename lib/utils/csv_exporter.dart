@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:ui';
+
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -6,7 +8,10 @@ import '../data/workout_store.dart';
 import '../models/models.dart';
 
 class CsvExporter {
-  static Future<void> exportAndShare(S l10n) async {
+  /// [origin] is the on-screen rectangle of the control that started the
+  /// export. iPad anchors the share sheet to it and refuses to open without
+  /// one.
+  static Future<void> exportAndShare(S l10n, {Rect? origin}) async {
     final workouts = WorkoutStore.instance.workouts;
     final csv = buildCsv(workouts, l10n.csv_header);
 
@@ -16,7 +21,11 @@ class CsvExporter {
     await file.writeAsString(csv);
 
     // Share
-    await Share.shareXFiles([XFile(file.path)], subject: l10n.csv_subject);
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      subject: l10n.csv_subject,
+      sharePositionOrigin: origin,
+    );
   }
 
   static String buildCsv(List<Workout> workouts, String header) {

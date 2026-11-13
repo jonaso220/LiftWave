@@ -3,8 +3,11 @@ part of 'train_screen.dart';
 /// End of a workout: the summary dialog, saving the session (and
 /// optionally a routine), achievements and the guest sign-up prompt.
 extension _WorkoutSummary on _TrainScreenState {
-  void _showSummaryDialog() {
+  /// [resumeTimer]: whether the clock was running when Finish was tapped, so
+  /// backing out of the summary puts the session back as it was.
+  void _showSummaryDialog({required bool resumeTimer}) {
     final l10n = S.of(context);
+    var saved = false;
     final totalSets = _exercises.fold(0, (s, e) => s + e.sets.length);
     final totalVolume = _exercises.fold(0, (s, e) => s + e.totalVolume);
     final completedSets = _exercises.fold(0, (s, e) => s + e.completedSets);
@@ -26,7 +29,7 @@ extension _WorkoutSummary on _TrainScreenState {
     );
     final locale = Localizations.localeOf(context).toString();
 
-    showDialog(
+    showDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
@@ -148,6 +151,9 @@ extension _WorkoutSummary on _TrainScreenState {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
+                    // A second tap must not save the session twice.
+                    if (saved) return;
+                    saved = true;
                     _saveWorkout();
                     final newAchievements = AchievementStore.instance
                         .checkAfterWorkout(S.of(ctx));
@@ -169,11 +175,27 @@ extension _WorkoutSummary on _TrainScreenState {
                   ),
                 ),
               ),
+              // Finish is one tap away from the last set: leave a way back.
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(
+                    l10n.train_continue,
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
+                ),
+              ),
             ],
           ),
         ],
       ),
-    );
+    ).then((_) {
+      // Closed without saving (the button above or Android's back): the
+      // workout goes on, with its clock running again if it was.
+      if (saved || !mounted || !_workoutStarted) return;
+      if (resumeTimer) _startTimer();
+    });
   }
 
   void _saveWorkout() {
@@ -181,7 +203,9 @@ extension _WorkoutSummary on _TrainScreenState {
     final workout = Workout(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: _workoutName ?? l10n.train_freeWorkout,
-      date: DateTime.now(),
+      // A session left open and finished later belongs to the day it was
+      // trained.
+      date: _endedAt ?? DateTime.now(),
       duration: Duration(seconds: _elapsedSeconds),
       exercises: _exercises
           .map(
@@ -191,6 +215,8 @@ extension _WorkoutSummary on _TrainScreenState {
               muscleGroup: e.muscleGroup,
               notes: e.notes,
               routineBlockName: e.routineBlockName,
+              timedOverride: e.timedOverride,
+              supersetId: e.supersetId,
               sets: e.sets
                   .asMap()
                   .entries
@@ -200,6 +226,7 @@ extension _WorkoutSummary on _TrainScreenState {
                       reps: entry.value.reps,
                       weight: entry.value.weight,
                       completed: entry.value.completed,
+                      type: entry.value.type,
                     ),
                   )
                   .toList(),
@@ -321,9 +348,10 @@ extension _WorkoutSummary on _TrainScreenState {
     final nameCtrl = TextEditingController(
       text: _workoutName ?? l10n.train_defaultRoutineName,
     );
-    RoutineDay? selectedDay =
-        RoutineDay.fromStorage(_routineDay) ??
-        routineDayFromName(nameCtrl.text);
+    RoutineDay? selectedDay = routineDayForHistoryGrouping(
+      storedDay: _routineDay,
+      name: nameCtrl.text,
+    );
     showDialog(
       context: dialogCtx,
       builder: (ctx) => StatefulBuilder(
@@ -429,7 +457,7 @@ extension _WorkoutSummary on _TrainScreenState {
                 final template = CustomTemplate(
                   id: 'custom_tpl_${DateTime.now().millisecondsSinceEpoch}',
                   name: name,
-                  routineDay: day?.storageKey,
+                  routineDay: day?.storageKey ?? routineDayUnassigned,
                   routineOrder: day == null ? null : _nextRoutineOrder(day),
                   exercises: _exercises
                       .map(
@@ -441,6 +469,7 @@ extension _WorkoutSummary on _TrainScreenState {
                           reps: e.sets.isNotEmpty ? e.sets.first.reps : 10,
                           weight: e.sets.isNotEmpty ? e.sets.first.weight : 0,
                           restSeconds: e.restSeconds,
+                          supersetId: e.supersetId,
                         ),
                       )
                       .toList(),

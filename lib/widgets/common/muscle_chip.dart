@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
+import '../../theme/app_theme.dart';
 import '../../utils/exercise_localization.dart';
 import '../../utils/muscle_colors.dart';
 
@@ -22,7 +23,7 @@ class MuscleChip extends StatelessWidget {
       child: Text(
         ExerciseLocalization.muscle(S.of(context), label),
         style: TextStyle(
-          color: color,
+          color: AppColors.asText(color),
           fontSize: 11,
           fontWeight: FontWeight.w600,
         ),

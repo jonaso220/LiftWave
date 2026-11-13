@@ -5,10 +5,12 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/progress_models.dart';
 import 'persistent_sync_queue.dart';
+import '../services/health_sync_service.dart';
 
 /// Body measurements with user-scoped local caching and durable cloud sync.
 class ProgressStore extends ChangeNotifier {
@@ -145,9 +147,26 @@ class ProgressStore extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getStringList(_localKeyFor(uid)) ?? const [];
-      final loaded =
-          raw.map((item) => BodyMeasurement.fromJson(jsonDecode(item))).toList()
-            ..sort((a, b) => a.date.compareTo(b.date));
+      final decoded = raw
+          .map((item) => BodyMeasurement.fromJson(jsonDecode(item)))
+          .toList();
+      // Photos are cached by file name (older builds stored an absolute
+      // path that goes stale when iOS moves the app container on update), so
+      // point each one at the documents directory of this launch.
+      final documentsDir = decoded.any((m) => m.hasPhoto)
+          ? await _documentsDirOrNull()
+          : null;
+      final loaded = [
+        for (final measurement in decoded)
+          documentsDir == null || !measurement.hasPhoto
+              ? measurement
+              : measurement.copyWith(
+                  photoPath: rebasePhotoPath(
+                    measurement.photoPath,
+                    documentsDir,
+                  ),
+                ),
+      ]..sort((a, b) => a.date.compareTo(b.date));
       if (_uid != uid) return;
       _measurements = loaded;
       notifyListeners();
@@ -156,15 +175,35 @@ class ProgressStore extends ChangeNotifier {
     }
   }
 
+  /// A failed lookup must not hide the cached measurements; their photos
+  /// simply keep the stored reference.
+  static Future<String?> _documentsDirOrNull() async {
+    try {
+      return (await getApplicationDocumentsDirectory()).path;
+    } on Object catch (e) {
+      debugPrint('ProgressStore documents directory error: $e');
+      return null;
+    }
+  }
+
   Future<void> add(BodyMeasurement measurement) async {
     final uid = _uid;
     final queue = _syncQueue;
     if (uid == null || queue == null) return;
 
+    final replaced = _measurements
+        .where((item) => item.id == measurement.id)
+        .firstOrNull;
     _measurements.removeWhere((item) => item.id == measurement.id);
     _measurements.add(measurement);
     _measurements.sort((a, b) => a.date.compareTo(b.date));
     notifyListeners();
+    unawaited(
+      HealthSyncService.instance.measurementSaved(
+        measurement,
+        replaced: replaced,
+      ),
+    );
 
     await _persistLocal(uid);
     await queue.enqueueUpsert(measurement.id, measurement.toCloudJson());
@@ -181,6 +220,9 @@ class ProgressStore extends ChangeNotifier {
     );
     final removed = index == -1 ? null : _measurements.removeAt(index);
     notifyListeners();
+    if (removed != null) {
+      unawaited(HealthSyncService.instance.measurementRemoved(removed));
+    }
 
     await _persistLocal(uid);
     await queue.enqueueDelete(id);
@@ -196,7 +238,7 @@ class ProgressStore extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList(
         _localKeyFor(uid),
-        _measurements.map((m) => jsonEncode(m.toJson())).toList(),
+        _measurements.map((m) => jsonEncode(m.toLocalJson())).toList(),
       );
     } catch (e) {
       debugPrint('ProgressStore._persistLocal error: $e');

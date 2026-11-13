@@ -4,7 +4,7 @@ import '../models/session_models.dart';
 
 // ── Template models ───────────────────────────────────────────────────────────
 
-class TemplateExercise {
+class TemplateExercise implements SupersetMember {
   final String name;
   final String muscleGroup;
   final String equipment;
@@ -16,6 +16,10 @@ class TemplateExercise {
   /// current duration.
   final int? restSeconds;
 
+  /// Set on the exercises the routine alternates as one superset.
+  @override
+  final String? supersetId;
+
   const TemplateExercise({
     required this.name,
     required this.muscleGroup,
@@ -24,6 +28,7 @@ class TemplateExercise {
     required this.reps,
     required this.weight,
     this.restSeconds,
+    this.supersetId,
   });
 
   /// Builds the mutable SessionSets for an active workout.
@@ -38,6 +43,7 @@ class TemplateExercise {
     'reps': reps,
     'weight': weight,
     if (restSeconds != null) 'restSeconds': restSeconds,
+    if (supersetId != null) 'supersetId': supersetId,
   };
 
   factory TemplateExercise.fromJson(Map<String, dynamic> json) =>
@@ -49,6 +55,7 @@ class TemplateExercise {
         reps: json['reps'] as int,
         weight: (json['weight'] as num).toDouble(),
         restSeconds: (json['restSeconds'] as num?)?.toInt(),
+        supersetId: json['supersetId'] as String?,
       );
 }
 

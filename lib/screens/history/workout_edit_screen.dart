@@ -7,6 +7,7 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/workout_store.dart';
 import '../../models/models.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/date_format.dart';
 import '../../utils/exercise_localization.dart';
 import '../../utils/weight_units.dart';
 
@@ -22,6 +23,9 @@ class WorkoutEditScreen extends StatefulWidget {
 
 class _WorkoutEditScreenState extends State<WorkoutEditScreen> {
   late final List<_EditableExercise> _exercises;
+  late DateTime _date;
+  late final TextEditingController _durationCtrl;
+  late final String _initialDurationText;
   bool _saving = false;
   bool _allowPop = false;
   late final String _initialSignature;
@@ -40,16 +44,57 @@ class _WorkoutEditScreenState extends State<WorkoutEditScreen> {
         set.addListener(_onDraftChanged);
       }
     }
+    _date = widget.workout.date;
+    _initialDurationText = '${widget.workout.duration.inMinutes}';
+    _durationCtrl = TextEditingController(text: _initialDurationText)
+      ..addListener(_onDraftChanged);
     _initialSignature = _draftSignature();
+  }
+
+  /// The edited length. Left as it was (seconds included) unless the user
+  /// typed a different number of minutes.
+  Duration get _duration {
+    final text = _durationCtrl.text.trim();
+    if (text == _initialDurationText) return widget.workout.duration;
+    return Duration(minutes: (int.tryParse(text) ?? 0).clamp(0, 1440));
+  }
+
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final day = await showDatePicker(
+      context: context,
+      initialDate: _date.isAfter(now) ? now : _date,
+      firstDate: DateTime(2000),
+      lastDate: now,
+    );
+    if (day == null || !mounted) return;
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(_date),
+    );
+    if (!mounted) return;
+    final picked = DateTime(
+      day.year,
+      day.month,
+      day.day,
+      time?.hour ?? _date.hour,
+      time?.minute ?? _date.minute,
+    );
+    // A workout cannot have happened in the future.
+    setState(() => _date = picked.isAfter(now) ? now : picked);
   }
 
   void _onDraftChanged() {
     if (mounted) setState(() {});
   }
 
-  String _draftSignature() => jsonEncode(
-    _exercises.map((exercise) => exercise.toExercise().toJson()).toList(),
-  );
+  String _draftSignature() => jsonEncode({
+    'date': _date.toIso8601String(),
+    'duration': _durationCtrl.text.trim(),
+    'exercises': _exercises
+        .map((exercise) => exercise.toExercise().toJson())
+        .toList(),
+  });
 
   bool get _hasUnsavedChanges => _draftSignature() != _initialSignature;
 
@@ -99,6 +144,7 @@ class _WorkoutEditScreenState extends State<WorkoutEditScreen> {
       }
       e.dispose();
     }
+    _durationCtrl.dispose();
     super.dispose();
   }
 
@@ -114,8 +160,8 @@ class _WorkoutEditScreenState extends State<WorkoutEditScreen> {
     final updated = Workout(
       id: widget.workout.id,
       name: widget.workout.name,
-      date: widget.workout.date,
-      duration: widget.workout.duration,
+      date: _date,
+      duration: _duration,
       exercises: updatedExercises,
       totalVolume: newVolume,
       notes: widget.workout.notes,
@@ -126,6 +172,68 @@ class _WorkoutEditScreenState extends State<WorkoutEditScreen> {
     if (!mounted) return;
     _allowPop = true;
     Navigator.pop(context, true);
+  }
+
+  /// When the workout happened and how long it took: a session logged late
+  /// or left open too long can be put right here.
+  Widget _buildWhenCard(S l10n) {
+    final time = MaterialLocalizations.of(
+      context,
+    ).formatTimeOfDay(TimeOfDay.fromDateTime(_date));
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.bgCard,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.bgCardLight),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: InkWell(
+              onTap: _pickDate,
+              borderRadius: BorderRadius.circular(12),
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: l10n.editWorkout_date,
+                  fillColor: AppColors.bgDark,
+                  suffixIcon: Icon(
+                    Icons.calendar_today_rounded,
+                    color: AppColors.textMuted,
+                    size: 18,
+                  ),
+                ),
+                child: Text(
+                  '${formatShortDate(context, _date)} · $time',
+                  style: TextStyle(color: AppColors.textPrimary, fontSize: 14),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            flex: 2,
+            child: TextField(
+              controller: _durationCtrl,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(4),
+              ],
+              onTapOutside: (_) =>
+                  FocusManager.instance.primaryFocus?.unfocus(),
+              style: TextStyle(color: AppColors.textPrimary, fontSize: 14),
+              decoration: InputDecoration(
+                labelText: l10n.editWorkout_duration,
+                fillColor: AppColors.bgDark,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -166,8 +274,10 @@ class _WorkoutEditScreenState extends State<WorkoutEditScreen> {
         ),
         body: ListView.builder(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-          itemCount: _exercises.length,
-          itemBuilder: (ctx, i) => _ExerciseCard(editable: _exercises[i]),
+          itemCount: _exercises.length + 1,
+          itemBuilder: (ctx, i) => i == 0
+              ? _buildWhenCard(l10n)
+              : _ExerciseCard(editable: _exercises[i - 1]),
         ),
       ),
     );
@@ -257,7 +367,9 @@ class _ExerciseCard extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    l10n.common_reps,
+                    editable.timed
+                        ? l10n.train_secondsHeader
+                        : l10n.common_reps,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppColors.textMuted,
@@ -397,14 +509,20 @@ class _EditableExercise extends ChangeNotifier {
   final String name;
   final String muscleGroup;
   final String? routineBlockName;
+  final bool? timedOverride;
+  final String? supersetId;
   final TextEditingController notesCtrl;
   final List<_EditableSet> sets;
+
+  bool get timed => timedOverride ?? isTimedByDefault(name);
 
   _EditableExercise._({
     required this.id,
     required this.name,
     required this.muscleGroup,
     required this.routineBlockName,
+    required this.timedOverride,
+    required this.supersetId,
     required this.notesCtrl,
     required this.sets,
   });
@@ -415,6 +533,8 @@ class _EditableExercise extends ChangeNotifier {
       name: w.name,
       muscleGroup: w.muscleGroup,
       routineBlockName: w.routineBlockName,
+      timedOverride: w.timedOverride,
+      supersetId: w.supersetId,
       notesCtrl: TextEditingController(text: w.notes ?? ''),
       sets: w.sets
           .map(
@@ -435,6 +555,8 @@ class _EditableExercise extends ChangeNotifier {
       sets: sets.asMap().entries.map((e) => e.value.toSet(e.key + 1)).toList(),
       notes: notesCtrl.text.trim().isEmpty ? null : notesCtrl.text.trim(),
       routineBlockName: routineBlockName,
+      timedOverride: timedOverride,
+      supersetId: supersetId,
     );
   }
 
@@ -458,11 +580,15 @@ class _EditableSet extends ChangeNotifier {
   final double _originalWeight;
   final String _initialWeightText;
 
+  /// Kept as logged: the editor does not change a set's type.
+  final SetType type;
+
   _EditableSet._({
     required this.repsCtrl,
     required this.weightCtrl,
     required bool completed,
     required double originalWeight,
+    required this.type,
   }) : _completed = completed,
        _originalWeight = originalWeight,
        _initialWeightText = weightCtrl.text;
@@ -476,6 +602,7 @@ class _EditableSet extends ChangeNotifier {
       ),
       completed: completed,
       originalWeight: s.weight,
+      type: s.type,
     );
   }
 
@@ -496,6 +623,7 @@ class _EditableSet extends ChangeNotifier {
       reps: reps.clamp(0, 999),
       weight: weight.clamp(0, 1000).toDouble(),
       completed: _completed,
+      type: type,
     );
   }
 

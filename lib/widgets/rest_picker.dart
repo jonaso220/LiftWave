@@ -119,14 +119,20 @@ class RestBadge extends StatelessWidget {
                       : AppColors.primaryLight,
                 ),
                 const SizedBox(width: 3),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: seconds == null
-                        ? AppColors.textMuted
-                        : AppColors.primaryLight,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
+                // Shrinks with an ellipsis when the row it sits in runs out
+                // of room ("Predeterminado" next to a long progress label).
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: seconds == null
+                          ? AppColors.textMuted
+                          : AppColors.primaryLight,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],

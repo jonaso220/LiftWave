@@ -100,6 +100,35 @@ class AppColors {
   static const Color arms = Color(0xFFFF6B6B);
   static const Color core = Color(0xFF4ECDC4);
   static const Color crossfit = Color(0xFFE63946);
+
+  /// [color] made dark enough to read as text on the light theme's
+  /// surfaces. Muscle and status colours are bright tones picked for the
+  /// dark theme; as text on white they drop to a contrast of 1.4–2.8.
+  /// Unchanged in the dark theme.
+  static Color asText(Color color) {
+    if (brightness == Brightness.dark) return color;
+    // Lightness is lowered step by step because it is not perceptual: at the
+    // same value a yellow or green is still far brighter than a blue.
+    var hsl = HSLColor.fromColor(color);
+    var text = color;
+    while (text.computeLuminance() > _maxTextLuminance && hsl.lightness > 0) {
+      hsl = hsl.withLightness((hsl.lightness - 0.02).clamp(0.0, 1.0));
+      text = hsl.toColor();
+    }
+    return text;
+  }
+
+  /// Gives a contrast of at least 5.5 on white, which keeps it above 4.5 on
+  /// a chip tinted with the colour itself.
+  static const double _maxTextLuminance = 0.14;
+
+  /// Dark or white text, whichever reads better on [background]. For
+  /// snackbars and badges painted with a status colour, which is the same
+  /// bright tone in both themes.
+  static Color readableOn(Color background) =>
+      background.computeLuminance() > 0.2
+      ? const Color(0xFF15152B)
+      : const Color(0xFFFFFFFF);
 }
 
 class AppTheme {
@@ -248,6 +277,13 @@ class AppTheme {
         side: BorderSide(color: AppColors.bgCardLight),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      ),
+      // Without this the message takes the scheme's surface colour, which is
+      // unreadable on the card-toned snackbars used across the app.
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.bgCardLight,
+        contentTextStyle: TextStyle(color: AppColors.textPrimary, fontSize: 14),
+        actionTextColor: AppColors.primaryLight,
       ),
       dividerTheme: DividerThemeData(
         color: AppColors.bgCardLight,

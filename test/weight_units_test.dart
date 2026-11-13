@@ -11,6 +11,33 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   tearDown(() => WeightUnits.instance.setForTesting(WeightUnit.kg));
 
+  group('default unit', () {
+    test('pounds only where gyms use them', () {
+      expect(WeightUnits.defaultFor('US'), WeightUnit.lb);
+      expect(WeightUnits.defaultFor('us'), WeightUnit.lb);
+      expect(WeightUnits.defaultFor('UY'), WeightUnit.kg);
+      expect(WeightUnits.defaultFor('GB'), WeightUnit.kg);
+      expect(WeightUnits.defaultFor(null), WeightUnit.kg);
+    });
+
+    test(
+      'an existing install without a stored unit stays in kilograms',
+      () async {
+        // Any saved key means the app was already in use, logging in kg.
+        SharedPreferences.setMockInitialValues({'keep_screen_on': true});
+        WeightUnits.instance.setForTesting(WeightUnit.lb);
+        await WeightUnits.instance.load();
+        expect(WeightUnits.instance.unit, WeightUnit.kg);
+      },
+    );
+
+    test('a stored choice always wins', () async {
+      SharedPreferences.setMockInitialValues({'weight_unit': 'lb'});
+      await WeightUnits.instance.load();
+      expect(WeightUnits.instance.unit, WeightUnit.lb);
+    });
+  });
+
   group('conversions', () {
     test('kilograms are shown as stored', () {
       expect(weightSymbol, 'kg');

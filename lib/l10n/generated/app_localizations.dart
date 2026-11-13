@@ -953,6 +953,24 @@ abstract class S {
   /// **'Entrenamiento actualizado'**
   String get editWorkout_saved;
 
+  /// No description provided for @detail_deleteWorkout.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar entrenamiento'**
+  String get detail_deleteWorkout;
+
+  /// No description provided for @detail_deleteWorkoutConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'Se eliminará de tu historial. Esta acción no se puede deshacer.'**
+  String get detail_deleteWorkoutConfirm;
+
+  /// No description provided for @detail_workoutDeleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Entrenamiento eliminado'**
+  String get detail_workoutDeleted;
+
   /// No description provided for @home_viewAll.
   ///
   /// In es, this message translates to:
@@ -1018,6 +1036,414 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Eliminar cuenta'**
   String get profile_deleteAccount;
+
+  /// No description provided for @progressScreen_deleteMeasurementTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Eliminar registro?'**
+  String get progressScreen_deleteMeasurementTitle;
+
+  /// No description provided for @progressScreen_deleteMeasurementBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Se eliminarán el registro y su foto. Esta acción no se puede deshacer.'**
+  String get progressScreen_deleteMeasurementBody;
+
+  /// No description provided for @profile_signOutConfirm.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Cerrar sesión? Tus datos quedan guardados en tu cuenta.'**
+  String get profile_signOutConfirm;
+
+  /// No description provided for @profile_deleteSubscriptionNote.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar la cuenta no cancela tu suscripción. Cancélala antes desde la tienda.'**
+  String get profile_deleteSubscriptionNote;
+
+  /// No description provided for @profile_manageSubscription.
+  ///
+  /// In es, this message translates to:
+  /// **'Administrar suscripción'**
+  String get profile_manageSubscription;
+
+  /// No description provided for @profile_help.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayuda y soporte'**
+  String get profile_help;
+
+  /// No description provided for @rest_alertTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Descanso terminado'**
+  String get rest_alertTitle;
+
+  /// No description provided for @rest_alertBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Es hora de tu siguiente serie.'**
+  String get rest_alertBody;
+
+  /// No description provided for @rest_alertChannel.
+  ///
+  /// In es, this message translates to:
+  /// **'Temporizador de descanso'**
+  String get rest_alertChannel;
+
+  /// No description provided for @profile_restAlert.
+  ///
+  /// In es, this message translates to:
+  /// **'Avisar al terminar el descanso'**
+  String get profile_restAlert;
+
+  /// No description provided for @profile_restAlertSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificación con sonido cuando la app no está en pantalla'**
+  String get profile_restAlertSubtitle;
+
+  /// No description provided for @profile_restAlertExact.
+  ///
+  /// In es, this message translates to:
+  /// **'Permitir alarmas exactas'**
+  String get profile_restAlertExact;
+
+  /// No description provided for @profile_restAlertExactSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin este permiso, Android puede retrasar el aviso'**
+  String get profile_restAlertExactSubtitle;
+
+  /// No description provided for @editWorkout_date.
+  ///
+  /// In es, this message translates to:
+  /// **'Fecha y hora'**
+  String get editWorkout_date;
+
+  /// No description provided for @editWorkout_duration.
+  ///
+  /// In es, this message translates to:
+  /// **'Duración (min)'**
+  String get editWorkout_duration;
+
+  /// No description provided for @history_searchHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar entrenamiento o ejercicio'**
+  String get history_searchHint;
+
+  /// No description provided for @history_noResults.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin resultados'**
+  String get history_noResults;
+
+  /// No description provided for @history_calendar.
+  ///
+  /// In es, this message translates to:
+  /// **'Calendario'**
+  String get history_calendar;
+
+  /// No description provided for @progress_oneRm.
+  ///
+  /// In es, this message translates to:
+  /// **'1RM est.'**
+  String get progress_oneRm;
+
+  /// No description provided for @progress_recordsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Récords'**
+  String get progress_recordsTitle;
+
+  /// No description provided for @progress_bestLift.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejor levantamiento'**
+  String get progress_bestLift;
+
+  /// No description provided for @progress_bestOneRm.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejor 1RM estimado'**
+  String get progress_bestOneRm;
+
+  /// No description provided for @setType_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Tipo de serie'**
+  String get setType_title;
+
+  /// No description provided for @setType_normal.
+  ///
+  /// In es, this message translates to:
+  /// **'Normal'**
+  String get setType_normal;
+
+  /// No description provided for @setType_warmup.
+  ///
+  /// In es, this message translates to:
+  /// **'Calentamiento'**
+  String get setType_warmup;
+
+  /// No description provided for @setType_drop.
+  ///
+  /// In es, this message translates to:
+  /// **'Drop set'**
+  String get setType_drop;
+
+  /// No description provided for @setType_failure.
+  ///
+  /// In es, this message translates to:
+  /// **'Al fallo'**
+  String get setType_failure;
+
+  /// No description provided for @setType_warmupHint.
+  ///
+  /// In es, this message translates to:
+  /// **'No suma volumen ni récords'**
+  String get setType_warmupHint;
+
+  /// No description provided for @setType_warmupShort.
+  ///
+  /// In es, this message translates to:
+  /// **'C'**
+  String get setType_warmupShort;
+
+  /// No description provided for @setType_dropShort.
+  ///
+  /// In es, this message translates to:
+  /// **'D'**
+  String get setType_dropShort;
+
+  /// No description provided for @setType_failureShort.
+  ///
+  /// In es, this message translates to:
+  /// **'F'**
+  String get setType_failureShort;
+
+  /// No description provided for @plates_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Calculadora de discos'**
+  String get plates_title;
+
+  /// No description provided for @plates_target.
+  ///
+  /// In es, this message translates to:
+  /// **'Peso total'**
+  String get plates_target;
+
+  /// No description provided for @plates_bar.
+  ///
+  /// In es, this message translates to:
+  /// **'Barra'**
+  String get plates_bar;
+
+  /// No description provided for @plates_perSide.
+  ///
+  /// In es, this message translates to:
+  /// **'Por lado'**
+  String get plates_perSide;
+
+  /// No description provided for @plates_onlyBar.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo la barra'**
+  String get plates_onlyBar;
+
+  /// No description provided for @plates_belowBar.
+  ///
+  /// In es, this message translates to:
+  /// **'El peso es menor que la barra'**
+  String get plates_belowBar;
+
+  /// No description provided for @plates_missing.
+  ///
+  /// In es, this message translates to:
+  /// **'Faltan {amount} que no se pueden cargar con estos discos'**
+  String plates_missing(String amount);
+
+  /// No description provided for @train_secondsHeader.
+  ///
+  /// In es, this message translates to:
+  /// **'SEG'**
+  String get train_secondsHeader;
+
+  /// No description provided for @train_secondsShort.
+  ///
+  /// In es, this message translates to:
+  /// **'s'**
+  String get train_secondsShort;
+
+  /// No description provided for @train_startHold.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar'**
+  String get train_startHold;
+
+  /// No description provided for @train_measureByTime.
+  ///
+  /// In es, this message translates to:
+  /// **'Medir por tiempo'**
+  String get train_measureByTime;
+
+  /// No description provided for @train_measureByReps.
+  ///
+  /// In es, this message translates to:
+  /// **'Medir por repeticiones'**
+  String get train_measureByReps;
+
+  /// No description provided for @hold_running.
+  ///
+  /// In es, this message translates to:
+  /// **'EN CURSO'**
+  String get hold_running;
+
+  /// No description provided for @hold_alertTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tiempo cumplido'**
+  String get hold_alertTitle;
+
+  /// No description provided for @hold_alertBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Terminaste la serie.'**
+  String get hold_alertBody;
+
+  /// No description provided for @train_reasonHold.
+  ///
+  /// In es, this message translates to:
+  /// **'Aguantaste {seconds} s. Intenta sumar 5 s.'**
+  String train_reasonHold(int seconds);
+
+  /// No description provided for @superset_label.
+  ///
+  /// In es, this message translates to:
+  /// **'Superserie'**
+  String get superset_label;
+
+  /// No description provided for @superset_linkNext.
+  ///
+  /// In es, this message translates to:
+  /// **'Superserie con el siguiente'**
+  String get superset_linkNext;
+
+  /// No description provided for @superset_unlink.
+  ///
+  /// In es, this message translates to:
+  /// **'Quitar de la superserie'**
+  String get superset_unlink;
+
+  /// No description provided for @superset_hint.
+  ///
+  /// In es, this message translates to:
+  /// **'Alterna las series; el descanso empieza al terminar la ronda.'**
+  String get superset_hint;
+
+  /// No description provided for @reminders_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Recordatorios de entrenamiento'**
+  String get reminders_title;
+
+  /// No description provided for @reminders_off.
+  ///
+  /// In es, this message translates to:
+  /// **'Desactivados'**
+  String get reminders_off;
+
+  /// No description provided for @reminders_enable.
+  ///
+  /// In es, this message translates to:
+  /// **'Recordarme entrenar'**
+  String get reminders_enable;
+
+  /// No description provided for @reminders_enableSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Una notificación los días que elijas'**
+  String get reminders_enableSubtitle;
+
+  /// No description provided for @reminders_days.
+  ///
+  /// In es, this message translates to:
+  /// **'Días'**
+  String get reminders_days;
+
+  /// No description provided for @reminders_time.
+  ///
+  /// In es, this message translates to:
+  /// **'Hora'**
+  String get reminders_time;
+
+  /// No description provided for @reminders_notificationTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Hora de entrenar'**
+  String get reminders_notificationTitle;
+
+  /// No description provided for @reminders_notificationBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu entrenamiento de hoy te espera.'**
+  String get reminders_notificationBody;
+
+  /// No description provided for @reminders_notificationRoutine.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy toca: {routine}'**
+  String reminders_notificationRoutine(String routine);
+
+  /// No description provided for @reminders_permissionDenied.
+  ///
+  /// In es, this message translates to:
+  /// **'Activa las notificaciones de LiftWave en los ajustes del sistema para recibir recordatorios.'**
+  String get reminders_permissionDenied;
+
+  /// No description provided for @health_sync.
+  ///
+  /// In es, this message translates to:
+  /// **'Sincronizar con {store}'**
+  String health_sync(String store);
+
+  /// No description provided for @health_syncSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Guarda en {store} los entrenamientos y el peso corporal que registres'**
+  String health_syncSubtitle(String store);
+
+  /// No description provided for @health_enabled.
+  ///
+  /// In es, this message translates to:
+  /// **'Listo. Tus próximos entrenamientos se guardarán en {store}.'**
+  String health_enabled(String store);
+
+  /// No description provided for @health_denied.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo activar. Revisa los permisos de LiftWave en {store}.'**
+  String health_denied(String store);
+
+  /// No description provided for @health_needsInstall.
+  ///
+  /// In es, this message translates to:
+  /// **'Instala o actualiza Health Connect para activar la sincronización.'**
+  String get health_needsInstall;
+
+  /// No description provided for @health_install.
+  ///
+  /// In es, this message translates to:
+  /// **'Instalar'**
+  String get health_install;
+
+  /// No description provided for @health_unsupported.
+  ///
+  /// In es, this message translates to:
+  /// **'{store} no está disponible en este dispositivo.'**
+  String health_unsupported(String store);
 
   /// No description provided for @profile_purchasesRestored.
   ///
@@ -2435,6 +2861,12 @@ abstract class S {
   /// **'La suscripción se renueva automáticamente. Puedes cancelar\nen cualquier momento desde la App Store.'**
   String get paywall_legalText;
 
+  /// No description provided for @paywall_legalTextPlay.
+  ///
+  /// In es, this message translates to:
+  /// **'La suscripción se renueva automáticamente. Puedes cancelar\nen cualquier momento desde Google Play.'**
+  String get paywall_legalTextPlay;
+
   /// No description provided for @paywall_legalTextTrial.
   ///
   /// In es, this message translates to:
@@ -3190,6 +3622,1386 @@ abstract class S {
   /// In es, this message translates to:
   /// **'Piernas'**
   String get template_legs_name;
+
+  /// No description provided for @ex_pecho_6_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Press inclinado con barra'**
+  String get ex_pecho_6_name;
+
+  /// No description provided for @ex_pecho_6_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajusta el banco a 30-45°. Agarra la barra con un agarre algo más ancho que los hombros. Baja la barra controladamente hasta la parte alta del pecho y empuja hacia arriba hasta extensión completa. Mantén la zona lumbar pegada al banco y los omóplatos retraídos.'**
+  String get ex_pecho_6_desc;
+
+  /// No description provided for @ex_pecho_6_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Enfatiza el pectoral superior (porción clavicular)'**
+  String get ex_pecho_6_b1;
+
+  /// No description provided for @ex_pecho_6_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Permite cargar más peso que con mancuernas'**
+  String get ex_pecho_6_b2;
+
+  /// No description provided for @ex_pecho_6_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la fuerza de empuje desde ángulos elevados'**
+  String get ex_pecho_6_b3;
+
+  /// No description provided for @ex_pecho_7_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Press declinado con mancuernas'**
+  String get ex_pecho_7_name;
+
+  /// No description provided for @ex_pecho_7_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajusta el banco a una declinación de 15-30°. Con una mancuerna en cada mano a la altura del pecho, empuja hacia arriba juntando las mancuernas en la parte superior. Baja con control sintiendo el estiramiento de la porción inferior del pecho.'**
+  String get ex_pecho_7_desc;
+
+  /// No description provided for @ex_pecho_7_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabaja la porción inferior del pectoral'**
+  String get ex_pecho_7_b1;
+
+  /// No description provided for @ex_pecho_7_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Reduce la implicación de los hombros'**
+  String get ex_pecho_7_b2;
+
+  /// No description provided for @ex_pecho_7_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Mayor rango que el press declinado con barra'**
+  String get ex_pecho_7_b3;
+
+  /// No description provided for @ex_pecho_8_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Flexiones'**
+  String get ex_pecho_8_name;
+
+  /// No description provided for @ex_pecho_8_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Apoya las manos en el suelo a la anchura de los hombros y los pies juntos. Mantén el cuerpo recto desde la cabeza hasta los talones. Baja flexionando los codos hasta casi rozar el pecho con el suelo y empuja de vuelta. Mantén el core apretado durante todo el movimiento.'**
+  String get ex_pecho_8_desc;
+
+  /// No description provided for @ex_pecho_8_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'No requiere equipamiento'**
+  String get ex_pecho_8_b1;
+
+  /// No description provided for @ex_pecho_8_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Múltiples variantes para progresar (diamante, declinadas, palmada)'**
+  String get ex_pecho_8_b2;
+
+  /// No description provided for @ex_pecho_8_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Ejercicio compuesto que también fortalece el core'**
+  String get ex_pecho_8_b3;
+
+  /// No description provided for @ex_pecho_9_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Pullover con mancuerna'**
+  String get ex_pecho_9_name;
+
+  /// No description provided for @ex_pecho_9_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Túmbate en banco plano sosteniendo una mancuerna con ambas manos sobre el pecho, brazos extendidos. Baja la mancuerna en arco por encima de la cabeza hasta sentir el estiramiento del pecho y los dorsales. Vuelve a la posición inicial contrayendo el pecho.'**
+  String get ex_pecho_9_desc;
+
+  /// No description provided for @ex_pecho_9_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabaja simultáneamente pecho y dorsales'**
+  String get ex_pecho_9_b1;
+
+  /// No description provided for @ex_pecho_9_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la movilidad de hombros y caja torácica'**
+  String get ex_pecho_9_b2;
+
+  /// No description provided for @ex_pecho_9_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Excelente complemento entre series de press y remos'**
+  String get ex_pecho_9_b3;
+
+  /// No description provided for @ex_esp_6_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Remo en T'**
+  String get ex_esp_6_name;
+
+  /// No description provided for @ex_esp_6_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Posiciónate sobre la barra en T con los pies a la anchura de los hombros. Inclínate hacia adelante manteniendo la espalda neutra y tira de las asas hacia el pecho llevando los codos atrás. Aprieta los omóplatos en la posición final y baja con control.'**
+  String get ex_esp_6_desc;
+
+  /// No description provided for @ex_esp_6_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Desarrolla el grosor de la espalda media'**
+  String get ex_esp_6_b1;
+
+  /// No description provided for @ex_esp_6_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Permite cargas muy altas con menor estrés lumbar que el remo libre'**
+  String get ex_esp_6_b2;
+
+  /// No description provided for @ex_esp_6_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabaja la postura y la estabilidad escapular'**
+  String get ex_esp_6_b3;
+
+  /// No description provided for @ex_esp_7_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Remo bajo en polea'**
+  String get ex_esp_7_name;
+
+  /// No description provided for @ex_esp_7_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Siéntate frente a la polea baja con los pies apoyados. Agarra el accesorio con los brazos extendidos y la espalda neutra. Tira de las manos hacia el abdomen retrayendo los omóplatos y manteniendo el torso erguido. Regresa controladamente sin redondear la espalda.'**
+  String get ex_esp_7_desc;
+
+  /// No description provided for @ex_esp_7_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Tensión constante a lo largo del movimiento'**
+  String get ex_esp_7_b1;
+
+  /// No description provided for @ex_esp_7_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Fácil progresión de peso y técnica accesible'**
+  String get ex_esp_7_b2;
+
+  /// No description provided for @ex_esp_7_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Excelente para desarrollar grosor de espalda media'**
+  String get ex_esp_7_b3;
+
+  /// No description provided for @ex_esp_8_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Encogimientos con mancuernas'**
+  String get ex_esp_8_name;
+
+  /// No description provided for @ex_esp_8_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'De pie con una mancuerna en cada mano a los costados, brazos relajados. Eleva los hombros hacia las orejas sin doblar los codos. Mantén la contracción 1 segundo en la cima y baja lentamente. No rotes los hombros, el movimiento es puramente vertical.'**
+  String get ex_esp_8_desc;
+
+  /// No description provided for @ex_esp_8_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Aislamiento directo del trapecio superior'**
+  String get ex_esp_8_b1;
+
+  /// No description provided for @ex_esp_8_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la postura y la apariencia del cuello'**
+  String get ex_esp_8_b2;
+
+  /// No description provided for @ex_esp_8_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Fortalece la estabilidad escapular para otros levantamientos'**
+  String get ex_esp_8_b3;
+
+  /// No description provided for @ex_esp_9_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Good morning'**
+  String get ex_esp_9_name;
+
+  /// No description provided for @ex_esp_9_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Coloca la barra sobre los trapecios como en una sentadilla. Con los pies a la anchura de las caderas y rodillas ligeramente flexionadas, inclínate hacia adelante desde las caderas manteniendo la espalda neutra. Baja hasta que el torso esté casi paralelo al suelo y vuelve apretando glúteos.'**
+  String get ex_esp_9_desc;
+
+  /// No description provided for @ex_esp_9_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Fortalece la cadena posterior y la zona lumbar'**
+  String get ex_esp_9_b1;
+
+  /// No description provided for @ex_esp_9_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la bisagra de cadera para peso muerto y sentadilla'**
+  String get ex_esp_9_b2;
+
+  /// No description provided for @ex_esp_9_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabajo accesorio clave para powerlifting'**
+  String get ex_esp_9_b3;
+
+  /// No description provided for @ex_pier_6_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Sentadilla frontal'**
+  String get ex_pier_6_name;
+
+  /// No description provided for @ex_pier_6_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Coloca la barra sobre los deltoides frontales, codos altos y agarre cruzado o limpio. Pies a la anchura de los hombros. Baja manteniendo el torso vertical y los codos al frente hasta que los muslos pasen la paralela. Empuja con los talones para volver a la posición inicial.'**
+  String get ex_pier_6_desc;
+
+  /// No description provided for @ex_pier_6_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Enfatiza más los cuádriceps que la sentadilla trasera'**
+  String get ex_pier_6_b1;
+
+  /// No description provided for @ex_pier_6_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Exige un core muy fuerte y postura erguida'**
+  String get ex_pier_6_b2;
+
+  /// No description provided for @ex_pier_6_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Base técnica para clean y thruster en CrossFit'**
+  String get ex_pier_6_b3;
+
+  /// No description provided for @ex_pier_7_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Sentadilla búlgara'**
+  String get ex_pier_7_name;
+
+  /// No description provided for @ex_pier_7_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Coloca el empeine del pie de atrás sobre un banco, sosteniendo una mancuerna en cada mano. Con el pie delantero adelantado, baja flexionando la rodilla delantera hasta que el muslo esté paralelo al suelo. Empuja a través del talón delantero para volver arriba.'**
+  String get ex_pier_7_desc;
+
+  /// No description provided for @ex_pier_7_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabajo unilateral que corrige desequilibrios entre piernas'**
+  String get ex_pier_7_b1;
+
+  /// No description provided for @ex_pier_7_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Activación intensa de glúteos y cuádriceps'**
+  String get ex_pier_7_b2;
+
+  /// No description provided for @ex_pier_7_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora el equilibrio y la estabilidad de cadera'**
+  String get ex_pier_7_b3;
+
+  /// No description provided for @ex_pier_8_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Peso muerto rumano'**
+  String get ex_pier_8_name;
+
+  /// No description provided for @ex_pier_8_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'De pie con la barra a la altura de las caderas, agarre prono a la anchura de los hombros. Con las rodillas ligeramente flexionadas y fijas, desliza la barra por las piernas inclinando el torso desde las caderas hasta sentir tensión en isquios. Vuelve apretando glúteos.'**
+  String get ex_pier_8_desc;
+
+  /// No description provided for @ex_pier_8_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Aislamiento intenso de isquiotibiales y glúteos'**
+  String get ex_pier_8_b1;
+
+  /// No description provided for @ex_pier_8_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Fortalece la cadena posterior y mejora la bisagra de cadera'**
+  String get ex_pier_8_b2;
+
+  /// No description provided for @ex_pier_8_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Reduce el riesgo de lesiones de isquios al correr o saltar'**
+  String get ex_pier_8_b3;
+
+  /// No description provided for @ex_pier_9_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Extensión de cuádriceps'**
+  String get ex_pier_9_name;
+
+  /// No description provided for @ex_pier_9_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Siéntate en la máquina con la espalda apoyada y el rodillo sobre el empeine. Extiende las rodillas levantando el peso hasta que las piernas estén casi rectas, sin bloquear las rodillas. Aprieta los cuádriceps en la cima y baja con control.'**
+  String get ex_pier_9_desc;
+
+  /// No description provided for @ex_pier_9_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Aislamiento directo del cuádriceps'**
+  String get ex_pier_9_b1;
+
+  /// No description provided for @ex_pier_9_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Útil para rehabilitación y trabajo de hipertrofia focalizado'**
+  String get ex_pier_9_b2;
+
+  /// No description provided for @ex_pier_9_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Ajuste de carga preciso y de bajo riesgo'**
+  String get ex_pier_9_b3;
+
+  /// No description provided for @ex_pier_10_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Elevación de talones'**
+  String get ex_pier_10_name;
+
+  /// No description provided for @ex_pier_10_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Coloca los hombros bajo las almohadillas de la máquina de gemelos (o usa una mancuerna de pie). Apoya las puntas de los pies en una plataforma con los talones colgando. Sube empujando las puntas y aprieta los gemelos en la cima. Baja lentamente sintiendo el estiramiento.'**
+  String get ex_pier_10_desc;
+
+  /// No description provided for @ex_pier_10_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Aislamiento del sóleo y gemelos'**
+  String get ex_pier_10_b1;
+
+  /// No description provided for @ex_pier_10_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la potencia en saltos y sprints'**
+  String get ex_pier_10_b2;
+
+  /// No description provided for @ex_pier_10_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Reduce el riesgo de lesiones en tobillo y tendón de Aquiles'**
+  String get ex_pier_10_b3;
+
+  /// No description provided for @ex_hom_5_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Press de hombros con mancuernas'**
+  String get ex_hom_5_name;
+
+  /// No description provided for @ex_hom_5_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Sentado con respaldo recto, sostén una mancuerna a cada lado de los hombros, palmas hacia adelante. Empuja las mancuernas hacia arriba hasta casi juntarlas por encima de la cabeza, sin bloquear los codos. Baja con control hasta la posición inicial.'**
+  String get ex_hom_5_desc;
+
+  /// No description provided for @ex_hom_5_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Mayor rango de movimiento que el press con barra'**
+  String get ex_hom_5_b1;
+
+  /// No description provided for @ex_hom_5_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Permite trabajar cada lado de forma independiente'**
+  String get ex_hom_5_b2;
+
+  /// No description provided for @ex_hom_5_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Reduce el estrés en hombros respecto a la barra'**
+  String get ex_hom_5_b3;
+
+  /// No description provided for @ex_hom_6_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Elevaciones frontales'**
+  String get ex_hom_6_name;
+
+  /// No description provided for @ex_hom_6_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'De pie con una mancuerna en cada mano frente a los muslos, palmas hacia el cuerpo. Eleva los brazos alternados o simultáneamente al frente hasta la altura de los hombros, manteniendo los codos casi extendidos. Baja lentamente sin balancearse.'**
+  String get ex_hom_6_desc;
+
+  /// No description provided for @ex_hom_6_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Aislamiento del deltoides anterior'**
+  String get ex_hom_6_b1;
+
+  /// No description provided for @ex_hom_6_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la apariencia frontal del hombro'**
+  String get ex_hom_6_b2;
+
+  /// No description provided for @ex_hom_6_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabajo accesorio de press de banca y press militar'**
+  String get ex_hom_6_b3;
+
+  /// No description provided for @ex_hom_7_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Pájaros con mancuernas'**
+  String get ex_hom_7_name;
+
+  /// No description provided for @ex_hom_7_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Inclínate hacia adelante desde la cadera con el torso casi paralelo al suelo, mancuerna en cada mano y brazos colgando. Eleva los brazos lateralmente hasta la altura de los hombros, codos ligeramente flexionados. Aprieta el deltoides posterior arriba y baja con control.'**
+  String get ex_hom_7_desc;
+
+  /// No description provided for @ex_hom_7_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Aislamiento del deltoides posterior, área clave para postura'**
+  String get ex_hom_7_b1;
+
+  /// No description provided for @ex_hom_7_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Contrarresta los efectos del trabajo de empuje'**
+  String get ex_hom_7_b2;
+
+  /// No description provided for @ex_hom_7_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Reduce el riesgo de lesiones del manguito rotador'**
+  String get ex_hom_7_b3;
+
+  /// No description provided for @ex_bra_6_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Curl predicador'**
+  String get ex_bra_6_name;
+
+  /// No description provided for @ex_bra_6_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Siéntate en el banco predicador con los brazos apoyados sobre la almohadilla. Agarra la barra (recta o Z) con agarre supino. Flexiona los codos llevando la barra hacia los hombros, controlando el movimiento. Baja lentamente sin bloquear los codos al final.'**
+  String get ex_bra_6_desc;
+
+  /// No description provided for @ex_bra_6_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Aísla el bíceps al inmovilizar el hombro'**
+  String get ex_bra_6_b1;
+
+  /// No description provided for @ex_bra_6_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Imposibilita usar impulso, técnica estricta'**
+  String get ex_bra_6_b2;
+
+  /// No description provided for @ex_bra_6_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Excelente para la contracción máxima del bíceps'**
+  String get ex_bra_6_b3;
+
+  /// No description provided for @ex_bra_7_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Curl concentrado'**
+  String get ex_bra_7_name;
+
+  /// No description provided for @ex_bra_7_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Siéntate en un banco con las piernas abiertas. Apoya el codo del brazo de trabajo contra la cara interna del muslo, mancuerna colgando. Flexiona el codo llevando la mancuerna hacia el hombro, aislando el bíceps. Aprieta arriba y baja con control.'**
+  String get ex_bra_7_desc;
+
+  /// No description provided for @ex_bra_7_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Aislamiento puro del bíceps con máxima contracción'**
+  String get ex_bra_7_b1;
+
+  /// No description provided for @ex_bra_7_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Permite enfocarse en la conexión mente-músculo'**
+  String get ex_bra_7_b2;
+
+  /// No description provided for @ex_bra_7_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Ideal como ejercicio final del entreno de brazos'**
+  String get ex_bra_7_b3;
+
+  /// No description provided for @ex_bra_8_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Press cerrado de banca'**
+  String get ex_bra_8_name;
+
+  /// No description provided for @ex_bra_8_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Túmbate en banco plano y agarra la barra con un agarre cerrado a la anchura de los hombros. Baja la barra controladamente hasta rozar el esternón manteniendo los codos pegados al cuerpo. Empuja hacia arriba enfatizando la extensión de tríceps.'**
+  String get ex_bra_8_desc;
+
+  /// No description provided for @ex_bra_8_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Ejercicio compuesto que enfatiza los tríceps'**
+  String get ex_bra_8_b1;
+
+  /// No description provided for @ex_bra_8_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Permite cargar más peso que un aislamiento de tríceps'**
+  String get ex_bra_8_b2;
+
+  /// No description provided for @ex_bra_8_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Transfiere a fuerza en press de banca y press militar'**
+  String get ex_bra_8_b3;
+
+  /// No description provided for @ex_bra_9_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Fondos en banco'**
+  String get ex_bra_9_name;
+
+  /// No description provided for @ex_bra_9_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Apoya las manos en un banco a tu espalda con los dedos hacia adelante. Extiende las piernas frente a ti apoyando los talones (o con rodillas flexionadas para facilitar). Baja flexionando los codos hacia atrás hasta 90° y empuja para subir.'**
+  String get ex_bra_9_desc;
+
+  /// No description provided for @ex_bra_9_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Aislamiento del tríceps sin necesidad de equipamiento'**
+  String get ex_bra_9_b1;
+
+  /// No description provided for @ex_bra_9_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Fácil de progresar añadiendo peso en el regazo'**
+  String get ex_bra_9_b2;
+
+  /// No description provided for @ex_bra_9_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la fuerza de empuje desde posiciones detrás del cuerpo'**
+  String get ex_bra_9_b3;
+
+  /// No description provided for @ex_core_5_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Russian twists'**
+  String get ex_core_5_name;
+
+  /// No description provided for @ex_core_5_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Sentado en el suelo con las rodillas flexionadas y los pies elevados o apoyados, inclínate hacia atrás 45°. Junta las manos (o sostén un peso) y gira el torso de lado a lado tocando el suelo o llevando el peso a cada lateral. Mantén el core apretado.'**
+  String get ex_core_5_desc;
+
+  /// No description provided for @ex_core_5_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Aislamiento directo de los oblicuos'**
+  String get ex_core_5_b1;
+
+  /// No description provided for @ex_core_5_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la rotación del torso, clave en deportes'**
+  String get ex_core_5_b2;
+
+  /// No description provided for @ex_core_5_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Se puede progresar añadiendo peso (mancuerna, disco, balón)'**
+  String get ex_core_5_b3;
+
+  /// No description provided for @ex_core_6_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Mountain climbers'**
+  String get ex_core_6_name;
+
+  /// No description provided for @ex_core_6_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Adopta la posición de plancha alta con las manos bajo los hombros. Lleva una rodilla hacia el pecho de forma alternada y rápida, como si corrieras en el sitio. Mantén la cadera baja y el core apretado durante todo el movimiento.'**
+  String get ex_core_6_desc;
+
+  /// No description provided for @ex_core_6_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Combina trabajo de core con cardio'**
+  String get ex_core_6_b1;
+
+  /// No description provided for @ex_core_6_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'No requiere equipamiento, ideal para HIIT'**
+  String get ex_core_6_b2;
+
+  /// No description provided for @ex_core_6_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la coordinación y la resistencia'**
+  String get ex_core_6_b3;
+
+  /// No description provided for @ex_core_7_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Hollow hold'**
+  String get ex_core_7_name;
+
+  /// No description provided for @ex_core_7_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Túmbate boca arriba con brazos extendidos por encima de la cabeza y piernas estiradas. Eleva ligeramente los brazos y las piernas del suelo, llevando la zona lumbar contra el suelo. Mantén la posición de \"barco\" con el core completamente contraído.'**
+  String get ex_core_7_desc;
+
+  /// No description provided for @ex_core_7_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Base gimnástica para muchos movimientos de CrossFit'**
+  String get ex_core_7_b1;
+
+  /// No description provided for @ex_core_7_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Fortalece el core en su totalidad de forma isométrica'**
+  String get ex_core_7_b2;
+
+  /// No description provided for @ex_core_7_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la postura y la fuerza para dominadas estrictas'**
+  String get ex_core_7_b3;
+
+  /// No description provided for @ex_core_8_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Plancha lateral'**
+  String get ex_core_8_name;
+
+  /// No description provided for @ex_core_8_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Túmbate de lado con el antebrazo apoyado y el codo bajo el hombro. Eleva la cadera del suelo formando una línea recta desde los pies hasta la cabeza. Mantén la posición sin que la cadera se hunda. Repite del otro lado.'**
+  String get ex_core_8_desc;
+
+  /// No description provided for @ex_core_8_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Aislamiento intenso de oblicuos y core lateral'**
+  String get ex_core_8_b1;
+
+  /// No description provided for @ex_core_8_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la estabilidad de cadera y columna'**
+  String get ex_core_8_b2;
+
+  /// No description provided for @ex_core_8_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin equipamiento y bajo impacto'**
+  String get ex_core_8_b3;
+
+  /// No description provided for @ex_core_9_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Dead bug'**
+  String get ex_core_9_name;
+
+  /// No description provided for @ex_core_9_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Túmbate boca arriba con brazos extendidos hacia el techo y rodillas flexionadas a 90° sobre las caderas. Baja simultáneamente el brazo derecho por detrás de la cabeza y la pierna izquierda extendida hacia el suelo. Vuelve y alterna lados manteniendo la zona lumbar pegada al suelo.'**
+  String get ex_core_9_desc;
+
+  /// No description provided for @ex_core_9_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la estabilidad anti-extensión del core'**
+  String get ex_core_9_b1;
+
+  /// No description provided for @ex_core_9_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Excelente para principiantes y rehabilitación lumbar'**
+  String get ex_core_9_b2;
+
+  /// No description provided for @ex_core_9_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabaja la coordinación contralateral'**
+  String get ex_core_9_b3;
+
+  /// No description provided for @ex_cf_1_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargada (Clean)'**
+  String get ex_cf_1_name;
+
+  /// No description provided for @ex_cf_1_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Desde el suelo, agarra la barra con agarre prono justo por fuera de las rodillas. Tira explosivamente extendiendo caderas y rodillas, encoge los hombros y desliza el cuerpo bajo la barra recibiéndola en sentadilla frontal con los codos altos. Levántate completando el lift.'**
+  String get ex_cf_1_desc;
+
+  /// No description provided for @ex_cf_1_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Levantamiento olímpico completo de potencia explosiva'**
+  String get ex_cf_1_b1;
+
+  /// No description provided for @ex_cf_1_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Desarrolla coordinación, velocidad y fuerza simultáneamente'**
+  String get ex_cf_1_b2;
+
+  /// No description provided for @ex_cf_1_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Base de muchos WODs de CrossFit'**
+  String get ex_cf_1_b3;
+
+  /// No description provided for @ex_cf_2_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Power Clean'**
+  String get ex_cf_2_name;
+
+  /// No description provided for @ex_cf_2_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Igual que el Clean pero sin recibir en sentadilla completa: recibes la barra en cuarto de sentadilla con codos altos y la frontal en los hombros. Más rápido y menos exigente de movilidad que el Clean.'**
+  String get ex_cf_2_desc;
+
+  /// No description provided for @ex_cf_2_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Desarrolla potencia explosiva de la cadena posterior'**
+  String get ex_cf_2_b1;
+
+  /// No description provided for @ex_cf_2_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Más accesible técnicamente que el Clean completo'**
+  String get ex_cf_2_b2;
+
+  /// No description provided for @ex_cf_2_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Excelente para principiantes en lifts olímpicos'**
+  String get ex_cf_2_b3;
+
+  /// No description provided for @ex_cf_3_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Arrancada (Snatch)'**
+  String get ex_cf_3_name;
+
+  /// No description provided for @ex_cf_3_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Desde el suelo, agarra la barra con agarre muy ancho. Tira explosivamente y recibe la barra por encima de la cabeza con los brazos extendidos en una sentadilla profunda (overhead squat). Levántate manteniendo la barra arriba.'**
+  String get ex_cf_3_desc;
+
+  /// No description provided for @ex_cf_3_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'El lift olímpico más completo y técnicamente exigente'**
+  String get ex_cf_3_b1;
+
+  /// No description provided for @ex_cf_3_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Desarrolla potencia, movilidad y estabilidad simultáneamente'**
+  String get ex_cf_3_b2;
+
+  /// No description provided for @ex_cf_3_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Quema más calorías que casi cualquier otro ejercicio'**
+  String get ex_cf_3_b3;
+
+  /// No description provided for @ex_cf_4_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Power Snatch'**
+  String get ex_cf_4_name;
+
+  /// No description provided for @ex_cf_4_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Igual que el Snatch pero recibiendo la barra en cuarto de sentadilla con los brazos extendidos por encima de la cabeza. Más rápido y menos exigente de movilidad de tobillos y caderas.'**
+  String get ex_cf_4_desc;
+
+  /// No description provided for @ex_cf_4_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Más accesible que el Snatch completo'**
+  String get ex_cf_4_b1;
+
+  /// No description provided for @ex_cf_4_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Desarrolla potencia explosiva de cadena posterior'**
+  String get ex_cf_4_b2;
+
+  /// No description provided for @ex_cf_4_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Excelente para movilidad y coordinación'**
+  String get ex_cf_4_b3;
+
+  /// No description provided for @ex_cf_5_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Thruster'**
+  String get ex_cf_5_name;
+
+  /// No description provided for @ex_cf_5_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Sostén la barra en posición frontal (sobre los deltoides delanteros). Realiza una sentadilla frontal completa y, al subir, usa el impulso de las piernas para empujar la barra por encima de la cabeza con los brazos extendidos. Baja la barra a la posición frontal y repite.'**
+  String get ex_cf_5_desc;
+
+  /// No description provided for @ex_cf_5_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabaja todo el cuerpo en un solo movimiento'**
+  String get ex_cf_5_b1;
+
+  /// No description provided for @ex_cf_5_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Ejercicio estrella de WODs como \"Fran\"'**
+  String get ex_cf_5_b2;
+
+  /// No description provided for @ex_cf_5_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Combina fuerza y resistencia metabólica'**
+  String get ex_cf_5_b3;
+
+  /// No description provided for @ex_cf_6_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Push Press'**
+  String get ex_cf_6_name;
+
+  /// No description provided for @ex_cf_6_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Con la barra en posición frontal sobre los hombros, realiza un dip rápido flexionando ligeramente las rodillas. Extiende explosivamente las piernas para impulsar la barra por encima de la cabeza hasta los brazos extendidos. Baja con control a la posición inicial.'**
+  String get ex_cf_6_desc;
+
+  /// No description provided for @ex_cf_6_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Permite mover más peso que el press militar estricto'**
+  String get ex_cf_6_b1;
+
+  /// No description provided for @ex_cf_6_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Desarrolla potencia de empuje vertical'**
+  String get ex_cf_6_b2;
+
+  /// No description provided for @ex_cf_6_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Transfiere a Jerk y otros lifts olímpicos'**
+  String get ex_cf_6_b3;
+
+  /// No description provided for @ex_cf_7_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Push Jerk'**
+  String get ex_cf_7_name;
+
+  /// No description provided for @ex_cf_7_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Igual que el Push Press pero al impulsar la barra arriba, sueltas las piernas para recibir la barra en cuarto de sentadilla con los brazos ya extendidos. Después, levántate completando el lift. Permite cargar más peso que el Push Press.'**
+  String get ex_cf_7_desc;
+
+  /// No description provided for @ex_cf_7_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Mueve más peso por encima de la cabeza que cualquier press'**
+  String get ex_cf_7_b1;
+
+  /// No description provided for @ex_cf_7_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Lift olímpico técnico y de alta potencia'**
+  String get ex_cf_7_b2;
+
+  /// No description provided for @ex_cf_7_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Componente del Clean & Jerk'**
+  String get ex_cf_7_b3;
+
+  /// No description provided for @ex_cf_8_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Wall Balls'**
+  String get ex_cf_8_name;
+
+  /// No description provided for @ex_cf_8_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'De pie con un balón medicinal frente al pecho, mirando a una pared. Realiza una sentadilla profunda y al subir lanza la pelota hacia un objetivo alto en la pared (~3 m). Atrapa la pelota a la altura del pecho y desciende inmediatamente a la siguiente sentadilla.'**
+  String get ex_cf_8_desc;
+
+  /// No description provided for @ex_cf_8_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Ejercicio cardiovascular y de potencia simultáneo'**
+  String get ex_cf_8_b1;
+
+  /// No description provided for @ex_cf_8_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Movimiento estándar en muchos benchmarks de CrossFit'**
+  String get ex_cf_8_b2;
+
+  /// No description provided for @ex_cf_8_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabaja la coordinación y el ritmo'**
+  String get ex_cf_8_b3;
+
+  /// No description provided for @ex_cf_9_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Kettlebell Swing americano'**
+  String get ex_cf_9_name;
+
+  /// No description provided for @ex_cf_9_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'De pie con la kettlebell colgando entre las piernas con ambas manos. Bisagra de cadera para llevarla atrás y extiende explosivamente las caderas para impulsarla por encima de la cabeza con los brazos extendidos. La fuerza viene de la cadera, no de los brazos.'**
+  String get ex_cf_9_desc;
+
+  /// No description provided for @ex_cf_9_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Desarrolla potencia explosiva de cadera'**
+  String get ex_cf_9_b1;
+
+  /// No description provided for @ex_cf_9_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Cardio y fuerza en un solo movimiento'**
+  String get ex_cf_9_b2;
+
+  /// No description provided for @ex_cf_9_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Estándar en CrossFit (los rusos van solo hasta el pecho)'**
+  String get ex_cf_9_b3;
+
+  /// No description provided for @ex_cf_10_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Kettlebell Swing ruso'**
+  String get ex_cf_10_name;
+
+  /// No description provided for @ex_cf_10_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Idéntico al swing americano pero la kettlebell solo se eleva hasta la altura del pecho/ojos, no por encima de la cabeza. Más fácil técnicamente y de menor estrés en hombros.'**
+  String get ex_cf_10_desc;
+
+  /// No description provided for @ex_cf_10_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Punto de entrada al trabajo con kettlebell'**
+  String get ex_cf_10_b1;
+
+  /// No description provided for @ex_cf_10_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Menos estrés de hombro que el swing americano'**
+  String get ex_cf_10_b2;
+
+  /// No description provided for @ex_cf_10_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Ideal para principiantes y altas repeticiones'**
+  String get ex_cf_10_b3;
+
+  /// No description provided for @ex_cf_11_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Box Jumps'**
+  String get ex_cf_11_name;
+
+  /// No description provided for @ex_cf_11_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Frente a un cajón o plataforma estable, flexiona las rodillas y salta sobre el cajón aterrizando con los pies completamente sobre la superficie. Extiende caderas y rodillas en la cima. Baja saltando o paso a paso para reducir impacto.'**
+  String get ex_cf_11_desc;
+
+  /// No description provided for @ex_cf_11_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Pliometría pura para desarrollar potencia'**
+  String get ex_cf_11_b1;
+
+  /// No description provided for @ex_cf_11_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora el salto vertical y la explosividad'**
+  String get ex_cf_11_b2;
+
+  /// No description provided for @ex_cf_11_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Componente clásico de muchos WODs'**
+  String get ex_cf_11_b3;
+
+  /// No description provided for @ex_cf_12_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Burpees'**
+  String get ex_cf_12_name;
+
+  /// No description provided for @ex_cf_12_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'De pie, agáchate y apoya las manos en el suelo. Salta con los pies hacia atrás hasta la posición de plancha. Realiza una flexión tocando el pecho al suelo. Salta con los pies de vuelta hacia las manos y salta vertical extendiendo los brazos arriba.'**
+  String get ex_cf_12_desc;
+
+  /// No description provided for @ex_cf_12_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Ejercicio full-body sin equipamiento'**
+  String get ex_cf_12_b1;
+
+  /// No description provided for @ex_cf_12_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Cardio intenso y trabajo de fuerza simultáneo'**
+  String get ex_cf_12_b2;
+
+  /// No description provided for @ex_cf_12_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Estándar de benchmarks como \"Murph\" y muchos WODs'**
+  String get ex_cf_12_b3;
+
+  /// No description provided for @ex_cf_13_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Toes-to-Bar'**
+  String get ex_cf_13_name;
+
+  /// No description provided for @ex_cf_13_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuelga de la barra con agarre prono. Activa los dorsales y eleva las piernas extendidas (o con ligera flexión) hasta tocar la barra con los pies. Baja con control sin balanceo excesivo. Usa el \"kip\" para mantener cadencia.'**
+  String get ex_cf_13_desc;
+
+  /// No description provided for @ex_cf_13_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabajo dinámico de core de alta exigencia'**
+  String get ex_cf_13_b1;
+
+  /// No description provided for @ex_cf_13_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la fuerza de agarre y los dorsales'**
+  String get ex_cf_13_b2;
+
+  /// No description provided for @ex_cf_13_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Componente de muchos WODs de CrossFit'**
+  String get ex_cf_13_b3;
+
+  /// No description provided for @ex_cf_14_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Knees-to-Elbow'**
+  String get ex_cf_14_name;
+
+  /// No description provided for @ex_cf_14_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuelga de la barra con agarre prono. Flexiona las caderas y rodillas llevando las rodillas hacia los codos en un movimiento dinámico controlado. Baja con control. Útil como progresión hacia los Toes-to-Bar.'**
+  String get ex_cf_14_desc;
+
+  /// No description provided for @ex_cf_14_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Progresión hacia Toes-to-Bar'**
+  String get ex_cf_14_b1;
+
+  /// No description provided for @ex_cf_14_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabajo de core dinámico sin tanta exigencia técnica'**
+  String get ex_cf_14_b2;
+
+  /// No description provided for @ex_cf_14_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la fuerza de agarre'**
+  String get ex_cf_14_b3;
+
+  /// No description provided for @ex_cf_15_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Muscle-Up'**
+  String get ex_cf_15_name;
+
+  /// No description provided for @ex_cf_15_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuélgate de las anillas (o barra) con agarre falso. Tira explosivamente del cuerpo hacia arriba haciendo una transición sobre las anillas y, en la cima, empuja extendiendo los brazos hasta quedar en soporte arriba. Baja controlando la transición inversa.'**
+  String get ex_cf_15_desc;
+
+  /// No description provided for @ex_cf_15_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Movimiento gimnástico avanzado de tracción + empuje'**
+  String get ex_cf_15_b1;
+
+  /// No description provided for @ex_cf_15_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Hito clave en CrossFit (RX en muchos WODs)'**
+  String get ex_cf_15_b2;
+
+  /// No description provided for @ex_cf_15_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Desarrolla fuerza relativa al peso corporal extrema'**
+  String get ex_cf_15_b3;
+
+  /// No description provided for @ex_cf_16_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Pistol Squat'**
+  String get ex_cf_16_name;
+
+  /// No description provided for @ex_cf_16_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'De pie sobre una pierna, extiende la otra al frente paralela al suelo. Baja en sentadilla profunda manteniendo el equilibrio y el pie de apoyo plano. Sube empujando con el talón sin que la pierna libre toque el suelo. Repite del otro lado.'**
+  String get ex_cf_16_desc;
+
+  /// No description provided for @ex_cf_16_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Sentadilla unilateral de máxima dificultad'**
+  String get ex_cf_16_b1;
+
+  /// No description provided for @ex_cf_16_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Desarrolla movilidad de tobillo y cadera'**
+  String get ex_cf_16_b2;
+
+  /// No description provided for @ex_cf_16_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabajo unilateral que corrige asimetrías'**
+  String get ex_cf_16_b3;
+
+  /// No description provided for @ex_cf_17_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Handstand Push-Up (HSPU)'**
+  String get ex_cf_17_name;
+
+  /// No description provided for @ex_cf_17_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Apoya las manos en el suelo a unos 30 cm de una pared y patea hacia arriba hasta quedar en parada de manos contra la pared. Baja flexionando los codos hasta que la cabeza toque el suelo (o un abmat). Empuja para volver arriba. Usa el \"kip\" si necesitas asistencia.'**
+  String get ex_cf_17_desc;
+
+  /// No description provided for @ex_cf_17_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Press vertical con peso corporal completo'**
+  String get ex_cf_17_b1;
+
+  /// No description provided for @ex_cf_17_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la estabilidad de hombro y core'**
+  String get ex_cf_17_b2;
+
+  /// No description provided for @ex_cf_17_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Hito gimnástico clave en CrossFit'**
+  String get ex_cf_17_b3;
+
+  /// No description provided for @ex_cf_18_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Turkish Get-Up'**
+  String get ex_cf_18_name;
+
+  /// No description provided for @ex_cf_18_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Túmbate boca arriba sosteniendo una kettlebell con un brazo extendido hacia el techo. Levántate paso a paso (codo → mano → bisagra de cadera → barrida de pierna → arrodillado → de pie) manteniendo siempre la kettlebell arriba. Invierte el movimiento.'**
+  String get ex_cf_18_desc;
+
+  /// No description provided for @ex_cf_18_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Movimiento funcional total-body único'**
+  String get ex_cf_18_b1;
+
+  /// No description provided for @ex_cf_18_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la movilidad, estabilidad y coordinación'**
+  String get ex_cf_18_b2;
+
+  /// No description provided for @ex_cf_18_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Excelente trabajo de hombro y core'**
+  String get ex_cf_18_b3;
+
+  /// No description provided for @ex_cf_19_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Double Unders'**
+  String get ex_cf_19_name;
+
+  /// No description provided for @ex_cf_19_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Salta a la cuerda haciéndola pasar dos veces bajo los pies en cada salto. Mantén los saltos bajos y el ritmo de muñeca rápido. Brazos pegados al cuerpo, codos cerca de la cintura. Requiere coordinación y cuerda de velocidad.'**
+  String get ex_cf_19_desc;
+
+  /// No description provided for @ex_cf_19_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Cardio explosivo de alta intensidad'**
+  String get ex_cf_19_b1;
+
+  /// No description provided for @ex_cf_19_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la coordinación y el timing'**
+  String get ex_cf_19_b2;
+
+  /// No description provided for @ex_cf_19_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Estándar en cientos de WODs de CrossFit'**
+  String get ex_cf_19_b3;
+
+  /// No description provided for @ex_cf_20_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Farmer\'s Carry'**
+  String get ex_cf_20_name;
+
+  /// No description provided for @ex_cf_20_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Sostén una mancuerna o kettlebell pesada en cada mano a los costados. Camina con pasos cortos manteniendo la postura erguida, hombros atrás y core apretado. Recorre una distancia determinada o trabaja por tiempo.'**
+  String get ex_cf_20_desc;
+
+  /// No description provided for @ex_cf_20_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Fortalece el agarre y los antebrazos'**
+  String get ex_cf_20_b1;
+
+  /// No description provided for @ex_cf_20_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Trabajo funcional de todo el cuerpo'**
+  String get ex_cf_20_b2;
+
+  /// No description provided for @ex_cf_20_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejora la postura y la estabilidad del core'**
+  String get ex_cf_20_b3;
+
+  /// No description provided for @ex_cf_21_name.
+  ///
+  /// In es, this message translates to:
+  /// **'Goblet Squat'**
+  String get ex_cf_21_name;
+
+  /// No description provided for @ex_cf_21_desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Sostén una kettlebell (o mancuerna) frente al pecho a la altura del esternón, agarrándola por las \"campanas\". Realiza una sentadilla profunda manteniendo el torso vertical y los codos al frente. Empuja con los talones para volver arriba.'**
+  String get ex_cf_21_desc;
+
+  /// No description provided for @ex_cf_21_b1.
+  ///
+  /// In es, this message translates to:
+  /// **'Punto de entrada perfecto a la sentadilla con carga'**
+  String get ex_cf_21_b1;
+
+  /// No description provided for @ex_cf_21_b2.
+  ///
+  /// In es, this message translates to:
+  /// **'Enseña postura erguida y profundidad correcta'**
+  String get ex_cf_21_b2;
+
+  /// No description provided for @ex_cf_21_b3.
+  ///
+  /// In es, this message translates to:
+  /// **'Excelente para activar el core'**
+  String get ex_cf_21_b3;
 
   /// No description provided for @ex_pecho_1_name.
   ///

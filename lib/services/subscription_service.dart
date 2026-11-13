@@ -20,7 +20,9 @@ class SubscriptionService extends ChangeNotifier {
   static String get _apiKey => switch (defaultTargetPlatform) {
     TargetPlatform.android => _googleApiKey,
     TargetPlatform.iOS || TargetPlatform.macOS => _appleApiKey,
-    _ => throw UnsupportedError('Subscriptions are unavailable on this platform'),
+    _ => throw UnsupportedError(
+      'Subscriptions are unavailable on this platform',
+    ),
   };
 
   /// Entitlement identifier configured in the RevenueCat dashboard.
@@ -195,6 +197,26 @@ class SubscriptionService extends ChangeNotifier {
       debugPrint('SubscriptionService.restorePurchases error: $e');
       return RestoreOutcome.unknownError;
     }
+  }
+
+  // ── Management ─────────────────────────────────────────────────────────────
+
+  /// The store page where the subscription is changed or cancelled. Uses the
+  /// one RevenueCat reports for this purchase, else the store's general page.
+  Future<Uri> managementUri() async {
+    try {
+      await init();
+      final url = (await Purchases.getCustomerInfo()).managementURL;
+      if (url != null && url.isNotEmpty) return Uri.parse(url);
+    } catch (e) {
+      debugPrint('SubscriptionService.managementUri error: $e');
+    }
+    return defaultTargetPlatform == TargetPlatform.android
+        ? Uri.parse(
+            'https://play.google.com/store/account/subscriptions'
+            '?package=com.liftwave.liftwave',
+          )
+        : Uri.parse('https://apps.apple.com/account/subscriptions');
   }
 
   // ── Cleanup ────────────────────────────────────────────────────────────────

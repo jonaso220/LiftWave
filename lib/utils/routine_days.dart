@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 import '../models/models.dart';
+import 'calendar_days.dart';
 
 /// Stable weekday identifiers used by routines and completed workouts.
 ///
@@ -43,10 +44,26 @@ String routineDayLabel(BuildContext context, RoutineDay day) {
   return '${raw[0].toUpperCase()}${raw.substring(1)}';
 }
 
+/// Stored on a routine the user explicitly left without a day, so that a
+/// weekday in its name ("Pierna lunes") is not read back as an assignment.
+/// A missing value still means "never chosen" and keeps the name fallback
+/// for routines created before days could be assigned.
+const String routineDayUnassigned = 'none';
+
+/// Finds a weekday written in a routine name. Only whole words count, and
+/// the Portuguese weekdays that double as ordinals in Spanish and Portuguese
+/// ("segunda", "quinta", "sexta"…) need their "-feira", so "Segunda rutina"
+/// is not taken for a Monday routine.
 RoutineDay? routineDayFromName(String name) {
-  final normalized = _normalize(name);
-  for (final entry in _weekdayWords.entries) {
-    if (entry.value.any(normalized.contains)) return entry.key;
+  final words = _normalize(name).split(RegExp('[^a-z]+'));
+  for (var i = 0; i < words.length; i++) {
+    final word = words[i];
+    final day = _weekdayWords[word];
+    if (day != null) return day;
+    final feiraDay = _feiraWeekdays[word];
+    if (feiraDay != null && i + 1 < words.length && words[i + 1] == 'feira') {
+      return feiraDay;
+    }
   }
   return null;
 }
@@ -57,7 +74,10 @@ RoutineDay? routineDayFromName(String name) {
 RoutineDay? routineDayForHistoryGrouping({
   required String? storedDay,
   required String name,
-}) => RoutineDay.fromStorage(storedDay) ?? routineDayFromName(name);
+}) {
+  if (storedDay == routineDayUnassigned) return null;
+  return RoutineDay.fromStorage(storedDay) ?? routineDayFromName(name);
+}
 
 /// Explicitly assigned days win. Older records remain useful by detecting a
 /// weekday in their name and finally falling back to their completion date.
@@ -66,8 +86,7 @@ RoutineDay routineDayForWorkout({
   required String name,
   required DateTime date,
 }) =>
-    RoutineDay.fromStorage(storedDay) ??
-    routineDayFromName(name) ??
+    routineDayForHistoryGrouping(storedDay: storedDay, name: name) ??
     RoutineDay.fromWeekday(date.weekday);
 
 /// Existing names such as "1er biserie" or "4ta bi serie" migrate naturally
@@ -92,15 +111,8 @@ bool routineBlockWasCompleted({
 }) {
   final normalizedBlockName = _normalize(blockName).trim();
   final reference = (now ?? DateTime.now()).toLocal();
-  final referenceDate = DateTime(
-    reference.year,
-    reference.month,
-    reference.day,
-  );
-  final weekStart = referenceDate.subtract(
-    Duration(days: referenceDate.weekday - DateTime.monday),
-  );
-  final nextWeekStart = weekStart.add(const Duration(days: 7));
+  final weekStart = startOfWeek(reference);
+  final nextWeekStart = addCalendarDays(weekStart, 7);
 
   for (final workout in workouts) {
     final workoutDate = workout.date.toLocal();
@@ -133,7 +145,8 @@ bool routineBlockWasCompleted({
     if (hasNamedBlocks) continue;
 
     if (_normalize(workout.name).trim() == normalizedBlockName) return true;
-    if (workout.routineDay != null && workout.routineOrder == blockOrder) {
+    if (RoutineDay.fromStorage(workout.routineDay) != null &&
+        workout.routineOrder == blockOrder) {
       return true;
     }
   }
@@ -149,18 +162,42 @@ String _normalize(String value) => value
     .replaceAll(RegExp('[óòöô]'), 'o')
     .replaceAll(RegExp('[úùüû]'), 'u');
 
-const Map<RoutineDay, List<String>> _weekdayWords = {
-  RoutineDay.monday: ['lunes', 'monday', 'segunda', 'montag', 'lundi'],
-  RoutineDay.tuesday: ['martes', 'tuesday', 'terca', 'dienstag', 'mardi'],
-  RoutineDay.wednesday: [
-    'miercoles',
-    'wednesday',
-    'quarta',
-    'mittwoch',
-    'mercredi',
-  ],
-  RoutineDay.thursday: ['jueves', 'thursday', 'quinta', 'donnerstag', 'jeudi'],
-  RoutineDay.friday: ['viernes', 'friday', 'sexta', 'freitag', 'vendredi'],
-  RoutineDay.saturday: ['sabado', 'saturday', 'samstag', 'samedi'],
-  RoutineDay.sunday: ['domingo', 'sunday', 'sonntag', 'dimanche'],
+const Map<String, RoutineDay> _weekdayWords = {
+  'lunes': RoutineDay.monday,
+  'monday': RoutineDay.monday,
+  'montag': RoutineDay.monday,
+  'lundi': RoutineDay.monday,
+  'martes': RoutineDay.tuesday,
+  'tuesday': RoutineDay.tuesday,
+  'dienstag': RoutineDay.tuesday,
+  'mardi': RoutineDay.tuesday,
+  'miercoles': RoutineDay.wednesday,
+  'wednesday': RoutineDay.wednesday,
+  'mittwoch': RoutineDay.wednesday,
+  'mercredi': RoutineDay.wednesday,
+  'jueves': RoutineDay.thursday,
+  'thursday': RoutineDay.thursday,
+  'donnerstag': RoutineDay.thursday,
+  'jeudi': RoutineDay.thursday,
+  'viernes': RoutineDay.friday,
+  'friday': RoutineDay.friday,
+  'freitag': RoutineDay.friday,
+  'vendredi': RoutineDay.friday,
+  'sabado': RoutineDay.saturday,
+  'saturday': RoutineDay.saturday,
+  'samstag': RoutineDay.saturday,
+  'samedi': RoutineDay.saturday,
+  'domingo': RoutineDay.sunday,
+  'sunday': RoutineDay.sunday,
+  'sonntag': RoutineDay.sunday,
+  'dimanche': RoutineDay.sunday,
+};
+
+/// Portuguese weekdays, recognised only as "segunda-feira", "terça-feira"…
+const Map<String, RoutineDay> _feiraWeekdays = {
+  'segunda': RoutineDay.monday,
+  'terca': RoutineDay.tuesday,
+  'quarta': RoutineDay.wednesday,
+  'quinta': RoutineDay.thursday,
+  'sexta': RoutineDay.friday,
 };

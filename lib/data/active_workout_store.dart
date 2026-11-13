@@ -31,6 +31,7 @@ class ActiveWorkoutStore {
     required bool workoutStarted,
     required bool timerRunning,
     required DateTime? startedAt,
+    required DateTime? endedAt,
     required int elapsedSeconds,
     required String? workoutName,
     required String? routineDay,
@@ -47,6 +48,7 @@ class ActiveWorkoutStore {
       'workoutStarted': workoutStarted,
       'timerRunning': timerRunning,
       'startedAt': startedAt?.toIso8601String(),
+      'endedAt': endedAt?.toIso8601String(),
       'elapsedSeconds': elapsedSeconds,
       'workoutName': workoutName,
       'routineDay': routineDay,
@@ -78,9 +80,11 @@ class ActiveWorkoutStore {
           )
           .toList();
       final startedAt = map['startedAt'] as String?;
+      final endedAt = map['endedAt'] as String?;
       return ActiveWorkoutSnapshot(
         timerRunning: map['timerRunning'] as bool? ?? false,
         startedAt: startedAt != null ? DateTime.parse(startedAt) : null,
+        endedAt: endedAt != null ? DateTime.tryParse(endedAt) : null,
         elapsedSeconds: (map['elapsedSeconds'] as num?)?.toInt() ?? 0,
         workoutName: map['workoutName'] as String?,
         routineDay: map['routineDay'] as String?,
@@ -106,6 +110,10 @@ class ActiveWorkoutStore {
 class ActiveWorkoutSnapshot {
   final bool timerRunning;
   final DateTime? startedAt;
+
+  /// When an abandoned session actually stopped (see [isAbandonedAt]); null
+  /// while the workout is live.
+  final DateTime? endedAt;
   final int elapsedSeconds;
   final String? workoutName;
   final String? routineDay;
@@ -116,6 +124,7 @@ class ActiveWorkoutSnapshot {
   ActiveWorkoutSnapshot({
     required this.timerRunning,
     required this.startedAt,
+    this.endedAt,
     required this.elapsedSeconds,
     required this.workoutName,
     required this.routineDay,
@@ -124,10 +133,34 @@ class ActiveWorkoutSnapshot {
     required this.exercises,
   });
 
-  /// Rebuilds the visible elapsed time without advancing a paused session.
+  /// How long the app can go unused mid-workout before the session counts
+  /// as left open rather than trained. Rests and even a cardio block with
+  /// the phone locked stay well under it; a forgotten session does not.
+  static const abandonedAfter = Duration(hours: 2);
+
+  /// The last moment the running clock was saved, which happens every few
+  /// seconds while the app is in use and when it goes to the background.
+  DateTime? get lastActiveAt {
+    final started = startedAt;
+    if (!timerRunning || started == null) return null;
+    return started.add(Duration(seconds: elapsedSeconds));
+  }
+
+  /// True when the clock was left running and nobody came back for hours.
+  /// Such a session keeps the time it had when it was last used instead of
+  /// counting the hours (or days) the app was closed.
+  bool isAbandonedAt(DateTime now) {
+    final last = lastActiveAt;
+    return last != null && now.difference(last) > abandonedAfter;
+  }
+
+  /// Rebuilds the visible elapsed time without advancing a paused or
+  /// abandoned session.
   int elapsedAt(DateTime now) {
     final started = startedAt;
-    if (!timerRunning || started == null) return elapsedSeconds;
+    if (!timerRunning || started == null || isAbandonedAt(now)) {
+      return elapsedSeconds;
+    }
     return now.difference(started).inSeconds.clamp(0, 86400);
   }
 }

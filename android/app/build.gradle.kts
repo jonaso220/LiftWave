@@ -25,6 +25,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // Required by flutter_local_notifications (scheduled notifications).
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -33,7 +35,8 @@ android {
 
     defaultConfig {
         applicationId = "com.liftwave.liftwave"
-        minSdk = flutter.minSdkVersion
+        // Health Connect (the health plugin) needs Android 8.0.
+        minSdk = maxOf(flutter.minSdkVersion, 26)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -57,4 +60,8 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

@@ -2,10 +2,12 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
 import '../../data/workout_store.dart';
+import '../../services/exercise_records.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/exercise_localization.dart';
 import '../../utils/pro_gate.dart';
 import '../../utils/weight_units.dart';
+import '../../utils/date_format.dart';
 
 /// Opens the progress charts for [exerciseName], a PRO feature. Free users
 /// see the paywall first; the sheet opens if they subscribe there.
@@ -33,7 +35,21 @@ class ExerciseProgressSheet extends StatefulWidget {
 }
 
 class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
-  bool _showVolume = false; // false = peso máximo, true = volumen
+  _Metric _metric = _Metric.weight;
+
+  bool get _showVolume => _metric == _Metric.volume;
+
+  Color get _metricColor => switch (_metric) {
+    _Metric.weight => AppColors.accent,
+    _Metric.volume => AppColors.accentOrange,
+    _Metric.oneRm => AppColors.primaryLight,
+  };
+
+  double _valueOf(_DataPoint point) => switch (_metric) {
+    _Metric.weight => point.maxWeight,
+    _Metric.volume => point.volume,
+    _Metric.oneRm => point.oneRm ?? 0,
+  };
 
   /// A load or a volume (stored in kg) in the user's unit.
   String _formatValue(double kg) => _showVolume
@@ -45,7 +61,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
     for (final w in WorkoutStore.instance.workouts.reversed) {
       for (final e in w.exercises) {
         if (e.name == widget.exerciseName) {
-          final completedSets = e.effectiveCompletedSets.toList();
+          final completedSets = e.workingSets.toList();
           if (completedSets.isEmpty) continue;
           final maxWeight = completedSets.fold<double>(
             0,
@@ -60,6 +76,7 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
               date: w.date,
               maxWeight: maxWeight,
               volume: volume.toDouble(),
+              oneRm: bestEstimatedOneRepMax(completedSets),
             ),
           );
         }
@@ -70,7 +87,15 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final data = _buildData();
+    final sessions = _buildData();
+    // Sessions done only with high repetitions have no 1RM estimate.
+    final data = _metric == _Metric.oneRm
+        ? sessions.where((point) => point.oneRm != null).toList()
+        : sessions;
+    final records = ExerciseRecords.of(
+      widget.exerciseName,
+      WorkoutStore.instance.workouts,
+    );
     return DraggableScrollableSheet(
       initialChildSize: 0.55,
       minChildSize: 0.35,
@@ -127,46 +152,35 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
                 children: [
                   _ToggleChip(
                     label: S.of(context).progress_maxWeight,
-                    selected: !_showVolume,
+                    selected: _metric == _Metric.weight,
                     color: AppColors.accent,
-                    onTap: () => setState(() => _showVolume = false),
+                    onTap: () => setState(() => _metric = _Metric.weight),
                   ),
                   const SizedBox(width: 8),
                   _ToggleChip(
                     label: S.of(context).progress_volumeLabel,
                     selected: _showVolume,
                     color: AppColors.accentOrange,
-                    onTap: () => setState(() => _showVolume = true),
+                    onTap: () => setState(() => _metric = _Metric.volume),
+                  ),
+                  const SizedBox(width: 8),
+                  _ToggleChip(
+                    label: S.of(context).progress_oneRm,
+                    selected: _metric == _Metric.oneRm,
+                    color: AppColors.primary,
+                    onTap: () => setState(() => _metric = _Metric.oneRm),
                   ),
                 ],
               ),
             ),
             const Divider(height: 1),
             Expanded(
-              child: data.length < 2
+              child: sessions.isEmpty
                   ? Center(
                       child: Padding(
                         padding: const EdgeInsets.all(32),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.bar_chart_rounded,
-                              color: AppColors.textMuted,
-                              size: 40,
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              data.isEmpty
-                                  ? S.of(context).progress_noData
-                                  : S.of(context).progress_needMoreSessions,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: AppColors.textMuted,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
+                        child: _EmptyChart(
+                          message: S.of(context).progress_noData,
                         ),
                       ),
                     )
@@ -176,27 +190,41 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSummary(data),
-                          const SizedBox(height: 20),
-                          SizedBox(
-                            height: 200,
-                            child: CustomPaint(
-                              size: Size.infinite,
-                              painter: _ProgressPainter(
-                                spots: data.asMap().entries.map((e) {
-                                  final val = _showVolume
-                                      ? e.value.volume
-                                      : e.value.maxWeight;
-                                  return (x: e.key.toDouble(), y: val);
-                                }).toList(),
-                                color: _showVolume
-                                    ? AppColors.accentOrange
-                                    : AppColors.accent,
+                          if (!records.isEmpty) ...[
+                            _buildRecords(records),
+                            const SizedBox(height: 20),
+                          ],
+                          if (data.length < 2)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 24),
+                              child: _EmptyChart(
+                                message: S
+                                    .of(context)
+                                    .progress_needMoreSessions,
+                              ),
+                            )
+                          else ...[
+                            _buildSummary(data),
+                            const SizedBox(height: 20),
+                            SizedBox(
+                              height: 200,
+                              child: CustomPaint(
+                                size: Size.infinite,
+                                painter: _ProgressPainter(
+                                  spots: [
+                                    for (final entry in data.asMap().entries)
+                                      (
+                                        x: entry.key.toDouble(),
+                                        y: _valueOf(entry.value),
+                                      ),
+                                  ],
+                                  color: _metricColor,
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          _buildHistory(data),
+                            const SizedBox(height: 16),
+                            _buildHistory(data),
+                          ],
                         ],
                       ),
                     ),
@@ -207,24 +235,117 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
     );
   }
 
+  /// All-time bests: the heaviest set and the best estimated 1RM, each
+  /// with the set and the day it was done.
+  Widget _buildRecords(ExerciseRecords records) {
+    final l10n = S.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    String lift(RecordLift record) =>
+        '${formatLoadWithUnit(record.weight, locale)} × ${record.reps}'
+        '  ·  ${formatShortDate(context, record.date)}';
+
+    Widget row(String label, String value, String detail) => Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  detail,
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    final heaviest = records.heaviest;
+    final oneRm = records.bestOneRm;
+    final oneRmLift = records.bestOneRmLift;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.accentYellow.withAlpha(18),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.accentYellow.withAlpha(60)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.emoji_events_rounded,
+                color: AppColors.accentYellow,
+                size: 18,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                l10n.progress_recordsTitle,
+                style: TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          if (heaviest != null)
+            row(
+              l10n.progress_bestLift,
+              formatLoadWithUnit(heaviest.weight, locale),
+              lift(heaviest),
+            ),
+          if (oneRm != null && oneRmLift != null)
+            row(
+              l10n.progress_bestOneRm,
+              formatLoadWithUnit(oneRm, locale),
+              lift(oneRmLift),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSummary(List<_DataPoint> data) {
-    final current = _showVolume ? data.last.volume : data.last.maxWeight;
-    final first = _showVolume ? data.first.volume : data.first.maxWeight;
+    final current = _valueOf(data.last);
+    final first = _valueOf(data.first);
     final diff = current - first;
     final pct = first > 0 ? (diff / first * 100) : 0.0;
-    final best = _showVolume
-        ? data.map((d) => d.volume).reduce(math.max)
-        : data.map((d) => d.maxWeight).reduce(math.max);
+    final best = data.map(_valueOf).reduce(math.max);
 
     return Row(
       children: [
         Expanded(
           child: _StatBox(
-            label: _showVolume
-                ? S.of(context).progress_lastVolume
-                : S.of(context).progress_lastWeight,
+            label: switch (_metric) {
+              _Metric.weight => S.of(context).progress_lastWeight,
+              _Metric.volume => S.of(context).progress_lastVolume,
+              _Metric.oneRm => S.of(context).progress_oneRm,
+            },
             value: _formatValue(current),
-            color: _showVolume ? AppColors.accentOrange : AppColors.accent,
+            color: _metricColor,
           ),
         ),
         const SizedBox(width: 10),
@@ -262,13 +383,13 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
         ),
         const SizedBox(height: 8),
         ...reversed.take(10).map((d) {
-          final val = _showVolume ? d.volume : d.maxWeight;
+          final val = _valueOf(d);
           return Padding(
             padding: const EdgeInsets.only(bottom: 6),
             child: Row(
               children: [
                 Text(
-                  '${d.date.day}/${d.date.month}/${d.date.year}',
+                  formatShortDate(context, d.date),
                   style: TextStyle(color: AppColors.textMuted, fontSize: 12),
                 ),
                 const Spacer(),
@@ -289,16 +410,45 @@ class _ExerciseProgressSheetState extends State<ExerciseProgressSheet> {
   }
 }
 
+enum _Metric { weight, volume, oneRm }
+
 class _DataPoint {
   final DateTime date;
   final double maxWeight;
   final double volume;
 
+  /// Best estimated 1RM of the session; null when every set was above the
+  /// repetition range the estimate works for.
+  final double? oneRm;
+
   _DataPoint({
     required this.date,
     required this.maxWeight,
     required this.volume,
+    required this.oneRm,
   });
+}
+
+class _EmptyChart extends StatelessWidget {
+  final String message;
+
+  const _EmptyChart({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.bar_chart_rounded, color: AppColors.textMuted, size: 40),
+        const SizedBox(height: 12),
+        Text(
+          message,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+        ),
+      ],
+    );
+  }
 }
 
 class _ToggleChip extends StatelessWidget {

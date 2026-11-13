@@ -3,6 +3,7 @@ import 'package:liftwave/l10n/generated/app_localizations.dart';
 
 import '../../data/achievement_store.dart';
 import '../../theme/app_theme.dart';
+import '../../utils/date_format.dart';
 
 /// Every achievement with its unlock state, shown in the Progress tab.
 class AchievementsView extends StatefulWidget {
@@ -120,7 +121,7 @@ class _AchievementsViewState extends State<AchievementsView> {
                 if (a.unlockedAt != null) ...[
                   const SizedBox(width: 8),
                   Text(
-                    '${a.unlockedAt!.day}/${a.unlockedAt!.month}/${a.unlockedAt!.year}',
+                    formatShortDate(context, a.unlockedAt!),
                     style: TextStyle(color: AppColors.textMuted, fontSize: 11),
                   ),
                 ],

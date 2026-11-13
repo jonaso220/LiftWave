@@ -7,6 +7,7 @@ import '../models/session_models.dart';
 import '../theme/app_theme.dart';
 import '../utils/weight_format.dart';
 import '../utils/weight_units.dart';
+import 'set_type_badge.dart';
 
 /// Column proportions shared by [SessionSetRow] and the header above it:
 /// SET · PREVIOUS · KG · REPS · ✓.
@@ -45,11 +46,31 @@ class SessionSetRow extends StatefulWidget {
   /// weight buttons (bodyweight work).
   final double weightStep;
 
+  /// The number shown on a normal set. Warm-ups carry a letter instead, so
+  /// this counts working sets only; defaults to the position in the list.
+  final int? number;
+
+  /// Called when the user picks another set type from the badge's menu.
+  /// Null makes the badge a plain label.
+  final ValueChanged<SetType>? onTypeChanged;
+
+  /// The exercise is held for a time: the "reps" value is seconds, and the
+  /// quick buttons move it in steps of [holdStepSeconds].
+  final bool timed;
+
+  /// Starts a countdown for this set (timed exercises). Null hides the
+  /// button.
+  final VoidCallback? onStartHold;
+
   const SessionSetRow({
     super.key,
     required this.set,
     required this.index,
     required this.onToggle,
+    this.number,
+    this.onTypeChanged,
+    this.timed = false,
+    this.onStartHold,
     this.previous,
     this.onRemove,
     required this.onChanged,
@@ -64,8 +85,14 @@ class SessionSetRow extends StatefulWidget {
 }
 
 class _SessionSetRowState extends State<SessionSetRow> {
+  /// Same ceilings as the history editor: beyond them the value is a typo
+  /// ("1000" for "100,0") that would inflate volume and unlock achievements.
+  static const double _maxWeightKg = 1000;
+  static const int _maxReps = 999;
+
   late final TextEditingController _repsCtrl;
   late final TextEditingController _weightCtrl;
+  final FocusNode _repsFocus = FocusNode();
 
   @override
   void initState() {
@@ -98,6 +125,7 @@ class _SessionSetRowState extends State<SessionSetRow> {
     WeightUnits.instance.removeListener(_syncFields);
     _repsCtrl.dispose();
     _weightCtrl.dispose();
+    _repsFocus.dispose();
     super.dispose();
   }
 
@@ -120,17 +148,27 @@ class _SessionSetRowState extends State<SessionSetRow> {
       if (weight != 0) {
         final shown = kgToDisplay(widget.set.weight) + weight;
         final next = (shown * 100).round() / 100;
-        widget.set.weight = next <= 0 ? 0 : displayToKg(next);
+        final kg = next <= 0 ? 0.0 : displayToKg(next);
+        widget.set.weight = kg > _maxWeightKg ? _maxWeightKg : kg;
       }
       if (reps != 0) {
-        final next = widget.set.reps + reps;
-        widget.set.reps = next < 0 ? 0 : next;
+        widget.set.reps = (widget.set.reps + reps).clamp(0, _maxReps);
       }
     });
     _syncFields();
   }
 
   void _toggle() {
+    // A set with no repetitions is not a completed set; send the user to the
+    // field instead of logging an empty one.
+    if (!widget.set.completed && widget.set.reps <= 0) {
+      HapticFeedback.heavyImpact();
+      _repsFocus.requestFocus();
+      // Reopens the keyboard when the field already had focus but the user
+      // had dismissed it.
+      SystemChannels.textInput.invokeMethod<void>('TextInput.show');
+      return;
+    }
     HapticFeedback.lightImpact();
     widget.onToggle();
   }
@@ -157,8 +195,26 @@ class _SessionSetRowState extends State<SessionSetRow> {
             ),
             const SizedBox(width: 8),
           ],
-          _StepButton(label: '−1 $rep', onTap: () => _bump(reps: -1)),
-          _StepButton(label: '+1 $rep', onTap: () => _bump(reps: 1)),
+          if (widget.timed) ...[
+            _StepButton(
+              label: '−$holdStepSeconds ${l10n.train_secondsShort}',
+              onTap: () => _bump(reps: -holdStepSeconds),
+            ),
+            _StepButton(
+              label: '+$holdStepSeconds ${l10n.train_secondsShort}',
+              onTap: () => _bump(reps: holdStepSeconds),
+            ),
+            if (widget.onStartHold != null)
+              _StepButton(
+                // An icon, not "▶": Android draws that character as an emoji.
+                icon: Icons.play_arrow_rounded,
+                label: l10n.train_startHold,
+                onTap: widget.set.reps > 0 ? widget.onStartHold! : _toggle,
+              ),
+          ] else ...[
+            _StepButton(label: '−1 $rep', onTap: () => _bump(reps: -1)),
+            _StepButton(label: '+1 $rep', onTap: () => _bump(reps: 1)),
+          ],
         ],
       ),
     );
@@ -168,7 +224,13 @@ class _SessionSetRowState extends State<SessionSetRow> {
   Widget build(BuildContext context) {
     final l10n = S.of(context);
     final done = widget.set.completed;
-    final setLabel = '${l10n.train_setHeader} ${widget.index + 1}';
+    final number = widget.number ?? widget.index + 1;
+    final type = widget.set.type;
+    final setLabel = type == SetType.normal
+        ? '${l10n.train_setHeader} $number'
+        : '${l10n.train_setHeader} ${widget.index + 1}, '
+              '${setTypeName(l10n, type)}';
+    final badge = SetTypeBadge(type: type, number: number, done: done);
     // Opaque so the swipe-to-remove background only shows beside the row.
     final row = Container(
       color: done
@@ -182,34 +244,20 @@ class _SessionSetRowState extends State<SessionSetRow> {
               Expanded(
                 flex: SessionSetColumns.set,
                 child: Center(
-                  child: Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: done
-                          ? AppColors.accent.withAlpha(51)
-                          : AppColors.bgCardLight,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${widget.index + 1}',
-                        style: TextStyle(
-                          color: done
-                              ? AppColors.accent
-                              : AppColors.textSecondary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
+                  child: widget.onTypeChanged == null
+                      ? badge
+                      : _SetTypeMenu(
+                          current: type,
+                          onSelected: widget.onTypeChanged!,
+                          child: badge,
                         ),
-                      ),
-                    ),
-                  ),
                 ),
               ),
               Expanded(
                 flex: SessionSetColumns.previous,
                 child: _PreviousCell(
                   previous: widget.previous,
+                  timed: widget.timed,
                   onTap: done ? null : widget.onUsePrevious,
                 ),
               ),
@@ -219,6 +267,7 @@ class _SessionSetRowState extends State<SessionSetRow> {
                   controller: _weightCtrl,
                   hint: '0',
                   isInteger: false,
+                  max: kgToDisplay(_maxWeightKg),
                   done: done,
                   onChanged: (v) => _edit(
                     () => widget.set.weight = displayToKg(
@@ -231,8 +280,10 @@ class _SessionSetRowState extends State<SessionSetRow> {
                 flex: SessionSetColumns.reps,
                 child: _NumField(
                   controller: _repsCtrl,
+                  focusNode: _repsFocus,
                   hint: '0',
                   isInteger: true,
+                  max: _maxReps.toDouble(),
                   done: done,
                   onChanged: (v) =>
                       _edit(() => widget.set.reps = int.tryParse(v) ?? 0),
@@ -315,9 +366,10 @@ class _SessionSetRowState extends State<SessionSetRow> {
 
 class _StepButton extends StatelessWidget {
   final String label;
+  final IconData? icon;
   final VoidCallback onTap;
 
-  const _StepButton({required this.label, required this.onTap});
+  const _StepButton({required this.label, required this.onTap, this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -339,18 +391,100 @@ class _StepButton extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          child: FittedBox(fit: BoxFit.scaleDown, child: Text(label)),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: icon == null
+                ? Text(label)
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, size: 18),
+                      const SizedBox(width: 2),
+                      Text(label),
+                    ],
+                  ),
+          ),
         ),
       ),
     );
   }
 }
 
+/// The set badge as a button: tapping it offers the set types.
+class _SetTypeMenu extends StatelessWidget {
+  final SetType current;
+  final ValueChanged<SetType> onSelected;
+  final Widget child;
+
+  const _SetTypeMenu({
+    required this.current,
+    required this.onSelected,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context);
+    return PopupMenuButton<SetType>(
+      tooltip: l10n.setType_title,
+      initialValue: current,
+      color: AppColors.bgCardLight,
+      padding: EdgeInsets.zero,
+      onSelected: (type) {
+        HapticFeedback.selectionClick();
+        onSelected(type);
+      },
+      itemBuilder: (_) => [
+        for (final type in SetType.values)
+          PopupMenuItem<SetType>(
+            value: type,
+            child: Row(
+              children: [
+                SetTypeBadge(type: type, number: 1, size: 26),
+                const SizedBox(width: 12),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        setTypeName(l10n, type),
+                        style: TextStyle(
+                          color: AppColors.textPrimary,
+                          fontSize: 14,
+                        ),
+                      ),
+                      if (type == SetType.warmup)
+                        Text(
+                          l10n.setType_warmupHint,
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 11,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+      // A 44 pt target around the 28 pt badge.
+      child: SizedBox(width: 44, height: 44, child: Center(child: child)),
+    );
+  }
+}
+
 class _PreviousCell extends StatelessWidget {
   final WorkoutSet? previous;
+  final bool timed;
   final VoidCallback? onTap;
 
-  const _PreviousCell({required this.previous, required this.onTap});
+  const _PreviousCell({
+    required this.previous,
+    required this.onTap,
+    this.timed = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -363,8 +497,13 @@ class _PreviousCell extends StatelessWidget {
       );
     }
     final l10n = S.of(context);
+    final amount = timed
+        ? '${prev.reps} ${l10n.train_secondsShort}'
+        : '${prev.reps}';
     final label = prev.weight > 0
-        ? '${formatLoad(prev.weight, Localizations.localeOf(context).toString())} × ${prev.reps}'
+        ? '${formatLoad(prev.weight, Localizations.localeOf(context).toString())} × $amount'
+        : timed
+        ? amount
         : '${prev.reps} ${l10n.common_reps.toLowerCase()}';
     final text = Text(
       label,
@@ -396,15 +535,19 @@ class _NumField extends StatelessWidget {
   final TextEditingController controller;
   final String hint;
   final bool isInteger;
+  final double max;
   final bool done;
+  final FocusNode? focusNode;
   final void Function(String) onChanged;
 
   const _NumField({
     required this.controller,
     required this.hint,
     required this.isInteger,
+    required this.max,
     required this.done,
     required this.onChanged,
+    this.focusNode,
   });
 
   @override
@@ -413,15 +556,23 @@ class _NumField extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 3),
       child: TextField(
         controller: controller,
+        focusNode: focusNode,
         onChanged: onChanged,
+        // Tapping anywhere else closes the keyboard (iOS has no "done" key
+        // on the number pad).
+        onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
         enabled: !done,
         textAlign: TextAlign.center,
         keyboardType: isInteger
             ? TextInputType.number
             : const TextInputType.numberWithOptions(decimal: true),
-        inputFormatters: isInteger
-            ? [FilteringTextInputFormatter.digitsOnly]
-            : [FilteringTextInputFormatter.allow(RegExp(r'^\d*[\.,]?\d*'))],
+        inputFormatters: [
+          if (isInteger)
+            FilteringTextInputFormatter.digitsOnly
+          else
+            FilteringTextInputFormatter.allow(RegExp(r'^\d*[\.,]?\d*')),
+          _MaxValueFormatter(max),
+        ],
         style: TextStyle(
           color: done ? AppColors.accent : AppColors.textPrimary,
           fontSize: 15,
@@ -446,5 +597,22 @@ class _NumField extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Refuses an edit that would take the field above [max], so what is shown
+/// never differs from what is stored.
+class _MaxValueFormatter extends TextInputFormatter {
+  final double max;
+
+  const _MaxValueFormatter(this.max);
+
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final value = double.tryParse(newValue.text.replaceAll(',', '.'));
+    return value != null && value > max ? oldValue : newValue;
   }
 }

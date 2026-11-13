@@ -7,6 +7,7 @@ import '../../utils/muscle_colors.dart';
 import '../../utils/weight_units.dart';
 import '../../utils/exercise_localization.dart';
 import '../../models/models.dart';
+import '../../widgets/set_type_badge.dart';
 import 'workout_edit_screen.dart';
 
 class WorkoutDetailScreen extends StatefulWidget {
@@ -20,6 +21,7 @@ class WorkoutDetailScreen extends StatefulWidget {
 
 class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
   late Workout workout;
+  bool _deleting = false;
 
   @override
   void initState() {
@@ -51,7 +53,10 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
     if (saved == true && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(S.of(context).editWorkout_saved),
+          content: Text(
+            S.of(context).editWorkout_saved,
+            style: TextStyle(color: AppColors.readableOn(AppColors.accent)),
+          ),
           backgroundColor: AppColors.accent,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -60,6 +65,55 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         ),
       );
     }
+  }
+
+  Future<void> _confirmDelete() async {
+    if (_deleting) return;
+    final l10n = S.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          l10n.detail_deleteWorkout,
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
+        content: Text(
+          l10n.detail_deleteWorkoutConfirm,
+          style: TextStyle(color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.common_cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              l10n.common_delete,
+              style: const TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    _deleting = true;
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    await WorkoutStore.instance.remove(workout.id);
+    if (!mounted) return;
+    navigator.pop();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(l10n.detail_workoutDeleted),
+        backgroundColor: AppColors.bgCardLight,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
   }
 
   String _formatDate(DateTime date, BuildContext context) {
@@ -120,6 +174,22 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                   icon: Icon(
                     Icons.edit_rounded,
                     color: AppColors.textPrimary,
+                    size: 18,
+                  ),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 8, 8, 8),
+                decoration: BoxDecoration(
+                  color: AppColors.bgCard.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: IconButton(
+                  tooltip: S.of(context).detail_deleteWorkout,
+                  onPressed: _confirmDelete,
+                  icon: const Icon(
+                    Icons.delete_outline_rounded,
+                    color: AppColors.error,
                     size: 18,
                   ),
                 ),
@@ -206,7 +276,16 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
       if (block != null && block != previousBlock) {
         widgets.add(_RoutineBlockTitle(name: block));
       }
-      widgets.add(_ExerciseDetailCard(exercise: exercise));
+      // Shown as a superset when another performed exercise shares its id.
+      final supersetId = exercise.supersetId;
+      widgets.add(
+        _ExerciseDetailCard(
+          exercise: exercise,
+          inSuperset:
+              supersetId != null &&
+              exercises.where((e) => e.supersetId == supersetId).length > 1,
+        ),
+      );
       previousBlock = block;
     }
     return widgets;
@@ -326,22 +405,29 @@ class _DetailStatCard extends StatelessWidget {
 
 class _ExerciseDetailCard extends StatelessWidget {
   final WorkoutExercise exercise;
+  final bool inSuperset;
 
-  const _ExerciseDetailCard({required this.exercise});
+  const _ExerciseDetailCard({required this.exercise, this.inSuperset = false});
 
   @override
   Widget build(BuildContext context) {
     final color = colorForMuscle(exercise.muscleGroup);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.bgCard,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.bgCardLight),
+        border: Border.all(
+          color: inSuperset
+              ? AppColors.primary.withAlpha(140)
+              : AppColors.bgCardLight,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (inSuperset) const SupersetStrip(),
           Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
@@ -443,7 +529,9 @@ class _ExerciseDetailCard extends StatelessWidget {
                 Expanded(
                   flex: 2,
                   child: Text(
-                    S.of(context).common_reps,
+                    exercise.timed
+                        ? S.of(context).train_secondsHeader
+                        : S.of(context).common_reps,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppColors.textMuted,
@@ -489,29 +577,20 @@ class _ExerciseDetailCard extends StatelessWidget {
                 children: [
                   Expanded(
                     flex: 1,
-                    child: Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        color: AppColors.bgCardLight,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${set.setNumber}',
-                          style: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                    child: Center(
+                      child: SetTypeBadge(
+                        type: set.type,
+                        number: exercise.workingNumberOf(set),
+                        size: 24,
                       ),
                     ),
                   ),
                   Expanded(
                     flex: 2,
                     child: Text(
-                      '${set.reps}',
+                      exercise.timed
+                          ? '${set.reps} ${S.of(context).train_secondsShort}'
+                          : '${set.reps}',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppColors.textPrimary,
@@ -540,7 +619,9 @@ class _ExerciseDetailCard extends StatelessWidget {
                   Expanded(
                     flex: 2,
                     child: Text(
-                      set.weight > 0
+                      // A warm-up adds nothing to the workout's volume, so
+                      // it shows none of its own.
+                      set.weight > 0 && set.type.countsAsWork && !exercise.timed
                           ? formatLoadWithUnit(
                               set.reps * set.weight,
                               S.of(context).localeName,

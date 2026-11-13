@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/workout_templates.dart';
 import '../models/models.dart';
 import '../models/training_preferences.dart';
+import '../utils/calendar_days.dart';
 import '../theme/app_theme.dart';
 
 class WeeklyTrainingPlan {
@@ -56,7 +57,7 @@ class WeeklyPlanService {
     required String planName,
   }) {
     final weekStart = _weekStart(now);
-    final weekEnd = weekStart.add(const Duration(days: 7));
+    final weekEnd = addCalendarDays(weekStart, 7);
     final weekWorkouts = workouts
         .where(
           (workout) =>
@@ -70,8 +71,9 @@ class WeeklyPlanService {
 
     for (final workout in weekWorkouts) {
       for (final exercise in workout.exercises) {
+        // Warm-ups are not counted toward the week's sets or volume.
         final explicitlyCompleted = exercise.sets
-            .where((set) => set.completed)
+            .where((set) => set.completed && set.type.countsAsWork)
             .toList();
         // Completed workouts from old app versions did not persist the flag.
         final hasCompletionData = exercise.sets.any(
@@ -302,10 +304,7 @@ class WeeklyPlanService {
     return false;
   }
 
-  static DateTime _weekStart(DateTime value) {
-    final day = DateTime(value.year, value.month, value.day);
-    return day.subtract(Duration(days: day.weekday - DateTime.monday));
-  }
+  static DateTime _weekStart(DateTime value) => startOfWeek(value);
 
   static String _normalize(String value) => value
       .trim()

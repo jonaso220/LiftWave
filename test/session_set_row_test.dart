@@ -60,6 +60,40 @@ void main() {
     expect(SessionSet.fromJson(set.toJson()).reps, 0);
   });
 
+  testWidgets('a set without repetitions cannot be marked as done', (
+    tester,
+  ) async {
+    final set = SessionSet(reps: 10, weight: 20);
+    await pumpRow(tester, set);
+    await tester.enterText(find.byType(TextField).at(1), '');
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
+    expect(set.completed, isFalse);
+
+    await tester.enterText(find.byType(TextField).at(1), '8');
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
+    expect(set.completed, isTrue);
+  });
+
+  testWidgets('loads and repetitions above the ceilings are refused', (
+    tester,
+  ) async {
+    final set = SessionSet(reps: 10, weight: 20);
+    await pumpRow(tester, set);
+
+    // "1000" typed for "100,0" used to inflate volume and achievements.
+    await tester.enterText(find.byType(TextField).first, '5000');
+    expect(set.weight, 20);
+    await tester.enterText(find.byType(TextField).first, '1000');
+    expect(set.weight, 1000);
+
+    await tester.enterText(find.byType(TextField).at(1), '1000');
+    expect(set.reps, 10);
+    await tester.enterText(find.byType(TextField).at(1), '999');
+    expect(set.reps, 999);
+  });
+
   testWidgets('decimal comma survives editing and completing a set', (
     tester,
   ) async {

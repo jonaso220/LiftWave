@@ -110,6 +110,8 @@ class _RestTimerOverlayState extends State<RestTimerOverlay> {
                             Text(
                               _c.hasFinished
                                   ? l10n.restTimer_done
+                                  : _c.isHold
+                                  ? l10n.hold_running
                                   : l10n.restTimer_resting,
                               style: TextStyle(
                                 color: _timerColor,

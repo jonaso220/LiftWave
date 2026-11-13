@@ -3,11 +3,16 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:liftwave/l10n/generated/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../services/auth_service.dart';
+import '../../services/health_sync_service.dart';
+import '../../services/rest_alert_service.dart';
 import '../../services/subscription_service.dart';
 import '../../services/screen_awake_service.dart';
 import '../../services/theme_controller.dart';
+import '../../services/workout_reminder_service.dart';
+import 'workout_reminder_sheet.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/weight_units.dart';
 import '../auth/guest_prompts.dart';
@@ -23,29 +28,111 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen>
+    with WidgetsBindingObserver {
   // Linking a guest account keeps the same user, so authStateChanges() stays
   // silent; userChanges() reports the new name, email and providers.
   StreamSubscription<User?>? _userSub;
 
+  /// False when Android may delay the rest alert (exact alarms not allowed).
+  bool _restAlertOnTime = true;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     SubscriptionService.instance.addListener(_onChanged);
     ScreenAwakeService.instance.addListener(_onChanged);
+    RestAlertService.instance.addListener(_onRestAlertChanged);
+    HealthSyncService.instance.addListener(_onChanged);
+    WorkoutReminderService.instance.addListener(_onChanged);
+    HealthSyncService.instance.refreshAccess();
     _userSub = FirebaseAuth.instance.userChanges().listen((_) => _onChanged());
+    _refreshRestAlertStatus();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     SubscriptionService.instance.removeListener(_onChanged);
     ScreenAwakeService.instance.removeListener(_onChanged);
+    RestAlertService.instance.removeListener(_onRestAlertChanged);
+    HealthSyncService.instance.removeListener(_onChanged);
+    WorkoutReminderService.instance.removeListener(_onChanged);
     _userSub?.cancel();
     super.dispose();
   }
 
+  /// The permission is granted in the system settings, so re-check when the
+  /// user comes back from them.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshRestAlertStatus();
+      HealthSyncService.instance.refreshAccess();
+    }
+  }
+
+  void _onRestAlertChanged() {
+    _onChanged();
+    _refreshRestAlertStatus();
+  }
+
+  Future<void> _refreshRestAlertStatus() async {
+    // At launch this screen can be built before the notifications are set
+    // up, and asking then would always answer "on time".
+    await RestAlertService.instance.whenReady;
+    final onTime = await RestAlertService.instance.canAlertOnTime();
+    if (mounted && onTime != _restAlertOnTime) {
+      setState(() => _restAlertOnTime = onTime);
+    }
+  }
+
   void _onChanged() {
     if (mounted) setState(() {});
+  }
+
+  bool _healthBusy = false;
+
+  Future<void> _setHealthSync(bool value) async {
+    final health = HealthSyncService.instance;
+    if (!value) {
+      await health.disable();
+      return;
+    }
+    if (_healthBusy) return;
+    setState(() => _healthBusy = true);
+    final result = await health.enable();
+    if (!mounted) return;
+    setState(() => _healthBusy = false);
+
+    final l10n = S.of(context);
+    final store = health.storeName;
+    final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
+    switch (result) {
+      case HealthEnableResult.enabled:
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.health_enabled(store))),
+        );
+      case HealthEnableResult.denied:
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.health_denied(store))),
+        );
+      case HealthEnableResult.needsInstall:
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(l10n.health_needsInstall),
+            action: SnackBarAction(
+              label: l10n.health_install,
+              onPressed: health.openInstallPage,
+            ),
+          ),
+        );
+      case HealthEnableResult.unsupported:
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.health_unsupported(store))),
+        );
+    }
   }
 
   @override
@@ -128,6 +215,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                       ),
+                      if (isPro)
+                        ListTile(
+                          leading: Icon(
+                            Icons.manage_accounts_rounded,
+                            color: AppColors.textSecondary,
+                          ),
+                          title: Text(
+                            l10n.profile_manageSubscription,
+                            style: TextStyle(color: AppColors.textPrimary),
+                          ),
+                          trailing: Icon(
+                            Icons.open_in_new_rounded,
+                            color: AppColors.textMuted,
+                            size: 18,
+                          ),
+                          onTap: _manageSubscription,
+                        ),
                       ListTile(
                         leading: Icon(
                           Icons.restore_rounded,
@@ -232,6 +336,118 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         activeThumbColor: AppColors.primary,
                         onChanged: ScreenAwakeService.instance.setEnabled,
                       ),
+                      SwitchListTile(
+                        secondary: Icon(
+                          Icons.notifications_active_outlined,
+                          color: AppColors.primaryLight,
+                        ),
+                        title: Text(
+                          l10n.profile_restAlert,
+                          style: TextStyle(color: AppColors.textPrimary),
+                        ),
+                        subtitle: Text(
+                          l10n.profile_restAlertSubtitle,
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 12,
+                          ),
+                        ),
+                        value: RestAlertService.instance.enabled,
+                        activeThumbColor: AppColors.primary,
+                        onChanged: RestAlertService.instance.setEnabled,
+                      ),
+                      if (RestAlertService.instance.enabled &&
+                          !_restAlertOnTime)
+                        ListTile(
+                          leading: Icon(
+                            Icons.alarm_rounded,
+                            color: AppColors.accentYellow,
+                          ),
+                          title: Text(
+                            l10n.profile_restAlertExact,
+                            style: TextStyle(color: AppColors.textPrimary),
+                          ),
+                          subtitle: Text(
+                            l10n.profile_restAlertExactSubtitle,
+                            style: TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 12,
+                            ),
+                          ),
+                          trailing: Icon(
+                            Icons.chevron_right_rounded,
+                            color: AppColors.textMuted,
+                          ),
+                          onTap:
+                              RestAlertService.instance.openExactAlarmSettings,
+                        ),
+                      ListTile(
+                        leading: Icon(
+                          Icons.event_available_outlined,
+                          color: AppColors.primaryLight,
+                        ),
+                        title: Text(
+                          l10n.reminders_title,
+                          style: TextStyle(color: AppColors.textPrimary),
+                        ),
+                        subtitle: Text(
+                          workoutReminderSummary(context),
+                          style: TextStyle(
+                            color: AppColors.textMuted,
+                            fontSize: 12,
+                          ),
+                        ),
+                        trailing: Icon(
+                          Icons.chevron_right_rounded,
+                          color: AppColors.textMuted,
+                        ),
+                        onTap: () => showWorkoutReminderSheet(context),
+                      ),
+                      if (HealthSyncService.instance.supported)
+                        SwitchListTile(
+                          secondary: Icon(
+                            Icons.favorite_outline_rounded,
+                            color: AppColors.primaryLight,
+                          ),
+                          title: Text(
+                            l10n.health_sync(
+                              HealthSyncService.instance.storeName,
+                            ),
+                            style: TextStyle(color: AppColors.textPrimary),
+                          ),
+                          subtitle: Text(
+                            l10n.health_syncSubtitle(
+                              HealthSyncService.instance.storeName,
+                            ),
+                            style: TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 12,
+                            ),
+                          ),
+                          value: HealthSyncService.instance.enabled,
+                          activeThumbColor: AppColors.primary,
+                          onChanged: _healthBusy ? null : _setHealthSync,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  _Section(
+                    children: [
+                      _LinkTile(
+                        icon: Icons.help_outline_rounded,
+                        label: l10n.profile_help,
+                        url: _supportUrl,
+                      ),
+                      _LinkTile(
+                        icon: Icons.shield_outlined,
+                        label: l10n.paywall_privacyLink,
+                        url: _privacyUrl,
+                      ),
+                      _LinkTile(
+                        icon: Icons.description_outlined,
+                        label: l10n.paywall_termsLink,
+                        url: _termsUrl,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -263,7 +479,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             l10n.profile_signOut,
                             style: TextStyle(color: AppColors.textPrimary),
                           ),
-                          onTap: () => AuthService.instance.signOut(),
+                          onTap: _confirmSignOut,
                         ),
                         ListTile(
                           leading: const Icon(
@@ -285,6 +501,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
+
+  static const _supportUrl =
+      'https://jonaso220.github.io/LiftWave/support.html';
+  static const _privacyUrl =
+      'https://jonaso220.github.io/LiftWave/privacy-policy.html';
+  static const _termsUrl =
+      'https://jonaso220.github.io/LiftWave/terms-of-use.html';
+
+  Future<void> _manageSubscription() async {
+    final uri = await SubscriptionService.instance.managementUri();
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  void _confirmSignOut() {
+    final l10n = S.of(context);
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.bgCard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: Text(
+          l10n.profile_signOutConfirm,
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.common_cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              AuthService.instance.signOut();
+            },
+            child: Text(l10n.profile_signOut),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Runs [action] behind a blocking spinner. Deleting an account takes
+  /// several seconds of network calls, and without feedback the app looked
+  /// frozen after the confirmation.
+  Future<void> _withProgress(Future<void> Function() action) async {
+    // The root navigator outlives this screen, which is torn down as soon as
+    // the account is gone.
+    final navigator = Navigator.of(context, rootNavigator: true);
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      useRootNavigator: true,
+      builder: (_) => const PopScope(
+        canPop: false,
+        child: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      ),
+    );
+    try {
+      await action();
+    } finally {
+      navigator.pop();
+    }
   }
 
   static String _appearanceLabel(S l10n, ThemeMode mode) => switch (mode) {
@@ -421,7 +702,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showSnack(String message, Color background) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          style: TextStyle(color: AppColors.readableOn(background)),
+        ),
         backgroundColor: background,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -454,7 +738,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onPressed: () async {
               Navigator.pop(ctx);
               try {
-                await AuthService.instance.deleteAccount();
+                await _withProgress(AuthService.instance.deleteAccount);
               } on FirebaseAuthException catch (e) {
                 if (mounted) {
                   _showSnack(
@@ -490,7 +774,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: TextStyle(color: AppColors.textPrimary),
         ),
         content: Text(
-          l10n.profile_deleteConfirm,
+          SubscriptionService.instance.isPro
+              ? '${l10n.profile_deleteConfirm}\n\n'
+                    '${l10n.profile_deleteSubscriptionNote}'
+              : l10n.profile_deleteConfirm,
           style: TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
@@ -507,7 +794,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (password == null || !mounted) return;
               }
               try {
-                await AuthService.instance.deleteAccount(password: password);
+                await _withProgress(
+                  () => AuthService.instance.deleteAccount(password: password),
+                );
               } on AuthCancelledException {
                 // Closing the Google / Apple reauthentication sheet is not an
                 // error and must leave the account untouched.
@@ -591,7 +880,10 @@ Future<void> openTrainingPreferences(BuildContext context) async {
   if (saved != true || !context.mounted) return;
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text(S.of(context).onboarding_saved),
+      content: Text(
+        S.of(context).onboarding_saved,
+        style: TextStyle(color: AppColors.readableOn(AppColors.accent)),
+      ),
       backgroundColor: AppColors.accent,
       behavior: SnackBarBehavior.floating,
     ),
@@ -746,6 +1038,30 @@ class _Section extends StatelessWidget {
         type: MaterialType.transparency,
         child: Column(children: children),
       ),
+    );
+  }
+}
+
+/// A profile row that opens a web page in the browser.
+class _LinkTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String url;
+
+  const _LinkTile({required this.icon, required this.label, required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon, color: AppColors.textSecondary),
+      title: Text(label, style: TextStyle(color: AppColors.textPrimary)),
+      trailing: Icon(
+        Icons.open_in_new_rounded,
+        color: AppColors.textMuted,
+        size: 18,
+      ),
+      onTap: () =>
+          launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
     );
   }
 }

@@ -1,3 +1,5 @@
 "NSCameraUsageDescription" = "LiftWave necesita acceso a la cámara para tomar fotos de progreso.";
 "NSPhotoLibraryUsageDescription" = "LiftWave necesita acceso a tus fotos para añadir fotos de progreso.";
+"NSHealthUpdateUsageDescription" = "LiftWave guarda en Salud los entrenamientos y el peso corporal que registras.";
+"NSHealthShareUsageDescription" = "LiftWave no lee tus datos de Salud: solo guarda los entrenamientos y el peso corporal que registras.";
 "CFBundleDisplayName" = "LiftWave";
